@@ -244,7 +244,7 @@ function getFlagHtml(teamName) {
   }
   // Muted gray shield logo for placeholder teams
   return `
-    <div class="flag-crest" style="display:flex; align-items:center; justify-content:center; background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.15);">
+    <div class="flag-crest flag-crest-placeholder">
       <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" stroke-width="2">
         <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
       </svg>
@@ -386,16 +386,14 @@ function createMatchCardHtml(match, index, isKnockout = false) {
             if (scoreData) {
               const isLive = scoreData.status === 'IN_PLAY' || scoreData.status === 'PAUSED';
               const statusText = isLive ? 'LIVE' : 'FT';
-              const statusColor = isLive ? 'var(--accent-emerald)' : 'var(--accent-emerald)';
-              const blinkStyle = isLive ? 'style="animation: pulse-blink 1s infinite; color: var(--accent-red); font-weight: 800;"' : `style="color: ${statusColor}; font-weight: 700;"`;
               return `
-                <div style="font-size: 1.05rem; font-weight: 800; letter-spacing: 0.5px; line-height: 1.2;">${scoreData.score1} - ${scoreData.score2}</div>
-                <div style="font-size: 0.55rem;" ${blinkStyle}>${statusText}</div>
+                <div class="score-display">${scoreData.score1} - ${scoreData.score2}</div>
+                <div class="score-status ${isLive ? 'status-live' : 'status-ft'}">${statusText}</div>
               `;
             }
             return `
               <div>${timeInfo.time}</div>
-              <div style="font-size:0.6rem; opacity:0.7;">${timeInfo.tzLabel}</div>
+              <div class="time-tz-label">${timeInfo.tzLabel}</div>
             `;
           })()}
         </div>
@@ -405,8 +403,8 @@ function createMatchCardHtml(match, index, isKnockout = false) {
         </div>
       </div>
       <div class="match-footer">
-        <div style="display:flex; align-items:center; gap:6px;">
-          <span style="font-size:0.65rem; color:var(--text-secondary); font-weight:700;">${timeInfo.date}</span>
+        <div class="match-footer-left">
+          <span class="match-date-label">${timeInfo.date}</span>
           ${badgeHtml}
         </div>
         <button class="star-btn ${starredClass}" onclick="toggleMatchStar('${matchKey}', this)" aria-label="Simpan Pertandingan">
@@ -656,21 +654,22 @@ function renderGroups() {
     let teamListHtml = '';
     rankedTeams.forEach((team, idx) => {
       // Small visual rank badge
-      const rankColor = idx === 0 ? 'var(--primary-gold)' : (idx === 1 ? 'var(--text-primary)' : (idx === 2 ? 'var(--text-secondary)' : 'var(--text-muted)'));
+      const rankClass = idx === 0 ? 'rank-1st' : (idx === 1 ? 'rank-2nd' : (idx === 2 ? 'rank-3rd' : 'rank-4th'));
       const rankSuffix = idx === 0 ? '1st' : (idx === 1 ? '2nd' : (idx === 2 ? '3rd' : '4th'));
       
-      const upDisabled = idx === 0 ? 'style="opacity: 0.15; pointer-events: none;"' : '';
-      const downDisabled = idx === 3 ? 'style="opacity: 0.15; pointer-events: none;"' : '';
+      const upDisabled = idx === 0 ? 'disabled' : '';
+      const downDisabled = idx === 3 ? 'disabled' : '';
+      const teamWeightClass = idx < 2 ? 'team-bold' : '';
 
       teamListHtml += `
         <div class="group-team-item">
           <div class="group-team-info">
-            <span style="font-size:0.65rem; font-weight:800; min-width:20px; color:${rankColor};">${rankSuffix}</span>
+            <span class="group-rank-badge ${rankClass}">${rankSuffix}</span>
             ${getFlagHtml(team)}
-            <span class="team-name" style="font-weight: ${idx < 2 ? '600' : '400'};">${team}</span>
+            <span class="team-name ${teamWeightClass}">${team}</span>
           </div>
           <!-- Up/Down arrows to manually reorder standings -->
-          <div style="display:flex; gap:4px;">
+          <div class="group-reorder-actions">
             <button class="star-btn" ${upDisabled} onclick="moveGroupTeam('${groupName}', ${idx}, -1)" aria-label="Naikkan posisi">
               <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="18 15 12 9 6 15"></polyline></svg>
             </button>
@@ -881,7 +880,7 @@ function renderBracket() {
     "Third-place match": [103]
   };
 
-  const slotHeights = [110, 244, 512, 1048, 2120];
+  const slotHeights = [124, 276, 580, 1188, 2404];
 
   // Group knockoutMatches by stage with subtext info
   const stages = [
@@ -1029,7 +1028,7 @@ function renderBracket() {
               </span>
             ` : ''}
           </div>
-          <div style="font-size:0.6rem; color:var(--text-muted); text-align:center; padding-top:2px; border-top:1px dashed rgba(255,255,255,0.03); text-overflow:ellipsis; overflow:hidden; white-space:nowrap;">
+          <div class="bracket-match-footer-venue">
             ${m.venue}
           </div>
         </div>
@@ -1038,7 +1037,7 @@ function renderBracket() {
       if (m.group === "Third-place match") {
         matchesHtml += `
           <div class="bracket-third-place-wrapper">
-            <div style="font-size:0.65rem; font-weight:700; color:var(--primary-gold); text-align:center; margin-bottom:10px; text-transform:uppercase; letter-spacing:0.5px;">Perebutan Juara 3</div>
+            <div class="bracket-third-place-header">Perebutan Juara 3</div>
             ${matchBoxHtml}
           </div>
         `;
@@ -1052,7 +1051,7 @@ function renderBracket() {
     });
 
     bracketHtml += `
-      <div class="bracket-column">
+      <div class="bracket-column" style="--parent-height: ${sIdx > 0 ? slotHeights[sIdx - 1] : 0}px;">
         <div class="bracket-column-header">
           ${stage.title}
           <div class="bracket-column-info">${stage.info}</div>

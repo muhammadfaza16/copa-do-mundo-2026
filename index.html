@@ -49,7 +49,7 @@
             <span class="time-label">Detik</span>
           </div>
         </div>
-        <div id="countdown-sub" style="font-size: 0.75rem; color: var(--text-secondary); font-weight: 500;">
+        <div id="countdown-sub" class="countdown-sub">
           Meksiko vs Afrika Selatan - Estadio Azteca
         </div>
       </div>
@@ -190,7 +190,7 @@
     <!-- TAB 5: INFO & CONFIG -->
     <section id="tab-info" class="tab-content">
       <div class="glass-panel">
-        <h3 style="font-size: 0.9rem; font-weight: 800; color: var(--primary-gold); margin-bottom: 12px; border-bottom: 1px solid rgba(212, 175, 55, 0.1); padding-bottom: 6px; text-transform: uppercase;">
+        <h3 class="glass-panel-title">
           Pengaturan Aplikasi
         </h3>
         <div class="settings-group">
@@ -218,14 +218,14 @@
       </div>
 
       <div class="glass-panel">
-        <h3 style="font-size: 0.9rem; font-weight: 800; color: var(--primary-gold); margin-bottom: 12px; border-bottom: 1px solid rgba(212, 175, 55, 0.1); padding-bottom: 6px; text-transform: uppercase;">
+        <h3 class="glass-panel-title">
           Sinkronisasi Skor
         </h3>
-        <div style="font-size: 0.72rem; color: var(--text-secondary); margin-bottom: 14px; line-height: 1.4;">
+        <div class="glass-panel-desc">
           Perbarui skor pertandingan Piala Dunia 2026 secara langsung dari server resmi.
         </div>
-        <button id="fetch-scores-btn" class="tab-filter-btn" style="width: 100%; text-align: center; font-weight: 700; background: var(--primary-gold); color: #000; border: none; height: 42px;">Perbarui Skor Sekarang</button>
-        <div id="api-status-msg" style="font-size: 0.65rem; color: var(--text-muted); margin-top: 8px; text-align: center; font-weight: 500;"></div>
+        <button id="fetch-scores-btn" class="action-button">Perbarui Skor Sekarang</button>
+        <div id="api-status-msg" class="status-message"></div>
       </div>
     </section>
 
