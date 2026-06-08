@@ -2,6 +2,149 @@
 const WORLD_CUP_DATA = window.WORLD_CUP_DATA;
 const TEAM_FLAGS = window.TEAM_FLAGS;
 
+// LOCAL STORAGE MIGRATION (English -> Indonesian)
+const TEAM_TRANSLATIONS = {
+  "Mexico": "Meksiko",
+  "South Africa": "Afrika Selatan",
+  "South Korea": "Korea Selatan",
+  "Czechia": "Ceko",
+  "Canada": "Kanada",
+  "Bosnia and Herzegovina": "Bosnia dan Herzegovina",
+  "Qatar": "Qatar",
+  "Switzerland": "Swiss",
+  "Brazil": "Brasil",
+  "Morocco": "Maroko",
+  "Haiti": "Haiti",
+  "Scotland": "Skotlandia",
+  "United States": "Amerika Serikat",
+  "Paraguay": "Paraguay",
+  "Australia": "Australia",
+  "Turkey": "Turki",
+  "Germany": "Jerman",
+  "Curaçao": "Curaçao",
+  "Netherlands": "Belanda",
+  "Japan": "Jepang",
+  "Ivory Coast": "Pantai Gading",
+  "Ecuador": "Ekuador",
+  "Sweden": "Swedia",
+  "Tunisia": "Tunisia",
+  "Spain": "Spanyol",
+  "Cape Verde": "Tanjung Verde",
+  "Belgium": "Belgia",
+  "Egypt": "Mesir",
+  "Saudi Arabia": "Arab Saudi",
+  "Uruguay": "Uruguay",
+  "Iran": "Iran",
+  "New Zealand": "Selandia Baru",
+  "France": "Prancis",
+  "Senegal": "Senegal",
+  "Iraq": "Irak",
+  "Norway": "Norwegia",
+  "Argentina": "Argentina",
+  "Algeria": "Aljazair",
+  "Austria": "Austria",
+  "Jordan": "Yordania",
+  "Portugal": "Portugal",
+  "DR Congo": "RD Kongo",
+  "England": "Inggris",
+  "Croatia": "Kroasia",
+  "Ghana": "Ghana",
+  "Panama": "Panama",
+  "Uzbekistan": "Uzbekistan",
+  "Colombia": "Kolombia"
+};
+
+function migrateLocalStorageToIndonesian() {
+  // 1. Migrate Group Rankings
+  const savedRankingsStr = localStorage.getItem('wc2026_group_rankings');
+  if (savedRankingsStr) {
+    try {
+      const rankings = JSON.parse(savedRankingsStr);
+      if (rankings && typeof rankings === 'object') {
+        const migratedRankings = {};
+        let changed = false;
+        
+        for (const [key, teams] of Object.entries(rankings)) {
+          const newKey = key.replace("Group", "Grup");
+          if (newKey !== key) changed = true;
+          
+          if (Array.isArray(teams)) {
+            migratedRankings[newKey] = teams.map(team => {
+              if (team && TEAM_TRANSLATIONS[team]) {
+                changed = true;
+                return TEAM_TRANSLATIONS[team];
+              }
+              return team;
+            });
+          } else {
+            migratedRankings[newKey] = teams;
+          }
+        }
+        
+        if (changed) {
+          localStorage.setItem('wc2026_group_rankings', JSON.stringify(migratedRankings));
+        }
+      }
+    } catch (e) {
+      console.error("Migration error for group rankings", e);
+    }
+  }
+
+  // 2. Migrate Simulated Winners
+  const savedWinnersStr = localStorage.getItem('wc2026_simulated_winners');
+  if (savedWinnersStr) {
+    try {
+      const winners = JSON.parse(savedWinnersStr);
+      if (winners && typeof winners === 'object') {
+        let changed = false;
+        
+        for (const [matchId, team] of Object.entries(winners)) {
+          if (team && TEAM_TRANSLATIONS[team]) {
+            winners[matchId] = TEAM_TRANSLATIONS[team];
+            changed = true;
+          }
+        }
+        
+        if (changed) {
+          localStorage.setItem('wc2026_simulated_winners', JSON.stringify(winners));
+        }
+      }
+    } catch (e) {
+      console.error("Migration error for simulated winners", e);
+    }
+  }
+
+  // 3. Migrate Selected 3rd Places
+  const saved3rdStr = localStorage.getItem('wc2026_selected_3rd_places');
+  if (saved3rdStr) {
+    try {
+      const selected3rd = JSON.parse(saved3rdStr);
+      if (selected3rd && typeof selected3rd === 'object') {
+        let changed = false;
+        
+        for (const [matchId, groupName] of Object.entries(selected3rd)) {
+          if (groupName && typeof groupName === 'string') {
+            const newGroupName = groupName.replace("Group", "Grup");
+            if (newGroupName !== groupName) {
+              selected3rd[matchId] = newGroupName;
+              changed = true;
+            }
+          }
+        }
+        
+        if (changed) {
+          localStorage.setItem('wc2026_selected_3rd_places', JSON.stringify(selected3rd));
+        }
+      }
+    } catch (e) {
+      console.error("Migration error for selected 3rd places", e);
+    }
+  }
+}
+
+// Run migration immediately
+migrateLocalStorageToIndonesian();
+
 // STADIUM INFO
 const STADIUMS = [
   { name: "MetLife Stadium", city: "East Rutherford, NJ", capacity: "82,500", url: "https://maps.google.com/?q=MetLife+Stadium" },
@@ -25,7 +168,13 @@ const STADIUMS = [
 // APP STATE
 let activeTab = 'tab-home';
 let useLocalTimezone = localStorage.getItem('wc2026_local_tz') !== 'false';
-let favorites = JSON.parse(localStorage.getItem('wc2026_favorites')) || [];
+
+let favorites = [];
+try {
+  favorites = JSON.parse(localStorage.getItem('wc2026_favorites')) || [];
+} catch (e) {
+  console.error("Failed to parse favorites", e);
+}
 
 // THEME STATE
 let currentTheme = localStorage.getItem('wc2026_theme');
@@ -38,21 +187,50 @@ if (currentTheme === 'light') {
 }
 
 // SIMULATOR STATE
-let groupRankings = {}; // { "Group A": ["Mexico", "South Korea", "Czechia", "South Africa"], ... }
-let simulatedWinners = JSON.parse(localStorage.getItem('wc2026_simulated_winners')) || {}; // { matchId: teamName }
-let selected3rdPlaces = JSON.parse(localStorage.getItem('wc2026_selected_3rd_places')) || {}; // { matchId: groupName }
+let groupRankings = {}; // { "Grup A": ["Meksiko", ...], ... }
+let simulatedWinners = {};
+try {
+  simulatedWinners = JSON.parse(localStorage.getItem('wc2026_simulated_winners')) || {};
+} catch (e) {
+  console.error("Failed to parse simulated winners", e);
+}
+
+let selected3rdPlaces = {};
+try {
+  selected3rdPlaces = JSON.parse(localStorage.getItem('wc2026_selected_3rd_places')) || {};
+} catch (e) {
+  console.error("Failed to parse selected 3rd places", e);
+}
 
 // Initialize default group structures dynamically
-const groups = {}; // { "Group A": ["Mexico", ...], ... }
+const groups = {}; // { "Grup A": ["Meksiko", ...], ... }
 WORLD_CUP_DATA.group_stage.forEach(m => {
   if (!groups[m.group]) groups[m.group] = [];
   if (!groups[m.group].includes(m.team1)) groups[m.group].push(m.team1);
   if (!groups[m.group].includes(m.team2)) groups[m.group].push(m.team2);
 });
 
+// Group Rankings Validation Helper
+function isValidGroupRankings(rankings) {
+  if (!rankings || typeof rankings !== 'object') return false;
+  const expectedGroups = "ABCDEFGHIJKL".split("").map(letter => `Grup ${letter}`);
+  for (const groupName of expectedGroups) {
+    if (!rankings[groupName] || !Array.isArray(rankings[groupName]) || rankings[groupName].length !== 4) {
+      return false;
+    }
+  }
+  return true;
+}
+
 // Load group rankings from localStorage or use default order
-const savedGroupRankings = JSON.parse(localStorage.getItem('wc2026_group_rankings'));
-if (savedGroupRankings && Object.keys(savedGroupRankings).length === 12) {
+let savedGroupRankings = null;
+try {
+  savedGroupRankings = JSON.parse(localStorage.getItem('wc2026_group_rankings'));
+} catch (e) {
+  console.error("Failed to parse group rankings", e);
+}
+
+if (isValidGroupRankings(savedGroupRankings)) {
   groupRankings = savedGroupRankings;
 } else {
   // Use default alphabetical/extracted team order
@@ -61,6 +239,7 @@ if (savedGroupRankings && Object.keys(savedGroupRankings).length === 12) {
   }
   localStorage.setItem('wc2026_group_rankings', JSON.stringify(groupRankings));
 }
+
 
 // Keep a working copy of knockout stage list for the simulator state
 let knockoutMatches = JSON.parse(JSON.stringify(WORLD_CUP_DATA.knockout_stage));
@@ -506,42 +685,54 @@ function recalculateKnockoutTree() {
     if (m.group !== "Round of 32") return;
 
     // Check seed 1 (Home/team1)
-    if (m.team1_seed.endsWith('A') || m.team1_seed.endsWith('B') || m.team1_seed.endsWith('C') || m.team1_seed.endsWith('D') || 
+    if (m.team1_seed && (
+        m.team1_seed.endsWith('A') || m.team1_seed.endsWith('B') || m.team1_seed.endsWith('C') || m.team1_seed.endsWith('D') || 
         m.team1_seed.endsWith('E') || m.team1_seed.endsWith('F') || m.team1_seed.endsWith('G') || m.team1_seed.endsWith('H') || 
-        m.team1_seed.endsWith('I') || m.team1_seed.endsWith('J') || m.team1_seed.endsWith('K') || m.team1_seed.endsWith('L')) {
-      
+        m.team1_seed.endsWith('I') || m.team1_seed.endsWith('J') || m.team1_seed.endsWith('K') || m.team1_seed.endsWith('L')
+    )) {
       const rank = m.team1_seed.charAt(0); // '1' or '2'
       const groupLetter = m.team1_seed.charAt(1); // 'A' to 'L'
       const groupName = `Grup ${groupLetter}`;
       const idx = rank === '1' ? 0 : 1;
-      m.team1 = groupRankings[groupName][idx];
+      
+      if (groupRankings[groupName] && groupRankings[groupName][idx]) {
+        m.team1 = groupRankings[groupName][idx];
+      } else {
+        m.team1 = `${rank === '1' ? 'Juara' : 'Runner-up'} ${groupName}`;
+      }
     } else if (m.team1_seed === '3rd') {
       // 3rd placed team choice
       const selectedGroup = selected3rdPlaces[m.match_id];
-      if (selectedGroup) {
+      if (selectedGroup && groupRankings[selectedGroup] && groupRankings[selectedGroup][2]) {
         m.team1 = groupRankings[selectedGroup][2]; // 3rd placed team is at index 2
       } else {
-        m.team1 = `3rd Grup ${m.team1.replace("3rd Grup ", "")}`;
+        m.team1 = `3rd Grup ${m.team1 ? m.team1.replace("3rd Grup ", "") : ""}`;
       }
     }
 
     // Check seed 2 (Away/team2)
-    if (m.team2_seed.endsWith('A') || m.team2_seed.endsWith('B') || m.team2_seed.endsWith('C') || m.team2_seed.endsWith('D') || 
+    if (m.team2_seed && (
+        m.team2_seed.endsWith('A') || m.team2_seed.endsWith('B') || m.team2_seed.endsWith('C') || m.team2_seed.endsWith('D') || 
         m.team2_seed.endsWith('E') || m.team2_seed.endsWith('F') || m.team2_seed.endsWith('G') || m.team2_seed.endsWith('H') || 
-        m.team2_seed.endsWith('I') || m.team2_seed.endsWith('J') || m.team2_seed.endsWith('K') || m.team2_seed.endsWith('L')) {
-      
+        m.team2_seed.endsWith('I') || m.team2_seed.endsWith('J') || m.team2_seed.endsWith('K') || m.team2_seed.endsWith('L')
+    )) {
       const rank = m.team2_seed.charAt(0); // '1' or '2'
       const groupLetter = m.team2_seed.charAt(1); // 'A' to 'L'
       const groupName = `Grup ${groupLetter}`;
       const idx = rank === '1' ? 0 : 1;
-      m.team2 = groupRankings[groupName][idx];
+      
+      if (groupRankings[groupName] && groupRankings[groupName][idx]) {
+        m.team2 = groupRankings[groupName][idx];
+      } else {
+        m.team2 = `${rank === '1' ? 'Juara' : 'Runner-up'} ${groupName}`;
+      }
     } else if (m.team2_seed === '3rd') {
       // 3rd placed team choice
       const selectedGroup = selected3rdPlaces[m.match_id];
-      if (selectedGroup) {
+      if (selectedGroup && groupRankings[selectedGroup] && groupRankings[selectedGroup][2]) {
         m.team2 = groupRankings[selectedGroup][2]; // 3rd placed team
       } else {
-        // Keeps placeholder name as defined in data
+        m.team2 = `3rd Grup ${m.team2 ? m.team2.replace("3rd Grup ", "") : ""}`;
       }
     }
   });
@@ -565,7 +756,8 @@ function recalculateKnockoutTree() {
       const side = nextMatchForWinner.team1_seed === `W${m.match_id}` ? 'team1' : 'team2';
       
       // If winner exists and both competitor names are known (not placeholders)
-      if (winner && !m.team1.startsWith('Winner Match') && !m.team2.startsWith('Winner Match') && 
+      if (winner && m.team1 && m.team2 &&
+          !m.team1.startsWith('Winner Match') && !m.team2.startsWith('Winner Match') && 
           !m.team1.startsWith('3rd Grup') && !m.team2.startsWith('3rd Grup')) {
         nextMatchForWinner[side] = winner;
       } else {
@@ -582,7 +774,8 @@ function recalculateKnockoutTree() {
     const nextMatchForLoser = knockoutMatches.find(nxt => nxt.team1_seed === `L${m.match_id}` || nxt.team2_seed === `L${m.match_id}`);
     if (nextMatchForLoser) {
       const side = nextMatchForLoser.team1_seed === `L${m.match_id}` ? 'team1' : 'team2';
-      if (winner && loser && !m.team1.startsWith('Winner Match') && !m.team2.startsWith('Winner Match')) {
+      if (winner && loser && m.team1 && m.team2 &&
+          !m.team1.startsWith('Winner Match') && !m.team2.startsWith('Winner Match')) {
         nextMatchForLoser[side] = loser;
       } else {
         nextMatchForLoser[side] = `Loser Match ${m.match_id}`;
@@ -689,16 +882,16 @@ function renderBracket() {
 
     sortedMatches.forEach(m => {
       const winner = simulatedWinners[m.match_id];
-      const isPlaceholder1 = m.team1.startsWith('Winner Match') || m.team1.startsWith('Loser Match') || m.team1.startsWith('3rd Grup');
-      const isPlaceholder2 = m.team2.startsWith('Winner Match') || m.team2.startsWith('Loser Match') || m.team2.startsWith('3rd Grup');
+      const isPlaceholder1 = m.team1 && typeof m.team1 === 'string' && (m.team1.startsWith('Winner Match') || m.team1.startsWith('Loser Match') || m.team1.startsWith('3rd Grup') || m.team1.startsWith('3rd Group'));
+      const isPlaceholder2 = m.team2 && typeof m.team2 === 'string' && (m.team2.startsWith('Winner Match') || m.team2.startsWith('Loser Match') || m.team2.startsWith('3rd Grup') || m.team2.startsWith('3rd Group'));
 
       // Check if team1 is 3rd place placeholder -> render dropdown selection
-      let team1Content = `<span class="bracket-team-name-wrap">${getFlagHtml(m.team1)} <span>${m.team1}</span></span>`;
-      if (m.team1_seed === '3rd' && isPlaceholder1) {
+      let team1Content = `<span class="bracket-team-name-wrap">${getFlagHtml(m.team1)} <span>${m.team1 || ''}</span></span>`;
+      if (m.team1_seed === '3rd' && isPlaceholder1 && m.team1) {
         const eligible = getEligibleGroupsFor3rd(m.team1);
         let options = `<option value="">Pilih 3rd...</option>`;
         eligible.forEach(g => {
-          const team = groupRankings[g][2];
+          const team = (groupRankings[g] && groupRankings[g][2]) ? groupRankings[g][2] : `Tim 3rd ${g}`;
           const selectedAttr = selected3rdPlaces[m.match_id] === g ? 'selected' : '';
           options += `<option value="${g}" ${selectedAttr}>Grup ${g.replace("Grup ", "")}: ${team}</option>`;
         });
@@ -707,17 +900,17 @@ function renderBracket() {
             ${options}
           </select>
         `;
-      } else if (isPlaceholder1) {
+      } else if (isPlaceholder1 && m.team1) {
         team1Content = `<span class="bracket-team-name-wrap">${getFlagHtml(m.team1)} <span class="placeholder-text">${formatPlaceholderName(m.team1)}</span></span>`;
       }
 
       // Check if team2 is 3rd place placeholder -> render dropdown selection
-      let team2Content = `<span class="bracket-team-name-wrap">${getFlagHtml(m.team2)} <span>${m.team2}</span></span>`;
-      if (m.team2_seed === '3rd' && isPlaceholder2) {
+      let team2Content = `<span class="bracket-team-name-wrap">${getFlagHtml(m.team2)} <span>${m.team2 || ''}</span></span>`;
+      if (m.team2_seed === '3rd' && isPlaceholder2 && m.team2) {
         const eligible = getEligibleGroupsFor3rd(m.team2);
         let options = `<option value="">Pilih 3rd...</option>`;
         eligible.forEach(g => {
-          const team = groupRankings[g][2];
+          const team = (groupRankings[g] && groupRankings[g][2]) ? groupRankings[g][2] : `Tim 3rd ${g}`;
           const selectedAttr = selected3rdPlaces[m.match_id] === g ? 'selected' : '';
           options += `<option value="${g}" ${selectedAttr}>Grup ${g.replace("Grup ", "")}: ${team}</option>`;
         });
@@ -726,7 +919,7 @@ function renderBracket() {
             ${options}
           </select>
         `;
-      } else if (isPlaceholder2) {
+      } else if (isPlaceholder2 && m.team2) {
         team2Content = `<span class="bracket-team-name-wrap">${getFlagHtml(m.team2)} <span class="placeholder-text">${formatPlaceholderName(m.team2)}</span></span>`;
       }
 
@@ -847,7 +1040,7 @@ window.select3rdPlaceGroup = function(matchId, groupName) {
 // Handles selection of winner in the bracket card
 window.handleBracketTap = function(matchId, teamName, isSelectable) {
   if (!isSelectable) return;
-  if (teamName.startsWith('Winner Match') || teamName.startsWith('Loser Match') || teamName.startsWith('3rd Group')) return;
+  if (teamName && (teamName.startsWith('Winner Match') || teamName.startsWith('Loser Match') || teamName.startsWith('3rd Grup') || teamName.startsWith('3rd Group'))) return;
 
   // Toggle winner
   if (simulatedWinners[matchId] === teamName) {
