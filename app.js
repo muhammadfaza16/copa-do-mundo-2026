@@ -1344,12 +1344,18 @@ async function fetchRealTimeScores(isManual = false) {
   statusMsg.style.color = "var(--text-secondary)";
   if (fetchBtn) fetchBtn.disabled = true;
 
+  let fetchUrl = 'https://corsproxy.io/?url=https://api.football-data.org/v4/competitions/WC/matches';
+  let headers = { 'X-Auth-Token': apiKey };
+
+  // If deployed (not running on localhost/127.0.0.1), use the Vercel serverless proxy endpoint
+  const isLocalhost = typeof window !== 'undefined' && window.location && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1');
+  if (!isLocalhost) {
+    fetchUrl = '/api/matches';
+    headers = {}; // headers are handled by the serverless function
+  }
+
   try {
-    const response = await fetch('https://corsproxy.io/?url=https://api.football-data.org/v4/competitions/WC/matches', {
-      headers: {
-        'X-Auth-Token': apiKey
-      }
-    });
+    const response = await fetch(fetchUrl, { headers });
 
     if (!response.ok) {
       if (response.status === 403) {
