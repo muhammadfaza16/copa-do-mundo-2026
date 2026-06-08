@@ -5,7 +5,7 @@ const TEAM_FLAGS = window.TEAM_FLAGS;
 // STADIUM INFO
 const STADIUMS = [
   { name: "MetLife Stadium", city: "East Rutherford, NJ", capacity: "82,500", url: "https://maps.google.com/?q=MetLife+Stadium" },
-  { name: "Estadio Azteca", city: "Mexico City, MX", capacity: "87,523", url: "https://maps.google.com/?q=Estadio+Azteca" },
+  { name: "Estadio Azteca", city: "Kota Meksiko, MX", capacity: "87,523", url: "https://maps.google.com/?q=Estadio+Azteca" },
   { name: "SoFi Stadium", city: "Inglewood, CA", capacity: "70,240", url: "https://maps.google.com/?q=SoFi+Stadium" },
   { name: "Gillette Stadium", city: "Foxborough, MA", capacity: "65,878", url: "https://maps.google.com/?q=Gillette+Stadium" },
   { name: "Estadio BBVA", city: "Guadalupe, NL", capacity: "53,500", url: "https://maps.google.com/?q=Estadio+BBVA" },
@@ -139,11 +139,11 @@ function renderFavoritesCount() {
   }
 }
 
-// Parse group letters from a 3rd-place label: e.g. "3rd Group A/B/C/D/F" -> ["Group A", "Group B", ...]
+// Parse group letters from a 3rd-place label: e.g. "3rd Grup A/B/C/D/F" -> ["Grup A", "Grup B", ...]
 function getEligibleGroupsFor3rd(label) {
-  if (!label.startsWith("3rd Group")) return [];
-  const groupsPart = label.replace("3rd Group ", "");
-  return groupsPart.split('/').map(letter => `Group ${letter}`);
+  if (!label.startsWith("3rd Grup")) return [];
+  const groupsPart = label.replace("3rd Grup ", "");
+  return groupsPart.split('/').map(letter => `Grup ${letter}`);
 }
 
 // ----------------------------------------------------
@@ -424,7 +424,7 @@ function renderGroups() {
   let gridHtml = '';
 
   for (const groupLetter of "ABCDEFGHIJKL".split("")) {
-    const groupName = `Group ${groupLetter}`;
+    const groupName = `Grup ${groupLetter}`;
     const rankedTeams = groupRankings[groupName];
 
     let teamListHtml = '';
@@ -512,7 +512,7 @@ function recalculateKnockoutTree() {
       
       const rank = m.team1_seed.charAt(0); // '1' or '2'
       const groupLetter = m.team1_seed.charAt(1); // 'A' to 'L'
-      const groupName = `Group ${groupLetter}`;
+      const groupName = `Grup ${groupLetter}`;
       const idx = rank === '1' ? 0 : 1;
       m.team1 = groupRankings[groupName][idx];
     } else if (m.team1_seed === '3rd') {
@@ -521,7 +521,7 @@ function recalculateKnockoutTree() {
       if (selectedGroup) {
         m.team1 = groupRankings[selectedGroup][2]; // 3rd placed team is at index 2
       } else {
-        m.team1 = `3rd Group ${m.team1.replace("3rd Group ", "")}`;
+        m.team1 = `3rd Grup ${m.team1.replace("3rd Grup ", "")}`;
       }
     }
 
@@ -532,7 +532,7 @@ function recalculateKnockoutTree() {
       
       const rank = m.team2_seed.charAt(0); // '1' or '2'
       const groupLetter = m.team2_seed.charAt(1); // 'A' to 'L'
-      const groupName = `Group ${groupLetter}`;
+      const groupName = `Grup ${groupLetter}`;
       const idx = rank === '1' ? 0 : 1;
       m.team2 = groupRankings[groupName][idx];
     } else if (m.team2_seed === '3rd') {
@@ -566,7 +566,7 @@ function recalculateKnockoutTree() {
       
       // If winner exists and both competitor names are known (not placeholders)
       if (winner && !m.team1.startsWith('Winner Match') && !m.team2.startsWith('Winner Match') && 
-          !m.team1.startsWith('3rd Group') && !m.team2.startsWith('3rd Group')) {
+          !m.team1.startsWith('3rd Grup') && !m.team2.startsWith('3rd Grup')) {
         nextMatchForWinner[side] = winner;
       } else {
         // Reset slot to placeholder name
@@ -689,8 +689,8 @@ function renderBracket() {
 
     sortedMatches.forEach(m => {
       const winner = simulatedWinners[m.match_id];
-      const isPlaceholder1 = m.team1.startsWith('Winner Match') || m.team1.startsWith('Loser Match') || m.team1.startsWith('3rd Group');
-      const isPlaceholder2 = m.team2.startsWith('Winner Match') || m.team2.startsWith('Loser Match') || m.team2.startsWith('3rd Group');
+      const isPlaceholder1 = m.team1.startsWith('Winner Match') || m.team1.startsWith('Loser Match') || m.team1.startsWith('3rd Grup');
+      const isPlaceholder2 = m.team2.startsWith('Winner Match') || m.team2.startsWith('Loser Match') || m.team2.startsWith('3rd Grup');
 
       // Check if team1 is 3rd place placeholder -> render dropdown selection
       let team1Content = `<span class="bracket-team-name-wrap">${getFlagHtml(m.team1)} <span>${m.team1}</span></span>`;
@@ -700,7 +700,7 @@ function renderBracket() {
         eligible.forEach(g => {
           const team = groupRankings[g][2];
           const selectedAttr = selected3rdPlaces[m.match_id] === g ? 'selected' : '';
-          options += `<option value="${g}" ${selectedAttr}>Grup ${g.replace("Group ", "")}: ${team}</option>`;
+          options += `<option value="${g}" ${selectedAttr}>Grup ${g.replace("Grup ", "")}: ${team}</option>`;
         });
         team1Content = `
           <select class="bracket-select" onchange="select3rdPlaceGroup(${m.match_id}, this.value)">
@@ -719,7 +719,7 @@ function renderBracket() {
         eligible.forEach(g => {
           const team = groupRankings[g][2];
           const selectedAttr = selected3rdPlaces[m.match_id] === g ? 'selected' : '';
-          options += `<option value="${g}" ${selectedAttr}>Grup ${g.replace("Group ", "")}: ${team}</option>`;
+          options += `<option value="${g}" ${selectedAttr}>Grup ${g.replace("Grup ", "")}: ${team}</option>`;
         });
         team2Content = `
           <select class="bracket-select" onchange="select3rdPlaceGroup(${m.match_id}, this.value)">
