@@ -325,11 +325,10 @@ function initCountdown() {
     const diff = targetTime - now;
 
     if (diff <= 0) {
-      document.getElementById('countdown-display').innerHTML = `
-        <div style="font-size:1.4rem; font-weight:800; color:var(--primary-gold); width:100%; text-align:center; padding:10px 0;">
-          KICK OFF PIALA DUNIA 2026!
-        </div>
-      `;
+      const container = document.querySelector('.countdown-container');
+      if (container) {
+        container.style.display = 'none';
+      }
       clearInterval(interval);
       return;
     }
