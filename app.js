@@ -168,7 +168,7 @@ const STADIUMS = [
 // APP STATE
 let activeTab = 'tab-home';
 let useLocalTimezone = localStorage.getItem('wc2026_local_tz') !== 'false';
-let apiKey = localStorage.getItem('wc2026_api_key') || '';
+let apiKey = '12aad17c1bf941f68c2318631dfcea1b';
 let realScores = {};
 try {
   realScores = JSON.parse(localStorage.getItem('wc2026_real_scores')) || {};
@@ -1306,46 +1306,7 @@ function initSettingsAndFilters() {
   }
 
   // API Key Listeners
-  const apiKeyInput = document.getElementById('api-key-input');
-  const saveKeyBtn = document.getElementById('save-api-key-btn');
-  const clearKeyBtn = document.getElementById('clear-api-key-btn');
   const fetchScoresBtn = document.getElementById('fetch-scores-btn');
-  const statusMsg = document.getElementById('api-status-msg');
-
-  if (apiKeyInput) {
-    apiKeyInput.value = apiKey;
-  }
-
-  if (saveKeyBtn) {
-    saveKeyBtn.addEventListener('click', () => {
-      const val = apiKeyInput.value.trim();
-      if (!val) {
-        alert("Silakan masukkan API Key terlebih dahulu.");
-        return;
-      }
-      apiKey = val;
-      localStorage.setItem('wc2026_api_key', apiKey);
-      if (statusMsg) {
-        statusMsg.textContent = "API Key berhasil disimpan!";
-        statusMsg.style.color = "var(--accent-emerald)";
-      }
-      alert("API Key berhasil disimpan!");
-    });
-  }
-
-  if (clearKeyBtn) {
-    clearKeyBtn.addEventListener('click', () => {
-      apiKey = "";
-      localStorage.removeItem('wc2026_api_key');
-      if (apiKeyInput) apiKeyInput.value = "";
-      if (statusMsg) {
-        statusMsg.textContent = "API Key berhasil dihapus.";
-        statusMsg.style.color = "var(--text-muted)";
-      }
-      alert("API Key berhasil dihapus.");
-    });
-  }
-
   if (fetchScoresBtn) {
     fetchScoresBtn.addEventListener('click', fetchRealTimeScores);
   }
