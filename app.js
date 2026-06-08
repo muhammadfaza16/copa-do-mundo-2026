@@ -169,6 +169,7 @@ const STADIUMS = [
 let activeTab = 'tab-home';
 let useLocalTimezone = localStorage.getItem('wc2026_local_tz') !== 'false';
 let apiKey = '12aad17c1bf941f68c2318631dfcea1b';
+let lastFetchTime = 0;
 let realScores = {};
 try {
   realScores = JSON.parse(localStorage.getItem('wc2026_real_scores')) || {};
@@ -1163,6 +1164,11 @@ function initNavigation() {
       
       // Scroll to top of window
       window.scrollTo(0, 0);
+
+      // Auto-fetch scores if API key exists (throttled to once a minute)
+      if (apiKey) {
+        fetchRealTimeScores(false);
+      }
     });
   });
 }
@@ -1313,10 +1319,16 @@ function initSettingsAndFilters() {
 }
 
 // Fetch and update scores from API
-async function fetchRealTimeScores() {
+async function fetchRealTimeScores(isManual = false) {
   const statusMsg = document.getElementById('api-status-msg');
   const fetchBtn = document.getElementById('fetch-scores-btn');
   if (!statusMsg) return;
+
+  const manual = (isManual === true || (isManual && isManual.type === 'click'));
+  if (!manual && Date.now() - lastFetchTime < 60000) {
+    console.log("Score auto-fetch skipped (throttled).");
+    return;
+  }
 
   if (!apiKey) {
     statusMsg.textContent = "Silakan simpan API Key terlebih dahulu.";
@@ -1439,6 +1451,7 @@ async function fetchRealTimeScores() {
 
     statusMsg.textContent = `Sukses! ${updatedCount} skor diperbarui.${winnerAdvancedCount > 0 ? ` ${winnerAdvancedCount} pemenang dimasukkan ke bagan.` : ''}`;
     statusMsg.style.color = "var(--accent-emerald)";
+    lastFetchTime = Date.now();
 
     // Refresh active views
     if (activeTab === 'tab-schedule') {
@@ -1500,6 +1513,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Auto-fetch scores if API key exists
   if (apiKey) {
-    fetchRealTimeScores();
+    fetchRealTimeScores(false);
   }
+
+  // Auto-fetch when returning to the tab/window (throttled)
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'visible' && apiKey) {
+      fetchRealTimeScores(false);
+    }
+  });
 });
