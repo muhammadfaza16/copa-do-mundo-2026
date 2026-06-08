@@ -581,7 +581,7 @@ function renderLatestResults() {
           <line x1="12" y1="8" x2="12" y2="12"></line>
           <line x1="12" y1="16" x2="12.01" y2="16"></line>
         </svg>
-        <p>Belum ada hasil pertandingan terbaru. Sinkronisasi skor di tab Info untuk memperbarui data.</p>
+        <p>Belum ada hasil pertandingan terbaru.</p>
       </div>
     `;
     return;
