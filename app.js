@@ -145,6 +145,74 @@ function migrateLocalStorageToIndonesian() {
 // Run migration immediately
 migrateLocalStorageToIndonesian();
 
+// STADIUM INFO & GROUP STAGE VENUE MAPPINGS
+const GROUP_VENUES = {
+  "Grup A": ["Estadio Azteca, Mexico City", "Estadio Akron, Guadalajara"],
+  "Grup B": ["BMO Field, Toronto", "BC Place, Vancouver"],
+  "Grup C": ["SoFi Stadium, Inglewood", "Levi's Stadium, Santa Clara"],
+  "Grup D": ["Lumen Field, Seattle", "NRG Stadium, Houston"],
+  "Grup E": ["AT&T Stadium, Arlington", "Arrowhead Stadium, Kansas City"],
+  "Grup F": ["Mercedes-Benz Stadium, Atlanta", "Gillette Stadium, Foxborough"],
+  "Grup G": ["Hard Rock Stadium, Miami Gardens", "Lincoln Financial Field, Philadelphia"],
+  "Grup H": ["MetLife Stadium, East Rutherford", "Estadio BBVA, Guadalupe"],
+  "Grup I": ["BC Place, Vancouver", "Lumen Field, Seattle"],
+  "Grup J": ["Estadio Azteca, Mexico City", "Estadio Akron, Guadalajara"],
+  "Grup K": ["BMO Field, Toronto", "Gillette Stadium, Foxborough"],
+  "Grup L": ["MetLife Stadium, East Rutherford", "Lincoln Financial Field, Philadelphia"]
+};
+
+function getMatchVenue(match) {
+  if (match.venue) return match.venue;
+  const venues = GROUP_VENUES[match.group];
+  if (venues) {
+    const hash = (match.team1.charCodeAt(0) + match.team2.charCodeAt(0)) % venues.length;
+    return venues[hash];
+  }
+  return "Stadion Piala Dunia";
+}
+
+const STADIUMS = [
+  { name: "MetLife Stadium", city: "East Rutherford, NJ", capacity: "82.500", tz: "EDT (WIB-11)", url: "https://maps.google.com/?q=MetLife+Stadium" },
+  { name: "Estadio Azteca", city: "Kota Meksiko, MX", capacity: "87.523", tz: "CST (WIB-13)", url: "https://maps.google.com/?q=Estadio+Azteca" },
+  { name: "SoFi Stadium", city: "Inglewood, CA", capacity: "70.240", tz: "PDT (WIB-14)", url: "https://maps.google.com/?q=SoFi+Stadium" },
+  { name: "Gillette Stadium", city: "Foxborough, MA", capacity: "65.878", tz: "EDT (WIB-11)", url: "https://maps.google.com/?q=Gillette+Stadium" },
+  { name: "Estadio BBVA", city: "Guadalupe, NL", capacity: "53.500", tz: "CST (WIB-13)", url: "https://maps.google.com/?q=Estadio+BBVA" },
+  { name: "NRG Stadium", city: "Houston, TX", capacity: "72.220", tz: "CDT (WIB-12)", url: "https://maps.google.com/?q=NRG+Stadium" },
+  { name: "AT&T Stadium", city: "Arlington, TX", capacity: "80.000", tz: "CDT (WIB-12)", url: "https://maps.google.com/?q=AT&T+Stadium" },
+  { name: "Mercedes-Benz Stadium", city: "Atlanta, GA", capacity: "71.000", tz: "EDT (WIB-11)", url: "https://maps.google.com/?q=Mercedes-Benz+Stadium+Atlanta" },
+  { name: "Levi's Stadium", city: "Santa Clara, CA", capacity: "68.500", tz: "PDT (WIB-14)", url: "https://maps.google.com/?q=Levi's+Stadium" },
+  { name: "Lumen Field", city: "Seattle, WA", capacity: "69.000", tz: "PDT (WIB-14)", url: "https://maps.google.com/?q=Lumen+Field" },
+  { name: "BMO Field", city: "Toronto, ON", capacity: "45.000", tz: "EDT (WIB-11)", url: "https://maps.google.com/?q=BMO+Field" },
+  { name: "Lincoln Financial Field", city: "Philadelphia, PA", capacity: "69.796", tz: "EDT (WIB-11)", url: "https://maps.google.com/?q=Lincoln+Financial+Field" },
+  { name: "BC Place", city: "Vancouver, BC", capacity: "54.500", tz: "PDT (WIB-14)", url: "https://maps.google.com/?q=BC+Place" },
+  { name: "Hard Rock Stadium", city: "Miami Gardens, FL", capacity: "64.767", tz: "EDT (WIB-11)", url: "https://maps.google.com/?q=Hard+Rock+Stadium" },
+  { name: "Arrowhead Stadium", city: "Kansas City, MO", capacity: "76,416", tz: "CDT (WIB-12)", url: "https://maps.google.com/?q=Arrowhead+Stadium" },
+  { name: "Estadio Akron", city: "Zapopan, Jal", capacity: "48.070", tz: "CST (WIB-13)", url: "https://maps.google.com/?q=Estadio+Akron" }
+];
+
+function renderStadiums() {
+  const container = document.getElementById('stadiums-container');
+  if (!container) return;
+
+  let listHtml = '';
+  STADIUMS.forEach(s => {
+    listHtml += `
+      <a href="${s.url}" target="_blank" rel="noopener noreferrer" class="stadium-card">
+        <div>
+          <div class="stadium-name">${s.name}</div>
+          <div class="stadium-city">${s.city} • Kapasitas: ${s.capacity}</div>
+          <div style="font-size: 0.65rem; color: var(--primary-gold); margin-top: 4px; font-weight: 600;">Zona Waktu: ${s.tz}</div>
+        </div>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <polyline points="9 18 15 12 9 6"></polyline>
+        </svg>
+      </a>
+    `;
+  });
+
+  container.innerHTML = listHtml;
+}
+
 // APP STATE
 let activeTab = 'tab-home';
 let useLocalTimezone = localStorage.getItem('wc2026_local_tz') !== 'false';
@@ -261,6 +329,17 @@ function getMatchDate(dateStr, timeStr) {
   return new Date(utcTimestamp);
 }
 
+function getLocalTimezoneAbbr() {
+  try {
+    const formatter = new Intl.DateTimeFormat('id-ID', { timeZoneName: 'short' });
+    const parts = formatter.formatToParts(new Date());
+    const tzPart = parts.find(p => p.type === 'timeZoneName');
+    return tzPart ? tzPart.value : '';
+  } catch (e) {
+    return '';
+  }
+}
+
 // Convert WIB Date+Time to local/WIB formatted details
 function getFormattedTime(dateStr, timeStr) {
   const matchDate = getMatchDate(dateStr, timeStr);
@@ -269,7 +348,7 @@ function getFormattedTime(dateStr, timeStr) {
     // Format according to browser locale
     const formattedDate = matchDate.toLocaleDateString(undefined, { day: 'numeric', month: 'short' });
     const formattedTime = matchDate.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit', hour12: false });
-    return { date: formattedDate, time: formattedTime, tzLabel: "" };
+    return { date: formattedDate, time: formattedTime, tzLabel: getLocalTimezoneAbbr() };
   } else {
     // Standard WIB formatting
     const [day, month] = dateStr.split('/').map(Number);
@@ -358,8 +437,8 @@ function createMatchCardHtml(match, index, isKnockout = false) {
   const timeInfo = getFormattedTime(match.date, match.time);
   const starredClass = isStarred(matchKey) ? 'active' : '';
   
-  const labelStage = isKnockout ? match.group : match.group;
-  const labelVenue = isKnockout ? match.venue : "Group Stage Match";
+  const labelStage = match.group;
+  const labelVenue = getMatchVenue(match);
 
   // Check top10 / top20 badges
   let badgeHtml = '';
@@ -1160,6 +1239,8 @@ function initNavigation() {
         renderFavorites();
         renderNearestMatches();
         renderLatestResults();
+      } else if (activeTab === 'tab-info') {
+        renderStadiums();
       }
       
       // Scroll to top of window
@@ -1516,6 +1597,7 @@ document.addEventListener('DOMContentLoaded', () => {
   renderNearestMatches();
   renderLatestResults();
   renderFavoritesCount();
+  renderStadiums();
   
   // Initial calculate
   recalculateKnockoutTree();
