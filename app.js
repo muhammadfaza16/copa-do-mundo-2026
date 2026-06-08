@@ -168,6 +168,13 @@ const STADIUMS = [
 // APP STATE
 let activeTab = 'tab-home';
 let useLocalTimezone = localStorage.getItem('wc2026_local_tz') !== 'false';
+let apiKey = localStorage.getItem('wc2026_api_key') || '';
+let realScores = {};
+try {
+  realScores = JSON.parse(localStorage.getItem('wc2026_real_scores')) || {};
+} catch (e) {
+  console.error("Failed to parse real scores", e);
+}
 
 let favorites = [];
 try {
@@ -394,8 +401,23 @@ function createMatchCardHtml(match, index, isKnockout = false) {
           ${getFlagHtml(match.team1)}
         </div>
         <div class="match-time-box">
-          <div>${timeInfo.time}</div>
-          <div style="font-size:0.6rem; opacity:0.7;">${timeInfo.tzLabel}</div>
+          ${(() => {
+            const scoreData = realScores[matchKey];
+            if (scoreData) {
+              const isLive = scoreData.status === 'IN_PLAY' || scoreData.status === 'PAUSED';
+              const statusText = isLive ? 'LIVE' : 'FT';
+              const statusColor = isLive ? 'var(--accent-emerald)' : 'var(--accent-emerald)';
+              const blinkStyle = isLive ? 'style="animation: pulse-blink 1s infinite; color: var(--accent-red); font-weight: 800;"' : `style="color: ${statusColor}; font-weight: 700;"`;
+              return `
+                <div style="font-size: 1.05rem; font-weight: 800; letter-spacing: 0.5px; line-height: 1.2;">${scoreData.score1} - ${scoreData.score2}</div>
+                <div style="font-size: 0.55rem;" ${blinkStyle}>${statusText}</div>
+              `;
+            }
+            return `
+              <div>${timeInfo.time}</div>
+              <div style="font-size:0.6rem; opacity:0.7;">${timeInfo.tzLabel}</div>
+            `;
+          })()}
         </div>
         <div class="team-display right">
           ${getFlagHtml(match.team2)}
@@ -1282,6 +1304,220 @@ function initSettingsAndFilters() {
       highlighted.forEach(el => el.classList.remove('highlighted-team'));
     });
   }
+
+  // API Key Listeners
+  const apiKeyInput = document.getElementById('api-key-input');
+  const saveKeyBtn = document.getElementById('save-api-key-btn');
+  const clearKeyBtn = document.getElementById('clear-api-key-btn');
+  const fetchScoresBtn = document.getElementById('fetch-scores-btn');
+  const statusMsg = document.getElementById('api-status-msg');
+
+  if (apiKeyInput) {
+    apiKeyInput.value = apiKey;
+  }
+
+  if (saveKeyBtn) {
+    saveKeyBtn.addEventListener('click', () => {
+      const val = apiKeyInput.value.trim();
+      if (!val) {
+        alert("Silakan masukkan API Key terlebih dahulu.");
+        return;
+      }
+      apiKey = val;
+      localStorage.setItem('wc2026_api_key', apiKey);
+      if (statusMsg) {
+        statusMsg.textContent = "API Key berhasil disimpan!";
+        statusMsg.style.color = "var(--accent-emerald)";
+      }
+      alert("API Key berhasil disimpan!");
+    });
+  }
+
+  if (clearKeyBtn) {
+    clearKeyBtn.addEventListener('click', () => {
+      apiKey = "";
+      localStorage.removeItem('wc2026_api_key');
+      if (apiKeyInput) apiKeyInput.value = "";
+      if (statusMsg) {
+        statusMsg.textContent = "API Key berhasil dihapus.";
+        statusMsg.style.color = "var(--text-muted)";
+      }
+      alert("API Key berhasil dihapus.");
+    });
+  }
+
+  if (fetchScoresBtn) {
+    fetchScoresBtn.addEventListener('click', fetchRealTimeScores);
+  }
+}
+
+// Fetch and update scores from API
+async function fetchRealTimeScores() {
+  const statusMsg = document.getElementById('api-status-msg');
+  const fetchBtn = document.getElementById('fetch-scores-btn');
+  if (!statusMsg) return;
+
+  if (!apiKey) {
+    statusMsg.textContent = "Silakan simpan API Key terlebih dahulu.";
+    statusMsg.style.color = "var(--accent-red)";
+    return;
+  }
+
+  statusMsg.textContent = "Mengambil data skor...";
+  statusMsg.style.color = "var(--text-secondary)";
+  if (fetchBtn) fetchBtn.disabled = true;
+
+  try {
+    const response = await fetch('https://api.football-data.org/v4/competitions/WC/matches', {
+      headers: {
+        'X-Auth-Token': apiKey
+      }
+    });
+
+    if (!response.ok) {
+      if (response.status === 403) {
+        throw new Error("API Key tidak valid (403 Forbidden).");
+      } else if (response.status === 429) {
+        throw new Error("Terlalu banyak permintaan (429 Rate Limit). Silakan tunggu sebentar.");
+      }
+      throw new Error(`API error (Status: ${response.status})`);
+    }
+
+    const data = await response.json();
+    if (!data || !data.matches || !Array.isArray(data.matches)) {
+      throw new Error("Struktur data API tidak dikenal.");
+    }
+
+    let updatedCount = 0;
+    let winnerAdvancedCount = 0;
+
+    data.matches.forEach(apiMatch => {
+      // We only care about played or in-progress matches
+      if (apiMatch.status === 'FINISHED' || apiMatch.status === 'IN_PLAY' || apiMatch.status === 'PAUSED') {
+        const team1Indo = TEAM_TRANSLATIONS[apiMatch.homeTeam.name] || apiMatch.homeTeam.name;
+        const team2Indo = TEAM_TRANSLATIONS[apiMatch.awayTeam.name] || apiMatch.awayTeam.name;
+        
+        let localKey = null;
+        if (apiMatch.stage === 'GROUP_STAGE') {
+          const match = WORLD_CUP_DATA.group_stage.find(m => 
+            (m.team1 === team1Indo && m.team2 === team2Indo) || 
+            (m.team1 === team2Indo && m.team2 === team1Indo)
+          );
+          if (match) {
+            localKey = `gs_${match.date}_${match.team1}_${match.team2}`;
+          }
+        } else {
+          const localStage = mapApiStageToLocal(apiMatch.stage);
+          if (localStage) {
+            // Find by stage, date, time
+            const apiDate = new Date(apiMatch.utcDate);
+            const wibOffset = 7 * 60 * 60 * 1000;
+            const wibDate = new Date(apiDate.getTime() + wibOffset);
+            
+            const day = wibDate.getUTCDate();
+            const month = wibDate.getUTCMonth() + 1;
+            const hours = String(wibDate.getUTCHours()).padStart(2, '0');
+            const minutes = String(wibDate.getUTCMinutes()).padStart(2, '0');
+            
+            const localDateStr = `${day}/${month}`;
+            const localTimeStr = `${hours}:${minutes}`;
+            
+            const match = WORLD_CUP_DATA.knockout_stage.find(m => 
+              m.group === localStage && 
+              m.date === localDateStr && 
+              m.time === localTimeStr
+            );
+            if (match) {
+              localKey = `ko_${match.match_id}`;
+            } else {
+              // Fallback matching by teams
+              const fallbackMatch = WORLD_CUP_DATA.knockout_stage.find(m => 
+                m.group === localStage && 
+                ((m.team1 === team1Indo && m.team2 === team2Indo) || 
+                 (m.team1 === team2Indo && m.team2 === team1Indo))
+              );
+              if (fallbackMatch) {
+                localKey = `ko_${fallbackMatch.match_id}`;
+              }
+            }
+          }
+        }
+
+        if (localKey) {
+          realScores[localKey] = {
+            score1: apiMatch.score.fullTime.home,
+            score2: apiMatch.score.fullTime.away,
+            status: apiMatch.status
+          };
+          updatedCount++;
+
+          // Advance real-life winners to the simulator bracket
+          if (apiMatch.stage !== 'GROUP_STAGE' && apiMatch.status === 'FINISHED') {
+            const matchId = parseInt(localKey.replace('ko_', ''));
+            const winner = apiMatch.score.winner;
+            let winnerTeam = "";
+            if (winner === 'HOME_TEAM') {
+              winnerTeam = team1Indo;
+            } else if (winner === 'AWAY_TEAM') {
+              winnerTeam = team2Indo;
+            }
+            if (winnerTeam && simulatedWinners[matchId] !== winnerTeam) {
+              simulatedWinners[matchId] = winnerTeam;
+              winnerAdvancedCount++;
+            }
+          }
+        }
+      }
+    });
+
+    localStorage.setItem('wc2026_real_scores', JSON.stringify(realScores));
+    if (winnerAdvancedCount > 0) {
+      localStorage.setItem('wc2026_simulated_winners', JSON.stringify(simulatedWinners));
+      recalculateKnockoutTree();
+    }
+
+    statusMsg.textContent = `Sukses! ${updatedCount} skor diperbarui.${winnerAdvancedCount > 0 ? ` ${winnerAdvancedCount} pemenang dimasukkan ke bagan.` : ''}`;
+    statusMsg.style.color = "var(--accent-emerald)";
+
+    // Refresh active views
+    if (activeTab === 'tab-schedule') {
+      renderSchedule();
+    } else if (activeTab === 'tab-bracket') {
+      renderBracket();
+    } else if (activeTab === 'tab-home') {
+      renderFavorites();
+      renderNearestMatches();
+    }
+
+  } catch (err) {
+    console.error("Score fetch failed:", err);
+    statusMsg.textContent = err.message || "Gagal mengambil data skor.";
+    statusMsg.style.color = "var(--accent-red)";
+  } finally {
+    if (fetchBtn) fetchBtn.disabled = false;
+  }
+}
+
+function mapApiStageToLocal(apiStage) {
+  switch (apiStage) {
+    case 'LAST_32':
+    case 'ROUND_OF_32':
+      return "Round of 32";
+    case 'ROUND_OF_16':
+      return "Round of 16";
+    case 'QUARTER_FINALS':
+    case 'QUARTER_FINAL':
+      return "Quarter-final";
+    case 'SEMI_FINALS':
+    case 'SEMI_FINAL':
+      return "Semi-final";
+    case 'THIRD_PLACE':
+      return "Third-place match";
+    case 'FINAL':
+      return "Final";
+    default:
+      return "";
+  }
 }
 
 // ----------------------------------------------------
@@ -1300,4 +1536,9 @@ document.addEventListener('DOMContentLoaded', () => {
   
   // Initial calculate
   recalculateKnockoutTree();
+
+  // Auto-fetch scores if API key exists
+  if (apiKey) {
+    fetchRealTimeScores();
+  }
 });

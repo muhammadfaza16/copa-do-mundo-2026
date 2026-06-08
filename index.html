@@ -208,6 +208,24 @@
         </div>
       </div>
 
+      <div class="glass-panel">
+        <h3 style="font-size: 0.9rem; font-weight: 800; color: var(--primary-gold); margin-bottom: 12px; border-bottom: 1px solid rgba(212, 175, 55, 0.1); padding-bottom: 6px; text-transform: uppercase;">
+          API Skor Real-Time
+        </h3>
+        <div style="font-size: 0.72rem; color: var(--text-secondary); margin-bottom: 14px; line-height: 1.4;">
+          Masukkan API Key dari <a href="https://www.football-data.org" target="_blank" rel="noopener noreferrer" style="color: var(--primary-gold); text-decoration: underline;">football-data.org</a> untuk mengambil skor secara dinamis dari server resmi FIFA World Cup.
+        </div>
+        <div style="display: flex; gap: 8px; margin-bottom: 12px;">
+          <input type="password" id="api-key-input" class="search-input" style="padding-left: 12px;" placeholder="Masukkan API Key Anda...">
+          <button id="save-api-key-btn" class="tab-filter-btn" style="flex-shrink: 0; background: var(--primary-gold); color: #000; border: none; font-weight: 700; height: 42px;">Simpan</button>
+        </div>
+        <div style="display: flex; gap: 8px; justify-content: space-between; align-items: center;">
+          <button id="fetch-scores-btn" class="tab-filter-btn" style="flex-grow: 1; text-align: center; font-weight: 700;">Ambil Skor Sekarang</button>
+          <button id="clear-api-key-btn" class="tab-filter-btn" style="border-color: var(--accent-red); color: var(--accent-red);">Hapus Key</button>
+        </div>
+        <div id="api-status-msg" style="font-size: 0.65rem; color: var(--text-muted); margin-top: 8px; text-align: center; font-weight: 500;"></div>
+      </div>
+
       <div class="section-title">Stadion Penyelenggara (Host Cities)</div>
       <div id="stadiums-container" class="stadium-list">
         <!-- Stadia links will populate here -->
