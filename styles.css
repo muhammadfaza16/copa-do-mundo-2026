@@ -772,6 +772,15 @@ main {
   letter-spacing: 1px;
 }
 
+.bracket-column-info {
+  font-size: 0.62rem;
+  font-weight: 500;
+  color: var(--text-muted);
+  text-transform: none;
+  margin-top: 3px;
+  letter-spacing: 0px;
+}
+
 .bracket-match {
   background: var(--panel-bg);
   border: 1px solid var(--glass-border);
@@ -785,8 +794,27 @@ main {
   position: relative;
 }
 
+/* Card States */
+.bracket-match.match-locked {
+  opacity: 0.5;
+}
+
+.bracket-match.match-ready {
+  border-color: rgba(212, 175, 55, 0.25);
+  box-shadow: 0 4px 15px rgba(212, 175, 55, 0.04), var(--shadow-premium);
+}
+
+.bracket-match.match-predicted {
+  border-color: rgba(16, 185, 129, 0.25);
+}
+
 .bracket-match:hover {
-  border-color: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.12);
+  transform: translateY(-2px);
+}
+
+.bracket-match.match-ready:hover {
+  border-color: rgba(212, 175, 55, 0.55);
 }
 
 .bracket-match.clickable {
@@ -813,25 +841,58 @@ main {
   padding: 6px 8px;
   border-radius: var(--border-radius-sm);
   transition: var(--transition-smooth);
+  cursor: default;
+}
+
+.bracket-match.clickable .bracket-team-row {
+  cursor: pointer;
 }
 
 .bracket-team-row.placeholder {
+  color: var(--text-muted);
+}
+
+.bracket-team-row .placeholder-text {
+  font-size: 0.72rem;
   color: var(--text-muted);
   font-style: italic;
 }
 
 .bracket-team-row.winner {
-  background: rgba(16, 185, 129, 0.06);
-  color: white;
+  background: rgba(212, 175, 55, 0.08);
+  color: var(--text-primary);
   font-weight: 700;
+  border-left: 3px solid var(--primary-gold);
+  padding-left: 5px; /* Offset the left border width */
+}
+
+body.light-theme .bracket-team-row.winner {
+  background: rgba(181, 140, 20, 0.08);
 }
 
 .bracket-team-row.loser {
-  opacity: 0.45;
+  opacity: 0.35;
 }
 
-.bracket-team-row:active {
-  background: rgba(255, 255, 255, 0.03);
+.bracket-team-row.highlighted-team {
+  background: rgba(212, 175, 55, 0.18) !important;
+  color: var(--text-primary) !important;
+  font-weight: 700;
+  box-shadow: inset 0 0 6px rgba(212, 175, 55, 0.3);
+  opacity: 1 !important;
+}
+
+body.light-theme .bracket-team-row.highlighted-team {
+  background: rgba(181, 140, 20, 0.22) !important;
+  box-shadow: inset 0 0 6px rgba(181, 140, 20, 0.3);
+}
+
+.bracket-team-row:hover {
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.bracket-match.clickable .bracket-team-row:hover {
+  background: rgba(255, 255, 255, 0.04);
 }
 
 .bracket-team-name-wrap {
@@ -850,9 +911,23 @@ main {
   white-space: nowrap;
 }
 
-.bracket-score-val {
+/* Gold Crown / Trophy Winner Badge */
+.bracket-winner-indicator {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  font-size: 0.58rem;
   font-weight: 700;
-  color: var(--accent-emerald);
+  color: var(--primary-gold);
+  background: rgba(212, 175, 55, 0.15);
+  padding: 1.5px 5px;
+  border-radius: 12px;
+  letter-spacing: 0.5px;
+}
+
+body.light-theme .bracket-winner-indicator {
+  color: var(--primary-gold);
+  background: rgba(181, 140, 20, 0.15);
 }
 
 /* Bracket Navigation Indicator dots for mobile */

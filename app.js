@@ -30,8 +30,8 @@ let favorites = JSON.parse(localStorage.getItem('wc2026_favorites')) || [];
 // THEME STATE
 let currentTheme = localStorage.getItem('wc2026_theme');
 if (!currentTheme) {
-  const prefersLight = window.matchMedia('(prefers-color-scheme: light)').matches;
-  currentTheme = prefersLight ? 'light' : 'dark';
+  currentTheme = 'dark'; // Dark mode is default
+  localStorage.setItem('wc2026_theme', 'dark');
 }
 if (currentTheme === 'light') {
   document.body.classList.add('light-theme');
@@ -601,23 +601,49 @@ function recalculateKnockoutTree() {
 // ----------------------------------------------------
 // BRACKET SIMULATION RENDERING
 // ----------------------------------------------------
+
+// Formatter to translate placeholder teams into clean Indonesian labels
+function formatPlaceholderName(name) {
+  return name
+    .replace("Winner Match", "Pemenang M")
+    .replace("Loser Match", "Kalah M")
+    .replace("Winner Group", "Juara Grup")
+    .replace("Runner-up Group", "Runner-up Grup")
+    .replace("3rd Group", "Peringkat 3");
+}
+
+// Click to scroll bracket horizontally on mobile
+window.scrollToBracketColumn = function(colIndex) {
+  const container = document.getElementById('bracket-root');
+  if (!container) return;
+  const columns = container.querySelectorAll('.bracket-column');
+  if (columns.length > colIndex) {
+    const colWidth = columns[colIndex].offsetWidth + 24; // offsetWidth + gap (24px)
+    container.scrollTo({
+      left: colIndex * colWidth,
+      behavior: 'smooth'
+    });
+  }
+};
+
 function renderBracket() {
   const container = document.getElementById('bracket-root');
   const dotsContainer = document.getElementById('bracket-dots');
   if (!container || !dotsContainer) return;
 
-  // Group knockoutMatches by stage
+  // Group knockoutMatches by stage with subtext info
   const stages = [
-    { title: "32 Besar", matches: knockoutMatches.filter(m => m.group === "Round of 32") },
-    { title: "16 Besar", matches: knockoutMatches.filter(m => m.group === "Round of 16") },
-    { title: "Perempat Final", matches: knockoutMatches.filter(m => m.group === "Quarter-final") },
-    { title: "Semifinal", matches: knockoutMatches.filter(m => m.group === "Semi-final") },
+    { title: "32 Besar", matches: knockoutMatches.filter(m => m.group === "Round of 32"), info: "16 Laga • 29 Jun - 3 Jul" },
+    { title: "16 Besar", matches: knockoutMatches.filter(m => m.group === "Round of 16"), info: "8 Laga • 4 Jul - 7 Jul" },
+    { title: "Perempat Final", matches: knockoutMatches.filter(m => m.group === "Quarter-final"), info: "4 Laga • 9 - 12 Jul" },
+    { title: "Semifinal", matches: knockoutMatches.filter(m => m.group === "Semi-final"), info: "2 Laga • 14 - 15 Jul" },
     { 
-      title: "Final & Perebutan ke-3", 
+      title: "Final & Juara 3", 
       matches: [
         ...knockoutMatches.filter(m => m.group === "Final"),
         ...knockoutMatches.filter(m => m.group === "Third-place match")
-      ] 
+      ],
+      info: "2 Laga • 18 - 19 Jul"
     }
   ];
 
@@ -647,6 +673,8 @@ function renderBracket() {
             ${options}
           </select>
         `;
+      } else if (isPlaceholder1) {
+        team1Content = `<span class="bracket-team-name-wrap">${getFlagHtml(m.team1)} <span class="placeholder-text">${formatPlaceholderName(m.team1)}</span></span>`;
       }
 
       // Check if team2 is 3rd place placeholder -> render dropdown selection
@@ -664,6 +692,8 @@ function renderBracket() {
             ${options}
           </select>
         `;
+      } else if (isPlaceholder2) {
+        team2Content = `<span class="bracket-team-name-wrap">${getFlagHtml(m.team2)} <span class="placeholder-text">${formatPlaceholderName(m.team2)}</span></span>`;
       }
 
       const team1WinnerClass = (winner && winner === m.team1) ? 'winner' : (winner ? 'loser' : '');
@@ -671,24 +701,61 @@ function renderBracket() {
 
       const isSelectable = !isPlaceholder1 && !isPlaceholder2;
       const clickableClass = isSelectable ? 'clickable' : '';
+      const isPredicted = !!winner;
+
+      // Determine visual card state
+      let cardStateClass = '';
+      if (!isSelectable) {
+        cardStateClass = 'match-locked';
+      } else if (isPredicted) {
+        cardStateClass = 'match-predicted';
+      } else {
+        cardStateClass = 'match-ready';
+      }
 
       matchesHtml += `
-        <div class="bracket-match ${clickableClass}">
+        <div class="bracket-match ${clickableClass} ${cardStateClass}">
           <div class="bracket-match-header">
-            <span>Match ${m.match_id} - ${m.group}</span>
+            <span>Match ${m.match_id} - ${m.group === "Third-place match" ? "Perebutan Juara 3" : m.group}</span>
             <span>${m.date} ${m.time}</span>
           </div>
           <!-- Team 1 Row -->
-          <div class="bracket-team-row ${isPlaceholder1 ? 'placeholder' : ''} ${team1WinnerClass}" onclick="handleBracketTap(${m.match_id}, '${m.team1}', ${isSelectable})">
+          <div class="bracket-team-row ${isPlaceholder1 ? 'placeholder' : ''} ${team1WinnerClass}" 
+               ${!isPlaceholder1 ? `data-team="${m.team1}"` : ''} 
+               onclick="handleBracketTap(${m.match_id}, '${m.team1}', ${isSelectable})">
             ${team1Content}
-            ${winner && winner === m.team1 ? '<span class="bracket-score-val">W</span>' : ''}
+            ${winner && winner === m.team1 ? `
+              <span class="bracket-winner-indicator">
+                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block; vertical-align:middle; margin-right:2px;">
+                  <path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"></path>
+                  <path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"></path>
+                  <path d="M4 22h16"></path>
+                  <path d="M10 14.66V17c0 .55-.45 1-1 1H4v2h16v-2h-5c-.55 0-1-.45-1-1v-2.34"></path>
+                  <path d="M12 2a5 5 0 0 0-5 5v3.66c0 .87.35 1.7 1 2.34l2 2a2.83 2.83 0 0 0 4 0l2-2a3.3 3.3 0 0 0 1-2.34V7a5 5 0 0 0-5-5z"></path>
+                </svg>
+                <span>MENANG</span>
+              </span>
+            ` : ''}
           </div>
           <!-- Team 2 Row -->
-          <div class="bracket-team-row ${isPlaceholder2 ? 'placeholder' : ''} ${team2WinnerClass}" onclick="handleBracketTap(${m.match_id}, '${m.team2}', ${isSelectable})">
+          <div class="bracket-team-row ${isPlaceholder2 ? 'placeholder' : ''} ${team2WinnerClass}" 
+               ${!isPlaceholder2 ? `data-team="${m.team2}"` : ''} 
+               onclick="handleBracketTap(${m.match_id}, '${m.team2}', ${isSelectable})">
             ${team2Content}
-            ${winner && winner === m.team2 ? '<span class="bracket-score-val">W</span>' : ''}
+            ${winner && winner === m.team2 ? `
+              <span class="bracket-winner-indicator">
+                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block; vertical-align:middle; margin-right:2px;">
+                  <path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"></path>
+                  <path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"></path>
+                  <path d="M4 22h16"></path>
+                  <path d="M10 14.66V17c0 .55-.45 1-1 1H4v2h16v-2h-5c-.55 0-1-.45-1-1v-2.34"></path>
+                  <path d="M12 2a5 5 0 0 0-5 5v3.66c0 .87.35 1.7 1 2.34l2 2a2.83 2.83 0 0 0 4 0l2-2a3.3 3.3 0 0 0 1-2.34V7a5 5 0 0 0-5-5z"></path>
+                </svg>
+                <span>MENANG</span>
+              </span>
+            ` : ''}
           </div>
-          <div style="font-size:0.6rem; color:var(--text-muted); text-align:center; padding-top:2px; border-top:1px dashed rgba(255,255,255,0.03);">
+          <div style="font-size:0.6rem; color:var(--text-muted); text-align:center; padding-top:2px; border-top:1px dashed rgba(255,255,255,0.03); text-overflow:ellipsis; overflow:hidden; white-space:nowrap;">
             ${m.venue}
           </div>
         </div>
@@ -697,13 +764,16 @@ function renderBracket() {
 
     bracketHtml += `
       <div class="bracket-column">
-        <div class="bracket-column-header">${stage.title}</div>
+        <div class="bracket-column-header">
+          ${stage.title}
+          <div class="bracket-column-info">${stage.info}</div>
+        </div>
         ${matchesHtml}
       </div>
     `;
 
     // Indicators dots
-    dotsHtml += `<div class="bracket-dot ${sIdx === 0 ? 'active' : ''}" data-col="${sIdx}"></div>`;
+    dotsHtml += `<div class="bracket-dot ${sIdx === 0 ? 'active' : ''}" data-col="${sIdx}" onclick="scrollToBracketColumn(${sIdx})"></div>`;
   });
 
   container.innerHTML = bracketHtml;
@@ -750,7 +820,10 @@ function syncBracketDots() {
   if (!container || dots.length === 0) return;
 
   const scrollLeft = container.scrollLeft;
-  const colWidth = container.querySelector('.bracket-column').offsetWidth + 20; // width + gap
+  const columns = container.querySelectorAll('.bracket-column');
+  if (columns.length === 0) return;
+  
+  const colWidth = columns[0].offsetWidth + 24; // width + gap (24px)
   const activeIndex = Math.round(scrollLeft / colWidth);
 
   dots.forEach((dot, idx) => {
@@ -935,6 +1008,36 @@ function initSettingsAndFilters() {
         
         alert('Simulasi berhasil disetel ulang!');
       }
+    });
+  }
+
+  // Bracket team hover highlighting (interactive UX)
+  const bracketRoot = document.getElementById('bracket-root');
+  if (bracketRoot) {
+    bracketRoot.addEventListener('mouseover', (e) => {
+      const target = e.target.closest('.bracket-team-row');
+      if (!target) return;
+      const teamName = target.getAttribute('data-team');
+      if (!teamName) return;
+
+      // Clear any existing highlights first
+      const highlighted = bracketRoot.querySelectorAll('.highlighted-team');
+      highlighted.forEach(el => el.classList.remove('highlighted-team'));
+
+      // Highlight all rows in the bracket with the same team name
+      const matches = Array.from(bracketRoot.querySelectorAll('.bracket-team-row')).filter(
+        row => row.getAttribute('data-team') === teamName
+      );
+      matches.forEach(row => row.classList.add('highlighted-team'));
+    });
+
+    bracketRoot.addEventListener('mouseout', (e) => {
+      const target = e.target.closest('.bracket-team-row');
+      if (!target) return;
+
+      // Clear highlights
+      const highlighted = bracketRoot.querySelectorAll('.highlighted-team');
+      highlighted.forEach(el => el.classList.remove('highlighted-team'));
     });
   }
 }
