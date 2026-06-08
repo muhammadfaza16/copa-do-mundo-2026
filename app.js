@@ -631,6 +631,18 @@ function renderBracket() {
   const dotsContainer = document.getElementById('bracket-dots');
   if (!container || !dotsContainer) return;
 
+  // Tree-ordered match IDs for each stage
+  const treeOrder = {
+    "Round of 32": [74, 77, 73, 75, 83, 84, 81, 82, 76, 78, 79, 80, 85, 86, 87, 88],
+    "Round of 16": [89, 90, 93, 94, 91, 92, 95, 96],
+    "Quarter-final": [97, 98, 99, 100],
+    "Semi-final": [101, 102],
+    "Final": [104],
+    "Third-place match": [103]
+  };
+
+  const slotHeights = [110, 244, 512, 1048, 2120];
+
   // Group knockoutMatches by stage with subtext info
   const stages = [
     { title: "32 Besar", matches: knockoutMatches.filter(m => m.group === "Round of 32"), info: "16 Laga • 29 Jun - 3 Jul" },
@@ -652,8 +664,30 @@ function renderBracket() {
 
   stages.forEach((stage, sIdx) => {
     let matchesHtml = '';
+    const slotHeight = slotHeights[sIdx];
 
-    stage.matches.forEach(m => {
+    // Sort matches to match tree order
+    let sortedMatches = [];
+    if (sIdx === 4) {
+      // For column 5: Final is first, Third-place match is second
+      sortedMatches = [
+        ...knockoutMatches.filter(m => m.group === "Final"),
+        ...knockoutMatches.filter(m => m.group === "Third-place match")
+      ];
+    } else {
+      const stageMatches = stage.matches;
+      if (stageMatches.length > 0) {
+        const matchGroup = stageMatches[0].group; // e.g. "Round of 32"
+        const order = treeOrder[matchGroup];
+        sortedMatches = [...stageMatches].sort((a, b) => {
+          return order.indexOf(a.match_id) - order.indexOf(b.match_id);
+        });
+      } else {
+        sortedMatches = stageMatches;
+      }
+    }
+
+    sortedMatches.forEach(m => {
       const winner = simulatedWinners[m.match_id];
       const isPlaceholder1 = m.team1.startsWith('Winner Match') || m.team1.startsWith('Loser Match') || m.team1.startsWith('3rd Group');
       const isPlaceholder2 = m.team2.startsWith('Winner Match') || m.team2.startsWith('Loser Match') || m.team2.startsWith('3rd Group');
@@ -713,7 +747,7 @@ function renderBracket() {
         cardStateClass = 'match-ready';
       }
 
-      matchesHtml += `
+      const matchBoxHtml = `
         <div class="bracket-match ${clickableClass} ${cardStateClass}">
           <div class="bracket-match-header">
             <span>Match ${m.match_id} - ${m.group === "Third-place match" ? "Perebutan Juara 3" : m.group}</span>
@@ -760,6 +794,21 @@ function renderBracket() {
           </div>
         </div>
       `;
+
+      if (m.group === "Third-place match") {
+        matchesHtml += `
+          <div class="bracket-third-place-wrapper">
+            <div style="font-size:0.65rem; font-weight:700; color:var(--primary-gold); text-align:center; margin-bottom:10px; text-transform:uppercase; letter-spacing:0.5px;">Perebutan Juara 3</div>
+            ${matchBoxHtml}
+          </div>
+        `;
+      } else {
+        matchesHtml += `
+          <div class="bracket-slot ${cardStateClass}" style="height: ${slotHeight}px;">
+            ${matchBoxHtml}
+          </div>
+        `;
+      }
     });
 
     bracketHtml += `
