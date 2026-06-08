@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="description" content="Jadwal lengkap Piala Dunia FIFA 2026, klasemen grup, dan simulator bagan fase gugur interaktif dalam desain premium.">
+  <title>FIFA World Cup 2026 | Jadwal & Simulator Premium</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+  <!-- App Sticky Header -->
+  <header>
+    <div class="brand">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#d4af37" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"></path>
+        <path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"></path>
+        <path d="M4 22h16"></path>
+        <path d="M10 14.66V17c0 .55-.45 1-1 1H4v2h16v-2h-5c-.55 0-1-.45-1-1v-2.34"></path>
+        <path d="M12 2a5 5 0 0 0-5 5v3.66c0 .87.35 1.7 1 2.34l2 2a2.83 2.83 0 0 0 4 0l2-2a3.3 3.3 0 0 0 1-2.34V7a5 5 0 0 0-5-5z"></path>
+      </svg>
+      <h1>World Cup 2026</h1>
+    </div>
+  </header>
+
+  <!-- Main View Containment -->
+  <main>
+
+    <!-- TAB 1: HOME/DASHBOARD -->
+    <section id="tab-home" class="tab-content active">
+      <!-- Countdown Panel -->
+      <div class="glass-panel countdown-container">
+        <div class="countdown-title">Kick-Off Match Pertama</div>
+        <div id="countdown-display" class="countdown-timer">
+          <div class="time-segment">
+            <span id="cd-days" class="time-num">00</span>
+            <span class="time-label">Hari</span>
+          </div>
+          <div class="time-segment">
+            <span id="cd-hours" class="time-num">00</span>
+            <span class="time-label">Jam</span>
+          </div>
+          <div class="time-segment">
+            <span id="cd-mins" class="time-num">00</span>
+            <span class="time-label">Menit</span>
+          </div>
+          <div class="time-segment">
+            <span id="cd-secs" class="time-num">00</span>
+            <span class="time-label">Detik</span>
+          </div>
+        </div>
+        <div id="countdown-sub" style="font-size: 0.75rem; color: var(--text-secondary); font-weight: 500;">
+          Meksiko vs Afrika Selatan - Estadio Azteca
+        </div>
+      </div>
+
+      <!-- Quick stats summary row -->
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="val">48</div>
+          <div class="lbl">Negara</div>
+        </div>
+        <div class="stat-card">
+          <div class="val">104</div>
+          <div class="lbl">Pertandingan</div>
+        </div>
+        <div class="stat-card">
+          <div class="val">16</div>
+          <div class="lbl">Stadion</div>
+        </div>
+      </div>
+
+      <!-- Nearest Matches section -->
+      <div class="section-title">
+        Pertandingan Terdekat
+        <span>Mendatang</span>
+      </div>
+      <div id="nearest-matches-list" class="matches-wrapper" style="margin-bottom: 24px;">
+        <!-- Populated dynamically -->
+      </div>
+
+      <!-- Favorites section -->
+      <div class="section-title">
+        Pertandingan Favorit Anda
+        <span id="favorites-count">0 Terpilih</span>
+      </div>
+      <div id="favorites-list" class="matches-wrapper">
+        <!-- Starred matches will populate here dynamically -->
+        <div class="empty-placeholder">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+          </svg>
+          <p>Belum ada pertandingan favorit. Ketuk ikon bintang di tab Jadwal untuk menyimpannya.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 2: SCHEDULE/JADWAL -->
+    <section id="tab-schedule" class="tab-content">
+      <div class="filter-bar">
+        <!-- Search -->
+        <div class="search-container">
+          <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="11" cy="11" r="8"></circle>
+            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+          </svg>
+          <input type="text" id="schedule-search" class="search-input" placeholder="Cari negara (misal: Brazil, Spain)...">
+        </div>
+        <!-- Select filters -->
+        <div class="filters-row">
+          <button id="filter-all" class="tab-filter-btn active">Semua</button>
+          <button id="filter-group-stage" class="tab-filter-btn">Fase Grup</button>
+          <button id="filter-knockout-stage" class="tab-filter-btn">Fase Gugur</button>
+          
+          <select id="filter-group" class="filter-select">
+            <option value="">Semua Grup</option>
+            <option value="Group A">Grup A</option>
+            <option value="Group B">Grup B</option>
+            <option value="Group C">Grup C</option>
+            <option value="Group D">Grup D</option>
+            <option value="Group E">Grup E</option>
+            <option value="Group F">Grup F</option>
+            <option value="Group G">Grup G</option>
+            <option value="Group H">Grup H</option>
+            <option value="Group I">Grup I</option>
+            <option value="Group J">Grup J</option>
+            <option value="Group K">Grup K</option>
+            <option value="Group L">Grup L</option>
+          </select>
+
+          <select id="filter-round" class="filter-select">
+            <option value="">Semua Babak</option>
+            <option value="Round of 32">Babak 32 Besar</option>
+            <option value="Round of 16">Babak 16 Besar</option>
+            <option value="Quarter-final">Perempat Final</option>
+            <option value="Semi-final">Semi Final</option>
+            <option value="Third-place match">Perebutan Tempat ke-3</option>
+            <option value="Final">Final</option>
+          </select>
+        </div>
+      </div>
+
+      <div id="schedule-list" class="matches-wrapper">
+        <!-- Rendered matches go here -->
+      </div>
+    </section>
+
+    <!-- TAB 3: GROUPS/GRUP -->
+    <section id="tab-groups" class="tab-content">
+      <div class="section-title">
+        Grup Piala Dunia 2026
+        <span>48 Tim di 12 Grup</span>
+      </div>
+      <div id="groups-grid" class="groups-container">
+        <!-- Dynamic group grid cards -->
+      </div>
+    </section>
+
+    <!-- TAB 4: BRACKET/BAGAN SIMULATOR -->
+    <section id="tab-bracket" class="tab-content">
+      <div class="section-title">
+        Simulator Bagan Fase Gugur
+        <span>Ketuk pemenang untuk melaju</span>
+      </div>
+      <p style="font-size: 0.7rem; color: var(--text-secondary); margin-bottom: 12px; text-align: center;">
+        ← Geser horizontal untuk melihat babak selanjutnya →
+      </p>
+
+      <div id="bracket-root" class="bracket-wrapper">
+        <!-- Rendered vertical columns (Round of 32 -> Round of 16 -> QF -> SF -> Final) -->
+      </div>
+
+      <!-- Navigation indicator dots for mobile swipe view -->
+      <div id="bracket-dots" class="bracket-indicator-dots">
+        <!-- Generated dots -->
+      </div>
+
+      <button id="reset-bracket-btn" class="reset-btn">Reset Simulasi</button>
+    </section>
+
+    <!-- TAB 5: INFO & CONFIG -->
+    <section id="tab-info" class="tab-content">
+      <div class="glass-panel">
+        <h3 style="font-size: 0.9rem; font-weight: 800; color: var(--primary-gold); margin-bottom: 12px; border-bottom: 1px solid rgba(212, 175, 55, 0.1); padding-bottom: 6px; text-transform: uppercase;">
+          Pengaturan Aplikasi
+        </h3>
+        <div class="settings-group">
+          <div class="settings-row">
+            <div>
+              <div class="settings-label">Tampilkan Waktu Lokal Saya</div>
+              <div class="settings-desc">Konversi waktu pertandingan ke zona waktu HP Anda</div>
+            </div>
+            <label class="switch">
+              <input type="checkbox" id="timezone-toggle" checked>
+              <span class="slider"></span>
+            </label>
+          </div>
+          <div class="settings-row">
+            <div>
+              <div class="settings-label">Mode Terang (Light Mode)</div>
+              <div class="settings-desc">Aktifkan tema UI dengan latar belakang terang</div>
+            </div>
+            <label class="switch">
+              <input type="checkbox" id="theme-toggle">
+              <span class="slider"></span>
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <div class="section-title">Stadion Penyelenggara (Host Cities)</div>
+      <div id="stadiums-container" class="stadium-list">
+        <!-- Stadia links will populate here -->
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Premium Bottom Navigation Bar -->
+  <nav class="bottom-nav">
+    <button class="nav-item active" data-tab="tab-home" aria-label="Beranda">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+        <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+        <polyline points="9 22 9 12 15 12 15 22"></polyline>
+      </svg>
+      <span class="nav-label">Home</span>
+    </button>
+    <button class="nav-item" data-tab="tab-schedule" aria-label="Jadwal">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+        <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+        <line x1="16" y1="2" x2="16" y2="6"></line>
+        <line x1="8" y1="2" x2="8" y2="6"></line>
+        <line x1="3" y1="10" x2="21" y2="10"></line>
+      </svg>
+      <span class="nav-label">Jadwal</span>
+    </button>
+    <button class="nav-item" data-tab="tab-groups" aria-label="Grup">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+        <rect x="3" y="3" width="7" height="7"></rect>
+        <rect x="14" y="3" width="7" height="7"></rect>
+        <rect x="14" y="14" width="7" height="7"></rect>
+        <rect x="3" y="14" width="7" height="7"></rect>
+      </svg>
+      <span class="nav-label">Grup</span>
+    </button>
+    <button class="nav-item" data-tab="tab-bracket" aria-label="Bagan">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+        <path d="M12 2L2 7l10 5 10-5-10-5z"></path>
+        <path d="M2 17l10 5 10-5"></path>
+        <path d="M2 12l10 5 10-5"></path>
+      </svg>
+      <span class="nav-label">Bagan</span>
+    </button>
+    <button class="nav-item" data-tab="tab-info" aria-label="Info">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+        <circle cx="12" cy="12" r="10"></circle>
+        <line x1="12" y1="16" x2="12" y2="12"></line>
+        <line x1="12" y1="8" x2="12.01" y2="8"></line>
+      </svg>
+      <span class="nav-label">Info</span>
+    </button>
+  </nav>
+
+  <!-- Main App Script -->
+  <script src="data.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
