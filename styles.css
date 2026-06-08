@@ -6,76 +6,76 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;500;600;700;800&display=swap');
 
 :root {
-  --bg-gradient-start: #050608;
-  --bg-gradient-end: #0d0e12;
-  --panel-bg: rgba(15, 17, 23, 0.7);
-  --panel-bg-solid: #111319;
-  --glass-bg: rgba(255, 255, 255, 0.02);
-  --glass-border: rgba(255, 255, 255, 0.05);
-  --glass-border-focus: rgba(255, 255, 255, 0.2);
+  --bg-gradient-start: #000000;
+  --bg-gradient-end: #09090b;
+  --panel-bg: rgba(22, 22, 23, 0.65);
+  --panel-bg-solid: #161617;
+  --glass-bg: rgba(255, 255, 255, 0.03);
+  --glass-border: rgba(255, 255, 255, 0.07);
+  --glass-border-focus: rgba(255, 255, 255, 0.24);
   
-  --primary-gold: #d4af37; /* Elegant Champagne Gold */
+  --primary-gold: #d4af37; /* Muted Champagne Gold */
   --primary-gold-rgb: 212, 175, 55;
-  --secondary-bronze: #aa904f;
+  --secondary-bronze: #8e8e93;
   
   --text-primary: #ffffff;
-  --text-secondary: #8f9ca7;
-  --text-muted: #505c67;
+  --text-secondary: #8e8e93;
+  --text-muted: #48484a;
   
-  --accent-emerald: #10b981;
-  --accent-red: #ef4444;
-  --accent-star: #ffd700;
+  --accent-emerald: #30d158; /* Apple System Dark Green */
+  --accent-red: #ff453a;     /* Apple System Dark Red */
+  --accent-star: #ff9f0a;    /* Apple System Dark Orange */
   
-  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-  --font-display: 'Space Grotesk', sans-serif;
+  --font-sans: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "SF Pro", "SF Compact", "Inter", -apple-system, sans-serif;
+  --font-display: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "SF Pro", "SF Compact", "Inter", -apple-system, sans-serif;
   
-  --border-radius-lg: 24px; /* Increased slightly for softer premium look */
-  --border-radius-md: 14px;
+  --border-radius-lg: 20px; /* Squircle-like smooth corners */
+  --border-radius-md: 12px;
   --border-radius-sm: 8px;
   
-  --transition-smooth: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-  --shadow-premium: 0 12px 40px -10px rgba(0, 0, 0, 0.9);
+  --transition-smooth: all 0.28s cubic-bezier(0.25, 0.8, 0.25, 1);
+  --shadow-premium: 0 10px 30px rgba(0, 0, 0, 0.5);
 
-  --header-bg: rgba(13, 14, 18, 0.8);
-  --bottom-nav-bg: rgba(13, 14, 18, 0.85);
-  --select-option-bg: #121419;
-  --brand-gradient: linear-gradient(135deg, #ffffff 30%, var(--primary-gold) 100%);
+  --header-bg: rgba(0, 0, 0, 0.75);
+  --bottom-nav-bg: rgba(22, 22, 23, 0.85);
+  --select-option-bg: #1c1c1e;
+  --brand-gradient: linear-gradient(135deg, #ffffff 40%, #8e8e93 100%);
 
   /* Typography tracking */
-  --tracking-wide: 0.04em;
-  --tracking-wider: 0.08em;
-  --tracking-widest: 0.16em;
-  --tracking-tight: -0.012em;
-  --tracking-tighter: -0.024em;
+  --tracking-wide: 0.03em;
+  --tracking-wider: 0.06em;
+  --tracking-widest: 0.12em;
+  --tracking-tight: -0.022em;
+  --tracking-tighter: -0.042em;
 }
 
 body.light-theme {
-  --bg-gradient-start: #f1f3f7;
-  --bg-gradient-end: #e2e8f0;
+  --bg-gradient-start: #ffffff;
+  --bg-gradient-end: #f5f5f7; /* Apple default light grey */
   --panel-bg: rgba(255, 255, 255, 0.65);
   --panel-bg-solid: #ffffff;
   --glass-bg: rgba(0, 0, 0, 0.02);
-  --glass-border: rgba(0, 0, 0, 0.08);
-  --glass-border-focus: rgba(0, 0, 0, 0.25);
+  --glass-border: rgba(0, 0, 0, 0.06);
+  --glass-border-focus: rgba(0, 0, 0, 0.2);
   
-  --primary-gold: #b58c14;
-  --primary-gold-rgb: 181, 140, 20;
-  --secondary-bronze: #8c6e14;
+  --primary-gold: #9a7a1e;
+  --primary-gold-rgb: 154, 122, 30;
+  --secondary-bronze: #86868b;
   
-  --text-primary: #0f172a;
-  --text-secondary: #475569;
-  --text-muted: #94a3b8;
+  --text-primary: #1d1d1f;   /* Apple signature black */
+  --text-secondary: #6e6e73; /* Apple signature grey */
+  --text-muted: #86868b;     /* Apple signature light grey */
   
-  --accent-emerald: #059669;
-  --accent-red: #dc2626;
-  --accent-star: #d97706;
+  --accent-emerald: #34c759; /* Apple System Light Green */
+  --accent-red: #ff3b30;     /* Apple System Light Red */
+  --accent-star: #ff9500;    /* Apple System Light Orange */
   
-  --shadow-premium: 0 12px 40px -10px rgba(15, 23, 42, 0.08);
+  --shadow-premium: 0 10px 30px rgba(0, 0, 0, 0.03);
 
-  --header-bg: rgba(241, 243, 247, 0.85);
-  --bottom-nav-bg: rgba(255, 255, 255, 0.85);
+  --header-bg: rgba(255, 255, 255, 0.8);
+  --bottom-nav-bg: rgba(245, 245, 247, 0.85);
   --select-option-bg: #ffffff;
-  --brand-gradient: linear-gradient(135deg, var(--text-primary) 30%, var(--primary-gold) 100%);
+  --brand-gradient: linear-gradient(135deg, #1d1d1f 40%, #6e6e73 100%);
 }
 
 /* Theme Toggle Icons */
@@ -152,9 +152,9 @@ header {
 .brand h1 {
   font-family: var(--font-display);
   font-size: 1.3rem;
-  font-weight: 800;
-  text-transform: uppercase;
-  letter-spacing: var(--tracking-wider);
+  font-weight: 700;
+  text-transform: none;
+  letter-spacing: var(--tracking-tight);
   background: var(--brand-gradient);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
@@ -270,7 +270,8 @@ main {
 .time-num {
   font-family: var(--font-display);
   font-size: 2.2rem;
-  font-weight: 800;
+  font-weight: 700;
+  letter-spacing: var(--tracking-tighter);
   color: var(--text-primary);
   line-height: 1;
 }
