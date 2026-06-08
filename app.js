@@ -145,26 +145,6 @@ function migrateLocalStorageToIndonesian() {
 // Run migration immediately
 migrateLocalStorageToIndonesian();
 
-// STADIUM INFO
-const STADIUMS = [
-  { name: "MetLife Stadium", city: "East Rutherford, NJ", capacity: "82,500", url: "https://maps.google.com/?q=MetLife+Stadium" },
-  { name: "Estadio Azteca", city: "Kota Meksiko, MX", capacity: "87,523", url: "https://maps.google.com/?q=Estadio+Azteca" },
-  { name: "SoFi Stadium", city: "Inglewood, CA", capacity: "70,240", url: "https://maps.google.com/?q=SoFi+Stadium" },
-  { name: "Gillette Stadium", city: "Foxborough, MA", capacity: "65,878", url: "https://maps.google.com/?q=Gillette+Stadium" },
-  { name: "Estadio BBVA", city: "Guadalupe, NL", capacity: "53,500", url: "https://maps.google.com/?q=Estadio+BBVA" },
-  { name: "NRG Stadium", city: "Houston, TX", capacity: "72,220", url: "https://maps.google.com/?q=NRG+Stadium" },
-  { name: "AT&T Stadium", city: "Arlington, TX", capacity: "80,000", url: "https://maps.google.com/?q=AT&T+Stadium" },
-  { name: "Mercedes-Benz Stadium", city: "Atlanta, GA", capacity: "71,000", url: "https://maps.google.com/?q=Mercedes-Benz+Stadium+Atlanta" },
-  { name: "Levi's Stadium", city: "Santa Clara, CA", capacity: "68,500", url: "https://maps.google.com/?q=Levi's+Stadium" },
-  { name: "Lumen Field", city: "Seattle, WA", capacity: "69,000", url: "https://maps.google.com/?q=Lumen+Field" },
-  { name: "BMO Field", city: "Toronto, ON", capacity: "45,000", url: "https://maps.google.com/?q=BMO+Field" },
-  { name: "Lincoln Financial Field", city: "Philadelphia, PA", capacity: "69,796", url: "https://maps.google.com/?q=Lincoln+Financial+Field" },
-  { name: "BC Place", city: "Vancouver, BC", capacity: "54,500", url: "https://maps.google.com/?q=BC+Place" },
-  { name: "Hard Rock Stadium", city: "Miami Gardens, FL", capacity: "64,767", url: "https://maps.google.com/?q=Hard+Rock+Stadium" },
-  { name: "Arrowhead Stadium", city: "Kansas City, MO", capacity: "76,416", url: "https://maps.google.com/?q=Arrowhead+Stadium" },
-  { name: "Estadio Akron", city: "Zapopan, Jal", capacity: "48,070", url: "https://maps.google.com/?q=Estadio+Akron" }
-];
-
 // APP STATE
 let activeTab = 'tab-home';
 let useLocalTimezone = localStorage.getItem('wc2026_local_tz') !== 'false';
@@ -1145,30 +1125,6 @@ function syncBracketDots() {
   });
 }
 
-// ----------------------------------------------------
-// INFO TAB - STADIUMS
-// ----------------------------------------------------
-function renderStadiums() {
-  const container = document.getElementById('stadiums-container');
-  if (!container) return;
-
-  let listHtml = '';
-  STADIUMS.forEach(s => {
-    listHtml += `
-      <a href="${s.url}" target="_blank" rel="noopener noreferrer" class="stadium-card">
-        <div>
-          <div class="stadium-name">${s.name}</div>
-          <div class="stadium-city">${s.city} • Kapasitas: ${s.capacity}</div>
-        </div>
-        <svg viewBox="0 0 24 24">
-          <polygon points="5 3 19 12 5 21 5 3"></polygon>
-        </svg>
-      </a>
-    `;
-  });
-
-  container.innerHTML = listHtml;
-}
 
 // ----------------------------------------------------
 // FAVORITES BRIDGE WINDOW BINDINGS
@@ -1556,7 +1512,6 @@ document.addEventListener('DOMContentLoaded', () => {
   renderNearestMatches();
   renderLatestResults();
   renderFavoritesCount();
-  renderStadiums();
   
   // Initial calculate
   recalculateKnockoutTree();
