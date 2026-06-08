@@ -1329,7 +1329,7 @@ async function fetchRealTimeScores() {
   if (fetchBtn) fetchBtn.disabled = true;
 
   try {
-    const response = await fetch('https://api.football-data.org/v4/competitions/WC/matches', {
+    const response = await fetch('https://corsproxy.io/?url=https://api.football-data.org/v4/competitions/WC/matches', {
       headers: {
         'X-Auth-Token': apiKey
       }
