@@ -576,6 +576,51 @@ function renderFavorites() {
   container.innerHTML = listHtml;
 }
 
+// Render Latest Match Results (Hasil Pertandingan Terbaru)
+function renderLatestResults() {
+  const container = document.getElementById('latest-results-list');
+  if (!container) return;
+
+  // Combine all matches
+  const allMatches = [
+    ...WORLD_CUP_DATA.group_stage.map(m => ({ ...m, isKO: false })),
+    ...knockoutMatches.map(m => ({ ...m, isKO: true }))
+  ];
+
+  // Filter matches that have real scores recorded
+  const matchesWithScores = allMatches.filter(m => {
+    const matchKey = m.isKO ? `ko_${m.match_id}` : `gs_${m.date}_${m.team1}_${m.team2}`;
+    return !!realScores[matchKey];
+  });
+
+  if (matchesWithScores.length === 0) {
+    container.innerHTML = `
+      <div class="empty-placeholder">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+          <circle cx="12" cy="12" r="10"></circle>
+          <line x1="12" y1="8" x2="12" y2="12"></line>
+          <line x1="12" y1="16" x2="12.01" y2="16"></line>
+        </svg>
+        <p>Belum ada hasil pertandingan terbaru. Sinkronisasi skor di tab Info untuk memperbarui data.</p>
+      </div>
+    `;
+    return;
+  }
+
+  // Sort by match date/time descending (most recent matches first)
+  matchesWithScores.sort((a, b) => getMatchDate(b.date, b.time) - getMatchDate(a.date, a.time));
+
+  // Take top 3 latest matches
+  const latestMatches = matchesWithScores.slice(0, 3);
+
+  let listHtml = '';
+  latestMatches.forEach(match => {
+    listHtml += createMatchCardHtml(match, match.match_id || 0, match.isKO);
+  });
+
+  container.innerHTML = listHtml;
+}
+
 // Render Dashboard/Home tab nearest matches
 function renderNearestMatches() {
   const container = document.getElementById('nearest-matches-list');
@@ -1160,6 +1205,7 @@ function initNavigation() {
       } else if (activeTab === 'tab-home') {
         renderFavorites();
         renderNearestMatches();
+        renderLatestResults();
       }
       
       // Scroll to top of window
@@ -1187,6 +1233,7 @@ function initSettingsAndFilters() {
       renderSchedule();
       renderFavorites();
       renderNearestMatches();
+      renderLatestResults();
       if (activeTab === 'tab-bracket') renderBracket();
     });
   }
@@ -1275,6 +1322,7 @@ function initSettingsAndFilters() {
         renderBracket();
         renderFavorites();
         renderNearestMatches();
+        renderLatestResults();
         
         alert('Simulasi berhasil disetel ulang!');
       }
@@ -1461,6 +1509,7 @@ async function fetchRealTimeScores(isManual = false) {
     } else if (activeTab === 'tab-home') {
       renderFavorites();
       renderNearestMatches();
+      renderLatestResults();
     }
 
   } catch (err) {
@@ -1505,6 +1554,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // Render default home view parts
   renderFavorites();
   renderNearestMatches();
+  renderLatestResults();
   renderFavoritesCount();
   renderStadiums();
   
