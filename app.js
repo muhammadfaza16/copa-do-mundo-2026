@@ -304,8 +304,11 @@ function getFormattedTime(dateStr, timeStr) {
   const matchDate = getMatchDate(dateStr, timeStr);
 
   if (useLocalTimezone) {
-    // Format according to browser locale (include weekday name)
-    const formattedDate = matchDate.toLocaleDateString(undefined, { weekday: 'long', day: 'numeric', month: 'short' });
+    // Format according to browser locale, but enforce Indonesian weekday name
+    const daysIndo = ["Minggu", "Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu"];
+    const dayName = daysIndo[matchDate.getDay()];
+    const datePart = matchDate.toLocaleDateString(undefined, { day: 'numeric', month: 'short' });
+    const formattedDate = `${dayName}, ${datePart}`;
     const formattedTime = matchDate.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit', hour12: false });
     return { date: formattedDate, time: formattedTime, tzLabel: getLocalTimezoneAbbr() };
   } else {
