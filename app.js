@@ -304,15 +304,18 @@ function getFormattedTime(dateStr, timeStr) {
   const matchDate = getMatchDate(dateStr, timeStr);
 
   if (useLocalTimezone) {
-    // Format according to browser locale
-    const formattedDate = matchDate.toLocaleDateString(undefined, { day: 'numeric', month: 'short' });
+    // Format according to browser locale (include weekday name)
+    const formattedDate = matchDate.toLocaleDateString(undefined, { weekday: 'long', day: 'numeric', month: 'short' });
     const formattedTime = matchDate.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit', hour12: false });
     return { date: formattedDate, time: formattedTime, tzLabel: getLocalTimezoneAbbr() };
   } else {
     // Standard WIB formatting
     const [day, month] = dateStr.split('/').map(Number);
     const months = ["Jan", "Feb", "Mar", "Apr", "Mei", "Jun", "Jul", "Agt", "Sep", "Okt", "Nov", "Des"];
-    const formattedDate = `${day} ${months[month - 1]}`;
+    const days = ["Minggu", "Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu"];
+    const wibDate = new Date(2026, month - 1, day);
+    const dayName = days[wibDate.getDay()];
+    const formattedDate = `${dayName}, ${day} ${months[month - 1]}`;
     return { date: formattedDate, time: timeStr, tzLabel: "WIB" };
   }
 }
@@ -442,7 +445,7 @@ function createMatchCardHtml(match, index, isKnockout = false) {
       </div>
       <div class="match-footer">
         <div class="match-footer-left">
-          <span class="match-date-label">${timeInfo.date} • ${timeInfo.time} ${timeInfo.tzLabel}</span>
+          <span class="match-date-label">${timeInfo.date}</span>
           ${badgeHtml}
         </div>
         <button class="star-btn ${starredClass}" onclick="toggleMatchStar('${matchKey}', this)" aria-label="Simpan Pertandingan">
@@ -1029,7 +1032,7 @@ function renderBracket() {
         <div class="bracket-match ${clickableClass} ${cardStateClass}">
           <div class="bracket-match-header">
             <span>Match ${m.match_id} - ${m.group === "Third-place match" ? "Perebutan Juara 3" : m.group}</span>
-            <span>${timeInfo.date} • ${timeInfo.time} ${timeInfo.tzLabel}</span>
+            <span>${timeInfo.date}</span>
           </div>
           <!-- Team 1 Row -->
           <div class="bracket-team-row ${isPlaceholder1 ? 'placeholder' : ''} ${team1WinnerClass}" 
