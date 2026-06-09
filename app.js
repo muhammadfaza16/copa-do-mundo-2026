@@ -267,7 +267,7 @@ let knockoutMatches = JSON.parse(JSON.stringify(WORLD_CUP_DATA.knockout_stage));
 function getFlagHtml(teamName) {
   const code = TEAM_FLAGS[teamName];
   if (code) {
-    return `<img class="flag-crest" src="https://flagcdn.com/w40/${code}.png" alt="${teamName}" loading="lazy">`;
+    return `<img class="flag-crest" src="https://flagcdn.com/w160/${code}.png" alt="${teamName}" loading="lazy">`;
   }
   // Muted gray shield logo for placeholder teams
   return `
