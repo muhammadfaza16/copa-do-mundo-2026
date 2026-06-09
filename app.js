@@ -417,7 +417,7 @@ function createMatchCardHtml(match, index, isKnockout = false) {
     <div class="match-card" data-key="${matchKey}">
       <div class="match-header">
         <span class="match-stage">${labelStage}</span>
-        <span class="match-venue">${labelVenue}</span>
+        <span class="match-date-label">${timeInfo.date}</span>
       </div>
       <div class="match-body">
         <div class="team-display left">
@@ -448,7 +448,7 @@ function createMatchCardHtml(match, index, isKnockout = false) {
       </div>
       <div class="match-footer">
         <div class="match-footer-left">
-          <span class="match-date-label">${timeInfo.date}</span>
+          <span class="match-venue-label">${labelVenue}</span>
           ${badgeHtml}
         </div>
         <button class="star-btn ${starredClass}" onclick="toggleMatchStar('${matchKey}', this)" aria-label="Simpan Pertandingan">

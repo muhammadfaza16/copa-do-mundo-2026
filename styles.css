@@ -1353,6 +1353,20 @@ body.light-theme .flag-crest-placeholder {
   font-size: 0.65rem;
   color: var(--text-secondary);
   font-weight: 700;
+  text-transform: none; /* Keep natural case for days/months in header */
+}
+
+.match-venue-label {
+  font-size: 0.62rem;
+  color: var(--text-secondary);
+  opacity: 0.65;
+  font-weight: 400;
+  text-transform: none; /* Keep natural case for venue names */
+  letter-spacing: 0.1px;
+  max-width: 240px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 /* Group Standings Standings Badge */
