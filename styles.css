@@ -1661,16 +1661,25 @@ body.light-theme .sub-tab-btn.active {
 
 /* Brand Header Logo */
 .brand-logo {
-  height: 44px; /* Increased from 32px to make it highly visible */
+  height: 44px; /* Highly visible height */
   width: auto;
   object-fit: contain;
-  mix-blend-mode: screen; /* Blends black background away in dark theme */
-  filter: brightness(1.15) contrast(1.1); /* Enhance brightness and contrast in dark mode */
 }
 
-body.light-theme .brand-logo {
-  filter: invert(1) hue-rotate(180deg) brightness(1.05) contrast(1.25); /* Invert black background to white and white text to black, keeping trophy gold and boosting contrast/brightness */
-  mix-blend-mode: multiply; /* Blends inverted white background away in light theme */
+.brand-logo.logo-dark {
+  display: block;
+}
+
+.brand-logo.logo-light {
+  display: none;
+}
+
+body.light-theme .brand-logo.logo-dark {
+  display: none;
+}
+
+body.light-theme .brand-logo.logo-light {
+  display: block;
 }
 
 /* Glowing Background Ornaments representing USA, Canada, Mexico colors */
