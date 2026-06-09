@@ -1753,7 +1753,8 @@ body.light-theme .welcome-hero {
 
 .welcome-mascot-side {
   flex-shrink: 0;
-  background: #ffffff;
+  background: var(--glass-bg);
+  border: 1.5px solid var(--glass-border);
   border-radius: 50%;
   width: 110px;
   height: 110px;
@@ -1761,18 +1762,19 @@ body.light-theme .welcome-hero {
   align-items: center;
   justify-content: center;
   overflow: hidden;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.25);
-  border: 2px solid var(--primary-gold);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+  transition: var(--transition-smooth);
 }
 
 body.light-theme .welcome-mascot-side {
-  border-color: rgba(154, 122, 30, 0.3);
+  background: rgba(0, 0, 0, 0.02);
+  border-color: rgba(0, 0, 0, 0.06);
 }
 
-.welcome-mascot {
-  width: 85%;
-  height: 85%;
-  object-fit: contain;
+.welcome-trophy-svg {
+  width: 65%;
+  height: 65%;
+  color: var(--primary-gold);
   animation: float-slow 4s ease-in-out infinite;
 }
 
@@ -1934,11 +1936,6 @@ body.light-theme .welcome-mascot-side {
   .welcome-mascot-side {
     width: 90px;
     height: 90px;
-  }
-  
-  .welcome-mascot {
-    width: 85%;
-    height: 85%;
   }
   
   .welcome-title {
