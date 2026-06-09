@@ -1664,7 +1664,12 @@ body.light-theme .sub-tab-btn.active {
   height: 32px;
   width: auto;
   object-fit: contain;
-  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.15));
+  filter: invert(1) hue-rotate(180deg) brightness(1.25) contrast(1.15); /* Invert white bg to black, restore logo color hues */
+}
+
+body.light-theme .brand-logo {
+  filter: none;
+  mix-blend-mode: multiply; /* Blends solid white logo background away in light theme */
 }
 
 /* Glowing Background Ornaments representing USA, Canada, Mexico colors */
@@ -1748,18 +1753,27 @@ body.light-theme .welcome-hero {
 
 .welcome-mascot-side {
   flex-shrink: 0;
+  background: #ffffff;
+  border-radius: 50%;
+  width: 110px;
+  height: 110px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.25);
+  border: 2px solid var(--primary-gold);
+}
+
+body.light-theme .welcome-mascot-side {
+  border-color: rgba(154, 122, 30, 0.3);
 }
 
 .welcome-mascot {
-  height: 110px;
-  width: auto;
+  width: 85%;
+  height: 85%;
   object-fit: contain;
-  filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.25));
   animation: float-slow 4s ease-in-out infinite;
-}
-
-body.light-theme .welcome-mascot {
-  filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.12));
 }
 
 @keyframes float-slow {
@@ -1917,8 +1931,14 @@ body.light-theme .welcome-mascot {
     gap: 12px;
   }
   
-  .welcome-mascot {
+  .welcome-mascot-side {
+    width: 90px;
     height: 90px;
+  }
+  
+  .welcome-mascot {
+    width: 85%;
+    height: 85%;
   }
   
   .welcome-title {
