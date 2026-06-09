@@ -169,48 +169,7 @@ function getMatchVenue(match) {
     return venues[hash];
   }
   return "Stadion Piala Dunia";
-}
-
-const STADIUMS = [
-  { name: "MetLife Stadium", city: "East Rutherford, NJ", capacity: "82.500", tz: "EDT (WIB-11)", url: "https://maps.google.com/?q=MetLife+Stadium" },
-  { name: "Estadio Azteca", city: "Kota Meksiko, MX", capacity: "87.523", tz: "CST (WIB-13)", url: "https://maps.google.com/?q=Estadio+Azteca" },
-  { name: "SoFi Stadium", city: "Inglewood, CA", capacity: "70.240", tz: "PDT (WIB-14)", url: "https://maps.google.com/?q=SoFi+Stadium" },
-  { name: "Gillette Stadium", city: "Foxborough, MA", capacity: "65.878", tz: "EDT (WIB-11)", url: "https://maps.google.com/?q=Gillette+Stadium" },
-  { name: "Estadio BBVA", city: "Guadalupe, NL", capacity: "53.500", tz: "CST (WIB-13)", url: "https://maps.google.com/?q=Estadio+BBVA" },
-  { name: "NRG Stadium", city: "Houston, TX", capacity: "72.220", tz: "CDT (WIB-12)", url: "https://maps.google.com/?q=NRG+Stadium" },
-  { name: "AT&T Stadium", city: "Arlington, TX", capacity: "80.000", tz: "CDT (WIB-12)", url: "https://maps.google.com/?q=AT&T+Stadium" },
-  { name: "Mercedes-Benz Stadium", city: "Atlanta, GA", capacity: "71.000", tz: "EDT (WIB-11)", url: "https://maps.google.com/?q=Mercedes-Benz+Stadium+Atlanta" },
-  { name: "Levi's Stadium", city: "Santa Clara, CA", capacity: "68.500", tz: "PDT (WIB-14)", url: "https://maps.google.com/?q=Levi's+Stadium" },
-  { name: "Lumen Field", city: "Seattle, WA", capacity: "69.000", tz: "PDT (WIB-14)", url: "https://maps.google.com/?q=Lumen+Field" },
-  { name: "BMO Field", city: "Toronto, ON", capacity: "45.000", tz: "EDT (WIB-11)", url: "https://maps.google.com/?q=BMO+Field" },
-  { name: "Lincoln Financial Field", city: "Philadelphia, PA", capacity: "69.796", tz: "EDT (WIB-11)", url: "https://maps.google.com/?q=Lincoln+Financial+Field" },
-  { name: "BC Place", city: "Vancouver, BC", capacity: "54.500", tz: "PDT (WIB-14)", url: "https://maps.google.com/?q=BC+Place" },
-  { name: "Hard Rock Stadium", city: "Miami Gardens, FL", capacity: "64.767", tz: "EDT (WIB-11)", url: "https://maps.google.com/?q=Hard+Rock+Stadium" },
-  { name: "Arrowhead Stadium", city: "Kansas City, MO", capacity: "76,416", tz: "CDT (WIB-12)", url: "https://maps.google.com/?q=Arrowhead+Stadium" },
-  { name: "Estadio Akron", city: "Zapopan, Jal", capacity: "48.070", tz: "CST (WIB-13)", url: "https://maps.google.com/?q=Estadio+Akron" }
-];
-
-function renderStadiums() {
-  const container = document.getElementById('stadiums-container');
-  if (!container) return;
-
-  let listHtml = '';
-  STADIUMS.forEach(s => {
-    listHtml += `
-      <a href="${s.url}" target="_blank" rel="noopener noreferrer" class="stadium-card">
-        <div>
-          <div class="stadium-name">${s.name}</div>
-          <div class="stadium-city">${s.city} • Kapasitas: ${s.capacity}</div>
-          <div style="font-size: 0.65rem; color: var(--primary-gold); margin-top: 4px; font-weight: 600;">Zona Waktu: ${s.tz}</div>
-        </div>
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <polyline points="9 18 15 12 9 6"></polyline>
-        </svg>
-      </a>
-    `;
-  });
-
-  container.innerHTML = listHtml;
+l;
 }
 
 // APP STATE
@@ -483,7 +442,7 @@ function createMatchCardHtml(match, index, isKnockout = false) {
       </div>
       <div class="match-footer">
         <div class="match-footer-left">
-          <span class="match-date-label">${timeInfo.date}</span>
+          <span class="match-date-label">${timeInfo.date} • ${timeInfo.time} ${timeInfo.tzLabel}</span>
           ${badgeHtml}
         </div>
         <button class="star-btn ${starredClass}" onclick="toggleMatchStar('${matchKey}', this)" aria-label="Simpan Pertandingan">
@@ -1054,7 +1013,6 @@ function renderBracket() {
       const isSelectable = !isPlaceholder1 && !isPlaceholder2;
       const clickableClass = isSelectable ? 'clickable' : '';
       const isPredicted = !!winner;
-
       // Determine visual card state
       let cardStateClass = '';
       if (!isSelectable) {
@@ -1065,11 +1023,13 @@ function renderBracket() {
         cardStateClass = 'match-ready';
       }
 
+      const timeInfo = getFormattedTime(m.date, m.time);
+
       const matchBoxHtml = `
         <div class="bracket-match ${clickableClass} ${cardStateClass}">
           <div class="bracket-match-header">
             <span>Match ${m.match_id} - ${m.group === "Third-place match" ? "Perebutan Juara 3" : m.group}</span>
-            <span>${m.date} ${m.time}</span>
+            <span>${timeInfo.date} • ${timeInfo.time} ${timeInfo.tzLabel}</span>
           </div>
           <!-- Team 1 Row -->
           <div class="bracket-team-row ${isPlaceholder1 ? 'placeholder' : ''} ${team1WinnerClass}" 
@@ -1239,8 +1199,6 @@ function initNavigation() {
         renderFavorites();
         renderNearestMatches();
         renderLatestResults();
-      } else if (activeTab === 'tab-info') {
-        renderStadiums();
       }
       
       // Scroll to top of window
@@ -1597,7 +1555,6 @@ document.addEventListener('DOMContentLoaded', () => {
   renderNearestMatches();
   renderLatestResults();
   renderFavoritesCount();
-  renderStadiums();
   
   // Initial calculate
   recalculateKnockoutTree();
