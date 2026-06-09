@@ -169,14 +169,15 @@ function getMatchVenue(match) {
     return venues[hash];
   }
   return "Stadion Piala Dunia";
-l;
 }
 
 // APP STATE
 let activeTab = 'tab-home';
+let scheduleSubTab = 'upcoming';
 let useLocalTimezone = localStorage.getItem('wc2026_local_tz') !== 'false';
 let apiKey = '12aad17c1bf941f68c2318631dfcea1b';
 let lastFetchTime = 0;
+let scorePollInterval = null;
 let realScores = {};
 try {
   realScores = JSON.parse(localStorage.getItem('wc2026_real_scores')) || {};
@@ -205,6 +206,7 @@ if (currentTheme === 'light') {
 
 // SIMULATOR STATE
 let groupRankings = {}; // { "Grup A": ["Meksiko", ...], ... }
+let teamStats = {};
 let simulatedWinners = {};
 try {
   simulatedWinners = JSON.parse(localStorage.getItem('wc2026_simulated_winners')) || {};
@@ -465,7 +467,7 @@ function renderSchedule() {
   const filterRoundVal = document.getElementById('filter-round').value;
 
   let filteredGroupStage = WORLD_CUP_DATA.group_stage;
-  let filteredKnockout = WORLD_CUP_DATA.knockout_stage;
+  let filteredKnockout = knockoutMatches;
 
   // Filter 1: Main Type (Group Stage vs Knockout)
   if (filterType === 'filter-group-stage') {
@@ -501,30 +503,45 @@ function renderSchedule() {
     );
   }
 
-  // Combine lists and sort chronologically by date
+  // Combine lists and filter by sub-tab state (realScores existence)
+  const combined = [
+    ...filteredGroupStage.map(m => ({ ...m, isKO: false })),
+    ...filteredKnockout.map(m => ({ ...m, isKO: true }))
+  ];
+
+  const allFiltered = combined.filter(m => {
+    const matchKey = m.isKO ? `ko_${m.match_id}` : `gs_${m.date}_${m.team1}_${m.team2}`;
+    const hasScore = !!realScores[matchKey];
+    return scheduleSubTab === 'results' ? hasScore : !hasScore;
+  });
+
   // Since date is formatted as e.g. "12/6", "13/6", let's map dates to simple values for sorting
   function dateToVal(dStr) {
     const [d, m] = dStr.split('/').map(Number);
     return m * 100 + d;
   }
 
-  const allFiltered = [
-    ...filteredGroupStage.map(m => ({ ...m, isKO: false })),
-    ...filteredKnockout.map(m => ({ ...m, isKO: true }))
-  ].sort((a, b) => {
-    const diff = dateToVal(a.date) - dateToVal(b.date);
-    if (diff !== 0) return diff;
-    return a.time.localeCompare(b.time);
+  // Sort based on active sub-tab: upcoming is ascending, results is descending
+  allFiltered.sort((a, b) => {
+    const dateDiff = dateToVal(a.date) - dateToVal(b.date);
+    if (dateDiff !== 0) {
+      return scheduleSubTab === 'results' ? -dateDiff : dateDiff;
+    }
+    const timeDiff = a.time.localeCompare(b.time);
+    return scheduleSubTab === 'results' ? -timeDiff : timeDiff;
   });
 
   if (allFiltered.length === 0) {
+    const emptyMsg = scheduleSubTab === 'results'
+      ? 'Belum ada hasil pertandingan yang tersedia untuk kriteria pencarian/filter ini.'
+      : 'Tidak ada jadwal pertandingan mendatang yang tersedia untuk kriteria pencarian/filter ini.';
     container.innerHTML = `
       <div class="empty-placeholder">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
           <circle cx="11" cy="11" r="8"></circle>
           <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
         </svg>
-        <p>Pertandingan tidak ditemukan. Silakan ganti kata kunci atau saringan filter Anda.</p>
+        <p>${emptyMsg}</p>
       </div>
     `;
     return;
@@ -688,47 +705,67 @@ function renderGroups() {
     const groupName = `Grup ${groupLetter}`;
     const rankedTeams = groupRankings[groupName];
 
-    let teamListHtml = '';
+    // Check if any match has been played in this group
+    let groupMatchesPlayed = 0;
+    rankedTeams.forEach(team => {
+      if (teamStats[team]) {
+        groupMatchesPlayed += teamStats[team].played;
+      }
+    });
+
+    let rowsHtml = '';
     rankedTeams.forEach((team, idx) => {
-      // Small visual rank badge
-      const rankClass = idx === 0 ? 'rank-1st' : (idx === 1 ? 'rank-2nd' : (idx === 2 ? 'rank-3rd' : 'rank-4th'));
-      const rankSuffix = idx === 0 ? '1st' : (idx === 1 ? '2nd' : (idx === 2 ? '3rd' : '4th'));
+      const stats = teamStats[team] || { played: 0, gd: 0, pts: 0 };
+      const gdSign = stats.gd > 0 ? `+${stats.gd}` : stats.gd;
       
-      const upDisabled = idx === 0 ? 'disabled' : '';
-      const downDisabled = idx === 3 ? 'disabled' : '';
+      const rankClass = idx === 0 ? 'rank-1st' : (idx === 1 ? 'rank-2nd' : (idx === 2 ? 'rank-3rd' : 'rank-4th'));
+      const rankSuffix = idx === 0 ? '1' : (idx === 1 ? '2' : (idx === 2 ? '3' : '4'));
       const teamWeightClass = idx < 2 ? 'team-bold' : '';
 
-      teamListHtml += `
-        <div class="group-team-item">
-          <div class="group-team-info">
-            <span class="group-rank-badge ${rankClass}">${rankSuffix}</span>
-            ${getFlagHtml(team)}
-            <span class="team-name ${teamWeightClass}">${team}</span>
-          </div>
-          <!-- Up/Down arrows to manually reorder standings -->
-          <div class="group-reorder-actions">
-            <button class="star-btn" ${upDisabled} onclick="moveGroupTeam('${groupName}', ${idx}, -1)" aria-label="Naikkan posisi">
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="18 15 12 9 6 15"></polyline></svg>
-            </button>
-            <button class="star-btn" ${downDisabled} onclick="moveGroupTeam('${groupName}', ${idx}, 1)" aria-label="Turunkan posisi">
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"></polyline></svg>
-            </button>
-          </div>
-        </div>
+      rowsHtml += `
+        <tr>
+          <td class="group-rank-badge ${rankClass}" style="text-align: center; font-weight: 800;">${rankSuffix}</td>
+          <td>
+            <div class="team-cell">
+              ${getFlagHtml(team)}
+              <span class="team-name ${teamWeightClass}">${team}</span>
+            </div>
+          </td>
+          <td style="text-align: center; font-weight: 600; opacity: 0.85;">${stats.played}</td>
+          <td style="text-align: center; font-weight: 600; opacity: 0.85;">${gdSign}</td>
+          <td style="text-align: center; font-weight: 700; color: ${idx < 2 ? 'var(--primary-gold)' : 'inherit'};">${stats.pts}</td>
+        </tr>
       `;
     });
 
     gridHtml += `
       <div class="group-card">
-        <div class="group-title">Grup ${groupLetter}</div>
-        <div class="group-team-list">
-          ${teamListHtml}
+        <div class="group-title" style="display: flex; justify-content: space-between; align-items: center;">
+          <span>Grup ${groupLetter}</span>
+          ${groupMatchesPlayed > 0 ? '<span style="font-size: 0.55rem; color: var(--accent-emerald); border: 1px solid rgba(16, 185, 129, 0.3); padding: 2px 6px; border-radius: 4px; font-weight: bold; letter-spacing: 0.5px; animation: pulse-blink 2s infinite;">LIVE</span>' : ''}
         </div>
+        <table class="group-table">
+          <thead>
+            <tr>
+              <th style="width: 10%; text-align: center;">#</th>
+              <th style="text-align: left; width: 50%;">Tim</th>
+              <th style="width: 13%; text-align: center;">M</th>
+              <th style="width: 13%; text-align: center;">SG</th>
+              <th style="width: 14%; text-align: center;">P</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${rowsHtml}
+          </tbody>
+        </table>
       </div>
     `;
   }
 
   container.innerHTML = gridHtml;
+
+  // Render best 3rd placed standings
+  renderBestThirds();
 }
 
 // ----------------------------------------------------
@@ -737,29 +774,249 @@ function renderGroups() {
 
 // Swaps team index in group standing rank list
 window.moveGroupTeam = function(groupName, index, direction) {
-  const list = groupRankings[groupName];
-  const targetIndex = index + direction;
-  if (targetIndex >= 0 && targetIndex < list.length) {
-    // Swap
-    const temp = list[index];
-    list[index] = list[targetIndex];
-    list[targetIndex] = temp;
-    
-    // Save state
-    localStorage.setItem('wc2026_group_rankings', JSON.stringify(groupRankings));
-    
-    // Recalculate bracket setup
-    recalculateKnockoutTree();
-    
-    // Re-render
-    renderGroups();
-    renderBracket();
-    renderFavorites(); // In case favorited KO card teams updated
-  }
+  // Disabled - purely informational platform
+  return;
 };
+
+// DFS matching algorithm to align the 8 qualifying third-placed teams to matches
+function solveThirdsAssignment(matchesNeed3rd, qualifyingThirds) {
+  const assignment = {};
+  const used = new Set();
+  
+  function dfs(matchIdx) {
+    if (matchIdx === matchesNeed3rd.length) {
+      return true;
+    }
+    const m = matchesNeed3rd[matchIdx];
+    const label = m.team1_seed === '3rd' ? m.team1 : m.team2;
+    const eligible = getEligibleGroupsFor3rd(label);
+    
+    for (const group of eligible) {
+      if (qualifyingThirds.includes(group) && !used.has(group)) {
+        used.add(group);
+        assignment[m.match_id] = group;
+        if (dfs(matchIdx + 1)) {
+          return true;
+        }
+        used.delete(group);
+        delete assignment[m.match_id];
+      }
+    }
+    return false;
+  }
+  
+  if (dfs(0)) {
+    return assignment;
+  }
+  
+  // Fallback greedy matching if DFS fails (should not happen for valid combinations)
+  const fallbackAssignment = {};
+  const fallbackUsed = new Set();
+  matchesNeed3rd.forEach(m => {
+    const label = m.team1_seed === '3rd' ? m.team1 : m.team2;
+    const eligible = getEligibleGroupsFor3rd(label);
+    for (const group of eligible) {
+      if (qualifyingThirds.includes(group) && !fallbackUsed.has(group)) {
+        fallbackUsed.add(group);
+        fallbackAssignment[m.match_id] = group;
+        break;
+      }
+    }
+  });
+  return fallbackAssignment;
+}
+
+// Function to dynamically calculate group standings from realScores
+function calculateGroupStandings() {
+  // Initialize stats for all teams in groups
+  teamStats = {};
+  for (const [groupName, teamList] of Object.entries(groups)) {
+    teamList.forEach(team => {
+      teamStats[team] = { played: 0, won: 0, drawn: 0, lost: 0, gf: 0, ga: 0, gd: 0, pts: 0 };
+    });
+  }
+
+  // Calculate from real scores
+  WORLD_CUP_DATA.group_stage.forEach(m => {
+    const matchKey = `gs_${m.date}_${m.team1}_${m.team2}`;
+    const score = realScores[matchKey];
+    if (score && (score.status === 'FINISHED' || score.status === 'IN_PLAY' || score.status === 'PAUSED')) {
+      const s1 = score.score1;
+      const s2 = score.score2;
+      
+      if (s1 !== null && s2 !== null && s1 !== undefined && s2 !== undefined) {
+        teamStats[m.team1].played++;
+        teamStats[m.team2].played++;
+        
+        teamStats[m.team1].gf += s1;
+        teamStats[m.team1].ga += s2;
+        teamStats[m.team2].gf += s2;
+        teamStats[m.team2].ga += s1;
+        
+        if (s1 > s2) {
+          teamStats[m.team1].won++;
+          teamStats[m.team1].pts += 3;
+          teamStats[m.team2].lost++;
+        } else if (s1 < s2) {
+          teamStats[m.team2].won++;
+          teamStats[m.team2].pts += 3;
+          teamStats[m.team1].lost++;
+        } else {
+          teamStats[m.team1].drawn++;
+          teamStats[m.team1].pts += 1;
+          teamStats[m.team2].drawn++;
+          teamStats[m.team2].pts += 1;
+        }
+      }
+    }
+  });
+
+  // Calculate Goal Difference and sort groupRankings
+  for (const [groupName, teamList] of Object.entries(groups)) {
+    let groupMatchesPlayed = 0;
+    teamList.forEach(team => {
+      teamStats[team].gd = teamStats[team].gf - teamStats[team].ga;
+      groupMatchesPlayed += teamStats[team].played;
+    });
+
+    if (groupMatchesPlayed > 0) {
+      // Sort automatically based on stats (FIFA World Cup Rules: Points -> GD -> GF -> Fallback to default index)
+      const sorted = [...teamList].sort((a, b) => {
+        const statsA = teamStats[a];
+        const statsB = teamStats[b];
+        
+        if (statsB.pts !== statsA.pts) return statsB.pts - statsA.pts;
+        if (statsB.gd !== statsA.gd) return statsB.gd - statsA.gd;
+        if (statsB.gf !== statsA.gf) return statsB.gf - statsA.gf;
+        
+        // Secondary fallback to original order
+        return teamList.indexOf(a) - teamList.indexOf(b);
+      });
+      groupRankings[groupName] = sorted;
+    }
+  }
+
+  // Calculate best 3rd placed teams and match them to Round of 32 slots automatically
+  const thirds = [];
+  for (const [groupName, teamList] of Object.entries(groupRankings)) {
+    if (teamList && teamList[2]) {
+      const team = teamList[2]; // 3rd placed team is at index 2
+      const stats = teamStats[team] || { played: 0, won: 0, drawn: 0, lost: 0, gf: 0, ga: 0, gd: 0, pts: 0 };
+      thirds.push({ group: groupName, pts: stats.pts, gd: stats.gd, gf: stats.gf, won: stats.won });
+    }
+  }
+
+  // Sort thirds
+  thirds.sort((a, b) => {
+    if (b.pts !== a.pts) return b.pts - a.pts;
+    if (b.gd !== a.gd) return b.gd - a.gd;
+    if (b.gf !== a.gf) return b.gf - a.gf;
+    if (b.won !== a.won) return b.won - a.won;
+    return a.group.localeCompare(b.group);
+  });
+
+  // Top 8 qualifying groups
+  const qualifyingThirdGroups = thirds.slice(0, 8).map(t => t.group);
+
+  // Find matches that need a 3rd placed team
+  const matchesNeed3rd = WORLD_CUP_DATA.knockout_stage.filter(m => m.team1_seed === '3rd' || m.team2_seed === '3rd');
+
+  // Solve assignment automatically
+  selected3rdPlaces = solveThirdsAssignment(matchesNeed3rd, qualifyingThirdGroups);
+
+  // Save updated rankings to localStorage
+  localStorage.setItem('wc2026_group_rankings', JSON.stringify(groupRankings));
+  localStorage.setItem('wc2026_selected_3rd_places', JSON.stringify(selected3rdPlaces));
+}
+
+// Function to render the Best 3rd Placed Standings table
+function renderBestThirds() {
+  const container = document.getElementById('best-thirds-table-container');
+  if (!container) return;
+
+  // Collect 3rd placed teams from each of the 12 groups
+  const thirds = [];
+  for (const [groupName, teamList] of Object.entries(groupRankings)) {
+    if (teamList && teamList[2]) {
+      const team = teamList[2]; // 3rd placed team is at index 2
+      const stats = teamStats[team] || { played: 0, won: 0, drawn: 0, lost: 0, gf: 0, ga: 0, gd: 0, pts: 0 };
+      thirds.push({
+        group: groupName,
+        team: team,
+        played: stats.played,
+        won: stats.won,
+        drawn: stats.drawn,
+        lost: stats.lost,
+        gf: stats.gf,
+        ga: stats.ga,
+        gd: stats.gd,
+        pts: stats.pts
+      });
+    }
+  }
+
+  // Sort: Points -> GD -> GF -> Won -> Alphabetical Group Letter
+  thirds.sort((a, b) => {
+    if (b.pts !== a.pts) return b.pts - a.pts;
+    if (b.gd !== a.gd) return b.gd - a.gd;
+    if (b.gf !== a.gf) return b.gf - a.gf;
+    if (b.won !== a.won) return b.won - a.won;
+    return a.group.localeCompare(b.group);
+  });
+
+  let rowsHtml = '';
+  thirds.forEach((t, idx) => {
+    const isQualified = idx < 8;
+    const rankClass = isQualified ? 'rank-1st' : 'rank-4th';
+    const statusBadge = isQualified 
+      ? '<span style="font-size: 0.55rem; color: var(--accent-emerald); border: 1px solid rgba(16, 185, 129, 0.3); padding: 1.5px 6px; border-radius: 4px; font-weight: bold; background: rgba(16, 185, 129, 0.05); letter-spacing: 0.5px;">LOLOS</span>'
+      : '<span style="font-size: 0.55rem; color: var(--accent-red); border: 1px solid rgba(239, 68, 68, 0.3); padding: 1.5px 6px; border-radius: 4px; font-weight: bold; background: rgba(239, 68, 68, 0.05); letter-spacing: 0.5px;">GUGUR</span>';
+    
+    const gdSign = t.gd > 0 ? `+${t.gd}` : t.gd;
+
+    rowsHtml += `
+      <tr style="background: ${isQualified ? 'rgba(16, 185, 129, 0.01)' : 'rgba(239, 68, 68, 0.01)'}">
+        <td class="group-rank-badge ${rankClass}" style="text-align: center; font-weight: 800;">${idx + 1}</td>
+        <td style="text-align: center; font-weight: 700; color: var(--primary-gold);">${t.group.replace("Grup ", "")}</td>
+        <td>
+          <div class="team-cell">
+            ${getFlagHtml(t.team)}
+            <span class="team-name ${isQualified ? 'team-bold' : ''}" style="max-width: 160px;">${t.team}</span>
+          </div>
+        </td>
+        <td style="text-align: center; font-weight: 600; opacity: 0.85;">${t.played}</td>
+        <td style="text-align: center; font-weight: 600; opacity: 0.85;">${gdSign}</td>
+        <td style="text-align: center; font-weight: 700; color: ${isQualified ? 'var(--primary-gold)' : 'inherit'};">${t.pts}</td>
+        <td style="text-align: center;">${statusBadge}</td>
+      </tr>
+    `;
+  });
+
+  container.innerHTML = `
+    <table class="group-table">
+      <thead>
+        <tr>
+          <th style="width: 8%; text-align: center;">Pos</th>
+          <th style="width: 12%; text-align: center;">Grup</th>
+          <th style="text-align: left; width: 38%;">Tim</th>
+          <th style="width: 10%; text-align: center;">M</th>
+          <th style="width: 10%; text-align: center;">SG</th>
+          <th style="width: 12%; text-align: center;">P</th>
+          <th style="width: 10%; text-align: center;">Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${rowsHtml}
+      </tbody>
+    </table>
+  `;
+}
 
 // Main function to dynamically trace standing ranks and calculate bracket teams
 function recalculateKnockoutTree() {
+  // Calculate standings from scores first
+  calculateGroupStandings();
+
   // Clear working copy matches
   knockoutMatches = JSON.parse(JSON.stringify(WORLD_CUP_DATA.knockout_stage));
 
@@ -968,55 +1225,25 @@ function renderBracket() {
       const isPlaceholder1 = m.team1 && typeof m.team1 === 'string' && (m.team1.startsWith('Winner Match') || m.team1.startsWith('Loser Match') || m.team1.startsWith('3rd Grup') || m.team1.startsWith('3rd Group'));
       const isPlaceholder2 = m.team2 && typeof m.team2 === 'string' && (m.team2.startsWith('Winner Match') || m.team2.startsWith('Loser Match') || m.team2.startsWith('3rd Grup') || m.team2.startsWith('3rd Group'));
 
-      // Check if team1 is 3rd place placeholder -> render dropdown selection
       let team1Content = `<span class="bracket-team-name-wrap">${getFlagHtml(m.team1)} <span>${m.team1 || ''}</span></span>`;
-      if (m.team1_seed === '3rd' && isPlaceholder1 && m.team1) {
-        const eligible = getEligibleGroupsFor3rd(m.team1);
-        let options = `<option value="">Pilih 3rd...</option>`;
-        eligible.forEach(g => {
-          const team = (groupRankings[g] && groupRankings[g][2]) ? groupRankings[g][2] : `Tim 3rd ${g}`;
-          const selectedAttr = selected3rdPlaces[m.match_id] === g ? 'selected' : '';
-          options += `<option value="${g}" ${selectedAttr}>Grup ${g.replace("Grup ", "")}: ${team}</option>`;
-        });
-        team1Content = `
-          <select class="bracket-select" onchange="select3rdPlaceGroup(${m.match_id}, this.value)">
-            ${options}
-          </select>
-        `;
-      } else if (isPlaceholder1 && m.team1) {
+      if (isPlaceholder1 && m.team1) {
         team1Content = `<span class="bracket-team-name-wrap">${getFlagHtml(m.team1)} <span class="placeholder-text">${formatPlaceholderName(m.team1)}</span></span>`;
       }
 
-      // Check if team2 is 3rd place placeholder -> render dropdown selection
       let team2Content = `<span class="bracket-team-name-wrap">${getFlagHtml(m.team2)} <span>${m.team2 || ''}</span></span>`;
-      if (m.team2_seed === '3rd' && isPlaceholder2 && m.team2) {
-        const eligible = getEligibleGroupsFor3rd(m.team2);
-        let options = `<option value="">Pilih 3rd...</option>`;
-        eligible.forEach(g => {
-          const team = (groupRankings[g] && groupRankings[g][2]) ? groupRankings[g][2] : `Tim 3rd ${g}`;
-          const selectedAttr = selected3rdPlaces[m.match_id] === g ? 'selected' : '';
-          options += `<option value="${g}" ${selectedAttr}>Grup ${g.replace("Grup ", "")}: ${team}</option>`;
-        });
-        team2Content = `
-          <select class="bracket-select" onchange="select3rdPlaceGroup(${m.match_id}, this.value)">
-            ${options}
-          </select>
-        `;
-      } else if (isPlaceholder2 && m.team2) {
+      if (isPlaceholder2 && m.team2) {
         team2Content = `<span class="bracket-team-name-wrap">${getFlagHtml(m.team2)} <span class="placeholder-text">${formatPlaceholderName(m.team2)}</span></span>`;
       }
 
       const team1WinnerClass = (winner && winner === m.team1) ? 'winner' : (winner ? 'loser' : '');
       const team2WinnerClass = (winner && winner === m.team2) ? 'winner' : (winner ? 'loser' : '');
 
-      const isSelectable = !isPlaceholder1 && !isPlaceholder2;
-      const clickableClass = isSelectable ? 'clickable' : '';
-      const isPredicted = !!winner;
-      // Determine visual card state
+      const hasPlaceholders = isPlaceholder1 || isPlaceholder2;
+      const hasWinner = !!winner;
       let cardStateClass = '';
-      if (!isSelectable) {
+      if (hasPlaceholders) {
         cardStateClass = 'match-locked';
-      } else if (isPredicted) {
+      } else if (hasWinner) {
         cardStateClass = 'match-predicted';
       } else {
         cardStateClass = 'match-ready';
@@ -1025,15 +1252,14 @@ function renderBracket() {
       const timeInfo = getFormattedTime(m.date, m.time);
 
       const matchBoxHtml = `
-        <div class="bracket-match ${clickableClass} ${cardStateClass}">
+        <div class="bracket-match ${cardStateClass}">
           <div class="bracket-match-header">
-            <span>Match ${m.match_id} - ${m.group === "Third-place match" ? "Perebutan Juara 3" : m.group}</span>
-            <span>${timeInfo.date}</span>
+            <span>Laga ${m.match_id}</span>
+            <span>${timeInfo.date} • ${timeInfo.time}</span>
           </div>
           <!-- Team 1 Row -->
           <div class="bracket-team-row ${isPlaceholder1 ? 'placeholder' : ''} ${team1WinnerClass}" 
-               ${!isPlaceholder1 ? `data-team="${m.team1}"` : ''} 
-               onclick="handleBracketTap(${m.match_id}, '${m.team1}', ${isSelectable})">
+               ${!isPlaceholder1 ? `data-team="${m.team1}"` : ''}>
             ${team1Content}
             ${winner && winner === m.team1 ? `
               <span class="bracket-winner-indicator">
@@ -1050,8 +1276,7 @@ function renderBracket() {
           </div>
           <!-- Team 2 Row -->
           <div class="bracket-team-row ${isPlaceholder2 ? 'placeholder' : ''} ${team2WinnerClass}" 
-               ${!isPlaceholder2 ? `data-team="${m.team2}"` : ''} 
-               onclick="handleBracketTap(${m.match_id}, '${m.team2}', ${isSelectable})">
+               ${!isPlaceholder2 ? `data-team="${m.team2}"` : ''}>
             ${team2Content}
             ${winner && winner === m.team2 ? `
               <span class="bracket-winner-indicator">
@@ -1290,36 +1515,27 @@ function initSettingsAndFilters() {
     });
   });
 
-
-
-  // Reset simulator action
-  const resetBtn = document.getElementById('reset-bracket-btn');
-  if (resetBtn) {
-    resetBtn.addEventListener('click', () => {
-      if (confirm('Apakah Anda yakin ingin menyetel ulang semua simulasi grup dan fase gugur?')) {
-        simulatedWinners = {};
-        selected3rdPlaces = {};
-        
-        // Reset group standings rankings to alphabetical order
-        for (const [groupName, teamList] of Object.entries(groups)) {
-          groupRankings[groupName] = [...teamList];
-        }
-        
-        localStorage.setItem('wc2026_group_rankings', JSON.stringify(groupRankings));
-        localStorage.setItem('wc2026_simulated_winners', JSON.stringify(simulatedWinners));
-        localStorage.setItem('wc2026_selected_3rd_places', JSON.stringify(selected3rdPlaces));
-
-        recalculateKnockoutTree();
-        renderGroups();
-        renderBracket();
-        renderFavorites();
-        renderNearestMatches();
-        renderLatestResults();
-        
-        alert('Simulasi berhasil disetel ulang!');
-      }
+  // Sub-tabs switcher (Jadwal Mendatang vs Hasil Pertandingan)
+  const subtabUpcoming = document.getElementById('subtab-upcoming');
+  const subtabResults = document.getElementById('subtab-results');
+  if (subtabUpcoming && subtabResults) {
+    subtabUpcoming.addEventListener('click', () => {
+      subtabUpcoming.classList.add('active');
+      subtabResults.classList.remove('active');
+      scheduleSubTab = 'upcoming';
+      renderSchedule();
+    });
+    subtabResults.addEventListener('click', () => {
+      subtabUpcoming.classList.remove('active');
+      subtabResults.classList.add('active');
+      scheduleSubTab = 'results';
+      renderSchedule();
     });
   }
+
+
+
+
 
   // Bracket team hover highlighting (interactive UX)
   const bracketRoot = document.getElementById('bracket-root');
@@ -1350,35 +1566,51 @@ function initSettingsAndFilters() {
       highlighted.forEach(el => el.classList.remove('highlighted-team'));
     });
   }
+}
 
-  // API Key Listeners
-  const fetchScoresBtn = document.getElementById('fetch-scores-btn');
-  if (fetchScoresBtn) {
-    fetchScoresBtn.addEventListener('click', fetchRealTimeScores);
+// Background Polling functions
+function startScorePolling() {
+  if (scorePollInterval) {
+    clearInterval(scorePollInterval);
+  }
+  
+  // Fetch immediately
+  fetchRealTimeScores(false);
+  
+  // Set interval every 60 seconds
+  scorePollInterval = setInterval(() => {
+    fetchRealTimeScores(false);
+  }, 60000);
+  console.log("Score polling started.");
+}
+
+function stopScorePolling() {
+  if (scorePollInterval) {
+    clearInterval(scorePollInterval);
+    scorePollInterval = null;
+    console.log("Score polling stopped.");
   }
 }
 
 // Fetch and update scores from API
 async function fetchRealTimeScores(isManual = false) {
   const statusMsg = document.getElementById('api-status-msg');
-  const fetchBtn = document.getElementById('fetch-scores-btn');
   if (!statusMsg) return;
 
-  const manual = (isManual === true || (isManual && isManual.type === 'click'));
+  const manual = isManual === true;
   if (!manual && Date.now() - lastFetchTime < 60000) {
     console.log("Score auto-fetch skipped (throttled).");
     return;
   }
 
   if (!apiKey) {
-    statusMsg.textContent = "Silakan simpan API Key terlebih dahulu.";
+    statusMsg.innerHTML = '<span class="pulse-dot error"></span> API Key tidak dikonfigurasi.';
     statusMsg.style.color = "var(--accent-red)";
     return;
   }
 
-  statusMsg.textContent = "Mengambil data skor...";
+  statusMsg.innerHTML = '<span class="pulse-dot loading"></span> Sinkronisasi skor otomatis sedang berjalan...';
   statusMsg.style.color = "var(--text-secondary)";
-  if (fetchBtn) fetchBtn.disabled = true;
 
   let fetchUrl = 'https://corsproxy.io/?url=https://api.football-data.org/v4/competitions/WC/matches';
   let headers = { 'X-Auth-Token': apiKey };
@@ -1492,10 +1724,12 @@ async function fetchRealTimeScores(isManual = false) {
     localStorage.setItem('wc2026_real_scores', JSON.stringify(realScores));
     if (winnerAdvancedCount > 0) {
       localStorage.setItem('wc2026_simulated_winners', JSON.stringify(simulatedWinners));
-      recalculateKnockoutTree();
     }
+    // Always recalculate standings & bracket on new scores fetch
+    recalculateKnockoutTree();
 
-    statusMsg.textContent = `Sukses! ${updatedCount} skor diperbarui.${winnerAdvancedCount > 0 ? ` ${winnerAdvancedCount} pemenang dimasukkan ke bagan.` : ''}`;
+    const timeString = new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+    statusMsg.innerHTML = `<span class="pulse-dot"></span> Sinkronisasi otomatis aktif. Terakhir diperbarui: ${timeString} (${updatedCount} skor diperbarui).`;
     statusMsg.style.color = "var(--accent-emerald)";
     lastFetchTime = Date.now();
 
@@ -1504,6 +1738,8 @@ async function fetchRealTimeScores(isManual = false) {
       renderSchedule();
     } else if (activeTab === 'tab-bracket') {
       renderBracket();
+    } else if (activeTab === 'tab-groups') {
+      renderGroups();
     } else if (activeTab === 'tab-home') {
       renderFavorites();
       renderNearestMatches();
@@ -1512,10 +1748,8 @@ async function fetchRealTimeScores(isManual = false) {
 
   } catch (err) {
     console.error("Score fetch failed:", err);
-    statusMsg.textContent = err.message || "Gagal mengambil data skor.";
+    statusMsg.innerHTML = `<span class="pulse-dot error"></span> Gagal memperbarui skor: ${err.message || 'Error koneksi API'}`;
     statusMsg.style.color = "var(--accent-red)";
-  } finally {
-    if (fetchBtn) fetchBtn.disabled = false;
   }
 }
 
@@ -1558,15 +1792,17 @@ document.addEventListener('DOMContentLoaded', () => {
   // Initial calculate
   recalculateKnockoutTree();
 
-  // Auto-fetch scores if API key exists
+  // Start background auto-polling for scores
   if (apiKey) {
-    fetchRealTimeScores(false);
+    startScorePolling();
   }
 
-  // Auto-fetch when returning to the tab/window (throttled)
+  // Handle tab visibility changes to pause/resume polling
   document.addEventListener('visibilitychange', () => {
-    if (document.visibilityState === 'visible' && apiKey) {
-      fetchRealTimeScores(false);
+    if (document.visibilityState === 'visible') {
+      if (apiKey) startScorePolling();
+    } else {
+      stopScorePolling();
     }
   });
 });
