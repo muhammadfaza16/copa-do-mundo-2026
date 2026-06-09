@@ -1661,14 +1661,15 @@ body.light-theme .sub-tab-btn.active {
 
 /* Brand Header Logo */
 .brand-logo {
-  height: 32px;
+  height: 44px; /* Increased from 32px to make it highly visible */
   width: auto;
   object-fit: contain;
   mix-blend-mode: screen; /* Blends black background away in dark theme */
+  filter: brightness(1.15) contrast(1.1); /* Enhance brightness and contrast in dark mode */
 }
 
 body.light-theme .brand-logo {
-  filter: invert(1) hue-rotate(180deg) brightness(0.95) contrast(1.1); /* Inverts black background to white and white text to black, keeping trophy gold */
+  filter: invert(1) hue-rotate(180deg) brightness(1.05) contrast(1.25); /* Invert black background to white and white text to black, keeping trophy gold and boosting contrast/brightness */
   mix-blend-mode: multiply; /* Blends inverted white background away in light theme */
 }
 
@@ -1789,6 +1790,10 @@ body.light-theme .welcome-mascot-side {
 
 /* Mobile Optimizations (Pure Premium Visual Cleanliness) */
 @media (max-width: 480px) {
+  .brand-logo {
+    height: 36px; /* Adjusted height for mobile screens */
+  }
+
   /* Container & padding reductions for more screen real estate */
   main {
     padding: 12px 12px 120px 12px;
