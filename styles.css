@@ -1664,12 +1664,12 @@ body.light-theme .sub-tab-btn.active {
   height: 32px;
   width: auto;
   object-fit: contain;
-  filter: invert(1) hue-rotate(180deg) brightness(1.25) contrast(1.15); /* Invert white bg to black, restore logo color hues */
+  mix-blend-mode: screen; /* Blends black background away in dark theme */
 }
 
 body.light-theme .brand-logo {
-  filter: none;
-  mix-blend-mode: multiply; /* Blends solid white logo background away in light theme */
+  filter: invert(1) hue-rotate(180deg) brightness(0.95) contrast(1.1); /* Inverts black background to white and white text to black, keeping trophy gold */
+  mix-blend-mode: multiply; /* Blends inverted white background away in light theme */
 }
 
 /* Glowing Background Ornaments representing USA, Canada, Mexico colors */
