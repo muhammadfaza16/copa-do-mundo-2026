@@ -194,11 +194,13 @@ try {
 // THEME STATE
 let currentTheme = localStorage.getItem('wc2026_theme');
 if (!currentTheme) {
-  currentTheme = 'dark'; // Dark mode is default
-  localStorage.setItem('wc2026_theme', 'dark');
+  currentTheme = 'light'; // Light mode is default
+  localStorage.setItem('wc2026_theme', 'light');
 }
 if (currentTheme === 'light') {
   document.body.classList.add('light-theme');
+} else {
+  document.body.classList.remove('light-theme');
 }
 
 // SIMULATOR STATE
@@ -405,14 +407,6 @@ function createMatchCardHtml(match, index, isKnockout = false) {
   const labelStage = match.group;
   const labelVenue = getMatchVenue(match);
 
-  // Check top10 / top20 badges
-  let badgeHtml = '';
-  if (match.top10) {
-    badgeHtml = `<span class="match-badge badge-top10">Super Match (Top 10)</span>`;
-  } else if (match.top20) {
-    badgeHtml = `<span class="match-badge badge-top20">Big Match (Top 20)</span>`;
-  }
-
   return `
     <div class="match-card" data-key="${matchKey}">
       <div class="match-header">
@@ -449,7 +443,6 @@ function createMatchCardHtml(match, index, isKnockout = false) {
       <div class="match-footer">
         <div class="match-footer-left">
           <span class="match-venue-label">${labelVenue}</span>
-          ${badgeHtml}
         </div>
         <button class="star-btn ${starredClass}" onclick="toggleMatchStar('${matchKey}', this)" aria-label="Simpan Pertandingan">
           <svg viewBox="0 0 24 24">

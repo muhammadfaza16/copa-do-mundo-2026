@@ -17,6 +17,7 @@
   --primary-gold: #d4af37; /* Muted Champagne Gold */
   --primary-gold-rgb: 212, 175, 55;
   --secondary-bronze: #8e8e93;
+  --action-btn-text: #000000;
   
   --text-primary: #ffffff;
   --text-secondary: #8e8e93;
@@ -61,6 +62,7 @@ body.light-theme {
   --primary-gold: #9a7a1e;
   --primary-gold-rgb: 154, 122, 30;
   --secondary-bronze: #86868b;
+  --action-btn-text: #ffffff;
   
   --text-primary: #1d1d1f;   /* Apple signature black */
   --text-secondary: #6e6e73; /* Apple signature grey */
@@ -374,14 +376,7 @@ main {
   transition: var(--transition-smooth);
 }
 
-.match-card:hover {
-  border-color: rgba(255, 255, 255, 0.1);
-  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.5);
-}
 
-.match-card:active {
-  background: rgba(25, 28, 36, 0.7);
-}
 
 .match-header {
   display: flex;
@@ -1179,7 +1174,7 @@ input:checked + .slider:before {
   width: 100%;
   background: rgba(239, 68, 68, 0.05);
   border: 1px solid rgba(239, 68, 68, 0.2);
-  color: #ef4444;
+  color: var(--accent-red);
   padding: 14px;
   border-radius: var(--border-radius-md);
   font-family: var(--font-sans);
@@ -1274,7 +1269,7 @@ input:checked + .slider:before {
   font-size: 0.8rem;
   font-weight: 700;
   background: var(--primary-gold);
-  color: #000000;
+  color: var(--action-btn-text);
   border: none;
   height: 44px;
   border-radius: var(--border-radius-sm);
@@ -1409,17 +1404,13 @@ body.light-theme .flag-crest-placeholder {
 /* Bracket Match Footer Venue */
 .bracket-match-footer-venue {
   font-size: 0.6rem;
-  color: var(--text-muted);
+  color: var(--text-secondary);
+  opacity: 0.85;
   text-align: center;
-  padding-top: 2px;
-  border-top: 1px dashed rgba(255, 255, 255, 0.03);
-  text-overflow: ellipsis;
-  overflow: hidden;
-  white-space: nowrap;
-}
-
-body.light-theme .bracket-match-footer-venue {
-  border-top-color: rgba(0, 0, 0, 0.05);
+  padding-top: 4px;
+  border-top: 1px dashed var(--glass-border);
+  white-space: normal; /* Allow wrapping so it is not cropped */
+  line-height: 1.35;
 }
 
 .bracket-third-place-header {
@@ -1430,5 +1421,43 @@ body.light-theme .bracket-match-footer-venue {
   margin-bottom: 10px;
   text-transform: uppercase;
   letter-spacing: 0.5px;
+}
+
+/* Light Theme Font & Hover Contrast Overrides */
+body.light-theme .bracket-match.clickable .bracket-team-row:hover {
+  background: rgba(0, 0, 0, 0.03);
+}
+
+body.light-theme .bracket-team-row:hover {
+  background: rgba(0, 0, 0, 0.02);
+}
+
+
+
+body.light-theme .settings-btn:hover {
+  border-color: rgba(0, 0, 0, 0.12);
+  background: rgba(0, 0, 0, 0.03);
+}
+
+body.light-theme .bracket-match:hover {
+  border-color: rgba(0, 0, 0, 0.12);
+}
+
+body.light-theme .bracket-match-header {
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+body.light-theme .filter-select:hover {
+  border-color: rgba(0, 0, 0, 0.15);
+}
+
+body.light-theme .bracket-team-row select.bracket-select {
+  background: rgba(0, 0, 0, 0.02);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+body.light-theme .bracket-team-row select.bracket-select:hover {
+  border-color: rgba(0, 0, 0, 0.15);
+  background-color: rgba(0, 0, 0, 0.04);
 }
 
