@@ -804,6 +804,66 @@ body.light-theme .scroll-nav-btn:hover {
   background: rgba(0, 0, 0, 0.04);
 }
 
+/* Sticky Floating Center Button */
+.center-bracket-btn {
+  position: fixed;
+  bottom: 104px;
+  right: calc(50% - 270px + 16px);
+  z-index: 99;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  border-radius: 30px;
+  background: var(--panel-bg);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid var(--glass-border);
+  color: var(--primary-gold);
+  font-family: var(--font-sans);
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-wide);
+  cursor: pointer;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+  transition: var(--transition-smooth);
+}
+
+.center-bracket-btn svg {
+  width: 14px;
+  height: 14px;
+  stroke: currentColor;
+  fill: none;
+}
+
+.center-bracket-btn:hover {
+  transform: translateY(-2px);
+  background: rgba(var(--primary-gold-rgb), 0.1);
+  border-color: var(--primary-gold);
+  box-shadow: 0 12px 40px rgba(var(--primary-gold-rgb), 0.2);
+  color: var(--text-primary);
+}
+
+.center-bracket-btn:active {
+  transform: translateY(1px);
+}
+
+body.light-theme .center-bracket-btn {
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.06);
+}
+
+body.light-theme .center-bracket-btn:hover {
+  background: rgba(var(--primary-gold-rgb), 0.08);
+  box-shadow: 0 12px 40px rgba(var(--primary-gold-rgb), 0.15);
+}
+
+@media (max-width: 540px) {
+  .center-bracket-btn {
+    right: 16px;
+  }
+}
+
 /* Bracket Simulator Styles */
 .bracket-scroll-container {
   width: 100%;

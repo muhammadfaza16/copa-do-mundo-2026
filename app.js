@@ -1540,9 +1540,10 @@ function renderBracket() {
       extraColStyles = 'position: relative;';
     }
 
+    const headerStyle = stage.side === 'center' ? 'style="visibility: hidden;" aria-hidden="true"' : '';
     bracketHtml += `
       <div class="${columnClass}" style="--parent-height: ${parentHeights[sIdx]}px; ${extraColStyles}">
-        <div class="bracket-column-header">
+        <div class="bracket-column-header" ${headerStyle}>
           ${stage.title}
           <div class="bracket-column-info">${stage.info}</div>
         </div>
@@ -1860,6 +1861,30 @@ window.scrollBracketToEdge = function(direction) {
       behavior: 'smooth'
     });
   }
+};
+
+window.centerBracketVertical = function() {
+  const bracket = document.getElementById('bracket-root');
+  if (!bracket) return;
+
+  const rect = bracket.getBoundingClientRect();
+  const bracketCenterViewportY = rect.top + rect.height / 2;
+
+  // Dynamically calculate unobstructed viewport heights
+  const header = document.querySelector('header');
+  const bottomNav = document.querySelector('.bottom-nav');
+  const headerHeight = header ? header.getBoundingClientRect().height : 60;
+  const bottomNavHeight = bottomNav ? (window.innerHeight - bottomNav.getBoundingClientRect().top) : 92;
+
+  // Unobstructed center of the viewport
+  const unobstructedCenterY = headerHeight + (window.innerHeight - headerHeight - bottomNavHeight) / 2;
+
+  const targetScrollY = window.scrollY + bracketCenterViewportY - unobstructedCenterY;
+
+  window.scrollTo({
+    top: targetScrollY,
+    behavior: 'smooth'
+  });
 };
 
 window.showGroupMatches = function(groupName) {
