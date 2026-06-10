@@ -287,6 +287,24 @@
     </button>
   </nav>
 
+  <!-- Premium Glassmorphic Modal for Bracket Slot Details -->
+  <div id="slot-modal" class="modal-overlay" onclick="window.closeSlotModal()">
+    <div class="modal-content glass-panel" onclick="event.stopPropagation()">
+      <div class="modal-header">
+        <h4 id="slot-modal-title">Potensi Pengisi Slot</h4>
+        <button class="modal-close-btn" onclick="window.closeSlotModal()" aria-label="Tutup">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
+        </button>
+      </div>
+      <div id="slot-modal-body" class="modal-body">
+        <!-- Standings table will be rendered here dynamically -->
+      </div>
+    </div>
+  </div>
+
   <!-- Main App Script -->
   <script src="data.js"></script>
   <script src="app.js"></script>
