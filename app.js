@@ -1724,6 +1724,67 @@ window.closeSlotModal = function() {
   }
 };
 
+window.toggleBracketZoom = function() {
+  const bracket = document.getElementById('bracket-root');
+  const container = document.getElementById('bracket-zoom-container');
+  const btn = document.getElementById('btn-bracket-zoom');
+  if (!bracket || !container || !btn) return;
+
+  const isZoomed = container.classList.contains('zoomed-out');
+  if (isZoomed) {
+    container.classList.remove('zoomed-out');
+    bracket.style.transform = '';
+    bracket.style.marginBottom = '';
+    btn.innerHTML = `
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="width: 12px; height: 12px; display: inline-block; vertical-align: middle;">
+        <circle cx="11" cy="11" r="8"></circle>
+        <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+        <line x1="8" y1="11" x2="14" y2="11"></line>
+      </svg>
+      <span style="font-weight: 700;">Zoom Out</span>
+    `;
+  } else {
+    container.classList.add('zoomed-out');
+    const viewportWidth = container.offsetWidth;
+    const scrollWidth = 1480; 
+    let scale = (viewportWidth - 16) / scrollWidth;
+    if (scale > 0.95) scale = 0.95;
+    if (scale < 0.3) scale = 0.3;
+
+    bracket.style.transform = `scale(${scale})`;
+    
+    const originalHeight = bracket.scrollHeight || 1180;
+    const heightDifference = originalHeight * (1 - scale);
+    bracket.style.marginBottom = `-${heightDifference}px`;
+
+    btn.innerHTML = `
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="width: 12px; height: 12px; display: inline-block; vertical-align: middle;">
+        <circle cx="11" cy="11" r="8"></circle>
+        <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+        <line x1="12" y1="8" x2="12" y2="14"></line>
+        <line x1="9" y1="11" x2="15" y2="11"></line>
+      </svg>
+      <span style="font-weight: 700;">Zoom In</span>
+    `;
+  }
+};
+
+window.addEventListener('resize', () => {
+  const container = document.getElementById('bracket-zoom-container');
+  const bracket = document.getElementById('bracket-root');
+  if (container && container.classList.contains('zoomed-out') && bracket) {
+    const viewportWidth = container.offsetWidth;
+    const scrollWidth = 1480;
+    let scale = (viewportWidth - 16) / scrollWidth;
+    if (scale > 0.95) scale = 0.95;
+    if (scale < 0.3) scale = 0.3;
+    bracket.style.transform = `scale(${scale})`;
+    const originalHeight = bracket.scrollHeight || 1180;
+    const heightDifference = originalHeight * (1 - scale);
+    bracket.style.marginBottom = `-${heightDifference}px`;
+  }
+});
+
 // Synchronize indicator dots with horizontal scroll index
 function syncBracketDots() {
   const container = document.getElementById('bracket-root');

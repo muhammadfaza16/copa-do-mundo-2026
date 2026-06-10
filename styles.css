@@ -767,12 +767,62 @@ body.light-theme .search-input:focus {
 }
 
 /* Bracket Simulator Styles */
+.bracket-zoom-container {
+  width: 100%;
+  overflow-x: auto;
+  position: relative;
+  border-radius: var(--border-radius-md);
+  transition: background 0.3s ease;
+}
+
+.bracket-zoom-container.zoomed-out {
+  overflow: hidden;
+}
+
+.bracket-zoom-container.zoomed-out + .bracket-indicator-dots {
+  display: none !important;
+}
+
+/* Premium Zoom Toggle Button */
+.zoom-toggle-btn {
+  font-family: var(--font-sans);
+  font-size: 0.65rem;
+  font-weight: 700;
+  padding: 5px 12px;
+  border-radius: 20px;
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  color: var(--text-secondary);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: var(--transition-smooth);
+}
+
+.zoom-toggle-btn:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--text-primary);
+  border-color: var(--glass-border-focus);
+}
+
+body.light-theme .zoom-toggle-btn:hover {
+  background: rgba(0, 0, 0, 0.04);
+}
+
 .bracket-wrapper {
   overflow-x: auto;
   display: flex;
   gap: 32px;
   padding: 10px 0;
   scroll-snap-type: x mandatory;
+  transition: transform 0.3s cubic-bezier(0.25, 0.8, 0.25, 1), margin-bottom 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+  transform-origin: top left;
+}
+
+.bracket-zoom-container.zoomed-out .bracket-wrapper {
+  scroll-snap-type: none;
+  overflow: visible;
 }
 
 /* Columns in horizontal scrolling bracket tree */
