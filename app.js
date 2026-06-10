@@ -1794,9 +1794,11 @@ window.toggleBracketZoom = function() {
     const translateX = Math.max(0, (viewportWidth - (scrollWidth * scale)) / 2);
     bracket.style.transform = `translate(${translateX}px, 0) scale(${scale})`;
     
-    const originalHeight = bracket.scrollHeight || 1180;
-    const heightDifference = originalHeight * (1 - scale);
-    bracket.style.marginBottom = `-${heightDifference}px`;
+    setTimeout(() => {
+      const originalHeight = bracket.scrollHeight || 1180;
+      const heightDifference = originalHeight * (1 - scale);
+      bracket.style.marginBottom = `-${heightDifference}px`;
+    }, 50);
 
     btn.innerHTML = `
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="width: 12px; height: 12px; display: inline-block; vertical-align: middle;">
@@ -1820,7 +1822,6 @@ window.toggleBracketLayout = function() {
   const isVertical = bracket.classList.contains('layout-vertical');
   if (isVertical) {
     bracket.classList.remove('layout-vertical');
-    if (btnZoom) btnZoom.style.display = 'flex';
     if (dots) dots.style.display = 'flex';
     btnLayout.innerHTML = `
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="width: 12px; height: 12px; display: inline-block; vertical-align: middle;">
@@ -1831,11 +1832,6 @@ window.toggleBracketLayout = function() {
     `;
   } else {
     bracket.classList.add('layout-vertical');
-    const container = document.getElementById('bracket-zoom-container');
-    if (container && container.classList.contains('zoomed-out')) {
-      window.toggleBracketZoom();
-    }
-    if (btnZoom) btnZoom.style.display = 'none';
     if (dots) dots.style.display = 'none';
     btnLayout.innerHTML = `
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="width: 12px; height: 12px; display: inline-block; vertical-align: middle;">
@@ -1844,6 +1840,24 @@ window.toggleBracketLayout = function() {
       </svg>
       <span style="font-weight: 700;">Mode Bagan</span>
     `;
+  }
+
+  // Recalculate zoom and margins after layout swap if currently zoomed out
+  const container = document.getElementById('bracket-zoom-container');
+  if (container && container.classList.contains('zoomed-out')) {
+    const viewportWidth = container.offsetWidth;
+    const scrollWidth = 2686;
+    let scale = (viewportWidth - 16) / scrollWidth;
+    if (scale > 0.95) scale = 0.95;
+    if (scale < 0.05) scale = 0.05;
+    const translateX = Math.max(0, (viewportWidth - (scrollWidth * scale)) / 2);
+    bracket.style.transform = `translate(${translateX}px, 0) scale(${scale})`;
+    
+    setTimeout(() => {
+      const originalHeight = bracket.scrollHeight || 1180;
+      const heightDifference = originalHeight * (1 - scale);
+      bracket.style.marginBottom = `-${heightDifference}px`;
+    }, 50);
   }
 };
 

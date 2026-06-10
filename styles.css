@@ -828,38 +828,200 @@ body.light-theme .zoom-toggle-btn:hover {
 /* Portrait (Vertical Stacked) Layout for Mobile/Narrow Viewports */
 .bracket-wrapper.layout-vertical {
   flex-direction: column;
-  gap: 36px;
-  overflow-x: hidden;
+  gap: 70px; /* Vertical gap between rounds */
+  width: 2686px !important;
   scroll-snap-type: none;
-  width: 100% !important;
-  transform: none !important; /* Disable zoom transform */
-  margin-bottom: 0 !important;
+  overflow-x: visible;
+  padding: 30px 0;
+  transform-origin: top left;
 }
 
 .bracket-wrapper.layout-vertical .bracket-column {
-  flex: 1 1 auto;
-  width: 100%;
-  gap: 12px;
-  padding: 0;
+  display: flex;
+  flex-direction: row;
+  width: 2686px !important;
+  padding: 0 135px !important; /* Center the 2416px bracket tree in 2686px width */
+  box-sizing: border-box;
+  align-items: center;
+  position: relative;
+  height: auto;
+  gap: 0 !important;
+}
+
+/* Position headers to the left margin absolutely in vertical layout */
+.bracket-wrapper.layout-vertical .bracket-column-header {
+  position: absolute;
+  left: 20px;
+  top: 50%;
+  transform: translateY(-50%);
+  margin-bottom: 0;
+  text-align: left;
+  width: 100px;
+  z-index: 10;
 }
 
 .bracket-wrapper.layout-vertical .bracket-slot {
-  height: auto !important; /* Tight spacing vertically */
-  padding: 4px 0;
+  height: auto !important;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+  box-sizing: border-box;
 }
 
-/* Hide connectors in vertical layout */
-.bracket-wrapper.layout-vertical .bracket-column::before,
-.bracket-wrapper.layout-vertical .bracket-column::after,
-.bracket-wrapper.layout-vertical .bracket-slot::before,
-.bracket-wrapper.layout-vertical .bracket-slot::after {
-  display: none !important;
+/* Slot widths to align tree nodes perfectly vertically */
+.bracket-wrapper.layout-vertical .bracket-column:nth-child(1) .bracket-slot,
+.bracket-wrapper.layout-vertical .bracket-column:nth-child(9) .bracket-slot {
+  width: 302px !important;
+  flex: 0 0 302px !important;
 }
 
-/* Disable absolute layout on Third-place in vertical mode */
+.bracket-wrapper.layout-vertical .bracket-column:nth-child(2) .bracket-slot,
+.bracket-wrapper.layout-vertical .bracket-column:nth-child(8) .bracket-slot {
+  width: 604px !important;
+  flex: 0 0 604px !important;
+}
+
+.bracket-wrapper.layout-vertical .bracket-column:nth-child(3) .bracket-slot,
+.bracket-wrapper.layout-vertical .bracket-column:nth-child(7) .bracket-slot {
+  width: 1208px !important;
+  flex: 0 0 1208px !important;
+}
+
+.bracket-wrapper.layout-vertical .bracket-column:nth-child(4) .bracket-slot,
+.bracket-wrapper.layout-vertical .bracket-column:nth-child(6) .bracket-slot,
+.bracket-wrapper.layout-vertical .bracket-column:nth-child(5) .bracket-slot {
+  width: 2416px !important;
+  flex: 0 0 2416px !important;
+}
+
+/* Stack Final & Third-place vertically in center column */
+.bracket-wrapper.layout-vertical .bracket-column:nth-child(5) {
+  flex-direction: column !important;
+  gap: 20px !important;
+}
+
 .bracket-wrapper.layout-vertical .third-place-slot {
-  position: static !important;
-  margin-top: 14px;
+  position: absolute !important;
+  right: 437px !important; /* aligned with the right half of 2416px tree */
+  width: 604px !important;
+  left: auto !important;
+  top: 50% !important;
+  transform: translateY(-50%) !important;
+  margin-top: 0 !important;
+  z-index: 5;
+}
+
+/* Vertical Layout Connector Lines */
+.bracket-wrapper.layout-vertical .bracket-column.incoming-left .bracket-slot::before {
+  content: "";
+  position: absolute;
+  top: -70px;
+  bottom: auto !important;
+  height: 35px;
+  left: 25%;
+  right: 25%;
+  border-left: 2px solid var(--connector-color);
+  border-right: 2px solid var(--connector-color);
+  border-bottom: 2px solid var(--connector-color);
+  border-top: none !important;
+  width: auto !important;
+  pointer-events: none;
+  z-index: 1;
+  transition: var(--transition-smooth);
+}
+
+.bracket-wrapper.layout-vertical .bracket-column.incoming-left .bracket-slot::after {
+  content: "";
+  position: absolute;
+  top: -35px;
+  bottom: auto !important;
+  height: 35px;
+  left: 50%;
+  width: 0 !important;
+  border-left: 2px solid var(--connector-color);
+  border-top: none !important;
+  border-bottom: none !important;
+  pointer-events: none;
+  z-index: 1;
+  transition: var(--transition-smooth);
+}
+
+.bracket-wrapper.layout-vertical .bracket-column.incoming-right .bracket-slot::before {
+  content: "";
+  position: absolute;
+  bottom: -70px;
+  top: auto !important;
+  height: 35px;
+  left: 25%;
+  right: 25%;
+  border-left: 2px solid var(--connector-color);
+  border-right: 2px solid var(--connector-color);
+  border-top: 2px solid var(--connector-color);
+  border-bottom: none !important;
+  width: auto !important;
+  pointer-events: none;
+  z-index: 1;
+  transition: var(--transition-smooth);
+}
+
+.bracket-wrapper.layout-vertical .bracket-column.incoming-right .bracket-slot::after {
+  content: "";
+  position: absolute;
+  bottom: -35px;
+  top: auto !important;
+  height: 35px;
+  left: 50%;
+  width: 0 !important;
+  border-left: 2px solid var(--connector-color);
+  border-top: none !important;
+  border-bottom: none !important;
+  pointer-events: none;
+  z-index: 1;
+  transition: var(--transition-smooth);
+}
+
+/* Connectors light up with active color if predicted */
+.bracket-wrapper.layout-vertical .bracket-column.incoming-left .bracket-slot.match-predicted::before,
+.bracket-wrapper.layout-vertical .bracket-column.incoming-left .bracket-slot.match-predicted::after,
+.bracket-wrapper.layout-vertical .bracket-column.incoming-right .bracket-slot.match-predicted::before,
+.bracket-wrapper.layout-vertical .bracket-column.incoming-right .bracket-slot.match-predicted::after,
+.bracket-wrapper.layout-vertical .bracket-slot.final-slot.match-predicted::before,
+.bracket-wrapper.layout-vertical .bracket-slot.final-slot.match-predicted::after {
+  border-color: var(--connector-color-active) !important;
+}
+
+/* Center Final Match Vertical Connectors */
+.bracket-wrapper.layout-vertical .bracket-slot.final-slot::before {
+  content: "";
+  position: absolute;
+  top: -70px;
+  bottom: auto !important;
+  height: 70px;
+  left: 50%;
+  width: 0 !important;
+  border-left: 2px solid var(--connector-color);
+  border-top: none !important;
+  border-bottom: none !important;
+  pointer-events: none;
+  z-index: 1;
+  transition: var(--transition-smooth);
+}
+
+.bracket-wrapper.layout-vertical .bracket-slot.final-slot::after {
+  content: "";
+  position: absolute;
+  bottom: -70px;
+  top: auto !important;
+  height: 70px;
+  left: 50%;
+  width: 0 !important;
+  border-left: 2px solid var(--connector-color);
+  border-top: none !important;
+  border-bottom: none !important;
+  pointer-events: none;
+  z-index: 1;
+  transition: var(--transition-smooth);
 }
 
 /* Columns in horizontal scrolling bracket tree */
