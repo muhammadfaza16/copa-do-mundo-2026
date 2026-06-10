@@ -1590,6 +1590,18 @@ window.openSlotModal = function(teamName, matchId) {
         const groupName = `Grup ${groupLetter}`;
         const rankedTeams = groupRankings[groupName];
 
+        const isJuaraSlot = teamName.startsWith('Juara');
+        const isRunnerUpSlot = teamName.startsWith('Runner-up');
+
+        let introText = '';
+        if (isJuaraSlot) {
+          introText = `Hanya tim peringkat 1 (Juara) dari <strong>${groupName}</strong> yang eligible untuk slot ini. Klasemen grup saat ini:`;
+        } else if (isRunnerUpSlot) {
+          introText = `Hanya tim peringkat 2 (Runner-up) dari <strong>${groupName}</strong> yang eligible untuk slot ini. Klasemen grup saat ini:`;
+        } else {
+          introText = `Tim dari <strong>${groupName}</strong> yang memenuhi syarat akan mengisi slot ini. Klasemen grup saat ini:`;
+        }
+
         title.textContent = `Klasemen ${groupName}`;
 
         let rowsHtml = '';
@@ -1598,15 +1610,36 @@ window.openSlotModal = function(teamName, matchId) {
           const gdSign = stats.gd > 0 ? `+${stats.gd}` : stats.gd;
           const rankClass = idx === 0 ? 'rank-1st' : (idx === 1 ? 'rank-2nd' : (idx === 2 ? 'rank-3rd' : 'rank-4th'));
           const rankSuffix = idx === 0 ? '1' : (idx === 1 ? '2' : (idx === 2 ? '3' : '4'));
-          const teamWeightClass = idx < 2 ? 'team-bold' : '';
+          
+          let rowStyle = '';
+          let statusBadge = '';
+          
+          if (isJuaraSlot) {
+            if (idx === 0) {
+              rowStyle = 'background: rgba(212, 175, 55, 0.08); font-weight: 700; border-left: 3px solid var(--primary-gold);';
+              statusBadge = '<span style="font-size: 0.55rem; color: var(--primary-gold); border: 1px solid rgba(212, 175, 55, 0.4); padding: 1.5px 5px; border-radius: 4px; font-weight: bold; background: rgba(212, 175, 55, 0.05); float: right; margin-top: 2px; letter-spacing: 0.5px;">JUARA</span>';
+            } else {
+              rowStyle = 'opacity: 0.45;';
+            }
+          } else if (isRunnerUpSlot) {
+            if (idx === 1) {
+              rowStyle = 'background: rgba(142, 142, 147, 0.15); font-weight: 700; border-left: 3px solid var(--secondary-bronze);';
+              statusBadge = '<span style="font-size: 0.55rem; color: var(--text-primary); border: 1px solid rgba(142, 142, 147, 0.4); padding: 1.5px 5px; border-radius: 4px; font-weight: bold; background: rgba(142, 142, 147, 0.05); float: right; margin-top: 2px; letter-spacing: 0.5px;">RUNNER-UP</span>';
+            } else {
+              rowStyle = 'opacity: 0.45;';
+            }
+          }
 
           rowsHtml += `
-            <tr>
+            <tr style="${rowStyle}">
               <td class="group-rank-badge ${rankClass}" style="text-align: center; font-weight: 800;">${rankSuffix}</td>
               <td>
-                <div class="team-cell" style="display: flex; align-items: center; gap: 8px;">
-                  ${getFlagHtml(team)}
-                  <span class="team-name ${teamWeightClass}">${team}</span>
+                <div class="team-cell" style="display: flex; align-items: center; justify-content: space-between; gap: 8px;">
+                  <div style="display: flex; align-items: center; gap: 8px;">
+                    ${getFlagHtml(team)}
+                    <span class="team-name ${idx < 2 ? 'team-bold' : ''}">${team}</span>
+                  </div>
+                  ${statusBadge}
                 </div>
               </td>
               <td style="text-align: center; opacity: 0.85;">${stats.played}</td>
@@ -1618,7 +1651,7 @@ window.openSlotModal = function(teamName, matchId) {
 
         body.innerHTML = `
           <p style="font-size: 0.75rem; color: var(--text-secondary); margin-bottom: 12px; line-height: 1.4;">
-            Dua tim teratas dari <strong>${groupName}</strong> akan mengisi slot ini. Klasemen grup saat ini:
+            ${introText}
           </p>
           <table class="group-table">
             <thead>
