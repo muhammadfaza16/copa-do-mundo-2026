@@ -398,81 +398,107 @@ function getEligibleGroupsFor3rd(label) {
 // ----------------------------------------------------
 // COUNTDOWN TIMER
 // ----------------------------------------------------
+function updateHeroPanel() {
+  const container = document.querySelector('.countdown-container');
+  const titleEl = document.querySelector('.countdown-title');
+  const cdDisplay = document.getElementById('countdown-display');
+  const subEl = document.getElementById('countdown-sub');
+  if (!container || !titleEl || !cdDisplay || !subEl) return;
+
+  const now = Date.now();
+  const allMatches = [
+    ...WORLD_CUP_DATA.group_stage.map(m => ({ ...m, isKO: false })),
+    ...knockoutMatches.map(m => ({ ...m, isKO: true }))
+  ];
+
+  // 1. Check if there is a LIVE match
+  const liveMatches = allMatches.filter(m => {
+    const matchKey = m.isKO ? `ko_${m.match_id}` : `gs_${m.date}_${m.team1}_${m.team2}`;
+    const scoreData = realScores[matchKey];
+    return scoreData && (scoreData.status === 'IN_PLAY' || scoreData.status === 'PAUSED');
+  });
+
+  if (liveMatches.length > 0) {
+    // MODE 1: LIVE Matches Active
+    titleEl.innerHTML = `<span class="live-blink-dot" style="margin-right: 8px;"></span>Pertandingan Sedang Berlangsung`;
+    
+    let liveHtml = '<div style="width: 100%; display: flex; flex-direction: column; gap: 10px; margin-top: 15px; margin-bottom: 5px;">';
+    liveMatches.forEach(m => {
+      liveHtml += createMatchCardHtml(m, 0, m.isKO);
+    });
+    liveHtml += '</div>';
+    
+    cdDisplay.innerHTML = liveHtml;
+    cdDisplay.style.display = 'block';
+    subEl.style.display = 'none';
+    return;
+  }
+
+  // MODE 2: Countdown Active (No live matches)
+  const hasLiveStructure = cdDisplay.querySelector('.match-card') || cdDisplay.innerHTML.includes('match-card');
+  if (hasLiveStructure || cdDisplay.innerHTML.trim() === "" || !document.getElementById('cd-days')) {
+    cdDisplay.innerHTML = `
+      <div class="time-segment">
+        <span id="cd-days" class="time-num">00</span>
+        <span class="time-label">Hari</span>
+      </div>
+      <div class="time-segment">
+        <span id="cd-hours" class="time-num">00</span>
+        <span class="time-label">Jam</span>
+      </div>
+      <div class="time-segment">
+        <span id="cd-mins" class="time-num">00</span>
+        <span class="time-label">Menit</span>
+      </div>
+      <div class="time-segment">
+        <span id="cd-secs" class="time-num">00</span>
+        <span class="time-label">Detik</span>
+      </div>
+    `;
+  }
+  
+  subEl.style.display = 'block';
+
+  const targetMatch = getNextMatch();
+  if (!targetMatch) {
+    container.style.display = 'none';
+    return;
+  }
+
+  container.style.display = 'block';
+
+  const targetTime = getMatchDate(targetMatch.date, targetMatch.time).getTime();
+  const diff = targetTime - now;
+
+  if (diff <= 0) {
+    return;
+  }
+
+  const isOpening = targetMatch.date === "12/6" && targetMatch.time === "02:00" && targetMatch.team1 === "Meksiko";
+  titleEl.innerText = isOpening ? `Kick-Off Match Pertama` : `Kick-Off Match Berikutnya`;
+
+  const venue = getMatchVenue(targetMatch);
+  subEl.innerText = `${targetMatch.team1} vs ${targetMatch.team2} - ${venue}`;
+
+  const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+  const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+  const mins = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+  const secs = Math.floor((diff % (1000 * 60)) / 1000);
+
+  const cdDays = document.getElementById('cd-days');
+  const cdHours = document.getElementById('cd-hours');
+  const cdMins = document.getElementById('cd-mins');
+  const cdSecs = document.getElementById('cd-secs');
+
+  if (cdDays) cdDays.textContent = String(days).padStart(2, '0');
+  if (cdHours) cdHours.textContent = String(hours).padStart(2, '0');
+  if (cdMins) cdMins.textContent = String(mins).padStart(2, '0');
+  if (cdSecs) cdSecs.textContent = String(secs).padStart(2, '0');
+}
+
 function initCountdown() {
-  let targetMatch = null;
-  let targetTime = 0;
-
-  function findTarget() {
-    targetMatch = getNextMatch();
-    if (targetMatch) {
-      targetTime = getMatchDate(targetMatch.date, targetMatch.time).getTime();
-    } else {
-      targetTime = 0;
-    }
-  }
-
-  findTarget();
-
-  function update() {
-    const container = document.querySelector('.countdown-container');
-    const titleEl = document.querySelector('.countdown-title');
-    const subEl = document.getElementById('countdown-sub');
-
-    if (!targetMatch || targetTime === 0) {
-      if (container) {
-        container.style.display = 'none';
-      }
-      clearInterval(interval);
-      return;
-    }
-
-    const now = Date.now();
-    let diff = targetTime - now;
-
-    if (diff <= 0) {
-      findTarget();
-      if (!targetMatch || targetTime === 0) {
-        if (container) {
-          container.style.display = 'none';
-        }
-        clearInterval(interval);
-        return;
-      }
-      diff = targetTime - now;
-    }
-
-    if (container) {
-      container.style.display = 'block';
-    }
-    
-    if (titleEl) {
-      const isOpening = targetMatch.date === "12/6" && targetMatch.time === "02:00" && targetMatch.team1 === "Meksiko";
-      titleEl.innerText = isOpening ? `Kick-Off Match Pertama` : `Kick-Off Match Berikutnya`;
-    }
-    
-    if (subEl) {
-      const venue = getMatchVenue(targetMatch);
-      subEl.innerText = `${targetMatch.team1} vs ${targetMatch.team2} - ${venue}`;
-    }
-
-    const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-    const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-    const mins = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-    const secs = Math.floor((diff % (1000 * 60)) / 1000);
-
-    const cdDays = document.getElementById('cd-days');
-    const cdHours = document.getElementById('cd-hours');
-    const cdMins = document.getElementById('cd-mins');
-    const cdSecs = document.getElementById('cd-secs');
-
-    if (cdDays) cdDays.textContent = String(days).padStart(2, '0');
-    if (cdHours) cdHours.textContent = String(hours).padStart(2, '0');
-    if (cdMins) cdMins.textContent = String(mins).padStart(2, '0');
-    if (cdSecs) cdSecs.textContent = String(secs).padStart(2, '0');
-  }
-
-  update();
-  const interval = setInterval(update, 1000);
+  updateHeroPanel();
+  setInterval(updateHeroPanel, 1000);
 }
 
 // ----------------------------------------------------
@@ -838,33 +864,7 @@ function getNextMatch() {
 }
 
 function renderLiveMatches() {
-  const container = document.getElementById('live-matches-section');
-  const listContainer = document.getElementById('live-matches-list');
-  if (!container || !listContainer) return;
-
-  const allMatches = [
-    ...WORLD_CUP_DATA.group_stage.map(m => ({ ...m, isKO: false })),
-    ...knockoutMatches.map(m => ({ ...m, isKO: true }))
-  ];
-
-  const liveMatches = allMatches.filter(m => {
-    const matchKey = m.isKO ? `ko_${m.match_id}` : `gs_${m.date}_${m.team1}_${m.team2}`;
-    const scoreData = realScores[matchKey];
-    return scoreData && (scoreData.status === 'IN_PLAY' || scoreData.status === 'PAUSED');
-  });
-
-  if (liveMatches.length === 0) {
-    container.style.display = 'none';
-    return;
-  }
-
-  let html = '';
-  liveMatches.forEach(m => {
-    html += createMatchCardHtml(m, 0, m.isKO);
-  });
-
-  listContainer.innerHTML = html;
-  container.style.display = 'block';
+  updateHeroPanel();
 }
 
 // Render Groups Tab
