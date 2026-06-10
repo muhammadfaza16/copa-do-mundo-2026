@@ -1332,72 +1332,42 @@ function renderBracket() {
   const container = document.getElementById('bracket-root');
   if (!container) return;
 
-  const parentHeights = [0, 124, 276, 580, 1188, 580, 276, 124, 0];
+  const slotHeights = [124, 276, 580, 1188, 2404];
 
-  // Group knockoutMatches by stage with symmetrical sides
+  // Group knockoutMatches by stage in a single left-to-right flow
   const stages = [
     { 
-      title: "32 Besar (Kiri)", 
-      matches: [74, 77, 73, 75, 83, 84, 81, 82].map(id => knockoutMatches.find(m => m.match_id === id)).filter(Boolean), 
-      info: "8 Laga • Kiri", 
-      side: "left", 
+      title: "32 Besar", 
+      matches: [74, 77, 73, 75, 83, 84, 81, 82, 76, 78, 79, 80, 85, 86, 87, 88].map(id => knockoutMatches.find(m => m.match_id === id)).filter(Boolean), 
+      info: "16 Laga • 29 Jun - 3 Jul", 
       slotHeight: 124 
     },
     { 
-      title: "16 Besar (Kiri)", 
-      matches: [89, 90, 93, 94].map(id => knockoutMatches.find(m => m.match_id === id)).filter(Boolean), 
-      info: "4 Laga • Kiri", 
-      side: "left", 
+      title: "16 Besar", 
+      matches: [89, 90, 93, 94, 91, 92, 95, 96].map(id => knockoutMatches.find(m => m.match_id === id)).filter(Boolean), 
+      info: "8 Laga • 4 Jul - 7 Jul", 
       slotHeight: 276 
     },
     { 
-      title: "Perempat Final (Kiri)", 
-      matches: [97, 98].map(id => knockoutMatches.find(m => m.match_id === id)).filter(Boolean), 
-      info: "2 Laga • Kiri", 
-      side: "left", 
+      title: "Perempat Final", 
+      matches: [97, 98, 99, 100].map(id => knockoutMatches.find(m => m.match_id === id)).filter(Boolean), 
+      info: "4 Laga • 9 - 12 Jul", 
       slotHeight: 580 
     },
     { 
-      title: "Semifinal (Kiri)", 
-      matches: [101].map(id => knockoutMatches.find(m => m.match_id === id)).filter(Boolean), 
-      info: "1 Laga • Kiri", 
-      side: "left", 
+      title: "Semifinal", 
+      matches: [101, 102].map(id => knockoutMatches.find(m => m.match_id === id)).filter(Boolean), 
+      info: "2 Laga • 14 - 15 Jul", 
       slotHeight: 1188 
     },
     { 
       title: "Final & Juara 3", 
-      matches: [104, 103].map(id => knockoutMatches.find(m => m.match_id === id)).filter(Boolean), 
-      info: "2 Laga • Tengah", 
-      side: "center", 
-      slotHeight: 1188 
-    },
-    { 
-      title: "Semifinal (Kanan)", 
-      matches: [102].map(id => knockoutMatches.find(m => m.match_id === id)).filter(Boolean), 
-      info: "1 Laga • Kanan", 
-      side: "right", 
-      slotHeight: 1188 
-    },
-    { 
-      title: "Perempat Final (Kanan)", 
-      matches: [99, 100].map(id => knockoutMatches.find(m => m.match_id === id)).filter(Boolean), 
-      info: "2 Laga • Kanan", 
-      side: "right", 
-      slotHeight: 580 
-    },
-    { 
-      title: "16 Besar (Kanan)", 
-      matches: [91, 92, 95, 96].map(id => knockoutMatches.find(m => m.match_id === id)).filter(Boolean), 
-      info: "4 Laga • Kanan", 
-      side: "right", 
-      slotHeight: 276 
-    },
-    { 
-      title: "32 Besar (Kanan)", 
-      matches: [76, 78, 79, 80, 85, 86, 87, 88].map(id => knockoutMatches.find(m => m.match_id === id)).filter(Boolean), 
-      info: "8 Laga • Kanan", 
-      side: "right", 
-      slotHeight: 124 
+      matches: [
+        knockoutMatches.find(m => m.match_id === 104),
+        knockoutMatches.find(m => m.match_id === 103)
+      ].filter(Boolean), 
+      info: "2 Laga • 18 - 19 Jul", 
+      slotHeight: 2404 
     }
   ];
 
@@ -1504,53 +1474,33 @@ function renderBracket() {
         </div>
       `;
 
-      const isFinal = m.group === "Final";
       const isThirdPlace = m.group === "Third-place match";
-
-      let slotClass = `bracket-slot ${cardStateClass}`;
-      if (isFinal) {
-        slotClass += " final-slot";
-      }
 
       if (isThirdPlace) {
         matchesHtml += `
-          <div class="bracket-slot third-place-slot" style="position: absolute; bottom: 40px; left: 0; right: 0; height: auto; z-index: 5;">
+          <div class="bracket-third-place-wrapper">
             <div class="bracket-third-place-header" style="font-size: 0.65rem; font-weight: 700; color: var(--primary-gold); text-align: center; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px;">Perebutan Juara 3</div>
             ${matchBoxHtml}
           </div>
         `;
       } else {
         matchesHtml += `
-          <div class="${slotClass}" style="height: ${slotHeight}px;">
+          <div class="bracket-slot ${cardStateClass}" style="height: ${slotHeight}px;">
             ${matchBoxHtml}
           </div>
         `;
       }
     });
 
-    let columnClass = 'bracket-column';
-    if (stage.side === 'left' && sIdx > 0) {
-      columnClass += ' incoming-left';
-    } else if (stage.side === 'right' && sIdx < 8) {
-      columnClass += ' incoming-right';
-    }
-
-    let extraColStyles = '';
-    if (stage.side === 'center') {
-      extraColStyles = 'position: relative;';
-    }
-
-    const headerStyle = stage.side === 'center' ? 'style="visibility: hidden;" aria-hidden="true"' : '';
     bracketHtml += `
-      <div class="${columnClass}" style="--parent-height: ${parentHeights[sIdx]}px; ${extraColStyles}">
-        <div class="bracket-column-header" ${headerStyle}>
+      <div class="bracket-column" style="--parent-height: ${sIdx > 0 ? slotHeights[sIdx - 1] : 0}px;">
+        <div class="bracket-column-header">
           ${stage.title}
           <div class="bracket-column-info">${stage.info}</div>
         </div>
         ${matchesHtml}
       </div>
     `;
-
   });
 
   container.innerHTML = bracketHtml;

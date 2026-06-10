@@ -953,7 +953,7 @@ body.light-theme .bracket-scroll-container::-webkit-scrollbar-thumb {
 }
 
 /* Bracket Connector Lines */
-.bracket-column.incoming-left .bracket-slot::before {
+.bracket-column:not(:first-child) .bracket-slot::before {
   content: "";
   position: absolute;
   left: -32px; /* Spans across the 32px gap */
@@ -968,7 +968,7 @@ body.light-theme .bracket-scroll-container::-webkit-scrollbar-thumb {
   transition: var(--transition-smooth);
 }
 
-.bracket-column.incoming-left .bracket-slot::after {
+.bracket-column:not(:first-child) .bracket-slot::after {
   content: "";
   position: absolute;
   left: -16px; /* From the center of the gap */
@@ -980,66 +980,10 @@ body.light-theme .bracket-scroll-container::-webkit-scrollbar-thumb {
   transition: var(--transition-smooth);
 }
 
-.bracket-column.incoming-right .bracket-slot::before {
-  content: "";
-  position: absolute;
-  right: -32px; /* Spans across the 32px gap to the right */
-  width: 16px;  /* Extends to the center of the gap */
-  top: calc(var(--parent-height) / 2);
-  bottom: calc(var(--parent-height) / 2);
-  border-top: 2px solid var(--connector-color);
-  border-bottom: 2px solid var(--connector-color);
-  border-left: 2px solid var(--connector-color);
-  pointer-events: none;
-  z-index: 1;
-  transition: var(--transition-smooth);
-}
-
-.bracket-column.incoming-right .bracket-slot::after {
-  content: "";
-  position: absolute;
-  right: -16px; /* From the center of the gap */
-  width: 16px;  /* Extends to the right edge of the match box */
-  top: 50%;
-  border-top: 2px solid var(--connector-color);
-  pointer-events: none;
-  z-index: 1;
-  transition: var(--transition-smooth);
-}
-
 /* Connectors light up with gold border if the match is simulated/predicted */
-.bracket-column.incoming-left .bracket-slot.match-predicted::before,
-.bracket-column.incoming-left .bracket-slot.match-predicted::after,
-.bracket-column.incoming-right .bracket-slot.match-predicted::before,
-.bracket-column.incoming-right .bracket-slot.match-predicted::after,
-.bracket-slot.final-slot.match-predicted::before,
-.bracket-slot.final-slot.match-predicted::after {
+.bracket-column:not(:first-child) .bracket-slot.match-predicted::before,
+.bracket-column:not(:first-child) .bracket-slot.match-predicted::after {
   border-color: var(--connector-color-active) !important;
-}
-
-/* Straight horizontal connectors for the Final Match in the center */
-.bracket-slot.final-slot::before {
-  content: "";
-  position: absolute;
-  left: -32px;
-  width: 32px;
-  top: 50%;
-  border-top: 2px solid var(--connector-color);
-  pointer-events: none;
-  z-index: 1;
-  transition: var(--transition-smooth);
-}
-
-.bracket-slot.final-slot::after {
-  content: "";
-  position: absolute;
-  right: -32px;
-  width: 32px;
-  top: 50%;
-  border-top: 2px solid var(--connector-color);
-  pointer-events: none;
-  z-index: 1;
-  transition: var(--transition-smooth);
 }
 
 .bracket-third-place-wrapper {
