@@ -399,15 +399,26 @@ function getEligibleGroupsFor3rd(label) {
 // COUNTDOWN TIMER
 // ----------------------------------------------------
 function initCountdown() {
-  // Opening match: 12 June 2026 at 02:00 WIB
-  const targetTime = new Date("2026-06-12T02:00:00+07:00").getTime();
+  let targetMatch = null;
+  let targetTime = 0;
+
+  function findTarget() {
+    targetMatch = getNextMatch();
+    if (targetMatch) {
+      targetTime = getMatchDate(targetMatch.date, targetMatch.time).getTime();
+    } else {
+      targetTime = 0;
+    }
+  }
+
+  findTarget();
 
   function update() {
-    const now = new Date().getTime();
-    const diff = targetTime - now;
+    const container = document.querySelector('.countdown-container');
+    const titleEl = document.querySelector('.countdown-title');
+    const subEl = document.getElementById('countdown-sub');
 
-    if (diff <= 0) {
-      const container = document.querySelector('.countdown-container');
+    if (!targetMatch || targetTime === 0) {
       if (container) {
         container.style.display = 'none';
       }
@@ -415,15 +426,49 @@ function initCountdown() {
       return;
     }
 
+    const now = Date.now();
+    let diff = targetTime - now;
+
+    if (diff <= 0) {
+      findTarget();
+      if (!targetMatch || targetTime === 0) {
+        if (container) {
+          container.style.display = 'none';
+        }
+        clearInterval(interval);
+        return;
+      }
+      diff = targetTime - now;
+    }
+
+    if (container) {
+      container.style.display = 'block';
+    }
+    
+    if (titleEl) {
+      const isOpening = targetMatch.date === "12/6" && targetMatch.time === "02:00" && targetMatch.team1 === "Meksiko";
+      titleEl.innerText = isOpening ? `Kick-Off Match Pertama` : `Kick-Off Match Berikutnya`;
+    }
+    
+    if (subEl) {
+      const venue = getMatchVenue(targetMatch);
+      subEl.innerText = `${targetMatch.team1} vs ${targetMatch.team2} - ${venue}`;
+    }
+
     const days = Math.floor(diff / (1000 * 60 * 60 * 24));
     const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
     const mins = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
     const secs = Math.floor((diff % (1000 * 60)) / 1000);
 
-    document.getElementById('cd-days').textContent = String(days).padStart(2, '0');
-    document.getElementById('cd-hours').textContent = String(hours).padStart(2, '0');
-    document.getElementById('cd-mins').textContent = String(mins).padStart(2, '0');
-    document.getElementById('cd-secs').textContent = String(secs).padStart(2, '0');
+    const cdDays = document.getElementById('cd-days');
+    const cdHours = document.getElementById('cd-hours');
+    const cdMins = document.getElementById('cd-mins');
+    const cdSecs = document.getElementById('cd-secs');
+
+    if (cdDays) cdDays.textContent = String(days).padStart(2, '0');
+    if (cdHours) cdHours.textContent = String(hours).padStart(2, '0');
+    if (cdMins) cdMins.textContent = String(mins).padStart(2, '0');
+    if (cdSecs) cdSecs.textContent = String(secs).padStart(2, '0');
   }
 
   update();
@@ -764,6 +809,62 @@ function renderNearestMatches() {
   });
 
   container.innerHTML = listHtml;
+}
+
+function getNextMatch() {
+  const now = Date.now();
+  const allMatches = [
+    ...WORLD_CUP_DATA.group_stage.map(m => ({ ...m, isKO: false })),
+    ...knockoutMatches.map(m => ({ ...m, isKO: true }))
+  ];
+
+  const upcoming = allMatches.filter(m => {
+    const matchKey = m.isKO ? `ko_${m.match_id}` : `gs_${m.date}_${m.team1}_${m.team2}`;
+    const scoreData = realScores[matchKey];
+    if (scoreData && scoreData.status === 'FINISHED') return false;
+    const matchTime = getMatchDate(m.date, m.time).getTime();
+    return matchTime > now;
+  });
+
+  if (upcoming.length === 0) return null;
+
+  upcoming.sort((a, b) => {
+    const timeA = getMatchDate(a.date, a.time).getTime();
+    const timeB = getMatchDate(b.date, b.time).getTime();
+    return timeA - timeB;
+  });
+
+  return upcoming[0];
+}
+
+function renderLiveMatches() {
+  const container = document.getElementById('live-matches-section');
+  const listContainer = document.getElementById('live-matches-list');
+  if (!container || !listContainer) return;
+
+  const allMatches = [
+    ...WORLD_CUP_DATA.group_stage.map(m => ({ ...m, isKO: false })),
+    ...knockoutMatches.map(m => ({ ...m, isKO: true }))
+  ];
+
+  const liveMatches = allMatches.filter(m => {
+    const matchKey = m.isKO ? `ko_${m.match_id}` : `gs_${m.date}_${m.team1}_${m.team2}`;
+    const scoreData = realScores[matchKey];
+    return scoreData && (scoreData.status === 'IN_PLAY' || scoreData.status === 'PAUSED');
+  });
+
+  if (liveMatches.length === 0) {
+    container.style.display = 'none';
+    return;
+  }
+
+  let html = '';
+  liveMatches.forEach(m => {
+    html += createMatchCardHtml(m, 0, m.isKO);
+  });
+
+  listContainer.innerHTML = html;
+  container.style.display = 'block';
 }
 
 // Render Groups Tab
@@ -1836,6 +1937,7 @@ function initNavigation() {
         renderFavorites();
         renderNearestMatches();
         renderLatestResults();
+        renderLiveMatches();
       }
       
       // Scroll to top of window
@@ -2157,6 +2259,7 @@ async function fetchRealTimeScores(isManual = false) {
       renderFavorites();
       renderNearestMatches();
       renderLatestResults();
+      renderLiveMatches();
     }
 
   } catch (err) {
@@ -2201,6 +2304,7 @@ document.addEventListener('DOMContentLoaded', () => {
   renderNearestMatches();
   renderLatestResults();
   renderFavoritesCount();
+  renderLiveMatches();
   
   // Initial calculate
   recalculateKnockoutTree();
@@ -2219,6 +2323,7 @@ document.addEventListener('DOMContentLoaded', () => {
       renderNearestMatches();
       renderLatestResults();
       renderFavorites();
+      renderLiveMatches();
     }
   }, 15000); // Check every 15 seconds
 

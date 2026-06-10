@@ -1552,6 +1552,32 @@ body.light-theme .flag-crest {
   color: var(--accent-emerald);
 }
 
+.live-blink-dot {
+  width: 8px;
+  height: 8px;
+  background-color: var(--accent-emerald);
+  border-radius: 50%;
+  display: inline-block;
+  box-shadow: 0 0 8px var(--accent-emerald);
+  animation: live-blink-pulse 1.5s infinite;
+}
+
+@keyframes live-blink-pulse {
+  0% {
+    transform: scale(0.9);
+    opacity: 0.6;
+  }
+  50% {
+    transform: scale(1.1);
+    opacity: 1;
+    box-shadow: 0 0 12px var(--accent-emerald);
+  }
+  100% {
+    transform: scale(0.9);
+    opacity: 0.6;
+  }
+}
+
 .time-tz-label {
   font-size: 0.6rem;
   opacity: 0.7;
