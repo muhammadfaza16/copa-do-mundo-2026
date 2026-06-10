@@ -1951,6 +1951,13 @@ function initNavigation() {
       activeTab = item.getAttribute('data-tab');
       document.getElementById(activeTab).classList.add('active');
 
+      // Toggle center button visibility based on active tab
+      if (activeTab === 'tab-bracket') {
+        document.body.classList.add('bracket-active');
+      } else {
+        document.body.classList.remove('bracket-active');
+      }
+
       // Specific tab triggers
       if (activeTab === 'tab-schedule') {
         renderSchedule();

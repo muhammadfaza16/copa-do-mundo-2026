@@ -810,7 +810,7 @@ body.light-theme .scroll-nav-btn:hover {
   bottom: 104px;
   right: calc(50% - 270px + 16px);
   z-index: 99;
-  display: flex;
+  display: none; /* Hidden by default */
   align-items: center;
   gap: 8px;
   padding: 10px 16px;
@@ -828,6 +828,11 @@ body.light-theme .scroll-nav-btn:hover {
   cursor: pointer;
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
   transition: var(--transition-smooth);
+}
+
+/* Show only when active tab is tab-bracket */
+body.bracket-active .center-bracket-btn {
+  display: flex;
 }
 
 .center-bracket-btn svg {
