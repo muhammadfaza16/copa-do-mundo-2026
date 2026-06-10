@@ -319,6 +319,24 @@
     </div>
   </div>
 
+  <!-- Premium Glassmorphic Modal for Group Matches Schedule -->
+  <div id="group-matches-modal" class="modal-overlay" onclick="window.closeGroupMatchesModal()">
+    <div class="modal-content glass-panel" style="max-width: 600px; width: 95%; max-height: 85vh;" onclick="event.stopPropagation()">
+      <div class="modal-header">
+        <h4 id="group-matches-modal-title">Jadwal & Hasil Grup</h4>
+        <button class="modal-close-btn" onclick="window.closeGroupMatchesModal()" aria-label="Tutup">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
+        </button>
+      </div>
+      <div id="group-matches-modal-body" class="modal-body" style="max-height: 70vh; overflow-y: auto; padding-right: 4px;">
+        <!-- Group matches list will be rendered here dynamically -->
+      </div>
+    </div>
+  </div>
+
   <!-- Main App Script -->
   <script src="data.js"></script>
   <script src="app.js"></script>

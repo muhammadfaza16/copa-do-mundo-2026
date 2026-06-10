@@ -811,7 +811,7 @@ function renderGroups() {
     });
 
     gridHtml += `
-      <div class="group-card">
+      <div class="group-card" onclick="window.showGroupMatches('Grup ${groupLetter}')">
         <div class="group-title" style="display: flex; justify-content: space-between; align-items: center;">
           <span>Grup ${groupLetter}</span>
           ${groupMatchesPlayed > 0 ? '<span style="font-size: 0.55rem; color: var(--accent-emerald); border: 1px solid rgba(16, 185, 129, 0.3); padding: 2px 6px; border-radius: 4px; font-weight: bold; letter-spacing: 0.5px; animation: pulse-blink 2s infinite;">LIVE</span>' : ''}
@@ -1758,6 +1758,45 @@ window.scrollBracketToEdge = function(direction) {
       left: container.scrollWidth,
       behavior: 'smooth'
     });
+  }
+};
+
+window.showGroupMatches = function(groupName) {
+  const modal = document.getElementById('group-matches-modal');
+  const titleEl = document.getElementById('group-matches-modal-title');
+  const bodyEl = document.getElementById('group-matches-modal-body');
+  if (!modal || !bodyEl || !titleEl) return;
+
+  titleEl.innerText = `Jadwal & Hasil - ${groupName}`;
+
+  // Filter group matches
+  const matches = WORLD_CUP_DATA.group_stage.filter(m => m.group === groupName);
+  
+  // Sort group matches chronologically
+  function dateToVal(dStr) {
+    const [d, m] = dStr.split('/').map(Number);
+    return m * 100 + d;
+  }
+  matches.sort((a, b) => {
+    const dateDiff = dateToVal(a.date) - dateToVal(b.date);
+    if (dateDiff !== 0) return dateDiff;
+    return a.time.localeCompare(b.time);
+  });
+
+  let html = '<div class="matches-wrapper" style="padding-top: 10px; display: flex; flex-direction: column; gap: 12px;">';
+  matches.forEach(m => {
+    html += createMatchCardHtml(m, 0, false);
+  });
+  html += '</div>';
+
+  bodyEl.innerHTML = html;
+  modal.classList.add('active');
+};
+
+window.closeGroupMatchesModal = function() {
+  const modal = document.getElementById('group-matches-modal');
+  if (modal) {
+    modal.classList.remove('active');
   }
 };
 
