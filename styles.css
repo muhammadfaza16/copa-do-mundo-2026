@@ -825,6 +825,43 @@ body.light-theme .zoom-toggle-btn:hover {
   overflow: visible;
 }
 
+/* Portrait (Vertical Stacked) Layout for Mobile/Narrow Viewports */
+.bracket-wrapper.layout-vertical {
+  flex-direction: column;
+  gap: 36px;
+  overflow-x: hidden;
+  scroll-snap-type: none;
+  width: 100% !important;
+  transform: none !important; /* Disable zoom transform */
+  margin-bottom: 0 !important;
+}
+
+.bracket-wrapper.layout-vertical .bracket-column {
+  flex: 1 1 auto;
+  width: 100%;
+  gap: 12px;
+  padding: 0;
+}
+
+.bracket-wrapper.layout-vertical .bracket-slot {
+  height: auto !important; /* Tight spacing vertically */
+  padding: 4px 0;
+}
+
+/* Hide connectors in vertical layout */
+.bracket-wrapper.layout-vertical .bracket-column::before,
+.bracket-wrapper.layout-vertical .bracket-column::after,
+.bracket-wrapper.layout-vertical .bracket-slot::before,
+.bracket-wrapper.layout-vertical .bracket-slot::after {
+  display: none !important;
+}
+
+/* Disable absolute layout on Third-place in vertical mode */
+.bracket-wrapper.layout-vertical .third-place-slot {
+  position: static !important;
+  margin-top: 14px;
+}
+
 /* Columns in horizontal scrolling bracket tree */
 .bracket-column {
   flex: 0 0 270px;
@@ -869,7 +906,7 @@ body.light-theme .zoom-toggle-btn:hover {
 }
 
 /* Bracket Connector Lines */
-.bracket-column:not(:first-child) .bracket-slot::before {
+.bracket-column.incoming-left .bracket-slot::before {
   content: "";
   position: absolute;
   left: -32px; /* Spans across the 32px gap */
@@ -884,7 +921,7 @@ body.light-theme .zoom-toggle-btn:hover {
   transition: var(--transition-smooth);
 }
 
-.bracket-column:not(:first-child) .bracket-slot::after {
+.bracket-column.incoming-left .bracket-slot::after {
   content: "";
   position: absolute;
   left: -16px; /* From the center of the gap */
@@ -896,10 +933,66 @@ body.light-theme .zoom-toggle-btn:hover {
   transition: var(--transition-smooth);
 }
 
+.bracket-column.incoming-right .bracket-slot::before {
+  content: "";
+  position: absolute;
+  right: -32px; /* Spans across the 32px gap to the right */
+  width: 16px;  /* Extends to the center of the gap */
+  top: calc(var(--parent-height) / 2);
+  bottom: calc(var(--parent-height) / 2);
+  border-top: 2px solid var(--connector-color);
+  border-bottom: 2px solid var(--connector-color);
+  border-left: 2px solid var(--connector-color);
+  pointer-events: none;
+  z-index: 1;
+  transition: var(--transition-smooth);
+}
+
+.bracket-column.incoming-right .bracket-slot::after {
+  content: "";
+  position: absolute;
+  right: -16px; /* From the center of the gap */
+  width: 16px;  /* Extends to the right edge of the match box */
+  top: 50%;
+  border-top: 2px solid var(--connector-color);
+  pointer-events: none;
+  z-index: 1;
+  transition: var(--transition-smooth);
+}
+
 /* Connectors light up with gold border if the match is simulated/predicted */
-.bracket-column:not(:first-child) .bracket-slot.match-predicted::before,
-.bracket-column:not(:first-child) .bracket-slot.match-predicted::after {
-  border-color: var(--connector-color-active);
+.bracket-column.incoming-left .bracket-slot.match-predicted::before,
+.bracket-column.incoming-left .bracket-slot.match-predicted::after,
+.bracket-column.incoming-right .bracket-slot.match-predicted::before,
+.bracket-column.incoming-right .bracket-slot.match-predicted::after,
+.bracket-slot.final-slot.match-predicted::before,
+.bracket-slot.final-slot.match-predicted::after {
+  border-color: var(--connector-color-active) !important;
+}
+
+/* Straight horizontal connectors for the Final Match in the center */
+.bracket-slot.final-slot::before {
+  content: "";
+  position: absolute;
+  left: -32px;
+  width: 32px;
+  top: 50%;
+  border-top: 2px solid var(--connector-color);
+  pointer-events: none;
+  z-index: 1;
+  transition: var(--transition-smooth);
+}
+
+.bracket-slot.final-slot::after {
+  content: "";
+  position: absolute;
+  right: -32px;
+  width: 32px;
+  top: 50%;
+  border-top: 2px solid var(--connector-color);
+  pointer-events: none;
+  z-index: 1;
+  transition: var(--transition-smooth);
 }
 
 .bracket-third-place-wrapper {

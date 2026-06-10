@@ -1233,7 +1233,7 @@ window.scrollToBracketColumn = function(colIndex) {
   if (!container) return;
   const columns = container.querySelectorAll('.bracket-column');
   if (columns.length > colIndex) {
-    const colWidth = columns[colIndex].offsetWidth + 24; // offsetWidth + gap (24px)
+    const colWidth = columns[colIndex].offsetWidth + 32; // offsetWidth + gap (32px)
     container.scrollTo({
       left: colIndex * colWidth,
       behavior: 'smooth'
@@ -1246,31 +1246,72 @@ function renderBracket() {
   const dotsContainer = document.getElementById('bracket-dots');
   if (!container || !dotsContainer) return;
 
-  // Tree-ordered match IDs for each stage
-  const treeOrder = {
-    "Round of 32": [74, 77, 73, 75, 83, 84, 81, 82, 76, 78, 79, 80, 85, 86, 87, 88],
-    "Round of 16": [89, 90, 93, 94, 91, 92, 95, 96],
-    "Quarter-final": [97, 98, 99, 100],
-    "Semi-final": [101, 102],
-    "Final": [104],
-    "Third-place match": [103]
-  };
+  const parentHeights = [0, 124, 276, 580, 1188, 580, 276, 124, 0];
 
-  const slotHeights = [124, 276, 580, 1188, 2404];
-
-  // Group knockoutMatches by stage with subtext info
+  // Group knockoutMatches by stage with symmetrical sides
   const stages = [
-    { title: "32 Besar", matches: knockoutMatches.filter(m => m.group === "Round of 32"), info: "16 Laga • 29 Jun - 3 Jul" },
-    { title: "16 Besar", matches: knockoutMatches.filter(m => m.group === "Round of 16"), info: "8 Laga • 4 Jul - 7 Jul" },
-    { title: "Perempat Final", matches: knockoutMatches.filter(m => m.group === "Quarter-final"), info: "4 Laga • 9 - 12 Jul" },
-    { title: "Semifinal", matches: knockoutMatches.filter(m => m.group === "Semi-final"), info: "2 Laga • 14 - 15 Jul" },
+    { 
+      title: "32 Besar (Kiri)", 
+      matches: [74, 77, 73, 75, 83, 84, 81, 82].map(id => knockoutMatches.find(m => m.match_id === id)).filter(Boolean), 
+      info: "8 Laga • Kiri", 
+      side: "left", 
+      slotHeight: 124 
+    },
+    { 
+      title: "16 Besar (Kiri)", 
+      matches: [89, 90, 93, 94].map(id => knockoutMatches.find(m => m.match_id === id)).filter(Boolean), 
+      info: "4 Laga • Kiri", 
+      side: "left", 
+      slotHeight: 276 
+    },
+    { 
+      title: "Perempat Final (Kiri)", 
+      matches: [97, 98].map(id => knockoutMatches.find(m => m.match_id === id)).filter(Boolean), 
+      info: "2 Laga • Kiri", 
+      side: "left", 
+      slotHeight: 580 
+    },
+    { 
+      title: "Semifinal (Kiri)", 
+      matches: [101].map(id => knockoutMatches.find(m => m.match_id === id)).filter(Boolean), 
+      info: "1 Laga • Kiri", 
+      side: "left", 
+      slotHeight: 1188 
+    },
     { 
       title: "Final & Juara 3", 
-      matches: [
-        ...knockoutMatches.filter(m => m.group === "Final"),
-        ...knockoutMatches.filter(m => m.group === "Third-place match")
-      ],
-      info: "2 Laga • 18 - 19 Jul"
+      matches: [104, 103].map(id => knockoutMatches.find(m => m.match_id === id)).filter(Boolean), 
+      info: "2 Laga • Tengah", 
+      side: "center", 
+      slotHeight: 1188 
+    },
+    { 
+      title: "Semifinal (Kanan)", 
+      matches: [102].map(id => knockoutMatches.find(m => m.match_id === id)).filter(Boolean), 
+      info: "1 Laga • Kanan", 
+      side: "right", 
+      slotHeight: 1188 
+    },
+    { 
+      title: "Perempat Final (Kanan)", 
+      matches: [99, 100].map(id => knockoutMatches.find(m => m.match_id === id)).filter(Boolean), 
+      info: "2 Laga • Kanan", 
+      side: "right", 
+      slotHeight: 580 
+    },
+    { 
+      title: "16 Besar (Kanan)", 
+      matches: [91, 92, 95, 96].map(id => knockoutMatches.find(m => m.match_id === id)).filter(Boolean), 
+      info: "4 Laga • Kanan", 
+      side: "right", 
+      slotHeight: 276 
+    },
+    { 
+      title: "32 Besar (Kanan)", 
+      matches: [76, 78, 79, 80, 85, 86, 87, 88].map(id => knockoutMatches.find(m => m.match_id === id)).filter(Boolean), 
+      info: "8 Laga • Kanan", 
+      side: "right", 
+      slotHeight: 124 
     }
   ];
 
@@ -1279,30 +1320,9 @@ function renderBracket() {
 
   stages.forEach((stage, sIdx) => {
     let matchesHtml = '';
-    const slotHeight = slotHeights[sIdx];
+    const slotHeight = stage.slotHeight;
 
-    // Sort matches to match tree order
-    let sortedMatches = [];
-    if (sIdx === 4) {
-      // For column 5: Final is first, Third-place match is second
-      sortedMatches = [
-        ...knockoutMatches.filter(m => m.group === "Final"),
-        ...knockoutMatches.filter(m => m.group === "Third-place match")
-      ];
-    } else {
-      const stageMatches = stage.matches;
-      if (stageMatches.length > 0) {
-        const matchGroup = stageMatches[0].group; // e.g. "Round of 32"
-        const order = treeOrder[matchGroup];
-        sortedMatches = [...stageMatches].sort((a, b) => {
-          return order.indexOf(a.match_id) - order.indexOf(b.match_id);
-        });
-      } else {
-        sortedMatches = stageMatches;
-      }
-    }
-
-    sortedMatches.forEach(m => {
+    stage.matches.forEach(m => {
       const winner = simulatedWinners[m.match_id];
       const isPlaceholder1 = m.team1 && typeof m.team1 === 'string' && (
         m.team1.startsWith('Winner Match') || 
@@ -1399,24 +1419,44 @@ function renderBracket() {
         </div>
       `;
 
-      if (m.group === "Third-place match") {
+      const isFinal = m.group === "Final";
+      const isThirdPlace = m.group === "Third-place match";
+
+      let slotClass = `bracket-slot ${cardStateClass}`;
+      if (isFinal) {
+        slotClass += " final-slot";
+      }
+
+      if (isThirdPlace) {
         matchesHtml += `
-          <div class="bracket-third-place-wrapper">
-            <div class="bracket-third-place-header">Perebutan Juara 3</div>
+          <div class="bracket-slot third-place-slot" style="position: absolute; bottom: 40px; left: 0; right: 0; height: auto; z-index: 5;">
+            <div class="bracket-third-place-header" style="font-size: 0.65rem; font-weight: 700; color: var(--primary-gold); text-align: center; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px;">Perebutan Juara 3</div>
             ${matchBoxHtml}
           </div>
         `;
       } else {
         matchesHtml += `
-          <div class="bracket-slot ${cardStateClass}" style="height: ${slotHeight}px;">
+          <div class="${slotClass}" style="height: ${slotHeight}px;">
             ${matchBoxHtml}
           </div>
         `;
       }
     });
 
+    let columnClass = 'bracket-column';
+    if (stage.side === 'left' && sIdx > 0) {
+      columnClass += ' incoming-left';
+    } else if (stage.side === 'right' && sIdx < 8) {
+      columnClass += ' incoming-right';
+    }
+
+    let extraColStyles = '';
+    if (stage.side === 'center') {
+      extraColStyles = 'position: relative;';
+    }
+
     bracketHtml += `
-      <div class="bracket-column" style="--parent-height: ${sIdx > 0 ? slotHeights[sIdx - 1] : 0}px;">
+      <div class="${columnClass}" style="--parent-height: ${parentHeights[sIdx]}px; ${extraColStyles}">
         <div class="bracket-column-header">
           ${stage.title}
           <div class="bracket-column-info">${stage.info}</div>
@@ -1746,12 +1786,13 @@ window.toggleBracketZoom = function() {
   } else {
     container.classList.add('zoomed-out');
     const viewportWidth = container.offsetWidth;
-    const scrollWidth = 1480; 
+    const scrollWidth = 2686; 
     let scale = (viewportWidth - 16) / scrollWidth;
     if (scale > 0.95) scale = 0.95;
-    if (scale < 0.3) scale = 0.3;
+    if (scale < 0.05) scale = 0.05; // Set tiny lower bound to guarantee no left-to-right clipping on narrow screens
 
-    bracket.style.transform = `scale(${scale})`;
+    const translateX = Math.max(0, (viewportWidth - (scrollWidth * scale)) / 2);
+    bracket.style.transform = `translate(${translateX}px, 0) scale(${scale})`;
     
     const originalHeight = bracket.scrollHeight || 1180;
     const heightDifference = originalHeight * (1 - scale);
@@ -1769,16 +1810,54 @@ window.toggleBracketZoom = function() {
   }
 };
 
+window.toggleBracketLayout = function() {
+  const bracket = document.getElementById('bracket-root');
+  const btnZoom = document.getElementById('btn-bracket-zoom');
+  const btnLayout = document.getElementById('btn-bracket-layout');
+  const dots = document.getElementById('bracket-dots');
+  if (!bracket || !btnLayout) return;
+
+  const isVertical = bracket.classList.contains('layout-vertical');
+  if (isVertical) {
+    bracket.classList.remove('layout-vertical');
+    if (btnZoom) btnZoom.style.display = 'flex';
+    if (dots) dots.style.display = 'flex';
+    btnLayout.innerHTML = `
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="width: 12px; height: 12px; display: inline-block; vertical-align: middle;">
+        <rect x="5" y="3" width="14" height="18" rx="2"></rect>
+        <line x1="5" y1="9" x2="19" y2="9"></line>
+      </svg>
+      <span style="font-weight: 700;">Mode Tegak</span>
+    `;
+  } else {
+    bracket.classList.add('layout-vertical');
+    const container = document.getElementById('bracket-zoom-container');
+    if (container && container.classList.contains('zoomed-out')) {
+      window.toggleBracketZoom();
+    }
+    if (btnZoom) btnZoom.style.display = 'none';
+    if (dots) dots.style.display = 'none';
+    btnLayout.innerHTML = `
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="width: 12px; height: 12px; display: inline-block; vertical-align: middle;">
+        <rect x="3" y="5" width="18" height="14" rx="2"></rect>
+        <line x1="9" y1="5" x2="9" y2="19"></line>
+      </svg>
+      <span style="font-weight: 700;">Mode Bagan</span>
+    `;
+  }
+};
+
 window.addEventListener('resize', () => {
   const container = document.getElementById('bracket-zoom-container');
   const bracket = document.getElementById('bracket-root');
   if (container && container.classList.contains('zoomed-out') && bracket) {
     const viewportWidth = container.offsetWidth;
-    const scrollWidth = 1480;
+    const scrollWidth = 2686;
     let scale = (viewportWidth - 16) / scrollWidth;
     if (scale > 0.95) scale = 0.95;
-    if (scale < 0.3) scale = 0.3;
-    bracket.style.transform = `scale(${scale})`;
+    if (scale < 0.05) scale = 0.05;
+    const translateX = Math.max(0, (viewportWidth - (scrollWidth * scale)) / 2);
+    bracket.style.transform = `translate(${translateX}px, 0) scale(${scale})`;
     const originalHeight = bracket.scrollHeight || 1180;
     const heightDifference = originalHeight * (1 - scale);
     bracket.style.marginBottom = `-${heightDifference}px`;
@@ -1790,12 +1869,13 @@ function syncBracketDots() {
   const container = document.getElementById('bracket-root');
   const dots = document.querySelectorAll('.bracket-dot');
   if (!container || dots.length === 0) return;
+  if (container.classList.contains('layout-vertical')) return;
 
   const scrollLeft = container.scrollLeft;
   const columns = container.querySelectorAll('.bracket-column');
   if (columns.length === 0) return;
   
-  const colWidth = columns[0].offsetWidth + 24; // width + gap (24px)
+  const colWidth = columns[0].offsetWidth + 32; // width + gap (32px)
   const activeIndex = Math.round(scrollLeft / colWidth);
 
   dots.forEach((dot, idx) => {
