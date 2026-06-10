@@ -1227,24 +1227,9 @@ function formatPlaceholderName(name) {
     .replace("3rd Group", "Peringkat 3");
 }
 
-// Click to scroll bracket horizontally on mobile
-window.scrollToBracketColumn = function(colIndex) {
-  const container = document.getElementById('bracket-root');
-  if (!container) return;
-  const columns = container.querySelectorAll('.bracket-column');
-  if (columns.length > colIndex) {
-    const colWidth = columns[colIndex].offsetWidth + 32; // offsetWidth + gap (32px)
-    container.scrollTo({
-      left: colIndex * colWidth,
-      behavior: 'smooth'
-    });
-  }
-};
-
 function renderBracket() {
   const container = document.getElementById('bracket-root');
-  const dotsContainer = document.getElementById('bracket-dots');
-  if (!container || !dotsContainer) return;
+  if (!container) return;
 
   const parentHeights = [0, 124, 276, 580, 1188, 580, 276, 124, 0];
 
@@ -1316,7 +1301,6 @@ function renderBracket() {
   ];
 
   let bracketHtml = '';
-  let dotsHtml = '';
 
   stages.forEach((stage, sIdx) => {
     let matchesHtml = '';
@@ -1465,15 +1449,9 @@ function renderBracket() {
       </div>
     `;
 
-    // Indicators dots
-    dotsHtml += `<div class="bracket-dot ${sIdx === 0 ? 'active' : ''}" data-col="${sIdx}" onclick="scrollToBracketColumn(${sIdx})"></div>`;
   });
 
   container.innerHTML = bracketHtml;
-  dotsContainer.innerHTML = dotsHtml;
-
-  // Add scroll event listener to bracket container to sync indicator dots on mobile swipe
-  container.addEventListener('scroll', syncBracketDots);
 }
 
 // Selects 3rd-place team Group mapping in simulator
@@ -1764,82 +1742,46 @@ window.closeSlotModal = function() {
   }
 };
 
-let currentBracketScale = 1.0;
+let scale = 1.0;
+let panX = 0;
+let panY = 0;
+let isDragging = false;
+let startX = 0;
+let startY = 0;
 let isAutoFitting = false;
 
-window.applyBracketZoom = function(scale) {
+window.applyBracketZoom = function(scaleFactor) {
   const bracket = document.getElementById('bracket-root');
-  const container = document.getElementById('bracket-zoom-container');
-  if (!bracket || !container) return;
+  if (!bracket) return;
 
   const isVertical = bracket.classList.contains('layout-vertical');
-  const scrollWidth = isVertical ? 1208 : 2686;
-  const viewportWidth = container.offsetWidth;
-
-  const translateX = Math.max(0, (viewportWidth - (scrollWidth * scale)) / 2);
 
   if (isVertical) {
-    bracket.style.transform = `translate(${translateX}px, 0) scale(${scale}) rotate(90deg) translateY(-100%)`;
-    container.style.height = `${2686 * scale}px`;
-    bracket.style.marginBottom = '';
+    bracket.style.transform = `translate(${panX}px, ${panY}px) scale(${scaleFactor}) rotate(90deg) translateY(-100%)`;
   } else {
-    bracket.style.transform = `translate(${translateX}px, 0) scale(${scale})`;
-    container.style.height = '';
-    const originalHeight = bracket.scrollHeight || 1180;
-    const heightDifference = originalHeight * (1 - scale);
-    bracket.style.marginBottom = `-${heightDifference}px`;
+    bracket.style.transform = `translate(${panX}px, ${panY}px) scale(${scaleFactor})`;
   }
 
   const label = document.getElementById('zoom-percentage-label');
   if (label) {
-    label.innerText = `${Math.round(scale * 100)}%`;
+    label.innerText = `${Math.round(scaleFactor * 100)}%`;
   }
 };
 
-window.zoomBracketStep = function(direction) {
-  isAutoFitting = false;
-  let newScale = currentBracketScale;
-  if (direction === 1) {
-    newScale += 0.1;
-  } else if (direction === -1) {
-    newScale -= 0.1;
+window.zoomBracketResetOrFit = function() {
+  if (Math.abs(scale - 1.0) < 0.05) {
+    window.zoomBracketAutoFit();
+  } else {
+    window.zoomBracketReset();
   }
-  
-  if (newScale < 0.05) newScale = 0.05;
-  if (newScale > 2.0) newScale = 2.0;
-
-  currentBracketScale = newScale;
-  
-  const container = document.getElementById('bracket-zoom-container');
-  if (container) {
-    if (Math.abs(currentBracketScale - 1.0) > 0.01) {
-      container.classList.add('zoomed-out');
-    } else {
-      container.classList.remove('zoomed-out');
-    }
-  }
-  window.applyBracketZoom(currentBracketScale);
 };
 
 window.zoomBracketReset = function() {
   isAutoFitting = false;
-  currentBracketScale = 1.0;
-  
-  const container = document.getElementById('bracket-zoom-container');
-  if (container) {
-    container.classList.remove('zoomed-out');
-    container.style.height = '';
-  }
-  const bracket = document.getElementById('bracket-root');
-  if (bracket) {
-    const isVertical = bracket.classList.contains('layout-vertical');
-    bracket.style.transform = isVertical ? 'rotate(90deg) translateY(-100%)' : '';
-    bracket.style.marginBottom = '';
-  }
-  const label = document.getElementById('zoom-percentage-label');
-  if (label) {
-    label.innerText = '100%';
-  }
+  scale = 1.0;
+  panX = 0;
+  panY = 0;
+  window.applyBracketZoom(scale);
 };
 
 window.zoomBracketAutoFit = function() {
@@ -1850,32 +1792,30 @@ window.zoomBracketAutoFit = function() {
 
   const isVertical = bracket.classList.contains('layout-vertical');
   const scrollWidth = isVertical ? 1208 : 2686;
+  const scrollHeight = isVertical ? 2686 : 1208;
   const viewportWidth = container.offsetWidth;
+  const viewportHeight = container.offsetHeight;
   
-  let scale = (viewportWidth - 16) / scrollWidth;
-  if (scale > 0.95) scale = 0.95;
-  if (scale < 0.05) scale = 0.05;
+  let fitScale = (viewportWidth - 16) / scrollWidth;
+  if (fitScale > 0.95) fitScale = 0.95;
+  if (fitScale < 0.05) fitScale = 0.05;
 
-  currentBracketScale = scale;
-  container.classList.add('zoomed-out');
-  window.applyBracketZoom(currentBracketScale);
+  scale = fitScale;
+  panX = Math.max(0, (viewportWidth - (scrollWidth * scale)) / 2);
+  panY = Math.max(10, (viewportHeight - (scrollHeight * scale)) / 2);
+
+  window.applyBracketZoom(scale);
 };
 
 window.toggleBracketLayout = function() {
   const bracket = document.getElementById('bracket-root');
   const container = document.getElementById('bracket-zoom-container');
   const btnLayout = document.getElementById('btn-bracket-layout');
-  const dots = document.getElementById('bracket-dots');
   if (!bracket || !container || !btnLayout) return;
 
   const isVertical = bracket.classList.contains('layout-vertical');
   if (isVertical) {
     bracket.classList.remove('layout-vertical');
-    container.classList.remove('layout-vertical-active');
-    container.style.height = '';
-    bracket.style.transform = '';
-    bracket.style.marginBottom = '';
-    if (dots) dots.style.display = 'flex';
     btnLayout.innerHTML = `
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="width: 12px; height: 12px; display: inline-block; vertical-align: middle;">
         <rect x="5" y="3" width="14" height="18" rx="2"></rect>
@@ -1885,11 +1825,6 @@ window.toggleBracketLayout = function() {
     `;
   } else {
     bracket.classList.add('layout-vertical');
-    container.classList.add('layout-vertical-active');
-    container.style.height = '2686px';
-    bracket.style.transform = 'rotate(90deg) translateY(-100%)';
-    bracket.style.marginBottom = '';
-    if (dots) dots.style.display = 'none';
     btnLayout.innerHTML = `
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="width: 12px; height: 12px; display: inline-block; vertical-align: middle;">
         <rect x="3" y="5" width="18" height="14" rx="2"></rect>
@@ -1899,47 +1834,169 @@ window.toggleBracketLayout = function() {
     `;
   }
 
-  // Recalculate zoom based on current mode
-  if (isAutoFitting) {
-    window.zoomBracketAutoFit();
-  } else {
-    window.applyBracketZoom(currentBracketScale);
-  }
+  // Re-fit zoom automatically on layout swap
+  window.zoomBracketAutoFit();
 };
 
 window.addEventListener('resize', () => {
-  const container = document.getElementById('bracket-zoom-container');
-  if (container && container.classList.contains('zoomed-out')) {
-    if (isAutoFitting) {
-      window.zoomBracketAutoFit();
-    } else {
-      window.applyBracketZoom(currentBracketScale);
-    }
+  if (isAutoFitting) {
+    window.zoomBracketAutoFit();
+  } else {
+    window.applyBracketZoom(scale);
   }
 });
 
-// Synchronize indicator dots with horizontal scroll index
-function syncBracketDots() {
-  const container = document.getElementById('bracket-root');
-  const dots = document.querySelectorAll('.bracket-dot');
-  if (!container || dots.length === 0) return;
-  if (container.classList.contains('layout-vertical')) return;
+// Gesture Pinch-to-Zoom & Drag-to-Pan Event Listeners
+window.initBracketPanZoom = function() {
+  const container = document.getElementById('bracket-zoom-container');
+  const bracket = document.getElementById('bracket-root');
+  if (!container || !bracket) return;
 
-  const scrollLeft = container.scrollLeft;
-  const columns = container.querySelectorAll('.bracket-column');
-  if (columns.length === 0) return;
-  
-  const colWidth = columns[0].offsetWidth + 32; // width + gap (32px)
-  const activeIndex = Math.round(scrollLeft / colWidth);
+  let activePointers = [];
+  let prevDiff = -1;
+  let hasDragged = false;
+  let dragStartX = 0;
+  let dragStartY = 0;
 
-  dots.forEach((dot, idx) => {
-    if (idx === activeIndex) {
-      dot.classList.add('active');
-    } else {
-      dot.classList.remove('active');
+  container.addEventListener('pointerdown', (e) => {
+    try {
+      container.setPointerCapture(e.pointerId);
+    } catch (err) {
+      console.warn("Failed to set pointer capture:", err);
+    }
+
+    if (e.pointerType === 'touch') {
+      container.style.touchAction = 'none';
+    }
+
+    const exists = activePointers.some(p => p.pointerId === e.pointerId);
+    if (!exists && activePointers.length < 2) {
+      activePointers.push(e);
+      if (activePointers.length === 1) {
+        isDragging = true;
+        startX = e.clientX - panX;
+        startY = e.clientY - panY;
+        dragStartX = e.clientX;
+        dragStartY = e.clientY;
+        hasDragged = false;
+        
+        bracket.classList.add('is-dragging');
+      }
     }
   });
-}
+
+  container.addEventListener('pointermove', (e) => {
+    const index = activePointers.findIndex(p => p.pointerId === e.pointerId);
+    if (index !== -1) {
+      activePointers[index] = e;
+    }
+
+    // 2-Finger Pinch Zoom
+    if (activePointers.length === 2) {
+      isDragging = false;
+      hasDragged = true;
+      const p1 = activePointers[0];
+      const p2 = activePointers[1];
+      
+      const diff = Math.hypot(p1.clientX - p2.clientX, p1.clientY - p2.clientY);
+      
+      if (prevDiff > 0) {
+        const zoomFactor = diff / prevDiff;
+        let newScale = scale * zoomFactor;
+        
+        if (newScale < 0.05) newScale = 0.05;
+        if (newScale > 3.0) newScale = 3.0;
+        
+        const midX = (p1.clientX + p2.clientX) / 2;
+        const midY = (p1.clientY + p2.clientY) / 2;
+        
+        const containerRect = container.getBoundingClientRect();
+        const localMidX = midX - containerRect.left;
+        const localMidY = midY - containerRect.top;
+        
+        panX = localMidX - (localMidX - panX) * (newScale / scale);
+        panY = localMidY - (localMidY - panY) * (newScale / scale);
+        
+        scale = newScale;
+        isAutoFitting = false;
+        
+        window.applyBracketZoom(scale);
+      }
+      prevDiff = diff;
+    }
+    // 1-Finger/Mouse Drag Pan
+    else if (activePointers.length === 1 && isDragging) {
+      const dist = Math.hypot(e.clientX - dragStartX, e.clientY - dragStartY);
+      if (dist > 5) {
+        hasDragged = true;
+      }
+      panX = e.clientX - startX;
+      panY = e.clientY - startY;
+      window.applyBracketZoom(scale);
+    }
+  });
+
+  const handlePointerUp = (e) => {
+    try {
+      container.releasePointerCapture(e.pointerId);
+    } catch (err) {}
+
+    const index = activePointers.findIndex(p => p.pointerId === e.pointerId);
+    if (index !== -1) {
+      activePointers.splice(index, 1);
+    }
+    
+    if (activePointers.length < 2) {
+      prevDiff = -1;
+    }
+    
+    if (activePointers.length === 0) {
+      isDragging = false;
+      container.style.cursor = 'grab';
+      bracket.classList.remove('is-dragging');
+    } else if (activePointers.length === 1) {
+      isDragging = true;
+      const p = activePointers[0];
+      startX = p.clientX - panX;
+      startY = p.clientY - panY;
+      dragStartX = p.clientX;
+      dragStartY = p.clientY;
+    }
+  };
+
+  container.addEventListener('pointerup', handlePointerUp);
+  container.addEventListener('pointercancel', handlePointerUp);
+
+  // Desktop Scroll Wheel Zoom
+  container.addEventListener('wheel', (e) => {
+    e.preventDefault();
+    const zoomFactor = e.deltaY < 0 ? 1.08 : 0.92;
+    let newScale = scale * zoomFactor;
+    
+    if (newScale < 0.05) newScale = 0.05;
+    if (newScale > 3.0) newScale = 3.0;
+
+    const containerRect = container.getBoundingClientRect();
+    const localX = e.clientX - containerRect.left;
+    const localY = e.clientY - containerRect.top;
+
+    panX = localX - (localX - panX) * (newScale / scale);
+    panY = localY - (localY - panY) * (newScale / scale);
+
+    scale = newScale;
+    isAutoFitting = false;
+
+    window.applyBracketZoom(scale);
+  }, { passive: false });
+
+  // Block clicks if dragging occurred
+  container.addEventListener('click', (e) => {
+    if (hasDragged) {
+      e.stopPropagation();
+      e.preventDefault();
+    }
+  }, true);
+};
 
 
 // ----------------------------------------------------
@@ -2346,6 +2403,10 @@ document.addEventListener('DOMContentLoaded', () => {
   
   // Initial calculate
   recalculateKnockoutTree();
+
+  // Initialize gesture pan/zoom on bracket container
+  window.initBracketPanZoom();
+  window.zoomBracketAutoFit();
 
   // Start background auto-polling for scores
   if (apiKey) {

@@ -188,28 +188,9 @@
           <span>Jalur Lolos Babak Gugur Piala Dunia 2026</span>
         </div>
         <div style="display: flex; gap: 8px; align-items: center;">
-          <!-- Zoom Controls -->
-          <div class="zoom-control-group" style="display: flex; align-items: center; gap: 2px; background: var(--glass-bg); border: 1px solid var(--glass-border); border-radius: 20px; padding: 2px 8px; height: 26px; box-sizing: border-box;">
-            <button id="btn-zoom-out" class="zoom-btn" onclick="window.zoomBracketStep(-1)" title="Zoom Out" style="background: none; border: none; color: var(--text-secondary); cursor: pointer; padding: 4px; display: flex; align-items: center; justify-content: center; transition: color 0.2s;">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" style="width: 10px; height: 10px;">
-                <line x1="5" y1="12" x2="19" y2="12"></line>
-              </svg>
-            </button>
-            
-            <button onclick="window.zoomBracketReset()" title="Reset to 100%" style="background: none; border: none; color: var(--text-secondary); cursor: pointer; font-size: 0.62rem; font-weight: 700; padding: 0 4px; min-width: 32px; text-align: center; transition: color 0.2s; font-family: var(--font-sans);">
-              <span id="zoom-percentage-label">100%</span>
-            </button>
-        
-            <button onclick="window.zoomBracketAutoFit()" title="Fit Screen" style="background: none; border: none; color: var(--text-secondary); cursor: pointer; font-size: 0.62rem; font-weight: 700; padding: 0 4px; transition: color 0.2s; border-left: 1px solid var(--glass-border); padding-left: 6px; font-family: var(--font-sans);">
-              Fit
-            </button>
-        
-            <button id="btn-zoom-in" class="zoom-btn" onclick="window.zoomBracketStep(1)" title="Zoom In" style="background: none; border: none; color: var(--text-secondary); cursor: pointer; padding: 4px; display: flex; align-items: center; justify-content: center; transition: color 0.2s; border-left: 1px solid var(--glass-border); padding-left: 6px;">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" style="width: 10px; height: 10px;">
-                <line x1="12" y1="5" x2="12" y2="19"></line>
-                <line x1="5" y1="12" x2="19" y2="12"></line>
-              </svg>
-            </button>
+          <!-- Zoom Reset/Fit Pill Badge -->
+          <div onclick="window.zoomBracketResetOrFit()" title="Reset Zoom / Fit Screen" style="background: var(--glass-bg); border: 1px solid var(--glass-border); border-radius: 20px; padding: 2px 10px; height: 26px; box-sizing: border-box; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 0.65rem; font-weight: 700; color: var(--text-secondary); transition: all 0.2s; font-family: var(--font-sans); user-select: none;">
+            <span id="zoom-percentage-label" style="color: var(--text-primary); margin-right: 4px;">100%</span> Fit
           </div>
         
           <!-- Layout Toggle Button -->
@@ -223,11 +204,10 @@
         </div>
       </div>
       <p style="font-size: 0.7rem; color: var(--text-secondary); margin-bottom: 12px; text-align: center;">
-        ← Geser horizontal untuk melihat babak selanjutnya →
+        ← Cubit untuk Zoom • Geser/Drag untuk Navigasi Bagan →
       </p>
-
+ 
       <div class="bracket-zoom-container" id="bracket-zoom-container">
-        <div id="bracket-root-spacer" style="display: none; width: 1208px; height: 2686px; pointer-events: none;"></div>
         <div id="bracket-root" class="bracket-wrapper">
           <!-- Rendered vertical columns (Round of 32 -> Round of 16 -> QF -> SF -> Final) -->
         </div>
