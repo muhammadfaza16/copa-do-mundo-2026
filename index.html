@@ -182,9 +182,26 @@
 
     <!-- TAB 4: BRACKET/BAGAN SIMULATOR -->
     <section id="tab-bracket" class="tab-content">
-      <div class="section-title">
-        Bagan Fase Gugur
-        <span>Jalur Lolos Babak Gugur Piala Dunia 2026</span>
+      <div class="section-title" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
+        <div>
+          Bagan Fase Gugur
+          <span>Jalur Lolos Babak Gugur Piala Dunia 2026</span>
+        </div>
+        <div style="display: flex; gap: 8px; align-items: center;">
+          <!-- Left/Right Scroll Transport Buttons -->
+          <button onclick="window.scrollBracketToEdge('left')" class="scroll-nav-btn" title="Geser ke Kiri Jauh" style="height: 26px;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" style="width: 10px; height: 10px; display: inline-block; vertical-align: middle;">
+              <polyline points="15 18 9 12 15 6"></polyline>
+            </svg>
+            <span style="font-weight: 700; margin-left: 2px;">Kiri</span>
+          </button>
+          <button onclick="window.scrollBracketToEdge('right')" class="scroll-nav-btn" title="Geser ke Kanan Jauh" style="height: 26px;">
+            <span style="font-weight: 700; margin-right: 2px;">Kanan</span>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" style="width: 10px; height: 10px; display: inline-block; vertical-align: middle;">
+              <polyline points="9 18 15 12 9 6"></polyline>
+            </svg>
+          </button>
+        </div>
       </div>
       <p style="font-size: 0.7rem; color: var(--text-secondary); margin-bottom: 12px; text-align: center;">
         ← Geser horizontal untuk melihat babak selanjutnya →

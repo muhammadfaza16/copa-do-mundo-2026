@@ -1744,6 +1744,22 @@ window.closeSlotModal = function() {
 
 
 
+window.scrollBracketToEdge = function(direction) {
+  const container = document.getElementById('bracket-scroll-container');
+  if (!container) return;
+
+  if (direction === 'left') {
+    container.scrollTo({
+      left: 0,
+      behavior: 'smooth'
+    });
+  } else if (direction === 'right') {
+    container.scrollTo({
+      left: container.scrollWidth,
+      behavior: 'smooth'
+    });
+  }
+};
 
 // ----------------------------------------------------
 // FAVORITES BRIDGE WINDOW BINDINGS

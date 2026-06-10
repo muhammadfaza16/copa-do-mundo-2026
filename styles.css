@@ -766,6 +766,33 @@ body.light-theme .search-input:focus {
   gap: 8px;
 }
 
+/* Premium Scroll Navigation Button */
+.scroll-nav-btn {
+  font-family: var(--font-sans);
+  font-size: 0.65rem;
+  font-weight: 700;
+  padding: 5px 12px;
+  border-radius: 20px;
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  color: var(--text-secondary);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  transition: var(--transition-smooth);
+}
+
+.scroll-nav-btn:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--text-primary);
+  border-color: var(--glass-border-focus);
+}
+
+body.light-theme .scroll-nav-btn:hover {
+  background: rgba(0, 0, 0, 0.04);
+}
+
 /* Bracket Simulator Styles */
 .bracket-scroll-container {
   width: 100%;
