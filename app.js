@@ -1764,64 +1764,117 @@ window.closeSlotModal = function() {
   }
 };
 
-window.toggleBracketZoom = function() {
+let currentBracketScale = 1.0;
+let isAutoFitting = false;
+
+window.applyBracketZoom = function(scale) {
   const bracket = document.getElementById('bracket-root');
   const container = document.getElementById('bracket-zoom-container');
-  const btn = document.getElementById('btn-bracket-zoom');
-  if (!bracket || !container || !btn) return;
+  if (!bracket || !container) return;
 
-  const isZoomed = container.classList.contains('zoomed-out');
-  if (isZoomed) {
-    container.classList.remove('zoomed-out');
-    bracket.style.transform = '';
+  const isVertical = bracket.classList.contains('layout-vertical');
+  const scrollWidth = isVertical ? 1208 : 2686;
+  const viewportWidth = container.offsetWidth;
+
+  const translateX = Math.max(0, (viewportWidth - (scrollWidth * scale)) / 2);
+
+  if (isVertical) {
+    bracket.style.transform = `translate(${translateX}px, 0) scale(${scale}) rotate(90deg) translateY(-100%)`;
+    container.style.height = `${2686 * scale}px`;
     bracket.style.marginBottom = '';
-    btn.innerHTML = `
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="width: 12px; height: 12px; display: inline-block; vertical-align: middle;">
-        <circle cx="11" cy="11" r="8"></circle>
-        <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-        <line x1="8" y1="11" x2="14" y2="11"></line>
-      </svg>
-      <span style="font-weight: 700;">Zoom Out</span>
-    `;
   } else {
-    container.classList.add('zoomed-out');
-    const viewportWidth = container.offsetWidth;
-    const scrollWidth = 2686; 
-    let scale = (viewportWidth - 16) / scrollWidth;
-    if (scale > 0.95) scale = 0.95;
-    if (scale < 0.05) scale = 0.05; // Set tiny lower bound to guarantee no left-to-right clipping on narrow screens
-
-    const translateX = Math.max(0, (viewportWidth - (scrollWidth * scale)) / 2);
     bracket.style.transform = `translate(${translateX}px, 0) scale(${scale})`;
-    
-    setTimeout(() => {
-      const originalHeight = bracket.scrollHeight || 1180;
-      const heightDifference = originalHeight * (1 - scale);
-      bracket.style.marginBottom = `-${heightDifference}px`;
-    }, 50);
-
-    btn.innerHTML = `
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="width: 12px; height: 12px; display: inline-block; vertical-align: middle;">
-        <circle cx="11" cy="11" r="8"></circle>
-        <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-        <line x1="12" y1="8" x2="12" y2="14"></line>
-        <line x1="9" y1="11" x2="15" y2="11"></line>
-      </svg>
-      <span style="font-weight: 700;">Zoom In</span>
-    `;
+    container.style.height = '';
+    const originalHeight = bracket.scrollHeight || 1180;
+    const heightDifference = originalHeight * (1 - scale);
+    bracket.style.marginBottom = `-${heightDifference}px`;
   }
+
+  const label = document.getElementById('zoom-percentage-label');
+  if (label) {
+    label.innerText = `${Math.round(scale * 100)}%`;
+  }
+};
+
+window.zoomBracketStep = function(direction) {
+  isAutoFitting = false;
+  let newScale = currentBracketScale;
+  if (direction === 1) {
+    newScale += 0.1;
+  } else if (direction === -1) {
+    newScale -= 0.1;
+  }
+  
+  if (newScale < 0.05) newScale = 0.05;
+  if (newScale > 2.0) newScale = 2.0;
+
+  currentBracketScale = newScale;
+  
+  const container = document.getElementById('bracket-zoom-container');
+  if (container) {
+    if (Math.abs(currentBracketScale - 1.0) > 0.01) {
+      container.classList.add('zoomed-out');
+    } else {
+      container.classList.remove('zoomed-out');
+    }
+  }
+  window.applyBracketZoom(currentBracketScale);
+};
+
+window.zoomBracketReset = function() {
+  isAutoFitting = false;
+  currentBracketScale = 1.0;
+  
+  const container = document.getElementById('bracket-zoom-container');
+  if (container) {
+    container.classList.remove('zoomed-out');
+    container.style.height = '';
+  }
+  const bracket = document.getElementById('bracket-root');
+  if (bracket) {
+    const isVertical = bracket.classList.contains('layout-vertical');
+    bracket.style.transform = isVertical ? 'rotate(90deg) translateY(-100%)' : '';
+    bracket.style.marginBottom = '';
+  }
+  const label = document.getElementById('zoom-percentage-label');
+  if (label) {
+    label.innerText = '100%';
+  }
+};
+
+window.zoomBracketAutoFit = function() {
+  isAutoFitting = true;
+  const bracket = document.getElementById('bracket-root');
+  const container = document.getElementById('bracket-zoom-container');
+  if (!bracket || !container) return;
+
+  const isVertical = bracket.classList.contains('layout-vertical');
+  const scrollWidth = isVertical ? 1208 : 2686;
+  const viewportWidth = container.offsetWidth;
+  
+  let scale = (viewportWidth - 16) / scrollWidth;
+  if (scale > 0.95) scale = 0.95;
+  if (scale < 0.05) scale = 0.05;
+
+  currentBracketScale = scale;
+  container.classList.add('zoomed-out');
+  window.applyBracketZoom(currentBracketScale);
 };
 
 window.toggleBracketLayout = function() {
   const bracket = document.getElementById('bracket-root');
-  const btnZoom = document.getElementById('btn-bracket-zoom');
+  const container = document.getElementById('bracket-zoom-container');
   const btnLayout = document.getElementById('btn-bracket-layout');
   const dots = document.getElementById('bracket-dots');
-  if (!bracket || !btnLayout) return;
+  if (!bracket || !container || !btnLayout) return;
 
   const isVertical = bracket.classList.contains('layout-vertical');
   if (isVertical) {
     bracket.classList.remove('layout-vertical');
+    container.classList.remove('layout-vertical-active');
+    container.style.height = '';
+    bracket.style.transform = '';
+    bracket.style.marginBottom = '';
     if (dots) dots.style.display = 'flex';
     btnLayout.innerHTML = `
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="width: 12px; height: 12px; display: inline-block; vertical-align: middle;">
@@ -1832,6 +1885,10 @@ window.toggleBracketLayout = function() {
     `;
   } else {
     bracket.classList.add('layout-vertical');
+    container.classList.add('layout-vertical-active');
+    container.style.height = '2686px';
+    bracket.style.transform = 'rotate(90deg) translateY(-100%)';
+    bracket.style.marginBottom = '';
     if (dots) dots.style.display = 'none';
     btnLayout.innerHTML = `
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="width: 12px; height: 12px; display: inline-block; vertical-align: middle;">
@@ -1842,39 +1899,22 @@ window.toggleBracketLayout = function() {
     `;
   }
 
-  // Recalculate zoom and margins after layout swap if currently zoomed out
-  const container = document.getElementById('bracket-zoom-container');
-  if (container && container.classList.contains('zoomed-out')) {
-    const viewportWidth = container.offsetWidth;
-    const scrollWidth = 2686;
-    let scale = (viewportWidth - 16) / scrollWidth;
-    if (scale > 0.95) scale = 0.95;
-    if (scale < 0.05) scale = 0.05;
-    const translateX = Math.max(0, (viewportWidth - (scrollWidth * scale)) / 2);
-    bracket.style.transform = `translate(${translateX}px, 0) scale(${scale})`;
-    
-    setTimeout(() => {
-      const originalHeight = bracket.scrollHeight || 1180;
-      const heightDifference = originalHeight * (1 - scale);
-      bracket.style.marginBottom = `-${heightDifference}px`;
-    }, 50);
+  // Recalculate zoom based on current mode
+  if (isAutoFitting) {
+    window.zoomBracketAutoFit();
+  } else {
+    window.applyBracketZoom(currentBracketScale);
   }
 };
 
 window.addEventListener('resize', () => {
   const container = document.getElementById('bracket-zoom-container');
-  const bracket = document.getElementById('bracket-root');
-  if (container && container.classList.contains('zoomed-out') && bracket) {
-    const viewportWidth = container.offsetWidth;
-    const scrollWidth = 2686;
-    let scale = (viewportWidth - 16) / scrollWidth;
-    if (scale > 0.95) scale = 0.95;
-    if (scale < 0.05) scale = 0.05;
-    const translateX = Math.max(0, (viewportWidth - (scrollWidth * scale)) / 2);
-    bracket.style.transform = `translate(${translateX}px, 0) scale(${scale})`;
-    const originalHeight = bracket.scrollHeight || 1180;
-    const heightDifference = originalHeight * (1 - scale);
-    bracket.style.marginBottom = `-${heightDifference}px`;
+  if (container && container.classList.contains('zoomed-out')) {
+    if (isAutoFitting) {
+      window.zoomBracketAutoFit();
+    } else {
+      window.applyBracketZoom(currentBracketScale);
+    }
   }
 });
 
