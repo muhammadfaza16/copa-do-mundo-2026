@@ -1575,6 +1575,7 @@ function renderBracket() {
 
   container.innerHTML = cardsHtml;
   renderBracketLines();
+  renderStandingsSummary();
 }
 
 function renderBracketLines() {
@@ -1741,26 +1742,32 @@ function renderBracketLines() {
   svg.innerHTML = pathsHtml;
 }
 
-function renderStandingsPreview() {
-  const container = document.getElementById('bracket-standings-preview');
+let currentGroupPage = 0; // 0 for A-F, 1 for G-L
+
+function renderStandingsSummary() {
+  const container = document.getElementById('bracket-standings-summary');
   if (!container) return;
 
-  // Compute maximum matchday played so far
-  const maxPlayed = (teamStats && Object.keys(teamStats).length > 0)
-    ? Math.max(...Object.values(teamStats).map(s => s.played))
-    : 0;
-  const matchdayText = maxPlayed === 0 ? "" : `Hingga Matchday ${maxPlayed}`;
-
-  // 1. Resolve Best 3rd Place Groups so we can highlight them in the vertical cards
-  const thirds = [];
+  // Ensure standings are calculated
+  // Calculate best thirds
+  const thirdsList = [];
   for (const [groupName, teamList] of Object.entries(groupRankings)) {
     if (teamList && teamList[2]) {
       const team = teamList[2];
       const stats = teamStats[team] || { played: 0, won: 0, drawn: 0, lost: 0, gf: 0, ga: 0, gd: 0, pts: 0 };
-      thirds.push({ group: groupName, team: team, pts: stats.pts, gd: stats.gd, gf: stats.gf, won: stats.won });
+      thirdsList.push({
+        group: groupName,
+        team: team,
+        pts: stats.pts,
+        gd: stats.gd,
+        gf: stats.gf,
+        won: stats.won
+      });
     }
   }
-  thirds.sort((a, b) => {
+
+  // Sort thirds list (Points -> GD -> GF -> Won -> Alphabetical Group)
+  thirdsList.sort((a, b) => {
     if (b.pts !== a.pts) return b.pts - a.pts;
     if (b.gd !== a.gd) return b.gd - a.gd;
     if (b.gf !== a.gf) return b.gf - a.gf;
@@ -1768,105 +1775,142 @@ function renderStandingsPreview() {
     return a.group.localeCompare(b.group);
   });
 
-  const qualifyingThirdGroups = thirds.slice(0, 8).map(t => t.group);
+  const qualifyingThirdTeams = thirdsList.slice(0, 8).map(t => t.team);
 
-  // 2. Group Standings (All 4 teams stacked vertically per group)
-  let groupsHtml = '';
-  const alphabet = 'ABCDEFGHIJKL';
+  // Group letters mapping
+  const groupLetters = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L'];
   
-  for (let i = 0; i < alphabet.length; i++) {
-    const letter = alphabet[i];
+  // Helper to render a group column
+  function renderGroupColumn(letter) {
     const groupName = `Grup ${letter}`;
-    const list = groupRankings[groupName] || [];
-    
+    const teams = groupRankings[groupName] || [];
+    if (teams.length === 0) return '';
+
     let rowsHtml = '';
-    for (let pos = 1; pos <= 4; pos++) {
-      const team = list[pos - 1] || '';
-      const flag = team ? getFlagHtml(team) : '';
-      const code = team ? getTeamCode(team) : '???';
-      const f = flag ? flag.replace('class="flag-crest"', 'class="flag-crest-preview"') : '';
+    teams.forEach((team, idx) => {
+      const isFirstOrSecond = idx < 2;
+      const isThird = idx === 2;
+      const isQualifiedThird = isThird && qualifyingThirdTeams.includes(team);
+      const isQualified = isFirstOrSecond || isQualifiedThird;
+
+      const flag = getFlagHtml(team);
+      const code = getTeamCode(team);
       
-      const isQualified = (pos === 1 || pos === 2) || (pos === 3 && qualifyingThirdGroups.includes(groupName));
-      const boldStyle = isQualified ? 'font-weight: 600; color: var(--text-primary); opacity: 1;' : 'font-weight: 400; color: var(--text-muted); opacity: 0.5;';
-      const indicatorColor = isQualified ? 'var(--accent-emerald)' : 'var(--text-muted)';
-      const indicatorSymbol = isQualified ? '●' : '○';
+      // Determine state class for card styling
+      const stateClass = isQualified ? 'qualified' : 'eliminated';
 
       rowsHtml += `
-        <div class="capsule-team" style="display: flex; align-items: center; gap: 4px; font-size: 0.65rem; margin-top: 2px; ${boldStyle}">
-          <span style="font-size: 0.55rem; color: ${indicatorColor}; margin-right: 2px;">${indicatorSymbol}</span>
-          ${f}
-          <span>${code}</span>
+        <div class="summary-team-row ${stateClass}">
+          <span class="summary-rank">${idx + 1}</span>
+          ${flag}
+          <span class="summary-code">${code}</span>
+          <div class="grip-dots">
+            <div class="grip-dot"></div><div class="grip-dot"></div>
+            <div class="grip-dot"></div><div class="grip-dot"></div>
+            <div class="grip-dot"></div><div class="grip-dot"></div>
+          </div>
         </div>
       `;
-    }
+    });
 
-    groupsHtml += `
-      <div class="standings-group-capsule" style="display: flex; flex-direction: column; gap: 3px; background: var(--glass-bg); border: 1px solid var(--glass-border); border-radius: 6px; padding: 6px 10px; flex-shrink: 0; min-width: 90px; text-align: left;">
-        <span class="capsule-group-letter" style="border-right: none; padding-right: 0; border-bottom: 1px solid var(--glass-border); padding-bottom: 3px; margin-bottom: 3px; font-size: 0.7rem; font-weight: bold; color: var(--primary-gold);">Grup ${letter}</span>
-        ${rowsHtml}
+    return `
+      <div class="summary-group-col">
+        <div class="summary-group-header">Grup ${letter}</div>
+        <div class="summary-group-body">
+          ${rowsHtml}
+        </div>
       </div>
     `;
   }
 
-  // 3. Best 3rd Place Teams in 2 Rows (Grid 2x4)
-  let thirdsHtml = '';
-  thirds.slice(0, 8).forEach(t => {
-    const flag = t.team ? getFlagHtml(t.team) : '';
-    const f = flag ? flag.replace('class="flag-crest"', 'class="flag-crest-preview"') : '';
-    const code = t.team ? getTeamCode(t.team) : '???';
-    
-    thirdsHtml += `
-      <div class="thirds-team-capsule">
-        ${f} <span>${code}</span> <span class="thirds-origin-group">(${t.group.replace('Grup ', '')})</span>
+  // Build Pages
+  // Page 1: A to F
+  let page1Html = '<div class="summary-page" id="summary-page-1" style="display: ' + (currentGroupPage === 0 ? 'grid' : 'none') + ';">';
+  groupLetters.slice(0, 6).forEach(letter => {
+    page1Html += renderGroupColumn(letter);
+  });
+  page1Html += '</div>';
+
+  // Page 2: G to L
+  let page2Html = '<div class="summary-page" id="summary-page-2" style="display: ' + (currentGroupPage === 1 ? 'grid' : 'none') + ';">';
+  groupLetters.slice(6, 12).forEach(letter => {
+    page2Html += renderGroupColumn(letter);
+  });
+  page2Html += '</div>';
+
+  // Pager buttons & dots
+  const pagerHtml = `
+    <div class="summary-pager">
+      <button class="pager-arrow" onclick="window.setGroupPage(0)" aria-label="Halaman Sebelumnya" ${currentGroupPage === 0 ? 'disabled' : ''}>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="15 18 9 12 15 6"></polyline>
+        </svg>
+      </button>
+      <div class="pager-dots">
+        <span class="pager-dot ${currentGroupPage === 0 ? 'active' : ''}" onclick="window.setGroupPage(0)"></span>
+        <span class="pager-dot ${currentGroupPage === 1 ? 'active' : ''}" onclick="window.setGroupPage(1)"></span>
+      </div>
+      <button class="pager-arrow" onclick="window.setGroupPage(1)" aria-label="Halaman Berikutnya" ${currentGroupPage === 1 ? 'disabled' : ''}>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="9 18 15 12 9 6"></polyline>
+        </svg>
+      </button>
+    </div>
+  `;
+
+  // Build Third-place teams capsules
+  let thirdsCapsulesHtml = '';
+  thirdsList.forEach((t) => {
+    const isQual = qualifyingThirdTeams.includes(t.team);
+    const code = getTeamCode(t.team);
+    const flag = getFlagHtml(t.team);
+    const groupLetter = t.group.replace('Grup ', '');
+    const stateClass = isQual ? 'qualified' : 'eliminated';
+    const statusIcon = isQual ? '●' : '○';
+
+    thirdsCapsulesHtml += `
+      <div class="thirds-summary-card ${stateClass}">
+        <span class="status-indicator">${statusIcon}</span>
+        ${flag}
+        <span class="thirds-code">${code}</span>
+        <span class="thirds-group-label">(${groupLetter})</span>
       </div>
     `;
   });
 
-  const matchdayBadge = matchdayText
-    ? `<span style="font-size: 0.65rem; color: var(--text-secondary); font-weight: 500; background: rgba(255, 255, 255, 0.05); padding: 2px 6px; border-radius: 4px; border: 1px solid var(--glass-border);">${matchdayText}</span>`
-    : '';
+  const thirdsHtml = `
+    <div class="thirds-summary-section">
+      <div class="thirds-summary-header">
+        <div class="thirds-header-title">
+          Peringkat 3 Terbaik
+          <span>8 Tim Terbaik Lolos ke Babak 32 Besar</span>
+        </div>
+        <div class="thirds-counter-badge">8/12 Lolos</div>
+      </div>
+      <div class="thirds-summary-grid">
+        ${thirdsCapsulesHtml}
+      </div>
+    </div>
+  `;
 
   container.innerHTML = `
-    <div class="standings-preview-header" style="margin-bottom: 8px; border-bottom: 1px solid var(--glass-border); padding-bottom: 6px; display: flex; justify-content: space-between; align-items: center;">
-      <span style="font-size: 0.7rem; font-weight: 700; color: var(--primary-gold); font-family: var(--font-display); letter-spacing: 0.5px; text-transform: uppercase;">Klasemen Grup</span>
-      ${matchdayBadge}
+    <div class="summary-section-title">Ringkasan Klasemen & Kualifikasi</div>
+    <div class="summary-slider-container">
+      ${page1Html}
+      ${page2Html}
+      ${pagerHtml}
     </div>
-
-    <div class="preview-row-title">Kualifikasi Grup (Juara, Runner-up &amp; Peringkat 3)</div>
-    <div class="standings-groups-scroll" id="standings-groups-scroll" style="display: flex; gap: 8px; overflow-x: auto; scrollbar-width: none; -ms-overflow-style: none; padding-bottom: 6px;">
-      ${groupsHtml}
-    </div>
-    
-    <!-- Navigation Buttons beneath scroll -->
-    <div class="standings-scroll-controls" style="display: flex; justify-content: center; gap: 8px; margin: 4px auto 10px auto;">
-      <button class="scroll-nav-btn" onclick="window.scrollStandings('left')" style="cursor: pointer;">
-        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
-        <span>Kiri</span>
-      </button>
-      <button class="scroll-nav-btn" onclick="window.scrollStandings('right')" style="cursor: pointer;">
-        <span>Kanan</span>
-        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
-      </button>
-    </div>
-    
-    <div class="preview-row-title" style="margin-top: 4px; margin-bottom: 6px;">Peringkat 3 Terbaik</div>
-    <div class="thirds-grid-preview" style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; max-width: 620px;">
-      ${thirdsHtml || '<div style="grid-column: span 4; font-size:0.65rem; color:var(--text-muted); text-align: center; padding: 6px;">Belum ditentukan</div>'}
-    </div>
+    <div class="summary-divider"></div>
+    ${thirdsHtml}
   `;
 }
 
-window.scrollStandings = function(direction) {
-  const container = document.getElementById('standings-groups-scroll');
-  if (!container) return;
-  const scrollAmount = 240; // Approx 2-3 group cards
-  if (direction === 'left') {
-    container.scrollBy({ left: -scrollAmount, behavior: 'smooth' });
-  } else {
-    container.scrollBy({ left: scrollAmount, behavior: 'smooth' });
-  }
+window.setGroupPage = function(pageIndex) {
+  currentGroupPage = pageIndex;
+  renderStandingsSummary();
 };
-window.renderStandingsPreview = renderStandingsPreview;
+
+window.renderStandingsSummary = renderStandingsSummary;
 
 
 
