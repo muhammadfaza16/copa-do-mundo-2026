@@ -1478,6 +1478,13 @@ function getVenueCity(venueStr) {
   return parts.length > 1 ? parts[1].trim() : venueStr.trim();
 }
 
+// Extractor to get only the stadium name from venue (e.g. "SoFi Stadium, Inglewood" -> "SoFi Stadium")
+function getVenueStadium(venueStr) {
+  if (!venueStr) return "";
+  const parts = venueStr.split(',');
+  return parts[0].trim();
+}
+
 function renderBracket() {
   const container = document.getElementById('bracket-cards-root');
   if (!container) return;
@@ -1541,7 +1548,9 @@ function renderBracket() {
     const formattedFlag1 = flag1 ? flag1.replace('class="flag-crest"', 'class="flag-crest-compact"') : '';
     const formattedFlag2 = flag2 ? flag2.replace('class="flag-crest"', 'class="flag-crest-compact"') : '';
 
-    const dateVenueText = `${formatCompactMatchDate(m.date)} • ${getVenueCity(m.venue)}`;
+    const formattedDate = getFormattedTime(m.date, m.time).date;
+    const stadium = getVenueStadium(m.venue);
+    const dateVenueText = `M${m.match_id} • ${formattedDate} • ${stadium}`;
 
     cardsHtml += `
       <div class="compact-match-card ${cardStateClass} ${roundClass}" 
@@ -1575,7 +1584,7 @@ function renderBracketLines() {
   const svg = document.getElementById('bracket-svg-connections');
   if (!svg) return;
 
-  const cardWidth = 70;
+  const cardWidth = 84;
   const cardHeight = 36;
   let pathsHtml = '';
 
@@ -1743,7 +1752,7 @@ function renderStandingsPreview() {
   const maxPlayed = (teamStats && Object.keys(teamStats).length > 0)
     ? Math.max(...Object.values(teamStats).map(s => s.played))
     : 0;
-  const matchdayText = maxPlayed === 0 ? "Sebelum Turnamen" : `Hingga Matchday ${maxPlayed}`;
+  const matchdayText = maxPlayed === 0 ? "" : `Hingga Matchday ${maxPlayed}`;
 
   // 1. Resolve Best 3rd Place Groups so we can highlight them in the vertical cards
   const thirds = [];
@@ -1816,10 +1825,14 @@ function renderStandingsPreview() {
     `;
   });
 
+  const matchdayBadge = matchdayText
+    ? `<span style="font-size: 0.65rem; color: var(--text-secondary); font-weight: 500; background: rgba(255, 255, 255, 0.05); padding: 2px 6px; border-radius: 4px; border: 1px solid var(--glass-border);">${matchdayText}</span>`
+    : '';
+
   container.innerHTML = `
     <div class="standings-preview-header" style="margin-bottom: 8px; border-bottom: 1px solid var(--glass-border); padding-bottom: 6px; display: flex; justify-content: space-between; align-items: center;">
       <span style="font-size: 0.7rem; font-weight: 700; color: var(--primary-gold); font-family: var(--font-display); letter-spacing: 0.5px; text-transform: uppercase;">Klasemen Grup</span>
-      <span style="font-size: 0.65rem; color: var(--text-secondary); font-weight: 500; background: rgba(255, 255, 255, 0.05); padding: 2px 6px; border-radius: 4px; border: 1px solid var(--glass-border);">${matchdayText}</span>
+      ${matchdayBadge}
     </div>
 
     <div class="preview-row-title">Kualifikasi Grup (Juara, Runner-up &amp; Peringkat 3)</div>

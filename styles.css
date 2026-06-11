@@ -2248,7 +2248,7 @@ body.light-theme .welcome-mascot-side {
 
 .compact-match-card {
   position: absolute;
-  width: 70px;
+  width: 84px;
   height: 36px;
   display: flex;
   flex-direction: column;
@@ -2266,10 +2266,10 @@ body.light-theme .welcome-mascot-side {
 /* Subtle match date/schedule label (clean text, no background or border) */
 .compact-match-date {
   position: absolute;
-  top: -10px;
+  top: -11px;
   left: 0;
-  font-size: 5.5px;
-  font-weight: 400;
+  font-size: 6px;
+  font-weight: 500;
   color: var(--text-secondary);
   line-height: 1;
   white-space: nowrap;
@@ -2277,13 +2277,13 @@ body.light-theme .welcome-mascot-side {
   z-index: 15;
   text-transform: none; /* mixed-case reads much softer */
   letter-spacing: 0.1px;
-  opacity: 0.45; /* extremely subtle to avoid visual clutter */
+  opacity: 0.6; /* subtle yet legible */
   text-shadow: 0 0 1.5px var(--bg-gradient-start);
 }
 
 body.light-theme .compact-match-date {
   color: #8e8e93;
-  opacity: 0.6;
+  opacity: 0.75;
 }
 
 /* Maintain rounded corners when rows have background colors since card overflow is visible */
