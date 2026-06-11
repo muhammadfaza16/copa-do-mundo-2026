@@ -1735,7 +1735,7 @@ function applyScale() {
   if (currentScale > baseScale) {
     paddingBottomVal = 60 * currentScale;
   } else {
-    paddingBottomVal = 10 * currentScale;
+    paddingBottomVal = 35 * currentScale;
   }
 
   const totalScaffoldingHeight = scaledHeight + paddingBottomVal;
