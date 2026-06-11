@@ -1412,47 +1412,51 @@ function getTeamCode(teamName) {
 }
 
 const COMPACT_COORDINATES = {
-  // Left Wing (Bottom-Left)
-  74: { x: 12, y: 182 },
-  77: { x: 12, y: 272 },
-  73: { x: 12, y: 342 },
-  75: { x: 12, y: 432 },
-  89: { x: 106, y: 227 },
-  90: { x: 106, y: 387 },
-  97: { x: 200, y: 307 },
+  // Left Wing (Outer Left R32, Column 2 Upper R16, Stack Top R16 & QF)
+  73: { x: 10, y: 117 },  // Column 1 upper top
+  75: { x: 10, y: 217 },  // Column 1 upper bottom
+  83: { x: 10, y: 397 },  // Column 1 lower top
+  84: { x: 10, y: 497 },  // Column 1 lower bottom
+  
+  89: { x: 190, y: 100 }, // Stack Top R16
+  90: { x: 100, y: 167 }, // Column 2 Upper R16
+  97: { x: 190, y: 167 }, // Stack QF Upper
 
-  // Top Wing (Top-Left)
-  83: { x: 143, y: 20 },
-  84: { x: 239, y: 20 },
-  81: { x: 327, y: 20 },
-  82: { x: 423, y: 20 },
-  93: { x: 191, y: 105 },
-  94: { x: 375, y: 105 },
-  98: { x: 283, y: 190 },
+  // Top Wing (Top and Bottom Horizontal R32 Matches, and Stack Bottom R16 & QF)
+  74: { x: 142, y: 30 },  // Top horizontal left (GER)
+  77: { x: 238, y: 30 },  // Top horizontal right (FRA)
+  81: { x: 142, y: 584 }, // Bottom horizontal left (USA)
+  82: { x: 238, y: 584 }, // Bottom horizontal right (BEL)
+  
+  93: { x: 100, y: 447 }, // Column 2 Lower R16
+  94: { x: 190, y: 514 }, // Stack Bottom R16
+  98: { x: 190, y: 447 }, // Stack QF Lower
 
-  // Right Wing (Top-Right)
-  76: { x: 554, y: 182 },
-  78: { x: 554, y: 272 },
-  79: { x: 554, y: 342 },
-  80: { x: 554, y: 432 },
-  91: { x: 460, y: 227 },
-  92: { x: 460, y: 387 },
-  99: { x: 366, y: 307 },
+  // Right Wing (Outer Right R32, Column 6 Upper R16, Stack Top Right R16 & QF)
+  76: { x: 328, y: 30 },  // Top-right horizontal left (BRA)
+  78: { x: 424, y: 30 },  // Top-right horizontal right (ECU)
+  79: { x: 556, y: 117 }, // Column 7 upper top
+  80: { x: 556, y: 217 }, // Column 7 upper bottom
+  
+  91: { x: 376, y: 100 }, // Stack Top Right R16
+  92: { x: 466, y: 167 }, // Column 6 Upper R16
+  99: { x: 376, y: 167 }, // Stack QF Upper Right
 
-  // Bottom Wing (Bottom-Right)
-  85: { x: 143, y: 594 },
-  86: { x: 239, y: 594 },
-  87: { x: 327, y: 594 },
-  88: { x: 423, y: 594 },
-  95: { x: 191, y: 509 },
-  96: { x: 375, y: 509 },
-  100: { x: 283, y: 424 },
+  // Bottom Wing (Column 7 lower R32, Bottom-right horizontal R32)
+  85: { x: 556, y: 397 }, // Column 7 lower top
+  86: { x: 556, y: 497 }, // Column 7 lower bottom
+  87: { x: 328, y: 584 }, // Bottom-right horizontal left (TUR)
+  88: { x: 424, y: 584 }, // Bottom-right horizontal right (ARG)
+  
+  95: { x: 466, y: 447 }, // Column 6 Lower R16
+  96: { x: 376, y: 514 }, // Stack Bottom R16 Right
+  100: { x: 376, y: 447 }, // Stack QF Lower Right
 
-  // Center
-  101: { x: 200, y: 248 }, // Semifinal 1
-  102: { x: 366, y: 366 }, // Semifinal 2
-  104: { x: 283, y: 307 }, // Final
-  103: { x: 283, y: 425 }  // Juara 3
+  // Center (Semifinals, Final, Juara 3)
+  101: { x: 190, y: 307 }, // Semifinal 1 (Left)
+  102: { x: 376, y: 307 }, // Semifinal 2 (Right)
+  104: { x: 283, y: 307 }, // Final (Center)
+  103: { x: 283, y: 514 }  // Juara 3 (Bottom Center)
 };
 
 function renderBracket() {
@@ -1553,43 +1557,47 @@ function renderBracketLines() {
   let pathsHtml = '';
 
   const connections = [
-    // Left Wing
-    { from: 74, to: 89, type: 'horizontal-right' },
-    { from: 77, to: 89, type: 'horizontal-right' },
+    // Left Wing (Column 1 to Column 2 R16/QF stack)
     { from: 73, to: 90, type: 'horizontal-right' },
     { from: 75, to: 90, type: 'horizontal-right' },
-    { from: 89, to: 97, type: 'horizontal-right' },
-    { from: 90, to: 97, type: 'horizontal-right' },
-    { from: 97, to: 101, type: 'vertical-straight' },
+    { from: 83, to: 93, type: 'horizontal-right' },
+    { from: 84, to: 93, type: 'horizontal-right' },
+    { from: 90, to: 97, type: 'horizontal-straight' },
+    { from: 93, to: 98, type: 'horizontal-straight' },
 
-    // Top Wing
-    { from: 83, to: 93, type: 'vertical-down' },
-    { from: 84, to: 93, type: 'vertical-down' },
-    { from: 81, to: 94, type: 'vertical-down' },
-    { from: 82, to: 94, type: 'vertical-down' },
-    { from: 93, to: 98, type: 'vertical-down' },
-    { from: 94, to: 98, type: 'vertical-down' },
-    { from: 98, to: 101, type: 'vertical-straight' },
+    // Top Wing (Top/Bottom horizontal to Stack Top/Bottom R16)
+    { from: 74, to: 89, type: 'vertical-down' },
+    { from: 77, to: 89, type: 'vertical-down' },
+    { from: 81, to: 94, type: 'vertical-up' },
+    { from: 82, to: 94, type: 'vertical-up' },
 
     // Right Wing
-    { from: 76, to: 91, type: 'horizontal-left' },
-    { from: 78, to: 91, type: 'horizontal-left' },
     { from: 79, to: 92, type: 'horizontal-left' },
     { from: 80, to: 92, type: 'horizontal-left' },
-    { from: 91, to: 99, type: 'horizontal-left' },
-    { from: 92, to: 99, type: 'horizontal-left' },
-    { from: 99, to: 102, type: 'vertical-straight' },
+    { from: 85, to: 95, type: 'horizontal-left' },
+    { from: 86, to: 95, type: 'horizontal-left' },
+    { from: 92, to: 99, type: 'horizontal-straight' },
+    { from: 95, to: 100, type: 'horizontal-straight' },
 
     // Bottom Wing
-    { from: 85, to: 95, type: 'vertical-up' },
-    { from: 86, to: 95, type: 'vertical-up' },
+    { from: 76, to: 91, type: 'vertical-down' },
+    { from: 78, to: 91, type: 'vertical-down' },
     { from: 87, to: 96, type: 'vertical-up' },
     { from: 88, to: 96, type: 'vertical-up' },
-    { from: 95, to: 100, type: 'vertical-up' },
-    { from: 96, to: 100, type: 'vertical-up' },
+
+    // Stack vertical progression
+    { from: 89, to: 97, type: 'vertical-straight' },
+    { from: 94, to: 98, type: 'vertical-straight' },
+    { from: 91, to: 99, type: 'vertical-straight' },
+    { from: 96, to: 100, type: 'vertical-straight' },
+
+    // QF to SF vertical straight
+    { from: 97, to: 101, type: 'vertical-straight' },
+    { from: 98, to: 101, type: 'vertical-straight' },
+    { from: 99, to: 102, type: 'vertical-straight' },
     { from: 100, to: 102, type: 'vertical-straight' },
 
-    // Center
+    // SF to Final (center) and Juara 3 (bottom center)
     { from: 101, to: 104, type: 'center-final' },
     { from: 102, to: 104, type: 'center-final' },
     { from: 101, to: 103, type: 'center-third' },
@@ -1601,117 +1609,82 @@ function renderBracketLines() {
     const toCoords = COMPACT_COORDINATES[conn.to];
     if (!fromCoords || !toCoords) return;
 
-    const toMatch = knockoutMatches.find(m => m.match_id === conn.to);
-    let isTeam1 = true;
-    if (toMatch) {
-      if (toMatch.team2_seed === `W${conn.from}` || toMatch.team2_seed === `L${conn.from}`) {
-        isTeam1 = false;
-      }
-    }
-
     let x_start, y_start, x_end, y_end;
     let d = '';
 
-    // Custom symmetrical connection path logic for clean radial layout
-    if (conn.from === 97 && conn.to === 101) {
-      // Left QF to Left SF (straight up)
-      x_start = fromCoords.x + 42;
-      y_start = fromCoords.y;
-      x_end = toCoords.x + 42;
-      y_end = toCoords.y + cardHeight;
-      d = `M ${x_start} ${y_start} V ${y_end}`;
-    } else if (conn.from === 98 && conn.to === 101) {
-      // Top QF to Left SF (horizontal then vertical)
-      x_start = fromCoords.x;
-      y_start = fromCoords.y + 18;
-      x_end = toCoords.x + 42;
-      y_end = toCoords.y;
-      d = `M ${x_start} ${y_start} H ${x_end} V ${y_end}`;
-    } else if (conn.from === 99 && conn.to === 102) {
-      // Right QF to Right SF (straight down)
+    if (conn.type === 'vertical-down') {
       x_start = fromCoords.x + 42;
       y_start = fromCoords.y + cardHeight;
       x_end = toCoords.x + 42;
       y_end = toCoords.y;
-      d = `M ${x_start} ${y_start} V ${y_end}`;
-    } else if (conn.from === 100 && conn.to === 102) {
-      // Bottom QF to Right SF (horizontal then vertical)
+      const ym = (y_start + y_end) / 2;
+      d = `M ${x_start} ${y_start} V ${ym} H ${x_end} V ${y_end}`;
+    } else if (conn.type === 'vertical-up') {
+      x_start = fromCoords.x + 42;
+      y_start = fromCoords.y;
+      x_end = toCoords.x + 42;
+      y_end = toCoords.y + cardHeight;
+      const ym = (y_start + y_end) / 2;
+      d = `M ${x_start} ${y_start} V ${ym} H ${x_end} V ${y_end}`;
+    } else if (conn.type === 'horizontal-right') {
       x_start = fromCoords.x + cardWidth;
       y_start = fromCoords.y + 18;
-      x_end = toCoords.x + 42;
-      y_end = toCoords.y + cardHeight;
-      d = `M ${x_start} ${y_start} H ${x_end} V ${y_end}`;
-    } else if (conn.from === 101 && conn.to === 104) {
-      // Left SF to Final (vertical down then horizontal right)
-      x_start = fromCoords.x + 42;
-      y_start = fromCoords.y + cardHeight;
       x_end = toCoords.x;
-      y_end = toCoords.y + 9;
-      d = `M ${x_start} ${y_start} V ${y_end} H ${x_end}`;
-    } else if (conn.from === 102 && conn.to === 104) {
-      // Right SF to Final (vertical up then horizontal left)
-      x_start = fromCoords.x + 42;
-      y_start = fromCoords.y;
+      y_end = toCoords.y + 18;
+      const xm = (x_start + x_end) / 2;
+      d = `M ${x_start} ${y_start} H ${xm} V ${y_end} H ${x_end}`;
+    } else if (conn.type === 'horizontal-left') {
+      x_start = fromCoords.x;
+      y_start = fromCoords.y + 18;
       x_end = toCoords.x + cardWidth;
-      y_end = toCoords.y + 27;
-      d = `M ${x_start} ${y_start} V ${y_end} H ${x_end}`;
-    } else if (conn.from === 101 && conn.to === 103) {
-      // Left SF to 3rd Place (vertical down then horizontal right)
-      x_start = fromCoords.x + 42;
-      y_start = fromCoords.y + cardHeight;
-      x_end = toCoords.x;
-      y_end = toCoords.y + 9;
-      d = `M ${x_start} ${y_start} V ${y_end} H ${x_end}`;
-    } else if (conn.from === 102 && conn.to === 103) {
-      // Right SF to 3rd Place (vertical down then horizontal left)
-      x_start = fromCoords.x + 42;
-      y_start = fromCoords.y + cardHeight;
-      x_end = toCoords.x + cardWidth;
-      y_end = toCoords.y + 27;
-      d = `M ${x_start} ${y_start} V ${y_end} H ${x_end}`;
-    } else {
-      // Standard tree connections (R32 -> R16 -> QF)
-      if (conn.type === 'horizontal-right') {
+      y_end = toCoords.y + 18;
+      const xm = (x_start + x_end) / 2;
+      d = `M ${x_start} ${y_start} H ${xm} V ${y_end} H ${x_end}`;
+    } else if (conn.type === 'horizontal-straight') {
+      if (fromCoords.x < toCoords.x) {
         x_start = fromCoords.x + cardWidth;
         y_start = fromCoords.y + 18;
         x_end = toCoords.x;
-        y_end = toCoords.y + (isTeam1 ? 9 : 27);
-        const x_mid = (x_start + x_end) / 2;
-        d = `M ${x_start} ${y_start} H ${x_mid} V ${y_end} H ${x_end}`;
-      } else if (conn.type === 'horizontal-left') {
+      } else {
         x_start = fromCoords.x;
         y_start = fromCoords.y + 18;
         x_end = toCoords.x + cardWidth;
-        y_end = toCoords.y + (isTeam1 ? 9 : 27);
-        const x_mid = (x_start + x_end) / 2;
-        d = `M ${x_start} ${y_start} H ${x_mid} V ${y_end} H ${x_end}`;
-      } else if (conn.type === 'vertical-down') {
-        x_start = fromCoords.x + 42;
+      }
+      d = `M ${x_start} ${y_start} H ${x_end}`;
+    } else if (conn.type === 'vertical-straight') {
+      x_start = fromCoords.x + 42;
+      if (fromCoords.y < toCoords.y) {
         y_start = fromCoords.y + cardHeight;
-        x_end = toCoords.x + (isTeam1 ? 28 : 56);
         y_end = toCoords.y;
-        const y_mid = (y_start + y_end) / 2;
-        d = `M ${x_start} ${y_start} V ${y_mid} H ${x_end} V ${y_end}`;
-      } else if (conn.type === 'vertical-up') {
-        x_start = fromCoords.x + 42;
+      } else {
         y_start = fromCoords.y;
-        x_end = toCoords.x + (isTeam1 ? 28 : 56);
         y_end = toCoords.y + cardHeight;
-        const y_mid = (y_start + y_end) / 2;
-        d = `M ${x_start} ${y_start} V ${y_mid} H ${x_end} V ${y_end}`;
-      } else if (conn.type === 'vertical-straight') {
-        if (fromCoords.y > toCoords.y) {
-          x_start = fromCoords.x + 42;
-          y_start = fromCoords.y;
-          x_end = toCoords.x + 42;
-          y_end = toCoords.y + cardHeight;
-        } else {
-          x_start = fromCoords.x + 42;
-          y_start = fromCoords.y + cardHeight;
-          x_end = toCoords.x + 42;
-          y_end = toCoords.y;
-        }
-        d = `M ${x_start} ${y_start} V ${y_end}`;
+      }
+      d = `M ${x_start} ${y_start} V ${y_end}`;
+    } else if (conn.type === 'center-final') {
+      if (fromCoords.x < toCoords.x) {
+        x_start = fromCoords.x + cardWidth;
+        y_start = fromCoords.y + 18;
+        x_end = toCoords.x;
+      } else {
+        x_start = fromCoords.x;
+        y_start = fromCoords.y + 18;
+        x_end = toCoords.x + cardWidth;
+      }
+      d = `M ${x_start} ${y_start} H ${x_end}`;
+    } else if (conn.type === 'center-third') {
+      if (fromCoords.x < toCoords.x) {
+        x_start = fromCoords.x + cardWidth + 4.5;
+        y_start = fromCoords.y + 18;
+        x_end = toCoords.x;
+        y_end = toCoords.y + 18;
+        d = `M ${x_start} ${y_start} V ${y_end} H ${x_end}`;
+      } else {
+        x_start = fromCoords.x - 4.5;
+        y_start = fromCoords.y + 18;
+        x_end = toCoords.x + cardWidth;
+        y_end = toCoords.y + 18;
+        d = `M ${x_start} ${y_start} V ${y_end} H ${x_end}`;
       }
     }
 
