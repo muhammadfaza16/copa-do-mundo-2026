@@ -2353,85 +2353,85 @@ body.light-theme .bracket-line-inactive {
 
 /* Round-Specific Card Styles (Left Border + Glow Shadow) */
 .compact-match-card.round-32 {
-  border-left: 3.5px solid #6366f1 !important;
+  border-left: 3.5px solid #dc2626 !important;
 }
 .compact-match-card.round-32.match-predicted {
-  box-shadow: 0 0 10px rgba(99, 102, 241, 0.35);
+  box-shadow: 0 0 10px rgba(220, 38, 38, 0.35);
 }
 
 .compact-match-card.round-16 {
-  border-left: 3.5px solid #14b8a6 !important;
+  border-left: 3.5px solid #16a34a !important;
 }
 .compact-match-card.round-16.match-predicted {
-  box-shadow: 0 0 10px rgba(20, 184, 166, 0.35);
+  box-shadow: 0 0 10px rgba(22, 163, 74, 0.35);
 }
 
 .compact-match-card.round-qf {
-  border-left: 3.5px solid #a855f7 !important;
+  border-left: 3.5px solid #2563eb !important;
 }
 .compact-match-card.round-qf.match-predicted {
-  box-shadow: 0 0 10px rgba(168, 85, 247, 0.35);
+  box-shadow: 0 0 10px rgba(37, 99, 235, 0.35);
 }
 
 .compact-match-card.round-sf {
-  border-left: 3.5px solid #f97316 !important;
+  border-left: 3.5px solid #ea580c !important;
 }
 .compact-match-card.round-sf.match-predicted {
-  box-shadow: 0 0 10px rgba(249, 115, 22, 0.35);
+  box-shadow: 0 0 10px rgba(234, 88, 12, 0.35);
 }
 
 .compact-match-card.round-final {
-  border-left: 3.5px solid #eab308 !important;
+  border-left: 3.5px solid #ca8a04 !important;
 }
 .compact-match-card.round-final.match-predicted {
-  box-shadow: 0 0 15px rgba(234, 179, 8, 0.5);
+  box-shadow: 0 0 15px rgba(202, 138, 4, 0.5);
 }
 
 .compact-match-card.round-third {
-  border-left: 3.5px solid #94a3b8 !important;
+  border-left: 3.5px solid #7c3aed !important;
 }
 .compact-match-card.round-third.match-predicted {
-  box-shadow: 0 0 10px rgba(148, 163, 184, 0.35);
+  box-shadow: 0 0 10px rgba(124, 58, 237, 0.35);
 }
 
 /* Round-Specific Symmetrical Active Paths */
 .line-active-32 {
-  stroke: #6366f1;
+  stroke: #dc2626;
   stroke-width: 2.2px;
   fill: none;
-  filter: drop-shadow(0 0 1.5px rgba(99, 102, 241, 0.7));
+  filter: drop-shadow(0 0 1.5px rgba(220, 38, 38, 0.7));
   transition: stroke 0.3s, stroke-width 0.3s;
 }
 
 .line-active-16 {
-  stroke: #14b8a6;
+  stroke: #16a34a;
   stroke-width: 2.2px;
   fill: none;
-  filter: drop-shadow(0 0 1.5px rgba(20, 184, 166, 0.7));
+  filter: drop-shadow(0 0 1.5px rgba(22, 163, 74, 0.7));
   transition: stroke 0.3s, stroke-width 0.3s;
 }
 
 .line-active-qf {
-  stroke: #a855f7;
+  stroke: #2563eb;
   stroke-width: 2.2px;
   fill: none;
-  filter: drop-shadow(0 0 1.5px rgba(168, 85, 247, 0.7));
+  filter: drop-shadow(0 0 1.5px rgba(37, 99, 235, 0.7));
   transition: stroke 0.3s, stroke-width 0.3s;
 }
 
 .line-active-sf {
-  stroke: #f97316;
+  stroke: #ea580c;
   stroke-width: 2.2px;
   fill: none;
-  filter: drop-shadow(0 0 1.5px rgba(249, 115, 22, 0.7));
+  filter: drop-shadow(0 0 1.5px rgba(234, 88, 12, 0.7));
   transition: stroke 0.3s, stroke-width 0.3s;
 }
 
 .line-active-final {
-  stroke: #eab308;
+  stroke: #ca8a04;
   stroke-width: 2.5px;
   fill: none;
-  filter: drop-shadow(0 0 2px rgba(234, 179, 8, 0.8));
+  filter: drop-shadow(0 0 2px rgba(202, 138, 4, 0.8));
   transition: stroke 0.3s, stroke-width 0.3s;
 }
 /* Bracket Round Legend (Subtle, secondary label style) */
@@ -2468,12 +2468,12 @@ body.light-theme .bracket-line-inactive {
   border-radius: 1px;
 }
 
-.round-32-line { background-color: #6366f1; }
-.round-16-line { background-color: #14b8a6; }
-.round-qf-line { background-color: #a855f7; }
-.round-sf-line { background-color: #f97316; }
-.round-third-line { background-color: #94a3b8; }
-.round-final-line { background-color: #eab308; }
+.round-32-line { background-color: #dc2626; }
+.round-16-line { background-color: #16a34a; }
+.round-qf-line { background-color: #2563eb; }
+.round-sf-line { background-color: #ea580c; }
+.round-third-line { background-color: #7c3aed; }
+.round-final-line { background-color: #ca8a04; }
 
 /* Zoom Switch Toggle styling */
 .switch-container {
