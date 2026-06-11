@@ -1328,183 +1328,383 @@ function formatPlaceholderName(name) {
     .replace("3rd Group", "Peringkat 3");
 }
 
+const TEAM_CODES = {
+  "Meksiko": "MEX",
+  "Afrika Selatan": "RSA",
+  "Korea Selatan": "KOR",
+  "Ceko": "CZE",
+  "Kanada": "CAN",
+  "Bosnia dan Herzegovina": "BIH",
+  "Qatar": "QAT",
+  "Swiss": "SWI",
+  "Brasil": "BRA",
+  "Maroko": "MAR",
+  "Haiti": "HAI",
+  "Skotlandia": "SCO",
+  "Amerika Serikat": "USA",
+  "Paraguay": "PAR",
+  "Australia": "AUS",
+  "Turki": "TUR",
+  "Jerman": "GER",
+  "Curaçao": "CUW",
+  "Belanda": "NED",
+  "Jepang": "JPN",
+  "Pantai Gading": "CIV",
+  "Ekuador": "ECU",
+  "Swedia": "SWE",
+  "Tunisia": "TUN",
+  "Spanyol": "SPA",
+  "Tanjung Verde": "CPV",
+  "Belgia": "BEL",
+  "Mesir": "EGY",
+  "Arab Saudi": "KSA",
+  "Uruguay": "URU",
+  "Iran": "IRN",
+  "Selandia Baru": "NZL",
+  "Prancis": "FRA",
+  "Senegal": "SEN",
+  "Irak": "IRQ",
+  "Norwegia": "NOR",
+  "Argentina": "ARG",
+  "Aljazair": "ALG",
+  "Austria": "AUT",
+  "Yordania": "JOR",
+  "Portugal": "POR",
+  "RD Kongo": "COD",
+  "Inggris": "ENG",
+  "Kroasia": "CRO",
+  "Ghana": "GHA",
+  "Panama": "PAN",
+  "Uzbekistan": "UZB",
+  "Kolombia": "COL"
+};
+
+function getTeamCode(teamName) {
+  if (!teamName) return "";
+  if (TEAM_CODES[teamName]) {
+    return TEAM_CODES[teamName];
+  }
+  const clean = teamName.trim();
+  if (TEAM_CODES[clean]) return TEAM_CODES[clean];
+
+  if (clean.startsWith("Juara Grup ")) {
+    return "1" + clean.replace("Juara Grup ", "");
+  }
+  if (clean.startsWith("Runner-up Grup ")) {
+    return "2" + clean.replace("Runner-up Grup ", "");
+  }
+  if (clean.startsWith("3rd Grup ")) {
+    return "3" + clean.replace("3rd Grup ", "");
+  }
+  if (clean.startsWith("Winner Match ")) {
+    return "W" + clean.replace("Winner Match ", "");
+  }
+  if (clean.startsWith("Loser Match ")) {
+    return "L" + clean.replace("Loser Match ", "");
+  }
+  if (clean.startsWith("Pemenang M")) {
+    return "W" + clean.replace("Pemenang M", "");
+  }
+  if (clean.startsWith("Kalah M")) {
+    return "L" + clean.replace("Kalah M", "");
+  }
+  return clean.substring(0, 3).toUpperCase();
+}
+
+const COMPACT_COORDINATES = {
+  // Left Wing (Bottom-Left)
+  74: { x: 30, y: 352 },
+  77: { x: 30, y: 400 },
+  73: { x: 30, y: 448 },
+  75: { x: 30, y: 496 },
+  89: { x: 105, y: 376 },
+  90: { x: 105, y: 472 },
+  97: { x: 190, y: 424 },
+
+  // Top Wing (Top-Left)
+  83: { x: 118, y: 30 },
+  84: { x: 166, y: 30 },
+  81: { x: 214, y: 30 },
+  82: { x: 262, y: 30 },
+  93: { x: 142, y: 105 },
+  94: { x: 238, y: 105 },
+  98: { x: 190, y: 190 },
+
+  // Right Wing (Top-Right)
+  76: { x: 536, y: 118 },
+  78: { x: 536, y: 166 },
+  79: { x: 536, y: 214 },
+  80: { x: 536, y: 262 },
+  91: { x: 461, y: 142 },
+  92: { x: 461, y: 238 },
+  99: { x: 376, y: 190 },
+
+  // Bottom Wing (Bottom-Right)
+  85: { x: 304, y: 584 },
+  86: { x: 352, y: 584 },
+  87: { x: 400, y: 584 },
+  88: { x: 448, y: 584 },
+  95: { x: 328, y: 509 },
+  96: { x: 424, y: 509 },
+  100: { x: 376, y: 424 },
+
+  // Center
+  101: { x: 190, y: 307 }, // Semifinal 1
+  102: { x: 376, y: 307 }, // Semifinal 2
+  104: { x: 283, y: 307 }, // Final
+  103: { x: 283, y: 440 }  // Juara 3
+};
+
 function renderBracket() {
-  const container = document.getElementById('bracket-root');
+  const container = document.getElementById('bracket-cards-root');
   if (!container) return;
 
-  const slotHeights = [124, 276, 580, 1188, 2404];
+  let cardsHtml = '';
 
-  // Group knockoutMatches by stage in a single left-to-right flow
-  const stages = [
-    { 
-      title: "32 Besar", 
-      matches: [74, 77, 73, 75, 83, 84, 81, 82, 76, 78, 79, 80, 85, 86, 87, 88].map(id => knockoutMatches.find(m => m.match_id === id)).filter(Boolean), 
-      info: "16 Laga • 29 Jun - 3 Jul", 
-      slotHeight: 124 
-    },
-    { 
-      title: "16 Besar", 
-      matches: [89, 90, 93, 94, 91, 92, 95, 96].map(id => knockoutMatches.find(m => m.match_id === id)).filter(Boolean), 
-      info: "8 Laga • 4 Jul - 7 Jul", 
-      slotHeight: 276 
-    },
-    { 
-      title: "Perempat Final", 
-      matches: [97, 98, 99, 100].map(id => knockoutMatches.find(m => m.match_id === id)).filter(Boolean), 
-      info: "4 Laga • 9 - 12 Jul", 
-      slotHeight: 580 
-    },
-    { 
-      title: "Semifinal", 
-      matches: [101, 102].map(id => knockoutMatches.find(m => m.match_id === id)).filter(Boolean), 
-      info: "2 Laga • 14 - 15 Jul", 
-      slotHeight: 1188 
-    },
-    { 
-      title: "Final & Juara 3", 
-      matches: [
-        knockoutMatches.find(m => m.match_id === 104),
-        knockoutMatches.find(m => m.match_id === 103)
-      ].filter(Boolean), 
-      info: "2 Laga • 18 - 19 Jul", 
-      slotHeight: 2404 
+  knockoutMatches.forEach(m => {
+    const coords = COMPACT_COORDINATES[m.match_id];
+    if (!coords) return;
+
+    const winner = simulatedWinners[m.match_id];
+    const isPlaceholder1 = m.team1 && typeof m.team1 === 'string' && (
+      m.team1.startsWith('Winner Match') || 
+      m.team1.startsWith('Loser Match') || 
+      m.team1.startsWith('3rd Grup') || 
+      m.team1.startsWith('3rd Group') ||
+      m.team1.startsWith('Juara Grup') ||
+      m.team1.startsWith('Runner-up Grup') ||
+      m.team1.startsWith('Juara Group') ||
+      m.team1.startsWith('Runner-up Group')
+    );
+    const isPlaceholder2 = m.team2 && typeof m.team2 === 'string' && (
+      m.team2.startsWith('Winner Match') || 
+      m.team2.startsWith('Loser Match') || 
+      m.team2.startsWith('3rd Grup') || 
+      m.team2.startsWith('3rd Group') ||
+      m.team2.startsWith('Juara Grup') ||
+      m.team2.startsWith('Runner-up Grup') ||
+      m.team2.startsWith('Juara Group') ||
+      m.team2.startsWith('Runner-up Group')
+    );
+
+    const team1Code = getTeamCode(m.team1 || '');
+    const team2Code = getTeamCode(m.team2 || '');
+
+    const team1WinnerClass = (winner && winner === m.team1) ? 'winner' : (winner ? 'loser' : '');
+    const team2WinnerClass = (winner && winner === m.team2) ? 'winner' : (winner ? 'loser' : '');
+
+    const hasPlaceholders = isPlaceholder1 || isPlaceholder2;
+    const hasWinner = !!winner;
+    let cardStateClass = '';
+    if (hasPlaceholders) {
+      cardStateClass = 'match-locked';
+    } else if (hasWinner) {
+      cardStateClass = 'match-predicted';
+    } else {
+      cardStateClass = 'match-ready';
     }
-  ];
 
-  let bracketHtml = '';
+    const flag1 = !isPlaceholder1 && m.team1 ? getFlagHtml(m.team1) : '';
+    const flag2 = !isPlaceholder2 && m.team2 ? getFlagHtml(m.team2) : '';
 
-  stages.forEach((stage, sIdx) => {
-    let matchesHtml = '';
-    const slotHeight = stage.slotHeight;
+    const formattedFlag1 = flag1 ? flag1.replace('class="flag-crest"', 'class="flag-crest-compact"') : '';
+    const formattedFlag2 = flag2 ? flag2.replace('class="flag-crest"', 'class="flag-crest-compact"') : '';
 
-    stage.matches.forEach(m => {
-      const winner = simulatedWinners[m.match_id];
-      const isPlaceholder1 = m.team1 && typeof m.team1 === 'string' && (
-        m.team1.startsWith('Winner Match') || 
-        m.team1.startsWith('Loser Match') || 
-        m.team1.startsWith('3rd Grup') || 
-        m.team1.startsWith('3rd Group') ||
-        m.team1.startsWith('Juara Grup') ||
-        m.team1.startsWith('Runner-up Grup') ||
-        m.team1.startsWith('Juara Group') ||
-        m.team1.startsWith('Runner-up Group')
-      );
-      const isPlaceholder2 = m.team2 && typeof m.team2 === 'string' && (
-        m.team2.startsWith('Winner Match') || 
-        m.team2.startsWith('Loser Match') || 
-        m.team2.startsWith('3rd Grup') || 
-        m.team2.startsWith('3rd Group') ||
-        m.team2.startsWith('Juara Grup') ||
-        m.team2.startsWith('Runner-up Grup') ||
-        m.team2.startsWith('Juara Group') ||
-        m.team2.startsWith('Runner-up Group')
-      );
-
-      let team1Content = `<span class="bracket-team-name-wrap">${getFlagHtml(m.team1)} <span>${m.team1 || ''}</span></span>`;
-      if (isPlaceholder1 && m.team1) {
-        team1Content = `<span class="bracket-team-name-wrap">${getFlagHtml(m.team1)} <span class="placeholder-text">${formatPlaceholderName(m.team1)}</span></span>`;
-      }
-
-      let team2Content = `<span class="bracket-team-name-wrap">${getFlagHtml(m.team2)} <span>${m.team2 || ''}</span></span>`;
-      if (isPlaceholder2 && m.team2) {
-        team2Content = `<span class="bracket-team-name-wrap">${getFlagHtml(m.team2)} <span class="placeholder-text">${formatPlaceholderName(m.team2)}</span></span>`;
-      }
-
-      const team1WinnerClass = (winner && winner === m.team1) ? 'winner' : (winner ? 'loser' : '');
-      const team2WinnerClass = (winner && winner === m.team2) ? 'winner' : (winner ? 'loser' : '');
-
-      const hasPlaceholders = isPlaceholder1 || isPlaceholder2;
-      const hasWinner = !!winner;
-      let cardStateClass = '';
-      if (hasPlaceholders) {
-        cardStateClass = 'match-locked';
-      } else if (hasWinner) {
-        cardStateClass = 'match-predicted';
-      } else {
-        cardStateClass = 'match-ready';
-      }
-
-      const timeInfo = getFormattedTime(m.date, m.time);
-
-      const matchBoxHtml = `
-        <div class="bracket-match ${cardStateClass}">
-          <div class="bracket-match-header">
-            <span>Laga ${m.match_id}</span>
-            <span>${timeInfo.date} • ${timeInfo.time}</span>
-          </div>
-          <!-- Team 1 Row -->
-          <div class="bracket-team-row ${isPlaceholder1 ? 'placeholder' : ''} ${team1WinnerClass}" 
-               ${!isPlaceholder1 ? `data-team="${m.team1}"` : ''}
-               onclick="window.handleBracketTap(${m.match_id}, '${m.team1 ? m.team1.replace(/'/g, "\\'") : ''}', ${!isPlaceholder1 && !isPlaceholder2})">
-             ${team1Content}
-             ${winner && winner === m.team1 ? `
-               <span class="bracket-winner-indicator">
-                 <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block; vertical-align:middle; margin-right:2px;">
-                   <path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"></path>
-                   <path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"></path>
-                   <path d="M4 22h16"></path>
-                   <path d="M10 14.66V17c0 .55-.45 1-1 1H4v2h16v-2h-5c-.55 0-1-.45-1-1v-2.34"></path>
-                   <path d="M12 2a5 5 0 0 0-5 5v3.66c0 .87.35 1.7 1 2.34l2 2a2.83 2.83 0 0 0 4 0l2-2a3.3 3.3 0 0 0 1-2.34V7a5 5 0 0 0-5-5z"></path>
-                 </svg>
-                 <span>MENANG</span>
-               </span>
-             ` : ''}
-          </div>
-          <!-- Team 2 Row -->
-          <div class="bracket-team-row ${isPlaceholder2 ? 'placeholder' : ''} ${team2WinnerClass}" 
-               ${!isPlaceholder2 ? `data-team="${m.team2}"` : ''}
-               onclick="window.handleBracketTap(${m.match_id}, '${m.team2 ? m.team2.replace(/'/g, "\\'") : ''}', ${!isPlaceholder1 && !isPlaceholder2})">
-             ${team2Content}
-             ${winner && winner === m.team2 ? `
-               <span class="bracket-winner-indicator">
-                 <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block; vertical-align:middle; margin-right:2px;">
-                   <path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"></path>
-                   <path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"></path>
-                   <path d="M4 22h16"></path>
-                   <path d="M10 14.66V17c0 .55-.45 1-1 1H4v2h16v-2h-5c-.55 0-1-.45-1-1v-2.34"></path>
-                   <path d="M12 2a5 5 0 0 0-5 5v3.66c0 .87.35 1.7 1 2.34l2 2a2.83 2.83 0 0 0 4 0l2-2a3.3 3.3 0 0 0 1-2.34V7a5 5 0 0 0-5-5z"></path>
-                 </svg>
-                 <span>MENANG</span>
-               </span>
-             ` : ''}
-          </div>
-          <div class="bracket-match-footer-venue">
-            ${m.venue}
-          </div>
+    cardsHtml += `
+      <div class="compact-match-card ${cardStateClass}" 
+           style="left: ${coords.x}px; top: ${coords.y}px;"
+           title="Laga ${m.match_id} - ${m.venue || ''}">
+        <!-- Team 1 -->
+        <div class="compact-team-row ${isPlaceholder1 ? 'placeholder' : ''} ${team1WinnerClass}"
+             ${!isPlaceholder1 ? `data-team="${m.team1}"` : ''}
+             onclick="window.handleBracketTap(${m.match_id}, '${m.team1 ? m.team1.replace(/'/g, "\\'") : ''}', ${!isPlaceholder1 && !isPlaceholder2})">
+          ${formattedFlag1}
+          <span class="compact-team-code ${isPlaceholder1 ? 'placeholder-text' : ''}">${team1Code || '???'}</span>
         </div>
-      `;
-
-      const isThirdPlace = m.group === "Third-place match";
-
-      if (isThirdPlace) {
-        matchesHtml += `
-          <div class="bracket-third-place-wrapper" style="position: absolute; top: 1380px; left: 0; right: 0; margin-top: 0;">
-            <div class="bracket-third-place-header" style="font-size: 0.65rem; font-weight: 700; color: var(--primary-gold); text-align: center; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px;">Perebutan Juara 3</div>
-            ${matchBoxHtml}
-          </div>
-        `;
-      } else {
-        matchesHtml += `
-          <div class="bracket-slot ${cardStateClass}" style="height: ${slotHeight}px;">
-            ${matchBoxHtml}
-          </div>
-        `;
-      }
-    });
-
-    bracketHtml += `
-      <div class="bracket-column" style="--parent-height: ${sIdx > 0 ? slotHeights[sIdx - 1] : 0}px;">
-        <div class="bracket-column-header">
-          ${stage.title}
-          <div class="bracket-column-info">${stage.info}</div>
+        <!-- Team 2 -->
+        <div class="compact-team-row ${isPlaceholder2 ? 'placeholder' : ''} ${team2WinnerClass}"
+             ${!isPlaceholder2 ? `data-team="${m.team2}"` : ''}
+             onclick="window.handleBracketTap(${m.match_id}, '${m.team2 ? m.team2.replace(/'/g, "\\'") : ''}', ${!isPlaceholder1 && !isPlaceholder2})">
+          ${formattedFlag2}
+          <span class="compact-team-code ${isPlaceholder2 ? 'placeholder-text' : ''}">${team2Code || '???'}</span>
         </div>
-        ${matchesHtml}
       </div>
     `;
   });
 
-  container.innerHTML = bracketHtml;
+  container.innerHTML = cardsHtml;
+  renderBracketLines();
 }
+
+function renderBracketLines() {
+  const svg = document.getElementById('bracket-svg-connections');
+  if (!svg) return;
+
+  const cardWidth = 84;
+  const cardHeight = 36;
+  let pathsHtml = '';
+
+  const connections = [
+    // Left Wing
+    { from: 74, to: 89, type: 'horizontal-right' },
+    { from: 77, to: 89, type: 'horizontal-right' },
+    { from: 73, to: 90, type: 'horizontal-right' },
+    { from: 75, to: 90, type: 'horizontal-right' },
+    { from: 89, to: 97, type: 'horizontal-right' },
+    { from: 90, to: 97, type: 'horizontal-right' },
+    { from: 97, to: 101, type: 'vertical-straight' },
+
+    // Top Wing
+    { from: 83, to: 93, type: 'vertical-down' },
+    { from: 84, to: 93, type: 'vertical-down' },
+    { from: 81, to: 94, type: 'vertical-down' },
+    { from: 82, to: 94, type: 'vertical-down' },
+    { from: 93, to: 98, type: 'vertical-down' },
+    { from: 94, to: 98, type: 'vertical-down' },
+    { from: 98, to: 101, type: 'vertical-straight' },
+
+    // Right Wing
+    { from: 76, to: 91, type: 'horizontal-left' },
+    { from: 78, to: 91, type: 'horizontal-left' },
+    { from: 79, to: 92, type: 'horizontal-left' },
+    { from: 80, to: 92, type: 'horizontal-left' },
+    { from: 91, to: 99, type: 'horizontal-left' },
+    { from: 92, to: 99, type: 'horizontal-left' },
+    { from: 99, to: 102, type: 'vertical-straight' },
+
+    // Bottom Wing
+    { from: 85, to: 95, type: 'vertical-up' },
+    { from: 86, to: 95, type: 'vertical-up' },
+    { from: 87, to: 96, type: 'vertical-up' },
+    { from: 88, to: 96, type: 'vertical-up' },
+    { from: 95, to: 100, type: 'vertical-up' },
+    { from: 96, to: 100, type: 'vertical-up' },
+    { from: 100, to: 102, type: 'vertical-straight' },
+
+    // Center
+    { from: 101, to: 104, type: 'center-final' },
+    { from: 102, to: 104, type: 'center-final' },
+    { from: 101, to: 103, type: 'center-third' },
+    { from: 102, to: 103, type: 'center-third' }
+  ];
+
+  connections.forEach(conn => {
+    const fromCoords = COMPACT_COORDINATES[conn.from];
+    const toCoords = COMPACT_COORDINATES[conn.to];
+    if (!fromCoords || !toCoords) return;
+
+    const toMatch = knockoutMatches.find(m => m.match_id === conn.to);
+    let isTeam1 = true;
+    if (toMatch) {
+      if (toMatch.team2_seed === `W${conn.from}` || toMatch.team2_seed === `L${conn.from}`) {
+        isTeam1 = false;
+      }
+    }
+
+    let x_start, y_start, x_end, y_end;
+    let d = '';
+
+    if (conn.type === 'horizontal-right') {
+      x_start = fromCoords.x + cardWidth;
+      y_start = fromCoords.y + 18;
+      x_end = toCoords.x;
+      y_end = toCoords.y + (isTeam1 ? 9 : 27);
+      const x_mid = (x_start + x_end) / 2;
+      d = `M ${x_start} ${y_start} H ${x_mid} V ${y_end} H ${x_end}`;
+    } else if (conn.type === 'horizontal-left') {
+      x_start = fromCoords.x;
+      y_start = fromCoords.y + 18;
+      x_end = toCoords.x + cardWidth;
+      y_end = toCoords.y + (isTeam1 ? 9 : 27);
+      const x_mid = (x_start + x_end) / 2;
+      d = `M ${x_start} ${y_start} H ${x_mid} V ${y_end} H ${x_end}`;
+    } else if (conn.type === 'vertical-down') {
+      x_start = fromCoords.x + 42;
+      y_start = fromCoords.y + cardHeight;
+      x_end = toCoords.x + (isTeam1 ? 28 : 56);
+      y_end = toCoords.y;
+      const y_mid = (y_start + y_end) / 2;
+      d = `M ${x_start} ${y_start} V ${y_mid} H ${x_end} V ${y_end}`;
+    } else if (conn.type === 'vertical-up') {
+      x_start = fromCoords.x + 42;
+      y_start = fromCoords.y;
+      x_end = toCoords.x + (isTeam1 ? 28 : 56);
+      y_end = toCoords.y + cardHeight;
+      const y_mid = (y_start + y_end) / 2;
+      d = `M ${x_start} ${y_start} V ${y_mid} H ${x_end} V ${y_end}`;
+    } else if (conn.type === 'vertical-straight') {
+      if (fromCoords.y > toCoords.y) {
+        x_start = fromCoords.x + 42;
+        y_start = fromCoords.y;
+        x_end = toCoords.x + 42;
+        y_end = toCoords.y + cardHeight;
+      } else {
+        x_start = fromCoords.x + 42;
+        y_start = fromCoords.y + cardHeight;
+        x_end = toCoords.x + 42;
+        y_end = toCoords.y;
+      }
+      d = `M ${x_start} ${y_start} V ${y_end}`;
+    } else if (conn.type === 'center-final') {
+      if (fromCoords.x < toCoords.x) {
+        x_start = fromCoords.x + cardWidth;
+        y_start = fromCoords.y + 18;
+        x_end = toCoords.x;
+        y_end = toCoords.y + 9;
+        d = `M ${x_start} ${y_start} H ${x_start + 10} V ${y_end} H ${x_end}`;
+      } else {
+        x_start = fromCoords.x;
+        y_start = fromCoords.y + 18;
+        x_end = toCoords.x + cardWidth;
+        y_end = toCoords.y + 27;
+        d = `M ${x_start} ${y_start} H ${x_start - 10} V ${y_end} H ${x_end}`;
+      }
+    } else if (conn.type === 'center-third') {
+      if (fromCoords.x < toCoords.x) {
+        x_start = fromCoords.x + cardWidth - 20;
+        y_start = fromCoords.y + cardHeight;
+        x_end = toCoords.x;
+        y_end = toCoords.y + 9;
+        d = `M ${x_start} ${y_start} V ${y_start + 25} H ${x_end - 15} V ${y_end} H ${x_end}`;
+      } else {
+        x_start = fromCoords.x + 20;
+        y_start = fromCoords.y + cardHeight;
+        x_end = toCoords.x + cardWidth;
+        y_end = toCoords.y + 27;
+        d = `M ${x_start} ${y_start} V ${y_start + 25} H ${x_end + 15} V ${y_end} H ${x_end}`;
+      }
+    }
+
+    const isActive = !!simulatedWinners[conn.from];
+    const lineClass = isActive ? 'bracket-line-active' : 'bracket-line-inactive';
+
+    pathsHtml += `<path d="${d}" class="${lineClass}"></path>`;
+  });
+
+  svg.innerHTML = pathsHtml;
+}
+
+function scaleCompactBracket() {
+  const wrapper = document.querySelector('.compact-bracket-wrapper');
+  const container = document.getElementById('compact-bracket-container');
+  if (!wrapper || !container) return;
+
+  const wrapperWidth = wrapper.clientWidth;
+  if (wrapperWidth === 0) return;
+
+  const targetWidth = Math.max(280, wrapperWidth - 16);
+  const scale = targetWidth / 650;
+
+  if (scale < 1) {
+    container.style.transform = `scale(${scale})`;
+    container.style.transformOrigin = 'top center';
+    wrapper.style.height = `${650 * scale}px`;
+  } else {
+    container.style.transform = 'none';
+    wrapper.style.height = '650px';
+  }
+}
+window.scaleCompactBracket = scaleCompactBracket;
 
 // Selects 3rd-place team Group mapping in simulator
 window.select3rdPlaceGroup = function(matchId, groupName) {
@@ -1796,64 +1996,8 @@ window.closeSlotModal = function() {
 
 
 
-window.scrollToBracketColumn = function(colIdx) {
-  const container = document.getElementById('bracket-scroll-container');
-  if (!container) return;
-  const columns = container.querySelectorAll('.bracket-column');
-  if (columns.length <= colIdx) return;
-  
-  const targetCol = columns[colIdx];
-  const containerWidth = container.clientWidth;
-  
-  const targetScrollLeft = targetCol.offsetLeft - (containerWidth / 2) + (targetCol.clientWidth / 2);
-  
-  container.scrollTo({
-    left: targetScrollLeft,
-    behavior: 'smooth'
-  });
-  
-  // Highlight active button manually (in addition to scroll listener to be immediate)
-  const buttons = document.querySelectorAll('.bracket-round-btn');
-  buttons.forEach((btn, idx) => {
-    if (idx === colIdx) {
-      btn.classList.add('active');
-    } else {
-      btn.classList.remove('active');
-    }
-  });
-};
-
-window.syncBracketRoundTabs = function() {
-  const container = document.getElementById('bracket-scroll-container');
-  if (!container) return;
-  const columns = container.querySelectorAll('.bracket-column');
-  if (columns.length === 0) return;
-  
-  const containerRect = container.getBoundingClientRect();
-  const containerCenter = containerRect.left + containerRect.width / 2;
-  
-  let closestIdx = 0;
-  let minDistance = Infinity;
-  
-  columns.forEach((col, idx) => {
-    const colRect = col.getBoundingClientRect();
-    const colCenter = colRect.left + colRect.width / 2;
-    const distance = Math.abs(colCenter - containerCenter);
-    if (distance < minDistance) {
-      minDistance = distance;
-      closestIdx = idx;
-    }
-  });
-  
-  const buttons = document.querySelectorAll('.bracket-round-btn');
-  buttons.forEach((btn, idx) => {
-    if (idx === closestIdx) {
-      btn.classList.add('active');
-    } else {
-      btn.classList.remove('active');
-    }
-  });
-};
+window.scrollToBracketColumn = function(colIdx) {};
+window.syncBracketRoundTabs = function() {};
 
 window.showGroupMatches = function(groupName) {
   const modal = document.getElementById('group-matches-modal');
@@ -1926,10 +2070,7 @@ function initNavigation() {
         renderGroups();
       } else if (activeTab === 'tab-bracket') {
         renderBracket();
-        // Reset horizontal scroll view to first column and sync switcher highlight
-        setTimeout(() => {
-          window.scrollToBracketColumn(0);
-        }, 50);
+        setTimeout(scaleCompactBracket, 50);
       } else if (activeTab === 'tab-home') {
         renderFavorites();
         renderNearestMatches();
@@ -2295,15 +2436,12 @@ document.addEventListener('DOMContentLoaded', () => {
   initCountdown();
   initNavigation();
   
-  // Bind horizontal scroll listener to sync bracket sub-tabs
-  const scrollContainer = document.getElementById('bracket-scroll-container');
-  if (scrollContainer) {
-    scrollContainer.addEventListener('scroll', () => {
-      if (window.syncBracketRoundTabs) {
-        window.syncBracketRoundTabs();
-      }
-    });
-  }
+  // scale compact bracket on window resize
+  window.addEventListener('resize', () => {
+    if (activeTab === 'tab-bracket') {
+      scaleCompactBracket();
+    }
+  });
 
   initSettingsAndFilters();
   

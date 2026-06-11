@@ -182,23 +182,15 @@
 
     <!-- TAB 4: BRACKET/BAGAN SIMULATOR -->
     <section id="tab-bracket" class="tab-content">
-      <div class="section-title">
+      <div class="section-title" style="margin-bottom: 16px;">
         Bagan Fase Gugur
         <span>Jalur Lolos Babak Gugur Piala Dunia 2026</span>
       </div>
-
-      <!-- Bracket Round Tab Selector -->
-      <div class="bracket-round-switcher">
-        <button class="bracket-round-btn active" onclick="window.scrollToBracketColumn(0)">32 Besar</button>
-        <button class="bracket-round-btn" onclick="window.scrollToBracketColumn(1)">16 Besar</button>
-        <button class="bracket-round-btn" onclick="window.scrollToBracketColumn(2)">Perempat</button>
-        <button class="bracket-round-btn" onclick="window.scrollToBracketColumn(3)">Semifinal</button>
-        <button class="bracket-round-btn" onclick="window.scrollToBracketColumn(4)">Final</button>
-      </div>
  
-      <div class="bracket-scroll-container" id="bracket-scroll-container">
-        <div id="bracket-root" class="bracket-wrapper">
-          <!-- Rendered vertical columns (Round of 32 -> Round of 16 -> QF -> SF -> Final) -->
+      <div class="compact-bracket-wrapper">
+        <div class="compact-bracket-container" id="compact-bracket-container">
+          <svg id="bracket-svg-connections" width="650" height="650" style="position: absolute; top: 0; left: 0; pointer-events: none; z-index: 1;"></svg>
+          <div id="bracket-cards-root" style="position: relative; width: 650px; height: 650px; z-index: 2;"></div>
         </div>
       </div>
     </section>
