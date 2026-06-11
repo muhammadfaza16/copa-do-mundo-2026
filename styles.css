@@ -2333,57 +2333,161 @@ body.light-theme .bracket-line-inactive {
   stroke: rgba(0, 0, 0, 0.08);
 }
 
-/* Round-Specific Symmetrical Color Coding */
+/* Round-Specific Card Styles (Left Border + Background Tint) */
 .compact-match-card.round-32 {
-  border-color: rgba(99, 102, 241, 0.35); /* Indigo */
+  border-left: 3px solid #6366f1 !important;
+  background: linear-gradient(135deg, rgba(99, 102, 241, 0.12), rgba(20, 20, 30, 0.6)) !important;
 }
 .compact-match-card.round-32.match-predicted {
-  border-color: #6366f1;
-  box-shadow: 0 0 8px rgba(99, 102, 241, 0.3);
+  box-shadow: 0 0 10px rgba(99, 102, 241, 0.35);
 }
 
 .compact-match-card.round-16 {
-  border-color: rgba(20, 184, 166, 0.35); /* Teal */
+  border-left: 3px solid #14b8a6 !important;
+  background: linear-gradient(135deg, rgba(20, 184, 166, 0.12), rgba(20, 20, 30, 0.6)) !important;
 }
 .compact-match-card.round-16.match-predicted {
-  border-color: #14b8a6;
-  box-shadow: 0 0 8px rgba(20, 184, 166, 0.3);
+  box-shadow: 0 0 10px rgba(20, 184, 166, 0.35);
 }
 
 .compact-match-card.round-qf {
-  border-color: rgba(168, 85, 247, 0.35); /* Purple/Violet */
+  border-left: 3px solid #a855f7 !important;
+  background: linear-gradient(135deg, rgba(168, 85, 247, 0.12), rgba(20, 20, 30, 0.6)) !important;
 }
 .compact-match-card.round-qf.match-predicted {
-  border-color: #a855f7;
-  box-shadow: 0 0 8px rgba(168, 85, 247, 0.3);
+  box-shadow: 0 0 10px rgba(168, 85, 247, 0.35);
 }
 
 .compact-match-card.round-sf {
-  border-color: rgba(249, 115, 22, 0.35); /* Orange/Amber */
+  border-left: 3px solid #f97316 !important;
+  background: linear-gradient(135deg, rgba(249, 115, 22, 0.12), rgba(20, 20, 30, 0.6)) !important;
 }
 .compact-match-card.round-sf.match-predicted {
-  border-color: #f97316;
-  box-shadow: 0 0 8px rgba(249, 115, 22, 0.3);
+  box-shadow: 0 0 10px rgba(249, 115, 22, 0.35);
 }
 
 .compact-match-card.round-final {
-  border-color: rgba(234, 179, 8, 0.45); /* Gold */
-  background: rgba(234, 179, 8, 0.05);
+  border-left: 3px solid #eab308 !important;
+  background: linear-gradient(135deg, rgba(234, 179, 8, 0.15), rgba(20, 20, 30, 0.6)) !important;
 }
 .compact-match-card.round-final.match-predicted {
-  border-color: #eab308;
-  box-shadow: 0 0 12px rgba(234, 179, 8, 0.45);
-}
-body.light-theme .compact-match-card.round-final {
-  background: rgba(234, 179, 8, 0.08);
+  box-shadow: 0 0 15px rgba(234, 179, 8, 0.5);
 }
 
 .compact-match-card.round-third {
-  border-color: rgba(148, 163, 184, 0.35); /* Slate/Bronze */
+  border-left: 3px solid #94a3b8 !important;
+  background: linear-gradient(135deg, rgba(148, 163, 184, 0.12), rgba(20, 20, 30, 0.6)) !important;
 }
 .compact-match-card.round-third.match-predicted {
-  border-color: #94a3b8;
-  box-shadow: 0 0 8px rgba(148, 163, 184, 0.3);
+  box-shadow: 0 0 10px rgba(148, 163, 184, 0.35);
 }
 
+/* Light Theme Overrides for Card Backgrounds */
+body.light-theme .compact-match-card.round-32 {
+  background: linear-gradient(135deg, rgba(99, 102, 241, 0.12), rgba(255, 255, 255, 0.85)) !important;
+}
+body.light-theme .compact-match-card.round-16 {
+  background: linear-gradient(135deg, rgba(20, 184, 166, 0.12), rgba(255, 255, 255, 0.85)) !important;
+}
+body.light-theme .compact-match-card.round-qf {
+  background: linear-gradient(135deg, rgba(168, 85, 247, 0.12), rgba(255, 255, 255, 0.85)) !important;
+}
+body.light-theme .compact-match-card.round-sf {
+  background: linear-gradient(135deg, rgba(249, 115, 22, 0.12), rgba(255, 255, 255, 0.85)) !important;
+}
+body.light-theme .compact-match-card.round-final {
+  background: linear-gradient(135deg, rgba(234, 179, 8, 0.18), rgba(255, 255, 255, 0.85)) !important;
+}
+body.light-theme .compact-match-card.round-third {
+  background: linear-gradient(135deg, rgba(148, 163, 184, 0.12), rgba(255, 255, 255, 0.85)) !important;
+}
 
+/* Round-Specific Symmetrical Active Paths */
+.line-active-32 {
+  stroke: #6366f1;
+  stroke-width: 2.2px;
+  fill: none;
+  filter: drop-shadow(0 0 1.5px rgba(99, 102, 241, 0.7));
+  transition: stroke 0.3s, stroke-width 0.3s;
+}
+
+.line-active-16 {
+  stroke: #14b8a6;
+  stroke-width: 2.2px;
+  fill: none;
+  filter: drop-shadow(0 0 1.5px rgba(20, 184, 166, 0.7));
+  transition: stroke 0.3s, stroke-width 0.3s;
+}
+
+.line-active-qf {
+  stroke: #a855f7;
+  stroke-width: 2.2px;
+  fill: none;
+  filter: drop-shadow(0 0 1.5px rgba(168, 85, 247, 0.7));
+  transition: stroke 0.3s, stroke-width 0.3s;
+}
+
+.line-active-sf {
+  stroke: #f97316;
+  stroke-width: 2.2px;
+  fill: none;
+  filter: drop-shadow(0 0 1.5px rgba(249, 115, 22, 0.7));
+  transition: stroke 0.3s, stroke-width 0.3s;
+}
+
+.line-active-final {
+  stroke: #eab308;
+  stroke-width: 2.5px;
+  fill: none;
+  filter: drop-shadow(0 0 2px rgba(234, 179, 8, 0.8));
+  transition: stroke 0.3s, stroke-width 0.3s;
+}
+/* Bracket Round Legend */
+.bracket-legend {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin: 0 auto 16px auto;
+  padding: 8px 16px;
+  max-width: 650px;
+  background: var(--panel-bg);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--border-radius-md);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--font-sans);
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-wider);
+}
+
+.legend-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  box-shadow: 0 0 6px currentColor;
+}
+
+.round-32-dot { background-color: #6366f1; color: rgba(99, 102, 241, 0.6); }
+.round-16-dot { background-color: #14b8a6; color: rgba(20, 184, 166, 0.6); }
+.round-qf-dot { background-color: #a855f7; color: rgba(168, 85, 247, 0.6); }
+.round-sf-dot { background-color: #f97316; color: rgba(249, 115, 22, 0.6); }
+.round-third-dot { background-color: #94a3b8; color: rgba(148, 163, 184, 0.6); }
+.round-final-dot { background-color: #eab308; color: rgba(234, 179, 8, 0.6); }
+
+body.light-theme .bracket-legend {
+  background: rgba(255, 255, 255, 0.75);
+  border-color: rgba(0, 0, 0, 0.08);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+}

@@ -1716,7 +1716,22 @@ function renderBracketLines() {
     }
 
     const isActive = !!simulatedWinners[conn.from];
-    const lineClass = isActive ? 'bracket-line-active' : 'bracket-line-inactive';
+    let lineClass = 'bracket-line-inactive';
+    if (isActive) {
+      if (conn.from >= 73 && conn.from <= 88) {
+        lineClass = 'line-active-32';
+      } else if (conn.from >= 89 && conn.from <= 96) {
+        lineClass = 'line-active-16';
+      } else if (conn.from >= 97 && conn.from <= 100) {
+        lineClass = 'line-active-qf';
+      } else if (conn.from === 101 || conn.from === 102) {
+        if (conn.to === 104) {
+          lineClass = 'line-active-final';
+        } else {
+          lineClass = 'line-active-sf';
+        }
+      }
+    }
 
     pathsHtml += `<path d="${d}" class="${lineClass}"></path>`;
   });
