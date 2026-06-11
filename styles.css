@@ -2224,7 +2224,7 @@ body.light-theme .welcome-mascot-side {
   width: 100%;
   position: relative;
   margin: 12px 0 16px 0;
-  min-height: 600px;
+  min-height: auto;
 }
 
 .bracket-scroll-scaffolding {
