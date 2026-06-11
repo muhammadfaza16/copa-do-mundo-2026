@@ -1413,50 +1413,50 @@ function getTeamCode(teamName) {
 
 const COMPACT_COORDINATES = {
   // Left Wing (Outer Left R32, Column 2 Upper R16, Stack Top R16 & QF)
-  73: { x: 10, y: 178 },  // Column 1 upper top
-  75: { x: 10, y: 264 },  // Column 1 upper bottom
-  83: { x: 10, y: 350 },  // Column 1 lower top
-  84: { x: 10, y: 436 },  // Column 1 lower bottom
+  73: { x: 20, y: 178 },  // Column 1 upper top
+  75: { x: 20, y: 264 },  // Column 1 upper bottom
+  83: { x: 20, y: 350 },  // Column 1 lower top
+  84: { x: 20, y: 436 },  // Column 1 lower bottom
   
   89: { x: 190, y: 135 }, // Stack Top R16
-  90: { x: 100, y: 221 }, // Column 2 Upper R16
+  90: { x: 105, y: 221 }, // Column 2 Upper R16
   97: { x: 190, y: 221 }, // Stack QF Upper
 
   // Top Wing (Top and Bottom Horizontal R32 Matches, and Stack Bottom R16 & QF)
-  74: { x: 142, y: 49 },  // Top horizontal left (GER)
-  77: { x: 238, y: 49 },  // Top horizontal right (FRA)
-  81: { x: 142, y: 565 }, // Bottom horizontal left (USA)
-  82: { x: 238, y: 565 }, // Bottom horizontal right (BEL)
+  74: { x: 147, y: 49 },  // Top horizontal left (GER)
+  77: { x: 233, y: 49 },  // Top horizontal right (FRA)
+  81: { x: 147, y: 565 }, // Bottom horizontal left (USA)
+  82: { x: 233, y: 565 }, // Bottom horizontal right (BEL)
   
-  93: { x: 100, y: 393 }, // Column 2 Lower R16
+  93: { x: 105, y: 393 }, // Column 2 Lower R16
   94: { x: 190, y: 479 }, // Stack Bottom R16
   98: { x: 190, y: 393 }, // Stack QF Lower
 
   // Right Wing (Outer Right R32, Column 6 Upper R16, Stack Top Right R16 & QF)
-  76: { x: 328, y: 49 },  // Top-right horizontal left (BRA)
-  78: { x: 424, y: 49 },  // Top-right horizontal right (ECU)
-  79: { x: 556, y: 178 }, // Column 7 upper top
-  80: { x: 556, y: 264 }, // Column 7 upper bottom
+  76: { x: 317, y: 49 },  // Top-right horizontal left (BRA)
+  78: { x: 403, y: 49 },  // Top-right horizontal right (ECU)
+  79: { x: 530, y: 178 }, // Column 7 upper top
+  80: { x: 530, y: 264 }, // Column 7 upper bottom
   
-  91: { x: 376, y: 135 }, // Stack Top Right R16
-  92: { x: 466, y: 221 }, // Column 6 Upper R16
-  99: { x: 376, y: 221 }, // Stack QF Upper Right
+  91: { x: 360, y: 135 }, // Stack Top Right R16
+  92: { x: 445, y: 221 }, // Column 6 Upper R16
+  99: { x: 360, y: 221 }, // Stack QF Upper Right
 
   // Bottom Wing (Column 7 lower R32, Bottom-right horizontal R32)
-  85: { x: 556, y: 350 }, // Column 7 lower top
-  86: { x: 556, y: 436 }, // Column 7 lower bottom
-  87: { x: 328, y: 565 }, // Bottom-right horizontal left (TUR)
-  88: { x: 424, y: 565 }, // Bottom-right horizontal right (ARG)
+  85: { x: 530, y: 350 }, // Column 7 lower top
+  86: { x: 530, y: 436 }, // Column 7 lower bottom
+  87: { x: 317, y: 565 }, // Bottom-right horizontal left (TUR)
+  88: { x: 403, y: 565 }, // Bottom-right horizontal right (ARG)
   
-  95: { x: 466, y: 393 }, // Column 6 Lower R16
-  96: { x: 376, y: 479 }, // Stack Bottom R16 Right
-  100: { x: 376, y: 393 }, // Stack QF Lower Right
+  95: { x: 445, y: 393 }, // Column 6 Lower R16
+  96: { x: 360, y: 479 }, // Stack Bottom R16 Right
+  100: { x: 360, y: 393 }, // Stack QF Lower Right
 
   // Center (Semifinals, Final, Juara 3)
   101: { x: 190, y: 307 }, // Semifinal 1 (Left)
-  102: { x: 376, y: 307 }, // Semifinal 2 (Right)
-  104: { x: 283, y: 307 }, // Final (Center)
-  103: { x: 283, y: 479 }  // Juara 3 (Bottom Center)
+  102: { x: 360, y: 307 }, // Semifinal 2 (Right)
+  104: { x: 275, y: 307 }, // Final (Center)
+  103: { x: 275, y: 479 }  // Juara 3 (Bottom Center)
 };
 
 function renderBracket() {
@@ -1719,13 +1719,18 @@ let hasPinched = false;
 function applyScale() {
   const wrapper = document.querySelector('.compact-bracket-wrapper');
   const container = document.getElementById('compact-bracket-container');
+  const scaffolding = document.getElementById('bracket-scroll-scaffolding');
   if (!wrapper || !container) return;
 
   currentScale = Math.max(0.25, Math.min(currentScale, 2.5));
 
   container.style.transform = `scale(${currentScale})`;
-  container.style.transformOrigin = 'top center';
-  wrapper.style.height = `${600 * currentScale}px`;
+  container.style.transformOrigin = 'top left';
+
+  if (scaffolding) {
+    scaffolding.style.width = `${620 * currentScale}px`;
+    scaffolding.style.height = `${600 * currentScale}px`;
+  }
 }
 
 function scaleCompactBracket() {
@@ -1737,15 +1742,35 @@ function scaleCompactBracket() {
   if (wrapperWidth === 0) return;
 
   const targetWidth = Math.max(280, wrapperWidth - 16);
-  baseScale = targetWidth / 600;
+  baseScale = targetWidth / 620;
 
-  if (!hasPinched) {
+  const toggle = document.getElementById('bracket-zoom-toggle');
+  if (toggle && toggle.checked) {
+    currentScale = 1.35;
+  } else {
     currentScale = baseScale;
   }
 
   applyScale();
 }
 window.scaleCompactBracket = scaleCompactBracket;
+
+window.toggleBracketZoom = function(isZoomed) {
+  if (isZoomed) {
+    currentScale = 1.35;
+  } else {
+    const wrapper = document.querySelector('.compact-bracket-wrapper');
+    if (wrapper) {
+      const wrapperWidth = wrapper.clientWidth;
+      if (wrapperWidth > 0) {
+        const targetWidth = Math.max(280, wrapperWidth - 16);
+        baseScale = targetWidth / 620;
+      }
+    }
+    currentScale = baseScale;
+  }
+  applyScale();
+};
 
 function initBracketTouchGestures() {
   const wrapper = document.querySelector('.compact-bracket-wrapper');
@@ -1770,6 +1795,11 @@ function initBracketTouchGestures() {
       const factor = currentDistance / initialDistance;
       currentScale = startScale * factor;
 
+      const toggle = document.getElementById('bracket-zoom-toggle');
+      if (toggle) {
+        toggle.checked = currentScale > baseScale * 1.1;
+      }
+
       applyScale();
     }
   }, { passive: false });
@@ -1788,6 +1818,59 @@ function initBracketTouchGestures() {
 }
 window.initBracketTouchGestures = initBracketTouchGestures;
 
+function initBracketDragScroll() {
+  const wrapper = document.querySelector('.compact-bracket-wrapper');
+  if (!wrapper) return;
+
+  let isDown = false;
+  let startX;
+  let startY;
+  let scrollLeft;
+  let scrollTop;
+  let dragThreshold = 5;
+
+  window.isBracketDragging = false;
+
+  wrapper.addEventListener('mousedown', (e) => {
+    isDown = true;
+    wrapper.classList.add('grabbing');
+    startX = e.pageX - wrapper.offsetLeft;
+    startY = e.pageY - wrapper.offsetTop;
+    scrollLeft = wrapper.scrollLeft;
+    scrollTop = wrapper.scrollTop;
+    window.isBracketDragging = false;
+  });
+
+  wrapper.addEventListener('mouseleave', () => {
+    isDown = false;
+    wrapper.classList.remove('grabbing');
+  });
+
+  wrapper.addEventListener('mouseup', () => {
+    isDown = false;
+    wrapper.classList.remove('grabbing');
+    setTimeout(() => {
+      window.isBracketDragging = false;
+    }, 50);
+  });
+
+  wrapper.addEventListener('mousemove', (e) => {
+    if (!isDown) return;
+    const x = e.pageX - wrapper.offsetLeft;
+    const y = e.pageY - wrapper.offsetTop;
+    const walkX = x - startX;
+    const walkY = y - startY;
+
+    if (Math.abs(walkX) > dragThreshold || Math.abs(walkY) > dragThreshold) {
+      window.isBracketDragging = true;
+    }
+
+    wrapper.scrollLeft = scrollLeft - walkX;
+    wrapper.scrollTop = scrollTop - walkY;
+  });
+}
+window.initBracketDragScroll = initBracketDragScroll;
+
 // Selects 3rd-place team Group mapping in simulator
 window.select3rdPlaceGroup = function(matchId, groupName) {
   if (groupName) {
@@ -1802,6 +1885,9 @@ window.select3rdPlaceGroup = function(matchId, groupName) {
 
 // Handles selection of winner in the bracket card or displays potential slot contenders
 window.handleBracketTap = function(matchId, teamName, isSelectable) {
+  if (window.isBracketDragging) {
+    return;
+  }
   if (!isSelectable) {
     if (teamName && (
       teamName.startsWith('Winner Match') || 
@@ -2527,6 +2613,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Initialize pinch-to-zoom gestures
   initBracketTouchGestures();
+  initBracketDragScroll();
 
   initSettingsAndFilters();
   
