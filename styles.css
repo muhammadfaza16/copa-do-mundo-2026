@@ -2266,23 +2266,24 @@ body.light-theme .welcome-mascot-side {
 /* Subtle match date/schedule label (clean text, no background or border) */
 .compact-match-date {
   position: absolute;
-  top: -11px;
+  top: -10px;
   left: 0;
-  font-size: 6.5px;
-  font-weight: 500;
+  font-size: 5.5px;
+  font-weight: 400;
   color: var(--text-secondary);
   line-height: 1;
   white-space: nowrap;
   pointer-events: none;
   z-index: 15;
-  text-transform: uppercase;
-  letter-spacing: 0.4px;
-  opacity: 0.85;
-  text-shadow: 0 0 2px var(--bg-gradient-start);
+  text-transform: none; /* mixed-case reads much softer */
+  letter-spacing: 0.1px;
+  opacity: 0.45; /* extremely subtle to avoid visual clutter */
+  text-shadow: 0 0 1.5px var(--bg-gradient-start);
 }
 
 body.light-theme .compact-match-date {
-  color: #64748b;
+  color: #8e8e93;
+  opacity: 0.6;
 }
 
 /* Maintain rounded corners when rows have background colors since card overflow is visible */
