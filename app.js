@@ -1413,50 +1413,50 @@ function getTeamCode(teamName) {
 
 const COMPACT_COORDINATES = {
   // Left Wing (Outer Left R32, Column 2 Upper R16, Stack Top R16 & QF)
-  73: { x: 10, y: 117 },  // Column 1 upper top
-  75: { x: 10, y: 217 },  // Column 1 upper bottom
-  83: { x: 10, y: 397 },  // Column 1 lower top
-  84: { x: 10, y: 497 },  // Column 1 lower bottom
+  73: { x: 10, y: 178 },  // Column 1 upper top
+  75: { x: 10, y: 264 },  // Column 1 upper bottom
+  83: { x: 10, y: 350 },  // Column 1 lower top
+  84: { x: 10, y: 436 },  // Column 1 lower bottom
   
-  89: { x: 190, y: 100 }, // Stack Top R16
-  90: { x: 100, y: 167 }, // Column 2 Upper R16
-  97: { x: 190, y: 167 }, // Stack QF Upper
+  89: { x: 190, y: 135 }, // Stack Top R16
+  90: { x: 100, y: 221 }, // Column 2 Upper R16
+  97: { x: 190, y: 221 }, // Stack QF Upper
 
   // Top Wing (Top and Bottom Horizontal R32 Matches, and Stack Bottom R16 & QF)
-  74: { x: 142, y: 30 },  // Top horizontal left (GER)
-  77: { x: 238, y: 30 },  // Top horizontal right (FRA)
-  81: { x: 142, y: 584 }, // Bottom horizontal left (USA)
-  82: { x: 238, y: 584 }, // Bottom horizontal right (BEL)
+  74: { x: 142, y: 49 },  // Top horizontal left (GER)
+  77: { x: 238, y: 49 },  // Top horizontal right (FRA)
+  81: { x: 142, y: 565 }, // Bottom horizontal left (USA)
+  82: { x: 238, y: 565 }, // Bottom horizontal right (BEL)
   
-  93: { x: 100, y: 447 }, // Column 2 Lower R16
-  94: { x: 190, y: 514 }, // Stack Bottom R16
-  98: { x: 190, y: 447 }, // Stack QF Lower
+  93: { x: 100, y: 393 }, // Column 2 Lower R16
+  94: { x: 190, y: 479 }, // Stack Bottom R16
+  98: { x: 190, y: 393 }, // Stack QF Lower
 
   // Right Wing (Outer Right R32, Column 6 Upper R16, Stack Top Right R16 & QF)
-  76: { x: 328, y: 30 },  // Top-right horizontal left (BRA)
-  78: { x: 424, y: 30 },  // Top-right horizontal right (ECU)
-  79: { x: 556, y: 117 }, // Column 7 upper top
-  80: { x: 556, y: 217 }, // Column 7 upper bottom
+  76: { x: 328, y: 49 },  // Top-right horizontal left (BRA)
+  78: { x: 424, y: 49 },  // Top-right horizontal right (ECU)
+  79: { x: 556, y: 178 }, // Column 7 upper top
+  80: { x: 556, y: 264 }, // Column 7 upper bottom
   
-  91: { x: 376, y: 100 }, // Stack Top Right R16
-  92: { x: 466, y: 167 }, // Column 6 Upper R16
-  99: { x: 376, y: 167 }, // Stack QF Upper Right
+  91: { x: 376, y: 135 }, // Stack Top Right R16
+  92: { x: 466, y: 221 }, // Column 6 Upper R16
+  99: { x: 376, y: 221 }, // Stack QF Upper Right
 
   // Bottom Wing (Column 7 lower R32, Bottom-right horizontal R32)
-  85: { x: 556, y: 397 }, // Column 7 lower top
-  86: { x: 556, y: 497 }, // Column 7 lower bottom
-  87: { x: 328, y: 584 }, // Bottom-right horizontal left (TUR)
-  88: { x: 424, y: 584 }, // Bottom-right horizontal right (ARG)
+  85: { x: 556, y: 350 }, // Column 7 lower top
+  86: { x: 556, y: 436 }, // Column 7 lower bottom
+  87: { x: 328, y: 565 }, // Bottom-right horizontal left (TUR)
+  88: { x: 424, y: 565 }, // Bottom-right horizontal right (ARG)
   
-  95: { x: 466, y: 447 }, // Column 6 Lower R16
-  96: { x: 376, y: 514 }, // Stack Bottom R16 Right
-  100: { x: 376, y: 447 }, // Stack QF Lower Right
+  95: { x: 466, y: 393 }, // Column 6 Lower R16
+  96: { x: 376, y: 479 }, // Stack Bottom R16 Right
+  100: { x: 376, y: 393 }, // Stack QF Lower Right
 
   // Center (Semifinals, Final, Juara 3)
   101: { x: 190, y: 307 }, // Semifinal 1 (Left)
   102: { x: 376, y: 307 }, // Semifinal 2 (Right)
   104: { x: 283, y: 307 }, // Final (Center)
-  103: { x: 283, y: 514 }  // Juara 3 (Bottom Center)
+  103: { x: 283, y: 479 }  // Juara 3 (Bottom Center)
 };
 
 function renderBracket() {
