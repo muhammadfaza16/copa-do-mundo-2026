@@ -2257,10 +2257,39 @@ body.light-theme .welcome-mascot-side {
   border: 1px solid #cbd5e1 !important;
   border-radius: 4px;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
-  overflow: hidden;
+  overflow: visible;
   transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
   cursor: pointer;
   z-index: 10;
+}
+
+/* Subtle match date/schedule badge */
+.compact-match-date {
+  position: absolute;
+  top: -12px;
+  right: 0px;
+  font-size: 7.5px;
+  font-weight: 500;
+  color: #64748b;
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
+  border-radius: 3px;
+  padding: 0.5px 3.5px;
+  line-height: 1;
+  white-space: nowrap;
+  pointer-events: none;
+  z-index: 15;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+/* Maintain rounded corners when rows have background colors since card overflow is visible */
+.compact-match-card .compact-team-row:first-of-type {
+  border-top-left-radius: 3px;
+  border-top-right-radius: 3px;
+}
+.compact-match-card .compact-team-row:last-of-type {
+  border-bottom-left-radius: 3px;
+  border-bottom-right-radius: 3px;
 }
 
 .compact-match-card:hover {

@@ -1196,75 +1196,72 @@ function recalculateKnockoutTree() {
   // Clear working copy matches
   knockoutMatches = JSON.parse(JSON.stringify(WORLD_CUP_DATA.knockout_stage));
 
-  const groupStageFinished = isGroupStageComplete();
+  // STEP 1: Evaluate Round of 32 starting participants based on group rankings and 3rd place selections (Always evaluate "as it stands")
+  knockoutMatches.forEach(m => {
+    if (m.group !== "Round of 32") return;
 
-  if (!groupStageFinished) {
-    // Reset all simulated winners if group stage is not finished
-    simulatedWinners = {};
-  } else {
-    // STEP 1: Evaluate Round of 32 starting participants based on group rankings and 3rd place selections
-    knockoutMatches.forEach(m => {
-      if (m.group !== "Round of 32") return;
-
-      // Check seed 1 (Home/team1)
-      if (m.team1_seed && (
-          m.team1_seed.endsWith('A') || m.team1_seed.endsWith('B') || m.team1_seed.endsWith('C') || m.team1_seed.endsWith('D') || 
-          m.team1_seed.endsWith('E') || m.team1_seed.endsWith('F') || m.team1_seed.endsWith('G') || m.team1_seed.endsWith('H') || 
-          m.team1_seed.endsWith('I') || m.team1_seed.endsWith('J') || m.team1_seed.endsWith('K') || m.team1_seed.endsWith('L')
-      )) {
-        const rank = m.team1_seed.charAt(0); // '1' or '2'
-        const groupLetter = m.team1_seed.charAt(1); // 'A' to 'L'
-        const groupName = `Grup ${groupLetter}`;
-        const idx = rank === '1' ? 0 : 1;
-        
-        if (groupRankings[groupName] && groupRankings[groupName][idx]) {
-          m.team1 = groupRankings[groupName][idx];
-        } else {
-          m.team1 = `${rank === '1' ? 'Juara' : 'Runner-up'} ${groupName}`;
-        }
-      } else if (m.team1_seed === '3rd') {
-        // 3rd placed team choice
-        const selectedGroup = selected3rdPlaces[m.match_id];
-        if (selectedGroup && groupRankings[selectedGroup] && groupRankings[selectedGroup][2]) {
-          m.team1 = groupRankings[selectedGroup][2]; // 3rd placed team is at index 2
-        } else {
-          m.team1 = `3rd Grup ${m.team1 ? m.team1.replace("3rd Grup ", "") : ""}`;
-        }
+    // Check seed 1 (Home/team1)
+    if (m.team1_seed && (
+        m.team1_seed.endsWith('A') || m.team1_seed.endsWith('B') || m.team1_seed.endsWith('C') || m.team1_seed.endsWith('D') || 
+        m.team1_seed.endsWith('E') || m.team1_seed.endsWith('F') || m.team1_seed.endsWith('G') || m.team1_seed.endsWith('H') || 
+        m.team1_seed.endsWith('I') || m.team1_seed.endsWith('J') || m.team1_seed.endsWith('K') || m.team1_seed.endsWith('L')
+    )) {
+      const rank = m.team1_seed.charAt(0); // '1' or '2'
+      const groupLetter = m.team1_seed.charAt(1); // 'A' to 'L'
+      const groupName = `Grup ${groupLetter}`;
+      const idx = rank === '1' ? 0 : 1;
+      
+      if (groupRankings[groupName] && groupRankings[groupName][idx]) {
+        m.team1 = groupRankings[groupName][idx];
+      } else {
+        m.team1 = `${rank === '1' ? 'Juara' : 'Runner-up'} ${groupName}`;
       }
-
-      // Check seed 2 (Away/team2)
-      if (m.team2_seed && (
-          m.team2_seed.endsWith('A') || m.team2_seed.endsWith('B') || m.team2_seed.endsWith('C') || m.team2_seed.endsWith('D') || 
-          m.team2_seed.endsWith('E') || m.team2_seed.endsWith('F') || m.team2_seed.endsWith('G') || m.team2_seed.endsWith('H') || 
-          m.team2_seed.endsWith('I') || m.team2_seed.endsWith('J') || m.team2_seed.endsWith('K') || m.team2_seed.endsWith('L')
-      )) {
-        const rank = m.team2_seed.charAt(0); // '1' or '2'
-        const groupLetter = m.team2_seed.charAt(1); // 'A' to 'L'
-        const groupName = `Grup ${groupLetter}`;
-        const idx = rank === '1' ? 0 : 1;
-        
-        if (groupRankings[groupName] && groupRankings[groupName][idx]) {
-          m.team2 = groupRankings[groupName][idx];
-        } else {
-          m.team2 = `${rank === '1' ? 'Juara' : 'Runner-up'} ${groupName}`;
-        }
-      } else if (m.team2_seed === '3rd') {
-        // 3rd placed team choice
-        const selectedGroup = selected3rdPlaces[m.match_id];
-        if (selectedGroup && groupRankings[selectedGroup] && groupRankings[selectedGroup][2]) {
-          m.team2 = groupRankings[selectedGroup][2]; // 3rd placed team
-        } else {
-          m.team2 = `3rd Grup ${m.team2 ? m.team2.replace("3rd Grup ", "") : ""}`;
-        }
+    } else if (m.team1_seed === '3rd') {
+      // 3rd placed team choice
+      const selectedGroup = selected3rdPlaces[m.match_id];
+      if (selectedGroup && groupRankings[selectedGroup] && groupRankings[selectedGroup][2]) {
+        m.team1 = groupRankings[selectedGroup][2]; // 3rd placed team is at index 2
+      } else {
+        m.team1 = `3rd Grup ${m.team1 ? m.team1.replace("3rd Grup ", "") : ""}`;
       }
-    });
-  }
+    }
+
+    // Check seed 2 (Away/team2)
+    if (m.team2_seed && (
+        m.team2_seed.endsWith('A') || m.team2_seed.endsWith('B') || m.team2_seed.endsWith('C') || m.team2_seed.endsWith('D') || 
+        m.team2_seed.endsWith('E') || m.team2_seed.endsWith('F') || m.team2_seed.endsWith('G') || m.team2_seed.endsWith('H') || 
+        m.team2_seed.endsWith('I') || m.team2_seed.endsWith('J') || m.team2_seed.endsWith('K') || m.team2_seed.endsWith('L')
+    )) {
+      const rank = m.team2_seed.charAt(0); // '1' or '2'
+      const groupLetter = m.team2_seed.charAt(1); // 'A' to 'L'
+      const groupName = `Grup ${groupLetter}`;
+      const idx = rank === '1' ? 0 : 1;
+      
+      if (groupRankings[groupName] && groupRankings[groupName][idx]) {
+        m.team2 = groupRankings[groupName][idx];
+      } else {
+        m.team2 = `${rank === '1' ? 'Juara' : 'Runner-up'} ${groupName}`;
+      }
+    } else if (m.team2_seed === '3rd') {
+      // 3rd placed team choice
+      const selectedGroup = selected3rdPlaces[m.match_id];
+      if (selectedGroup && groupRankings[selectedGroup] && groupRankings[selectedGroup][2]) {
+        m.team2 = groupRankings[selectedGroup][2]; // 3rd placed team
+      } else {
+        m.team2 = `3rd Grup ${m.team2 ? m.team2.replace("3rd Grup ", "") : ""}`;
+      }
+    }
+  });
 
   // STEP 2: Propagate decisions sequentially (Match 73 up to Match 104)
   const sortedKO = [...knockoutMatches].sort((a, b) => a.match_id - b.match_id);
 
   sortedKO.forEach(m => {
-    const winner = simulatedWinners[m.match_id];
+    let winner = simulatedWinners[m.match_id];
+    if (winner && winner !== m.team1 && winner !== m.team2) {
+      delete simulatedWinners[m.match_id];
+      winner = undefined;
+    }
     
     // Find who the loser is if a winner was selected
     let loser = "";
@@ -1459,6 +1456,14 @@ const COMPACT_COORDINATES = {
   103: { x: 275, y: 479 }  // Juara 3 (Bottom Center)
 };
 
+// Formatter to translate date string "29/6" into "29 Jun"
+function formatCompactMatchDate(dateStr) {
+  if (!dateStr) return "";
+  const [day, month] = dateStr.split('/').map(Number);
+  const months = ["Jan", "Feb", "Mar", "Apr", "Mei", "Jun", "Jul", "Agt", "Sep", "Okt", "Nov", "Des"];
+  return `${day} ${months[month - 1]}`;
+}
+
 function renderBracket() {
   const container = document.getElementById('bracket-cards-root');
   if (!container) return;
@@ -1526,6 +1531,7 @@ function renderBracket() {
       <div class="compact-match-card ${cardStateClass} ${roundClass}" 
            style="left: ${coords.x}px; top: ${coords.y}px;"
            title="Laga ${m.match_id} - ${m.venue || ''}">
+        <span class="compact-match-date">${formatCompactMatchDate(m.date)}</span>
         <!-- Team 1 -->
         <div class="compact-team-row ${isPlaceholder1 ? 'placeholder' : ''} ${team1WinnerClass}"
              ${!isPlaceholder1 ? `data-team="${m.team1}"` : ''}
