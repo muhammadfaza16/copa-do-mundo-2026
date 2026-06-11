@@ -2437,11 +2437,11 @@ body.light-theme .bracket-line-inactive {
 /* Bracket Round Legend (Subtle, secondary label style) */
 .bracket-legend {
   display: flex;
-  justify-content: center;
+  justify-content: flex-start;
   align-items: center;
   gap: 14px;
   flex-wrap: wrap;
-  margin: 10px auto 8px auto;
+  margin: 10px auto 8px 12px;
   padding: 6px 12px;
   max-width: 620px;
   background: transparent;
@@ -2454,11 +2454,10 @@ body.light-theme .bracket-line-inactive {
   align-items: center;
   gap: 6px;
   font-family: var(--font-sans);
-  font-size: 0.65rem;
-  font-weight: 700;
+  font-size: 0.7rem;
+  font-weight: 500;
   color: var(--text-secondary);
-  text-transform: uppercase;
-  letter-spacing: var(--tracking-wide);
+  text-transform: none;
 }
 
 .legend-line {
@@ -2485,11 +2484,10 @@ body.light-theme .bracket-line-inactive {
   z-index: 20;
   position: relative;
   font-family: var(--font-sans);
-  font-size: 0.75rem;
-  font-weight: 700;
-  color: var(--text-primary);
-  text-transform: uppercase;
-  letter-spacing: var(--tracking-wide);
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  text-transform: none;
 }
 
 .switch {
