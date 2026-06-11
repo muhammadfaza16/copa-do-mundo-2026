@@ -1818,7 +1818,7 @@ function renderStandingsPreview() {
 
   container.innerHTML = `
     <div class="standings-preview-header" style="margin-bottom: 8px; border-bottom: 1px solid var(--glass-border); padding-bottom: 6px; display: flex; justify-content: space-between; align-items: center;">
-      <span style="font-size: 0.7rem; font-weight: 700; color: var(--primary-gold); font-family: var(--font-display); letter-spacing: 0.5px; text-transform: uppercase;">Proyeksi Klasemen</span>
+      <span style="font-size: 0.7rem; font-weight: 700; color: var(--primary-gold); font-family: var(--font-display); letter-spacing: 0.5px; text-transform: uppercase;">Klasemen Grup</span>
       <span style="font-size: 0.65rem; color: var(--text-secondary); font-weight: 500; background: rgba(255, 255, 255, 0.05); padding: 2px 6px; border-radius: 4px; border: 1px solid var(--glass-border);">${matchdayText}</span>
     </div>
 
@@ -1839,7 +1839,7 @@ function renderStandingsPreview() {
       </button>
     </div>
     
-    <div class="preview-row-title" style="margin-top: 4px; margin-bottom: 6px;">Proyeksi Lolos Peringkat 3 Terbaik</div>
+    <div class="preview-row-title" style="margin-top: 4px; margin-bottom: 6px;">Peringkat 3 Terbaik</div>
     <div class="thirds-grid-preview" style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; max-width: 620px;">
       ${thirdsHtml || '<div style="grid-column: span 4; font-size:0.65rem; color:var(--text-muted); text-align: center; padding: 6px;">Belum ditentukan</div>'}
     </div>
