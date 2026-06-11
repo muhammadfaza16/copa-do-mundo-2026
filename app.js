@@ -1413,46 +1413,46 @@ function getTeamCode(teamName) {
 
 const COMPACT_COORDINATES = {
   // Left Wing (Bottom-Left)
-  74: { x: 30, y: 352 },
-  77: { x: 30, y: 400 },
-  73: { x: 30, y: 448 },
-  75: { x: 30, y: 496 },
-  89: { x: 105, y: 376 },
-  90: { x: 105, y: 472 },
-  97: { x: 190, y: 424 },
+  74: { x: 10, y: 130 },
+  77: { x: 10, y: 190 },
+  73: { x: 10, y: 424 },
+  75: { x: 10, y: 484 },
+  89: { x: 100, y: 160 },
+  90: { x: 100, y: 454 },
+  97: { x: 190, y: 454 },
 
   // Top Wing (Top-Left)
-  83: { x: 118, y: 30 },
-  84: { x: 166, y: 30 },
-  81: { x: 214, y: 30 },
-  82: { x: 262, y: 30 },
-  93: { x: 142, y: 105 },
-  94: { x: 238, y: 105 },
-  98: { x: 190, y: 190 },
+  83: { x: 142, y: 30 },
+  84: { x: 236, y: 30 },
+  81: { x: 330, y: 30 },
+  82: { x: 424, y: 30 },
+  93: { x: 189, y: 95 },
+  94: { x: 377, y: 95 },
+  98: { x: 190, y: 160 },
 
   // Right Wing (Top-Right)
-  76: { x: 536, y: 118 },
-  78: { x: 536, y: 166 },
-  79: { x: 536, y: 214 },
-  80: { x: 536, y: 262 },
-  91: { x: 461, y: 142 },
-  92: { x: 461, y: 238 },
-  99: { x: 376, y: 190 },
+  76: { x: 556, y: 130 },
+  78: { x: 556, y: 190 },
+  79: { x: 556, y: 424 },
+  80: { x: 556, y: 484 },
+  91: { x: 466, y: 160 },
+  92: { x: 466, y: 454 },
+  99: { x: 376, y: 160 },
 
   // Bottom Wing (Bottom-Right)
-  85: { x: 304, y: 584 },
-  86: { x: 352, y: 584 },
-  87: { x: 400, y: 584 },
-  88: { x: 448, y: 584 },
-  95: { x: 328, y: 509 },
-  96: { x: 424, y: 509 },
-  100: { x: 376, y: 424 },
+  85: { x: 142, y: 584 },
+  86: { x: 236, y: 584 },
+  87: { x: 330, y: 584 },
+  88: { x: 424, y: 584 },
+  95: { x: 189, y: 519 },
+  96: { x: 377, y: 519 },
+  100: { x: 376, y: 454 },
 
   // Center
   101: { x: 190, y: 307 }, // Semifinal 1
   102: { x: 376, y: 307 }, // Semifinal 2
   104: { x: 283, y: 307 }, // Final
-  103: { x: 283, y: 440 }  // Juara 3
+  103: { x: 283, y: 454 }  // Juara 3
 };
 
 function renderBracket() {
@@ -1651,13 +1651,15 @@ function renderBracketLines() {
         y_start = fromCoords.y + 18;
         x_end = toCoords.x;
         y_end = toCoords.y + 9;
-        d = `M ${x_start} ${y_start} H ${x_start + 10} V ${y_end} H ${x_end}`;
+        const x_mid = (x_start + x_end) / 2;
+        d = `M ${x_start} ${y_start} H ${x_mid} V ${y_end} H ${x_end}`;
       } else {
         x_start = fromCoords.x;
         y_start = fromCoords.y + 18;
         x_end = toCoords.x + cardWidth;
         y_end = toCoords.y + 27;
-        d = `M ${x_start} ${y_start} H ${x_start - 10} V ${y_end} H ${x_end}`;
+        const x_mid = (x_start + x_end) / 2;
+        d = `M ${x_start} ${y_start} H ${x_mid} V ${y_end} H ${x_end}`;
       }
     } else if (conn.type === 'center-third') {
       if (fromCoords.x < toCoords.x) {
@@ -1665,13 +1667,15 @@ function renderBracketLines() {
         y_start = fromCoords.y + cardHeight;
         x_end = toCoords.x;
         y_end = toCoords.y + 9;
-        d = `M ${x_start} ${y_start} V ${y_start + 25} H ${x_end - 15} V ${y_end} H ${x_end}`;
+        const x_mid = (x_start + x_end) / 2;
+        d = `M ${x_start} ${y_start} V ${y_start + 15} H ${x_mid} V ${y_end} H ${x_end}`;
       } else {
         x_start = fromCoords.x + 20;
         y_start = fromCoords.y + cardHeight;
         x_end = toCoords.x + cardWidth;
         y_end = toCoords.y + 27;
-        d = `M ${x_start} ${y_start} V ${y_start + 25} H ${x_end + 15} V ${y_end} H ${x_end}`;
+        const x_mid = (x_start + x_end) / 2;
+        d = `M ${x_start} ${y_start} V ${y_start + 15} H ${x_mid} V ${y_end} H ${x_end}`;
       }
     }
 
