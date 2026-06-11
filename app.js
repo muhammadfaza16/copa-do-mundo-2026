@@ -1748,6 +1748,18 @@ function applyScale() {
   const maxWrapperHeight = 600;
   const targetWrapperHeight = Math.min(maxWrapperHeight, totalScaffoldingHeight);
   wrapper.style.height = `${targetWrapperHeight}px`;
+
+  // Explicitly control overflow and cursor based on zoom toggle state to prevent dragging when zoomed out
+  const toggle = document.getElementById('bracket-zoom-toggle');
+  if (toggle && toggle.checked) {
+    wrapper.style.overflow = 'auto';
+    wrapper.style.cursor = 'grab';
+  } else {
+    wrapper.style.overflow = 'hidden';
+    wrapper.style.cursor = 'default';
+    wrapper.scrollLeft = 0;
+    wrapper.scrollTop = 0;
+  }
 }
 
 function scaleCompactBracket() {
@@ -1849,6 +1861,9 @@ function initBracketDragScroll() {
   window.isBracketDragging = false;
 
   wrapper.addEventListener('mousedown', (e) => {
+    const toggle = document.getElementById('bracket-zoom-toggle');
+    if (!toggle || !toggle.checked) return;
+
     isDown = true;
     wrapper.classList.add('grabbing');
     startX = e.pageX - wrapper.offsetLeft;
