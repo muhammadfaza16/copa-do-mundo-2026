@@ -1196,62 +1196,69 @@ function recalculateKnockoutTree() {
   // Clear working copy matches
   knockoutMatches = JSON.parse(JSON.stringify(WORLD_CUP_DATA.knockout_stage));
 
-  // STEP 1: Evaluate Round of 32 starting participants based on group rankings and 3rd place selections (Always evaluate "as it stands")
-  knockoutMatches.forEach(m => {
-    if (m.group !== "Round of 32") return;
+  const groupStageFinished = isGroupStageComplete();
 
-    // Check seed 1 (Home/team1)
-    if (m.team1_seed && (
-        m.team1_seed.endsWith('A') || m.team1_seed.endsWith('B') || m.team1_seed.endsWith('C') || m.team1_seed.endsWith('D') || 
-        m.team1_seed.endsWith('E') || m.team1_seed.endsWith('F') || m.team1_seed.endsWith('G') || m.team1_seed.endsWith('H') || 
-        m.team1_seed.endsWith('I') || m.team1_seed.endsWith('J') || m.team1_seed.endsWith('K') || m.team1_seed.endsWith('L')
-    )) {
-      const rank = m.team1_seed.charAt(0); // '1' or '2'
-      const groupLetter = m.team1_seed.charAt(1); // 'A' to 'L'
-      const groupName = `Grup ${groupLetter}`;
-      const idx = rank === '1' ? 0 : 1;
-      
-      if (groupRankings[groupName] && groupRankings[groupName][idx]) {
-        m.team1 = groupRankings[groupName][idx];
-      } else {
-        m.team1 = `${rank === '1' ? 'Juara' : 'Runner-up'} ${groupName}`;
-      }
-    } else if (m.team1_seed === '3rd') {
-      // 3rd placed team choice
-      const selectedGroup = selected3rdPlaces[m.match_id];
-      if (selectedGroup && groupRankings[selectedGroup] && groupRankings[selectedGroup][2]) {
-        m.team1 = groupRankings[selectedGroup][2]; // 3rd placed team is at index 2
-      } else {
-        m.team1 = `3rd Grup ${m.team1 ? m.team1.replace("3rd Grup ", "") : ""}`;
-      }
-    }
+  if (!groupStageFinished) {
+    // Reset all simulated winners if group stage is not finished
+    simulatedWinners = {};
+  } else {
+    // STEP 1: Evaluate Round of 32 starting participants based on group rankings and 3rd place selections
+    knockoutMatches.forEach(m => {
+      if (m.group !== "Round of 32") return;
 
-    // Check seed 2 (Away/team2)
-    if (m.team2_seed && (
-        m.team2_seed.endsWith('A') || m.team2_seed.endsWith('B') || m.team2_seed.endsWith('C') || m.team2_seed.endsWith('D') || 
-        m.team2_seed.endsWith('E') || m.team2_seed.endsWith('F') || m.team2_seed.endsWith('G') || m.team2_seed.endsWith('H') || 
-        m.team2_seed.endsWith('I') || m.team2_seed.endsWith('J') || m.team2_seed.endsWith('K') || m.team2_seed.endsWith('L')
-    )) {
-      const rank = m.team2_seed.charAt(0); // '1' or '2'
-      const groupLetter = m.team2_seed.charAt(1); // 'A' to 'L'
-      const groupName = `Grup ${groupLetter}`;
-      const idx = rank === '1' ? 0 : 1;
-      
-      if (groupRankings[groupName] && groupRankings[groupName][idx]) {
-        m.team2 = groupRankings[groupName][idx];
-      } else {
-        m.team2 = `${rank === '1' ? 'Juara' : 'Runner-up'} ${groupName}`;
+      // Check seed 1 (Home/team1)
+      if (m.team1_seed && (
+          m.team1_seed.endsWith('A') || m.team1_seed.endsWith('B') || m.team1_seed.endsWith('C') || m.team1_seed.endsWith('D') || 
+          m.team1_seed.endsWith('E') || m.team1_seed.endsWith('F') || m.team1_seed.endsWith('G') || m.team1_seed.endsWith('H') || 
+          m.team1_seed.endsWith('I') || m.team1_seed.endsWith('J') || m.team1_seed.endsWith('K') || m.team1_seed.endsWith('L')
+      )) {
+        const rank = m.team1_seed.charAt(0); // '1' or '2'
+        const groupLetter = m.team1_seed.charAt(1); // 'A' to 'L'
+        const groupName = `Grup ${groupLetter}`;
+        const idx = rank === '1' ? 0 : 1;
+        
+        if (groupRankings[groupName] && groupRankings[groupName][idx]) {
+          m.team1 = groupRankings[groupName][idx];
+        } else {
+          m.team1 = `${rank === '1' ? 'Juara' : 'Runner-up'} ${groupName}`;
+        }
+      } else if (m.team1_seed === '3rd') {
+        // 3rd placed team choice
+        const selectedGroup = selected3rdPlaces[m.match_id];
+        if (selectedGroup && groupRankings[selectedGroup] && groupRankings[selectedGroup][2]) {
+          m.team1 = groupRankings[selectedGroup][2]; // 3rd placed team is at index 2
+        } else {
+          m.team1 = `3rd Grup ${m.team1 ? m.team1.replace("3rd Grup ", "") : ""}`;
+        }
       }
-    } else if (m.team2_seed === '3rd') {
-      // 3rd placed team choice
-      const selectedGroup = selected3rdPlaces[m.match_id];
-      if (selectedGroup && groupRankings[selectedGroup] && groupRankings[selectedGroup][2]) {
-        m.team2 = groupRankings[selectedGroup][2]; // 3rd placed team
-      } else {
-        m.team2 = `3rd Grup ${m.team2 ? m.team2.replace("3rd Grup ", "") : ""}`;
+
+      // Check seed 2 (Away/team2)
+      if (m.team2_seed && (
+          m.team2_seed.endsWith('A') || m.team2_seed.endsWith('B') || m.team2_seed.endsWith('C') || m.team2_seed.endsWith('D') || 
+          m.team2_seed.endsWith('E') || m.team2_seed.endsWith('F') || m.team2_seed.endsWith('G') || m.team2_seed.endsWith('H') || 
+          m.team2_seed.endsWith('I') || m.team2_seed.endsWith('J') || m.team2_seed.endsWith('K') || m.team2_seed.endsWith('L')
+      )) {
+        const rank = m.team2_seed.charAt(0); // '1' or '2'
+        const groupLetter = m.team2_seed.charAt(1); // 'A' to 'L'
+        const groupName = `Grup ${groupLetter}`;
+        const idx = rank === '1' ? 0 : 1;
+        
+        if (groupRankings[groupName] && groupRankings[groupName][idx]) {
+          m.team2 = groupRankings[groupName][idx];
+        } else {
+          m.team2 = `${rank === '1' ? 'Juara' : 'Runner-up'} ${groupName}`;
+        }
+      } else if (m.team2_seed === '3rd') {
+        // 3rd placed team choice
+        const selectedGroup = selected3rdPlaces[m.match_id];
+        if (selectedGroup && groupRankings[selectedGroup] && groupRankings[selectedGroup][2]) {
+          m.team2 = groupRankings[selectedGroup][2]; // 3rd placed team
+        } else {
+          m.team2 = `3rd Grup ${m.team2 ? m.team2.replace("3rd Grup ", "") : ""}`;
+        }
       }
-    }
-  });
+    });
+  }
 
   // STEP 2: Propagate decisions sequentially (Match 73 up to Match 104)
   const sortedKO = [...knockoutMatches].sort((a, b) => a.match_id - b.match_id);
@@ -1534,8 +1541,7 @@ function renderBracket() {
     const formattedFlag1 = flag1 ? flag1.replace('class="flag-crest"', 'class="flag-crest-compact"') : '';
     const formattedFlag2 = flag2 ? flag2.replace('class="flag-crest"', 'class="flag-crest-compact"') : '';
 
-    const matchLabel = `W${m.match_id}`;
-    const dateVenueText = `${matchLabel} • ${formatCompactMatchDate(m.date)} • ${getVenueCity(m.venue)}`;
+    const dateVenueText = `${formatCompactMatchDate(m.date)} • ${getVenueCity(m.venue)}`;
 
     cardsHtml += `
       <div class="compact-match-card ${cardStateClass} ${roundClass}" 
@@ -1739,37 +1745,7 @@ function renderStandingsPreview() {
     : 0;
   const matchdayText = maxPlayed === 0 ? "Sebelum Turnamen" : `Hingga Matchday ${maxPlayed}`;
 
-  // 1. Group Standings (Top 2 from each of 12 groups A to L)
-  let groupsHtml = '';
-  const alphabet = 'ABCDEFGHIJKL';
-  
-  for (let i = 0; i < alphabet.length; i++) {
-    const letter = alphabet[i];
-    const groupName = `Grup ${letter}`;
-    const list = groupRankings[groupName] || [];
-    
-    const team1 = list[0] || '';
-    const team2 = list[1] || '';
-    
-    const flag1 = team1 ? getFlagHtml(team1) : '';
-    const flag2 = team2 ? getFlagHtml(team2) : '';
-    
-    const code1 = team1 ? getTeamCode(team1) : '???';
-    const code2 = team2 ? getTeamCode(team2) : '???';
-
-    const f1 = flag1 ? flag1.replace('class="flag-crest"', 'class="flag-crest-preview"') : '';
-    const f2 = flag2 ? flag2.replace('class="flag-crest"', 'class="flag-crest-preview"') : '';
-
-    groupsHtml += `
-      <div class="standings-group-capsule">
-        <span class="capsule-group-letter">${letter}</span>
-        <div class="capsule-team">${f1} <span>${code1}</span></div>
-        <div class="capsule-team">${f2} <span>${code2}</span></div>
-      </div>
-    `;
-  }
-
-  // 2. Best 3rd Place Teams (Top 8 qualifying)
+  // 1. Resolve Best 3rd Place Groups so we can highlight them in the vertical cards
   const thirds = [];
   for (const [groupName, teamList] of Object.entries(groupRankings)) {
     if (teamList && teamList[2]) {
@@ -1786,6 +1762,47 @@ function renderStandingsPreview() {
     return a.group.localeCompare(b.group);
   });
 
+  const qualifyingThirdGroups = thirds.slice(0, 8).map(t => t.group);
+
+  // 2. Group Standings (All 4 teams stacked vertically per group)
+  let groupsHtml = '';
+  const alphabet = 'ABCDEFGHIJKL';
+  
+  for (let i = 0; i < alphabet.length; i++) {
+    const letter = alphabet[i];
+    const groupName = `Grup ${letter}`;
+    const list = groupRankings[groupName] || [];
+    
+    let rowsHtml = '';
+    for (let pos = 1; pos <= 4; pos++) {
+      const team = list[pos - 1] || '';
+      const flag = team ? getFlagHtml(team) : '';
+      const code = team ? getTeamCode(team) : '???';
+      const f = flag ? flag.replace('class="flag-crest"', 'class="flag-crest-preview"') : '';
+      
+      const isQualified = (pos === 1 || pos === 2) || (pos === 3 && qualifyingThirdGroups.includes(groupName));
+      const boldStyle = isQualified ? 'font-weight: 600; color: var(--text-primary); opacity: 1;' : 'font-weight: 400; color: var(--text-muted); opacity: 0.5;';
+      const indicatorColor = isQualified ? 'var(--accent-emerald)' : 'var(--text-muted)';
+      const indicatorSymbol = isQualified ? '●' : '○';
+
+      rowsHtml += `
+        <div class="capsule-team" style="display: flex; align-items: center; gap: 4px; font-size: 0.65rem; margin-top: 2px; ${boldStyle}">
+          <span style="font-size: 0.55rem; color: ${indicatorColor}; margin-right: 2px;">${indicatorSymbol}</span>
+          ${f}
+          <span>${code}</span>
+        </div>
+      `;
+    }
+
+    groupsHtml += `
+      <div class="standings-group-capsule" style="display: flex; flex-direction: column; gap: 3px; background: var(--glass-bg); border: 1px solid var(--glass-border); border-radius: 6px; padding: 6px 10px; flex-shrink: 0; min-width: 90px; text-align: left;">
+        <span class="capsule-group-letter" style="border-right: none; padding-right: 0; border-bottom: 1px solid var(--glass-border); padding-bottom: 3px; margin-bottom: 3px; font-size: 0.7rem; font-weight: bold; color: var(--primary-gold);">Grup ${letter}</span>
+        ${rowsHtml}
+      </div>
+    `;
+  }
+
+  // 3. Best 3rd Place Teams in 2 Rows (Grid 2x4)
   let thirdsHtml = '';
   thirds.slice(0, 8).forEach(t => {
     const flag = t.team ? getFlagHtml(t.team) : '';
@@ -1801,21 +1818,44 @@ function renderStandingsPreview() {
 
   container.innerHTML = `
     <div class="standings-preview-header" style="margin-bottom: 8px; border-bottom: 1px solid var(--glass-border); padding-bottom: 6px; display: flex; justify-content: space-between; align-items: center;">
-      <span style="font-size: 0.7rem; font-weight: 700; color: var(--primary-gold); font-family: var(--font-display); letter-spacing: 0.5px; text-transform: uppercase;">Proyeksi Klasemen (As It Stands)</span>
+      <span style="font-size: 0.7rem; font-weight: 700; color: var(--primary-gold); font-family: var(--font-display); letter-spacing: 0.5px; text-transform: uppercase;">Proyeksi Klasemen</span>
       <span style="font-size: 0.65rem; color: var(--text-secondary); font-weight: 500; background: rgba(255, 255, 255, 0.05); padding: 2px 6px; border-radius: 4px; border: 1px solid var(--glass-border);">${matchdayText}</span>
     </div>
 
-    <div class="preview-row-title">Lolos Otomatis (Juara &amp; Runner-up)</div>
-    <div class="standings-groups-scroll">
+    <div class="preview-row-title">Kualifikasi Grup (Juara, Runner-up &amp; Peringkat 3)</div>
+    <div class="standings-groups-scroll" id="standings-groups-scroll" style="display: flex; gap: 8px; overflow-x: auto; scrollbar-width: none; -ms-overflow-style: none; padding-bottom: 6px;">
       ${groupsHtml}
     </div>
     
-    <div class="preview-row-title" style="margin-top: 10px;">Lolos Jalur Peringkat 3 Terbaik</div>
-    <div class="standings-thirds-scroll">
-      ${thirdsHtml || '<div style="font-size:0.65rem; color:var(--text-muted);">Belum ditentukan</div>'}
+    <!-- Navigation Buttons beneath scroll -->
+    <div class="standings-scroll-controls" style="display: flex; justify-content: center; gap: 8px; margin: 4px auto 10px auto;">
+      <button class="scroll-nav-btn" onclick="window.scrollStandings('left')" style="cursor: pointer;">
+        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
+        <span>Kiri</span>
+      </button>
+      <button class="scroll-nav-btn" onclick="window.scrollStandings('right')" style="cursor: pointer;">
+        <span>Kanan</span>
+        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
+      </button>
+    </div>
+    
+    <div class="preview-row-title" style="margin-top: 4px; margin-bottom: 6px;">Proyeksi Lolos Peringkat 3 Terbaik</div>
+    <div class="thirds-grid-preview" style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; max-width: 620px;">
+      ${thirdsHtml || '<div style="grid-column: span 4; font-size:0.65rem; color:var(--text-muted); text-align: center; padding: 6px;">Belum ditentukan</div>'}
     </div>
   `;
 }
+
+window.scrollStandings = function(direction) {
+  const container = document.getElementById('standings-groups-scroll');
+  if (!container) return;
+  const scrollAmount = 240; // Approx 2-3 group cards
+  if (direction === 'left') {
+    container.scrollBy({ left: -scrollAmount, behavior: 'smooth' });
+  } else {
+    container.scrollBy({ left: scrollAmount, behavior: 'smooth' });
+  }
+};
 window.renderStandingsPreview = renderStandingsPreview;
 
 let currentScale = 1;
