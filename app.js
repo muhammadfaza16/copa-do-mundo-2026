@@ -1145,8 +1145,8 @@ function renderBestThirds() {
     const isQualified = idx < 8;
     const rankClass = isQualified ? 'rank-1st' : 'rank-4th';
     const statusBadge = isQualified 
-      ? '<span style="font-size: 0.55rem; color: var(--accent-emerald); border: 1px solid rgba(16, 185, 129, 0.3); padding: 1.5px 6px; border-radius: 4px; font-weight: bold; background: rgba(16, 185, 129, 0.05); letter-spacing: 0.5px;">LOLOS</span>'
-      : '<span style="font-size: 0.55rem; color: var(--accent-red); border: 1px solid rgba(239, 68, 68, 0.3); padding: 1.5px 6px; border-radius: 4px; font-weight: bold; background: rgba(239, 68, 68, 0.05); letter-spacing: 0.5px;">GUGUR</span>';
+      ? '<span class="status-badge lolos">LOLOS</span>'
+      : '<span class="status-badge gugur">GUGUR</span>';
     
     const gdSign = t.gd > 0 ? `+${t.gd}` : t.gd;
 
@@ -2160,8 +2160,8 @@ window.openSlotModal = function(teamName, matchId) {
           const isQualified = idx < 8;
           const rankClass = isQualified ? 'rank-1st' : 'rank-4th';
           const statusBadge = isQualified 
-            ? '<span style="font-size: 0.55rem; color: var(--accent-emerald); border: 1px solid rgba(16, 185, 129, 0.3); padding: 1.5px 6px; border-radius: 4px; font-weight: bold; background: rgba(16, 185, 129, 0.05); letter-spacing: 0.5px;">LOLOS</span>'
-            : '<span style="font-size: 0.55rem; color: var(--accent-red); border: 1px solid rgba(239, 68, 68, 0.3); padding: 1.5px 6px; border-radius: 4px; font-weight: bold; background: rgba(239, 68, 68, 0.05); letter-spacing: 0.5px;">GUGUR</span>';
+            ? '<span class="status-badge lolos">LOLOS</span>'
+            : '<span class="status-badge gugur">GUGUR</span>';
           
           rowsHtml += `
             <tr style="background: ${isQualified ? 'rgba(16, 185, 129, 0.01)' : 'rgba(239, 68, 68, 0.01)'}">

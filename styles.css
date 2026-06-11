@@ -2701,3 +2701,41 @@ body.light-theme .thirds-team-capsule {
   opacity: 0.6;
   font-weight: normal;
 }
+
+/* Premium Status Badges */
+.status-badge {
+  font-size: 0.55rem;
+  font-weight: 700;
+  padding: 2.5px 7px;
+  border-radius: 12px;
+  letter-spacing: 0.5px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+}
+
+.status-badge.lolos {
+  color: var(--accent-emerald);
+  background: rgba(48, 209, 88, 0.1);
+  border: 1px solid rgba(48, 209, 88, 0.25);
+}
+
+body.light-theme .status-badge.lolos {
+  color: #15803d; /* Dark green for readability in light mode */
+  background: rgba(21, 128, 61, 0.08);
+  border-color: rgba(21, 128, 61, 0.2);
+}
+
+.status-badge.gugur {
+  color: var(--accent-red);
+  background: rgba(255, 69, 58, 0.1);
+  border: 1px solid rgba(255, 69, 58, 0.25);
+}
+
+body.light-theme .status-badge.gugur {
+  color: #b91c1c; /* Dark red for readability in light mode */
+  background: rgba(185, 28, 28, 0.08);
+  border-color: rgba(185, 28, 28, 0.2);
+}
+
