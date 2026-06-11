@@ -1575,8 +1575,6 @@ function renderBracket() {
 
   container.innerHTML = cardsHtml;
   renderBracketLines();
-  renderStandingsPreview();
-  renderMobileBracket();
 }
 
 function renderBracketLines() {
@@ -1870,135 +1868,7 @@ window.scrollStandings = function(direction) {
 };
 window.renderStandingsPreview = renderStandingsPreview;
 
-// ==========================================
-// MOBILE BRACKET VIEW — Round-by-Round Cards
-// ==========================================
 
-const MOBILE_ROUND_ORDER = [
-  { key: 'Round of 32', label: '32 Besar', cssClass: 'round-32' },
-  { key: 'Round of 16', label: '16 Besar', cssClass: 'round-16' },
-  { key: 'Quarter-final', label: 'Perempat Final', cssClass: 'round-qf' },
-  { key: 'Semi-final', label: 'Semifinal', cssClass: 'round-sf' },
-  { key: 'Final', label: 'Final', cssClass: 'round-final' },
-  { key: 'Third-place match', label: 'Juara 3', cssClass: 'round-third' }
-];
-
-function isPlaceholderTeam(teamName) {
-  if (!teamName || typeof teamName !== 'string') return false;
-  return (
-    teamName.startsWith('Winner Match') ||
-    teamName.startsWith('Loser Match') ||
-    teamName.startsWith('3rd Grup') ||
-    teamName.startsWith('3rd Group') ||
-    teamName.startsWith('Juara Grup') ||
-    teamName.startsWith('Runner-up Grup') ||
-    teamName.startsWith('Juara Group') ||
-    teamName.startsWith('Runner-up Group')
-  );
-}
-
-function renderMobileBracket() {
-  const container = document.getElementById('mobile-bracket-view');
-  if (!container) return;
-
-  // Group matches by round
-  const matchesByRound = {};
-  MOBILE_ROUND_ORDER.forEach(r => { matchesByRound[r.key] = []; });
-
-  knockoutMatches.forEach(m => {
-    if (matchesByRound[m.group]) {
-      matchesByRound[m.group].push(m);
-    }
-  });
-
-  // Sort matches within each round by match_id
-  for (const key in matchesByRound) {
-    matchesByRound[key].sort((a, b) => a.match_id - b.match_id);
-  }
-
-  let finalHtml = '<div class="mobile-bracket-list-container">';
-
-  MOBILE_ROUND_ORDER.forEach(r => {
-    const roundMatches = matchesByRound[r.key] || [];
-    if (roundMatches.length === 0) return;
-
-    finalHtml += `
-      <div class="mobile-round-section-header ${r.cssClass}">
-        ${r.label}
-      </div>
-      <div class="mobile-round-matches">
-    `;
-
-    roundMatches.forEach(m => {
-      const ph1 = isPlaceholderTeam(m.team1);
-      const ph2 = isPlaceholderTeam(m.team2);
-      const winner = simulatedWinners[m.match_id];
-
-      const hasPlaceholders = ph1 || ph2;
-      const hasWinner = !!winner;
-      let cardStateClass = '';
-      if (hasPlaceholders) {
-        cardStateClass = 'match-locked';
-      } else if (hasWinner) {
-        cardStateClass = 'match-predicted';
-      } else {
-        cardStateClass = 'match-ready';
-      }
-
-      const team1WinnerClass = (winner && winner === m.team1) ? 'winner' : (winner ? 'loser' : '');
-      const team2WinnerClass = (winner && winner === m.team2) ? 'winner' : (winner ? 'loser' : '');
-
-      const formattedDate = getFormattedTime(m.date, m.time).date;
-      const stadium = getVenueStadium(m.venue);
-
-      // Flag html
-      const flag1 = !ph1 && m.team1 ? getFlagHtml(m.team1) : (ph1 ? getFlagHtml('') : '');
-      const flag2 = !ph2 && m.team2 ? getFlagHtml(m.team2) : (ph2 ? getFlagHtml('') : '');
-
-      // Team name display
-      const team1Name = m.team1 || '???';
-      const team2Name = m.team2 || '???';
-      const team1Code = getTeamCode(m.team1 || '');
-      const team2Code = getTeamCode(m.team2 || '');
-
-      const team1NameClass = ph1 ? 'mobile-team-name placeholder-text' : 'mobile-team-name';
-      const team2NameClass = ph2 ? 'mobile-team-name placeholder-text' : 'mobile-team-name';
-
-      const t1Esc = m.team1 ? m.team1.replace(/'/g, "\\'") : '';
-      const t2Esc = m.team2 ? m.team2.replace(/'/g, "\\'") : '';
-      const isSelectable = !ph1 && !ph2;
-
-      finalHtml += `
-        <div class="mobile-match-card ${cardStateClass} ${r.cssClass}">
-          <div class="mobile-match-header">
-            <span>${formattedDate} · ${stadium}</span>
-            <span class="match-num">M${m.match_id}</span>
-          </div>
-          <div class="mobile-team-row ${ph1 ? 'placeholder' : ''} ${team1WinnerClass}"
-               onclick="window.handleBracketTap(${m.match_id}, '${t1Esc}', ${isSelectable})">
-            ${flag1}
-            <span class="${team1NameClass}">${team1Name}</span>
-            <span class="mobile-team-code">${team1Code}</span>
-          </div>
-          <div class="mobile-team-row ${ph2 ? 'placeholder' : ''} ${team2WinnerClass}"
-               onclick="window.handleBracketTap(${m.match_id}, '${t2Esc}', ${isSelectable})">
-            ${flag2}
-            <span class="${team2NameClass}">${team2Name}</span>
-            <span class="mobile-team-code">${team2Code}</span>
-          </div>
-        </div>
-      `;
-    });
-
-    finalHtml += '</div>'; // close mobile-round-matches
-  });
-
-  finalHtml += '</div>'; // close mobile-bracket-list-container
-
-  container.innerHTML = finalHtml;
-}
-
-window.renderMobileBracket = renderMobileBracket;
 
 let currentScale = 1;
 let baseScale = 1;
@@ -2073,22 +1943,9 @@ function scaleCompactBracket() {
 window.scaleCompactBracket = scaleCompactBracket;
 
 window.toggleBracketZoom = function(isZoomed) {
-  // Toggle map-mode class for mobile view switching
-  const mobileView = document.getElementById('mobile-bracket-view');
-  const compactWrapper = document.querySelector('.compact-bracket-wrapper');
-  const legend = document.querySelector('.bracket-legend');
-
   if (isZoomed) {
-    // Switch to compact radial map view
-    if (mobileView) mobileView.classList.add('map-mode');
-    if (compactWrapper) compactWrapper.classList.add('map-mode');
-    if (legend) legend.classList.add('map-mode');
     currentScale = 1.35;
   } else {
-    // Switch back to mobile list view
-    if (mobileView) mobileView.classList.remove('map-mode');
-    if (compactWrapper) compactWrapper.classList.remove('map-mode');
-    if (legend) legend.classList.remove('map-mode');
     const wrapper = document.querySelector('.compact-bracket-wrapper');
     if (wrapper) {
       const wrapperWidth = wrapper.clientWidth;

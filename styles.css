@@ -2471,42 +2471,14 @@ body.light-theme .mobile-team-name {
   border-color: rgba(212, 175, 55, 0.15);
 }
 
-/* Mobile media query — show mobile view, hide compact bracket */
+/* Mobile media query — show compact bracket directly */
 @media (max-width: 768px) {
-  .mobile-bracket-view {
-    display: flex;
-  }
-
   .compact-bracket-wrapper {
-    display: none;
+    display: block;
   }
 
   .bracket-legend {
-    display: none;
-  }
-
-  /* When zoom/map toggle is on, show compact bracket and hide mobile view */
-  .mobile-bracket-view.map-mode {
-    display: none !important;
-  }
-
-  .compact-bracket-wrapper.map-mode {
-    display: block !important;
-  }
-
-  .bracket-legend.map-mode {
-    display: flex !important;
-  }
-}
-
-/* Desktop — always show compact bracket, hide mobile view */
-@media (min-width: 769px) {
-  .mobile-bracket-view {
-    display: none !important;
-  }
-
-  #bracket-view-switch {
-    display: none !important;
+    display: flex;
   }
 }
 
