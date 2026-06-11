@@ -1727,10 +1727,15 @@ function applyScale() {
   container.style.transform = `scale(${currentScale})`;
   container.style.transformOrigin = 'top left';
 
+  const scaledHeight = 600 * currentScale;
   if (scaffolding) {
     scaffolding.style.width = `${620 * currentScale}px`;
-    scaffolding.style.height = `${600 * currentScale}px`;
+    scaffolding.style.height = `${scaledHeight}px`;
   }
+
+  const maxWrapperHeight = 600;
+  const targetWrapperHeight = Math.min(maxWrapperHeight, scaledHeight);
+  wrapper.style.height = `${targetWrapperHeight}px`;
 }
 
 function scaleCompactBracket() {

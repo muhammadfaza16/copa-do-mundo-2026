@@ -2548,7 +2548,12 @@ body.light-theme .slider {
 .compact-bracket-wrapper {
   overflow: auto !important;
   cursor: grab;
-  scrollbar-width: thin;
+  scrollbar-width: none !important; /* Firefox */
+  -ms-overflow-style: none !important;  /* IE and Edge */
+}
+
+.compact-bracket-wrapper::-webkit-scrollbar {
+  display: none !important; /* Chrome, Safari, Opera */
 }
 
 .compact-bracket-wrapper.grabbing {
