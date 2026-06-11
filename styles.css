@@ -2226,126 +2226,42 @@ body.light-theme .welcome-mascot-side {
   font-family: var(--font-sans);
 }
 
-/* Round Tab Bar */
-.mobile-round-tabs {
-  display: flex;
-  gap: 6px;
-  padding: 4px;
-  background: var(--panel-bg);
-  border: 1px solid var(--glass-border);
-  border-radius: var(--border-radius-md);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  overflow-x: auto;
-  scrollbar-width: none;
-  -ms-overflow-style: none;
-  margin-top: 16px;
-  margin-bottom: 12px;
-  position: relative;
-  z-index: 5;
-}
-
-.mobile-round-tabs::-webkit-scrollbar {
-  display: none;
-}
-
-.mobile-round-tab {
-  flex: 0 0 auto;
-  background: transparent;
-  border: none;
-  color: var(--text-secondary);
-  font-family: var(--font-sans);
-  font-size: 0.7rem;
+/* Round Section Header in Mobile View */
+.mobile-round-section-header {
+  font-family: var(--font-display);
+  font-size: 0.82rem;
   font-weight: 700;
-  padding: 9px 14px;
-  border-radius: var(--border-radius-sm);
-  cursor: pointer;
-  transition: var(--transition-smooth);
-  text-transform: uppercase;
-  letter-spacing: var(--tracking-wide);
-  white-space: nowrap;
-  outline: none;
-  position: relative;
-}
-
-.mobile-round-tab:hover {
   color: var(--text-primary);
-}
-
-.mobile-round-tab.active {
-  color: #ffffff;
-  font-weight: 800;
-}
-
-/* Round-specific active tab colors */
-.mobile-round-tab.active[data-round="Round of 32"] {
-  background: #ef4444;
-  color: #ffffff;
-}
-.mobile-round-tab.active[data-round="Round of 16"] {
-  background: #22c55e;
-  color: #ffffff;
-}
-.mobile-round-tab.active[data-round="Quarter-final"] {
-  background: #3b82f6;
-  color: #ffffff;
-}
-.mobile-round-tab.active[data-round="Semi-final"] {
-  background: #f97316;
-  color: #ffffff;
-}
-.mobile-round-tab.active[data-round="Final"] {
-  background: #eab308;
-  color: #ffffff;
-}
-.mobile-round-tab.active[data-round="Third-place match"] {
-  background: #7c3aed;
-  color: #ffffff;
-}
-
-/* Light theme tab overrides */
-body.light-theme .mobile-round-tab.active[data-round="Round of 32"] { background: #dc2626; color: #ffffff; }
-body.light-theme .mobile-round-tab.active[data-round="Round of 16"] { background: #16a34a; color: #ffffff; }
-body.light-theme .mobile-round-tab.active[data-round="Quarter-final"] { background: #2563eb; color: #ffffff; }
-body.light-theme .mobile-round-tab.active[data-round="Semi-final"] { background: #ea580c; color: #ffffff; }
-body.light-theme .mobile-round-tab.active[data-round="Final"] { background: #ca8a04; color: #ffffff; }
-body.light-theme .mobile-round-tab.active[data-round="Third-place match"] { background: #7c3aed; color: #ffffff; }
-
-/* Round Progress Bar */
-.mobile-round-progress {
+  margin-top: 24px;
+  margin-bottom: 12px;
+  padding: 4px 0 4px 10px;
+  letter-spacing: var(--tracking-wider);
   display: flex;
   align-items: center;
-  gap: 10px;
-  padding: 8px 4px;
-  margin-bottom: 4px;
+  position: relative;
+  text-transform: uppercase;
 }
 
-.progress-track {
-  flex: 1;
-  height: 3px;
-  background: rgba(255, 255, 255, 0.06);
+body.light-theme .mobile-round-section-header {
+  color: #1e293b;
+}
+
+.mobile-round-section-header::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 3px;
+  bottom: 3px;
+  width: 3.5px;
   border-radius: 2px;
-  overflow: hidden;
 }
 
-body.light-theme .progress-track {
-  background: rgba(0, 0, 0, 0.06);
-}
-
-.progress-fill {
-  height: 100%;
-  border-radius: 2px;
-  transition: width 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
-  background: var(--primary-gold);
-}
-
-.progress-label {
-  font-size: 0.65rem;
-  font-weight: 600;
-  color: var(--text-secondary);
-  white-space: nowrap;
-  letter-spacing: var(--tracking-wide);
-}
+.mobile-round-section-header.round-32::before { background: #dc2626; }
+.mobile-round-section-header.round-16::before { background: #16a34a; }
+.mobile-round-section-header.round-qf::before { background: #2563eb; }
+.mobile-round-section-header.round-sf::before { background: #ea580c; }
+.mobile-round-section-header.round-final::before { background: #ca8a04; }
+.mobile-round-section-header.round-third::before { background: #7c3aed; }
 
 /* Match Cards Container */
 .mobile-round-matches {

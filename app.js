@@ -1874,8 +1874,6 @@ window.renderStandingsPreview = renderStandingsPreview;
 // MOBILE BRACKET VIEW — Round-by-Round Cards
 // ==========================================
 
-let activeMobileRound = 'Round of 32';
-
 const MOBILE_ROUND_ORDER = [
   { key: 'Round of 32', label: '32 Besar', cssClass: 'round-32' },
   { key: 'Round of 16', label: '16 Besar', cssClass: 'round-16' },
@@ -1918,109 +1916,87 @@ function renderMobileBracket() {
     matchesByRound[key].sort((a, b) => a.match_id - b.match_id);
   }
 
-  // Build round tabs
-  let tabsHtml = '<div class="mobile-round-tabs">';
+  let finalHtml = '<div class="mobile-bracket-list-container">';
+
   MOBILE_ROUND_ORDER.forEach(r => {
-    const matchCount = matchesByRound[r.key].length;
-    if (matchCount === 0) return;
-    const activeClass = (r.key === activeMobileRound) ? 'active' : '';
-    tabsHtml += `<button class="mobile-round-tab ${activeClass}" data-round="${r.key}" onclick="window.switchMobileRound('${r.key}')">${r.label}</button>`;
-  });
-  tabsHtml += '</div>';
+    const roundMatches = matchesByRound[r.key] || [];
+    if (roundMatches.length === 0) return;
 
-  // Build progress bar for active round
-  const activeRoundMatches = matchesByRound[activeMobileRound] || [];
-  const predicted = activeRoundMatches.filter(m => !!simulatedWinners[m.match_id]).length;
-  const total = activeRoundMatches.length;
-  const pct = total > 0 ? Math.round((predicted / total) * 100) : 0;
-
-  let progressHtml = '';
-  if (total > 0) {
-    progressHtml = `
-      <div class="mobile-round-progress">
-        <div class="progress-track">
-          <div class="progress-fill" style="width: ${pct}%;"></div>
-        </div>
-        <span class="progress-label">${predicted}/${total} prediksi</span>
+    finalHtml += `
+      <div class="mobile-round-section-header ${r.cssClass}">
+        ${r.label}
       </div>
+      <div class="mobile-round-matches">
     `;
-  }
 
-  // Build match cards for active round
-  const roundMeta = MOBILE_ROUND_ORDER.find(r => r.key === activeMobileRound);
-  const roundCssClass = roundMeta ? roundMeta.cssClass : '';
-  let cardsHtml = '<div class="mobile-round-matches">';
+    roundMatches.forEach(m => {
+      const ph1 = isPlaceholderTeam(m.team1);
+      const ph2 = isPlaceholderTeam(m.team2);
+      const winner = simulatedWinners[m.match_id];
 
-  activeRoundMatches.forEach(m => {
-    const ph1 = isPlaceholderTeam(m.team1);
-    const ph2 = isPlaceholderTeam(m.team2);
-    const winner = simulatedWinners[m.match_id];
+      const hasPlaceholders = ph1 || ph2;
+      const hasWinner = !!winner;
+      let cardStateClass = '';
+      if (hasPlaceholders) {
+        cardStateClass = 'match-locked';
+      } else if (hasWinner) {
+        cardStateClass = 'match-predicted';
+      } else {
+        cardStateClass = 'match-ready';
+      }
 
-    const hasPlaceholders = ph1 || ph2;
-    const hasWinner = !!winner;
-    let cardStateClass = '';
-    if (hasPlaceholders) {
-      cardStateClass = 'match-locked';
-    } else if (hasWinner) {
-      cardStateClass = 'match-predicted';
-    } else {
-      cardStateClass = 'match-ready';
-    }
+      const team1WinnerClass = (winner && winner === m.team1) ? 'winner' : (winner ? 'loser' : '');
+      const team2WinnerClass = (winner && winner === m.team2) ? 'winner' : (winner ? 'loser' : '');
 
-    const team1WinnerClass = (winner && winner === m.team1) ? 'winner' : (winner ? 'loser' : '');
-    const team2WinnerClass = (winner && winner === m.team2) ? 'winner' : (winner ? 'loser' : '');
+      const formattedDate = getFormattedTime(m.date, m.time).date;
+      const stadium = getVenueStadium(m.venue);
 
-    const formattedDate = getFormattedTime(m.date, m.time).date;
-    const stadium = getVenueStadium(m.venue);
+      // Flag html
+      const flag1 = !ph1 && m.team1 ? getFlagHtml(m.team1) : (ph1 ? getFlagHtml('') : '');
+      const flag2 = !ph2 && m.team2 ? getFlagHtml(m.team2) : (ph2 ? getFlagHtml('') : '');
 
-    // Flag html
-    const flag1 = !ph1 && m.team1 ? getFlagHtml(m.team1) : (ph1 ? getFlagHtml('') : '');
-    const flag2 = !ph2 && m.team2 ? getFlagHtml(m.team2) : (ph2 ? getFlagHtml('') : '');
+      // Team name display
+      const team1Name = m.team1 || '???';
+      const team2Name = m.team2 || '???';
+      const team1Code = getTeamCode(m.team1 || '');
+      const team2Code = getTeamCode(m.team2 || '');
 
-    // Team name display
-    const team1Name = m.team1 || '???';
-    const team2Name = m.team2 || '???';
-    const team1Code = getTeamCode(m.team1 || '');
-    const team2Code = getTeamCode(m.team2 || '');
+      const team1NameClass = ph1 ? 'mobile-team-name placeholder-text' : 'mobile-team-name';
+      const team2NameClass = ph2 ? 'mobile-team-name placeholder-text' : 'mobile-team-name';
 
-    const team1NameClass = ph1 ? 'mobile-team-name placeholder-text' : 'mobile-team-name';
-    const team2NameClass = ph2 ? 'mobile-team-name placeholder-text' : 'mobile-team-name';
+      const t1Esc = m.team1 ? m.team1.replace(/'/g, "\\'") : '';
+      const t2Esc = m.team2 ? m.team2.replace(/'/g, "\\'") : '';
+      const isSelectable = !ph1 && !ph2;
 
-    const t1Esc = m.team1 ? m.team1.replace(/'/g, "\\'") : '';
-    const t2Esc = m.team2 ? m.team2.replace(/'/g, "\\'") : '';
-    const isSelectable = !ph1 && !ph2;
-
-    cardsHtml += `
-      <div class="mobile-match-card ${cardStateClass} ${roundCssClass}">
-        <div class="mobile-match-header">
-          <span>${formattedDate} · ${stadium}</span>
-          <span class="match-num">M${m.match_id}</span>
+      finalHtml += `
+        <div class="mobile-match-card ${cardStateClass} ${r.cssClass}">
+          <div class="mobile-match-header">
+            <span>${formattedDate} · ${stadium}</span>
+            <span class="match-num">M${m.match_id}</span>
+          </div>
+          <div class="mobile-team-row ${ph1 ? 'placeholder' : ''} ${team1WinnerClass}"
+               onclick="window.handleBracketTap(${m.match_id}, '${t1Esc}', ${isSelectable})">
+            ${flag1}
+            <span class="${team1NameClass}">${team1Name}</span>
+            <span class="mobile-team-code">${team1Code}</span>
+          </div>
+          <div class="mobile-team-row ${ph2 ? 'placeholder' : ''} ${team2WinnerClass}"
+               onclick="window.handleBracketTap(${m.match_id}, '${t2Esc}', ${isSelectable})">
+            ${flag2}
+            <span class="${team2NameClass}">${team2Name}</span>
+            <span class="mobile-team-code">${team2Code}</span>
+          </div>
         </div>
-        <div class="mobile-team-row ${ph1 ? 'placeholder' : ''} ${team1WinnerClass}"
-             onclick="window.handleBracketTap(${m.match_id}, '${t1Esc}', ${isSelectable})">
-          ${flag1}
-          <span class="${team1NameClass}">${team1Name}</span>
-          <span class="mobile-team-code">${team1Code}</span>
-        </div>
-        <div class="mobile-team-row ${ph2 ? 'placeholder' : ''} ${team2WinnerClass}"
-             onclick="window.handleBracketTap(${m.match_id}, '${t2Esc}', ${isSelectable})">
-          ${flag2}
-          <span class="${team2NameClass}">${team2Name}</span>
-          <span class="mobile-team-code">${team2Code}</span>
-        </div>
-      </div>
-    `;
+      `;
+    });
+
+    finalHtml += '</div>'; // close mobile-round-matches
   });
 
-  cardsHtml += '</div>';
+  finalHtml += '</div>'; // close mobile-bracket-list-container
 
-  container.innerHTML = progressHtml + cardsHtml + tabsHtml;
+  container.innerHTML = finalHtml;
 }
-
-window.switchMobileRound = function(roundKey) {
-  activeMobileRound = roundKey;
-  renderMobileBracket();
-};
 
 window.renderMobileBracket = renderMobileBracket;
 
