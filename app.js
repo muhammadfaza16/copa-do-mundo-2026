@@ -1464,6 +1464,13 @@ function formatCompactMatchDate(dateStr) {
   return `${day} ${months[month - 1]}`;
 }
 
+// Extractor to get only the city name from venue (e.g. "SoFi Stadium, Inglewood" -> "Inglewood")
+function getVenueCity(venueStr) {
+  if (!venueStr) return "";
+  const parts = venueStr.split(',');
+  return parts.length > 1 ? parts[1].trim() : venueStr.trim();
+}
+
 function renderBracket() {
   const container = document.getElementById('bracket-cards-root');
   if (!container) return;
@@ -1527,11 +1534,13 @@ function renderBracket() {
     const formattedFlag1 = flag1 ? flag1.replace('class="flag-crest"', 'class="flag-crest-compact"') : '';
     const formattedFlag2 = flag2 ? flag2.replace('class="flag-crest"', 'class="flag-crest-compact"') : '';
 
+    const dateVenueText = `${formatCompactMatchDate(m.date)} • ${getVenueCity(m.venue)}`;
+
     cardsHtml += `
       <div class="compact-match-card ${cardStateClass} ${roundClass}" 
            style="left: ${coords.x}px; top: ${coords.y}px;"
            title="Laga ${m.match_id} - ${m.venue || ''}">
-        <span class="compact-match-date">${formatCompactMatchDate(m.date)}</span>
+        <span class="compact-match-date">${dateVenueText}</span>
         <!-- Team 1 -->
         <div class="compact-team-row ${isPlaceholder1 ? 'placeholder' : ''} ${team1WinnerClass}"
              ${!isPlaceholder1 ? `data-team="${m.team1}"` : ''}
@@ -1723,13 +1732,19 @@ function renderStandingsPreview() {
   const container = document.getElementById('bracket-standings-preview');
   if (!container) return;
 
+  // Compute maximum matchday played so far
+  const maxPlayed = (teamStats && Object.keys(teamStats).length > 0)
+    ? Math.max(...Object.values(teamStats).map(s => s.played))
+    : 0;
+  const matchdayText = maxPlayed === 0 ? "Sebelum Turnamen" : `Hingga Matchday ${maxPlayed}`;
+
   // 1. Group Standings (Top 2 from each of 12 groups A to L)
   let groupsHtml = '';
   const alphabet = 'ABCDEFGHIJKL';
   
   for (let i = 0; i < alphabet.length; i++) {
     const letter = alphabet[i];
-    const groupName = `Group ${letter}`;
+    const groupName = `Grup ${letter}`;
     const list = groupRankings[groupName] || [];
     
     const team1 = list[0] || '';
@@ -1778,12 +1793,17 @@ function renderStandingsPreview() {
     
     thirdsHtml += `
       <div class="thirds-team-capsule">
-        ${f} <span>${code}</span> <span class="thirds-origin-group">(${t.group.replace('Group ', '')})</span>
+        ${f} <span>${code}</span> <span class="thirds-origin-group">(${t.group.replace('Grup ', '')})</span>
       </div>
     `;
   });
 
   container.innerHTML = `
+    <div class="standings-preview-header" style="margin-bottom: 8px; border-bottom: 1px solid var(--glass-border); padding-bottom: 6px; display: flex; justify-content: space-between; align-items: center;">
+      <span style="font-size: 0.7rem; font-weight: 700; color: var(--primary-gold); font-family: var(--font-display); letter-spacing: 0.5px; text-transform: uppercase;">Proyeksi Klasemen (As It Stands)</span>
+      <span style="font-size: 0.65rem; color: var(--text-secondary); font-weight: 500; background: rgba(255, 255, 255, 0.05); padding: 2px 6px; border-radius: 4px; border: 1px solid var(--glass-border);">${matchdayText}</span>
+    </div>
+
     <div class="preview-row-title">Lolos Otomatis (Juara &amp; Runner-up)</div>
     <div class="standings-groups-scroll">
       ${groupsHtml}
