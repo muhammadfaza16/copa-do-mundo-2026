@@ -1398,7 +1398,7 @@ function getTeamCode(teamName) {
     return "2" + clean.replace("Runner-up Grup ", "");
   }
   if (clean.startsWith("3rd Grup ")) {
-    return "3" + clean.replace("3rd Grup ", "");
+    return "3RD";
   }
   if (clean.startsWith("Winner Match ")) {
     return "W" + clean.replace("Winner Match ", "");
@@ -1417,50 +1417,50 @@ function getTeamCode(teamName) {
 
 const COMPACT_COORDINATES = {
   // Left Wing (Outer Left R32, Column 2 Upper R16, Stack Top R16 & QF)
-  73: { x: 20, y: 178 },  // Column 1 upper top
-  75: { x: 20, y: 264 },  // Column 1 upper bottom
-  83: { x: 20, y: 350 },  // Column 1 lower top
-  84: { x: 20, y: 436 },  // Column 1 lower bottom
+  73: { x: 30, y: 230 },  // Column 1 upper top
+  75: { x: 30, y: 330 },  // Column 1 upper bottom
+  83: { x: 30, y: 390 },  // Column 1 lower top
+  84: { x: 30, y: 490 },  // Column 1 lower bottom
   
-  89: { x: 190, y: 135 }, // Stack Top R16
-  90: { x: 105, y: 221 }, // Column 2 Upper R16
-  97: { x: 190, y: 221 }, // Stack QF Upper
+  89: { x: 290, y: 200 }, // Stack Top R16
+  90: { x: 150, y: 280 }, // Column 2 Upper R16
+  97: { x: 290, y: 280 }, // Stack QF Upper
 
   // Top Wing (Top and Bottom Horizontal R32 Matches, and Stack Bottom R16 & QF)
-  74: { x: 147, y: 49 },  // Top horizontal left (GER)
-  77: { x: 233, y: 49 },  // Top horizontal right (FRA)
-  81: { x: 147, y: 565 }, // Bottom horizontal left (USA)
-  82: { x: 233, y: 565 }, // Bottom horizontal right (BEL)
+  74: { x: 200, y: 80 },  // Top horizontal left (GER)
+  77: { x: 380, y: 80 },  // Top horizontal right (FRA)
+  81: { x: 200, y: 640 }, // Bottom horizontal left (USA)
+  82: { x: 380, y: 640 }, // Bottom horizontal right (BEL)
   
-  93: { x: 105, y: 393 }, // Column 2 Lower R16
-  94: { x: 190, y: 479 }, // Stack Bottom R16
-  98: { x: 190, y: 393 }, // Stack QF Lower
+  93: { x: 150, y: 440 }, // Column 2 Lower R16
+  94: { x: 290, y: 520 }, // Stack Bottom R16
+  98: { x: 290, y: 440 }, // Stack QF Lower
 
   // Right Wing (Outer Right R32, Column 6 Upper R16, Stack Top Right R16 & QF)
-  76: { x: 317, y: 49 },  // Top-right horizontal left (BRA)
-  78: { x: 403, y: 49 },  // Top-right horizontal right (ECU)
-  79: { x: 530, y: 178 }, // Column 7 upper top
-  80: { x: 530, y: 264 }, // Column 7 upper bottom
+  76: { x: 496, y: 80 },  // Top-right horizontal left (BRA)
+  78: { x: 676, y: 80 },  // Top-right horizontal right (ECU)
+  79: { x: 846, y: 230 }, // Column 7 upper top
+  80: { x: 846, y: 330 }, // Column 7 upper bottom
   
-  91: { x: 360, y: 135 }, // Stack Top Right R16
-  92: { x: 445, y: 221 }, // Column 6 Upper R16
-  99: { x: 360, y: 221 }, // Stack QF Upper Right
+  91: { x: 586, y: 200 }, // Stack Top Right R16
+  92: { x: 726, y: 280 }, // Column 6 Upper R16
+  99: { x: 586, y: 280 }, // Stack QF Upper Right
 
   // Bottom Wing (Column 7 lower R32, Bottom-right horizontal R32)
-  85: { x: 530, y: 350 }, // Column 7 lower top
-  86: { x: 530, y: 436 }, // Column 7 lower bottom
-  87: { x: 317, y: 565 }, // Bottom-right horizontal left (TUR)
-  88: { x: 403, y: 565 }, // Bottom-right horizontal right (ARG)
+  85: { x: 846, y: 390 }, // Column 7 lower top
+  86: { x: 846, y: 490 }, // Column 7 lower bottom
+  87: { x: 496, y: 640 }, // Bottom-right horizontal left (TUR)
+  88: { x: 676, y: 640 }, // Bottom-right horizontal right (ARG)
   
-  95: { x: 445, y: 393 }, // Column 6 Lower R16
-  96: { x: 360, y: 479 }, // Stack Bottom R16 Right
-  100: { x: 360, y: 393 }, // Stack QF Lower Right
+  95: { x: 726, y: 440 }, // Column 6 Lower R16
+  96: { x: 586, y: 520 }, // Stack Bottom R16 Right
+  100: { x: 586, y: 440 }, // Stack QF Lower Right
 
   // Center (Semifinals, Final, Juara 3)
-  101: { x: 190, y: 307 }, // Semifinal 1 (Left)
-  102: { x: 360, y: 307 }, // Semifinal 2 (Right)
-  104: { x: 275, y: 307 }, // Final (Center)
-  103: { x: 275, y: 479 }  // Juara 3 (Bottom Center)
+  101: { x: 290, y: 360 }, // Semifinal 1 (Left)
+  102: { x: 586, y: 360 }, // Semifinal 2 (Right)
+  104: { x: 438, y: 360 }, // Final (Center)
+  103: { x: 438, y: 520 }  // Juara 3 (Bottom Center)
 };
 
 // Formatter to translate date string "29/6" into "29 Jun"
@@ -1548,9 +1548,7 @@ function renderBracket() {
     const formattedFlag1 = flag1 ? flag1.replace('class="flag-crest"', 'class="flag-crest-compact"') : '';
     const formattedFlag2 = flag2 ? flag2.replace('class="flag-crest"', 'class="flag-crest-compact"') : '';
 
-    const formattedDate = getFormattedTime(m.date, m.time).date;
-    const stadium = getVenueStadium(m.venue);
-    const dateVenueText = `M${m.match_id} • ${formattedDate} • ${stadium}`;
+    const dateVenueText = `M${m.match_id}`;
 
     cardsHtml += `
       <div class="compact-match-card ${cardStateClass} ${roundClass}" 
@@ -1578,6 +1576,7 @@ function renderBracket() {
   container.innerHTML = cardsHtml;
   renderBracketLines();
   renderStandingsPreview();
+  renderMobileBracket();
 }
 
 function renderBracketLines() {
@@ -1871,6 +1870,160 @@ window.scrollStandings = function(direction) {
 };
 window.renderStandingsPreview = renderStandingsPreview;
 
+// ==========================================
+// MOBILE BRACKET VIEW — Round-by-Round Cards
+// ==========================================
+
+let activeMobileRound = 'Round of 32';
+
+const MOBILE_ROUND_ORDER = [
+  { key: 'Round of 32', label: '32 Besar', cssClass: 'round-32' },
+  { key: 'Round of 16', label: '16 Besar', cssClass: 'round-16' },
+  { key: 'Quarter-final', label: 'Perempat Final', cssClass: 'round-qf' },
+  { key: 'Semi-final', label: 'Semifinal', cssClass: 'round-sf' },
+  { key: 'Final', label: 'Final', cssClass: 'round-final' },
+  { key: 'Third-place match', label: 'Juara 3', cssClass: 'round-third' }
+];
+
+function isPlaceholderTeam(teamName) {
+  if (!teamName || typeof teamName !== 'string') return false;
+  return (
+    teamName.startsWith('Winner Match') ||
+    teamName.startsWith('Loser Match') ||
+    teamName.startsWith('3rd Grup') ||
+    teamName.startsWith('3rd Group') ||
+    teamName.startsWith('Juara Grup') ||
+    teamName.startsWith('Runner-up Grup') ||
+    teamName.startsWith('Juara Group') ||
+    teamName.startsWith('Runner-up Group')
+  );
+}
+
+function renderMobileBracket() {
+  const container = document.getElementById('mobile-bracket-view');
+  if (!container) return;
+
+  // Group matches by round
+  const matchesByRound = {};
+  MOBILE_ROUND_ORDER.forEach(r => { matchesByRound[r.key] = []; });
+
+  knockoutMatches.forEach(m => {
+    if (matchesByRound[m.group]) {
+      matchesByRound[m.group].push(m);
+    }
+  });
+
+  // Sort matches within each round by match_id
+  for (const key in matchesByRound) {
+    matchesByRound[key].sort((a, b) => a.match_id - b.match_id);
+  }
+
+  // Build round tabs
+  let tabsHtml = '<div class="mobile-round-tabs">';
+  MOBILE_ROUND_ORDER.forEach(r => {
+    const matchCount = matchesByRound[r.key].length;
+    if (matchCount === 0) return;
+    const activeClass = (r.key === activeMobileRound) ? 'active' : '';
+    tabsHtml += `<button class="mobile-round-tab ${activeClass}" data-round="${r.key}" onclick="window.switchMobileRound('${r.key}')">${r.label}</button>`;
+  });
+  tabsHtml += '</div>';
+
+  // Build progress bar for active round
+  const activeRoundMatches = matchesByRound[activeMobileRound] || [];
+  const predicted = activeRoundMatches.filter(m => !!simulatedWinners[m.match_id]).length;
+  const total = activeRoundMatches.length;
+  const pct = total > 0 ? Math.round((predicted / total) * 100) : 0;
+
+  let progressHtml = '';
+  if (total > 0) {
+    progressHtml = `
+      <div class="mobile-round-progress">
+        <div class="progress-track">
+          <div class="progress-fill" style="width: ${pct}%;"></div>
+        </div>
+        <span class="progress-label">${predicted}/${total} prediksi</span>
+      </div>
+    `;
+  }
+
+  // Build match cards for active round
+  const roundMeta = MOBILE_ROUND_ORDER.find(r => r.key === activeMobileRound);
+  const roundCssClass = roundMeta ? roundMeta.cssClass : '';
+  let cardsHtml = '<div class="mobile-round-matches">';
+
+  activeRoundMatches.forEach(m => {
+    const ph1 = isPlaceholderTeam(m.team1);
+    const ph2 = isPlaceholderTeam(m.team2);
+    const winner = simulatedWinners[m.match_id];
+
+    const hasPlaceholders = ph1 || ph2;
+    const hasWinner = !!winner;
+    let cardStateClass = '';
+    if (hasPlaceholders) {
+      cardStateClass = 'match-locked';
+    } else if (hasWinner) {
+      cardStateClass = 'match-predicted';
+    } else {
+      cardStateClass = 'match-ready';
+    }
+
+    const team1WinnerClass = (winner && winner === m.team1) ? 'winner' : (winner ? 'loser' : '');
+    const team2WinnerClass = (winner && winner === m.team2) ? 'winner' : (winner ? 'loser' : '');
+
+    const formattedDate = getFormattedTime(m.date, m.time).date;
+    const stadium = getVenueStadium(m.venue);
+
+    // Flag html
+    const flag1 = !ph1 && m.team1 ? getFlagHtml(m.team1) : (ph1 ? getFlagHtml('') : '');
+    const flag2 = !ph2 && m.team2 ? getFlagHtml(m.team2) : (ph2 ? getFlagHtml('') : '');
+
+    // Team name display
+    const team1Name = m.team1 || '???';
+    const team2Name = m.team2 || '???';
+    const team1Code = getTeamCode(m.team1 || '');
+    const team2Code = getTeamCode(m.team2 || '');
+
+    const team1NameClass = ph1 ? 'mobile-team-name placeholder-text' : 'mobile-team-name';
+    const team2NameClass = ph2 ? 'mobile-team-name placeholder-text' : 'mobile-team-name';
+
+    const t1Esc = m.team1 ? m.team1.replace(/'/g, "\\'") : '';
+    const t2Esc = m.team2 ? m.team2.replace(/'/g, "\\'") : '';
+    const isSelectable = !ph1 && !ph2;
+
+    cardsHtml += `
+      <div class="mobile-match-card ${cardStateClass} ${roundCssClass}">
+        <div class="mobile-match-header">
+          <span>${formattedDate} · ${stadium}</span>
+          <span class="match-num">M${m.match_id}</span>
+        </div>
+        <div class="mobile-team-row ${ph1 ? 'placeholder' : ''} ${team1WinnerClass}"
+             onclick="window.handleBracketTap(${m.match_id}, '${t1Esc}', ${isSelectable})">
+          ${flag1}
+          <span class="${team1NameClass}">${team1Name}</span>
+          <span class="mobile-team-code">${team1Code}</span>
+        </div>
+        <div class="mobile-team-row ${ph2 ? 'placeholder' : ''} ${team2WinnerClass}"
+             onclick="window.handleBracketTap(${m.match_id}, '${t2Esc}', ${isSelectable})">
+          ${flag2}
+          <span class="${team2NameClass}">${team2Name}</span>
+          <span class="mobile-team-code">${team2Code}</span>
+        </div>
+      </div>
+    `;
+  });
+
+  cardsHtml += '</div>';
+
+  container.innerHTML = progressHtml + cardsHtml + tabsHtml;
+}
+
+window.switchMobileRound = function(roundKey) {
+  activeMobileRound = roundKey;
+  renderMobileBracket();
+};
+
+window.renderMobileBracket = renderMobileBracket;
+
 let currentScale = 1;
 let baseScale = 1;
 let hasPinched = false;
@@ -1886,7 +2039,7 @@ function applyScale() {
   container.style.transform = `scale(${currentScale})`;
   container.style.transformOrigin = 'top left';
 
-  const baseHeight = 600;
+  const baseHeight = 760;
   const scaledHeight = baseHeight * currentScale;
 
   // Dynamic bottom padding: decrease when zoomed out, increase when zoomed in
@@ -1900,11 +2053,11 @@ function applyScale() {
   const totalScaffoldingHeight = scaledHeight + paddingBottomVal;
 
   if (scaffolding) {
-    scaffolding.style.width = `${620 * currentScale}px`;
+    scaffolding.style.width = `${960 * currentScale}px`;
     scaffolding.style.height = `${totalScaffoldingHeight}px`;
   }
 
-  const maxWrapperHeight = 600;
+  const maxWrapperHeight = 760;
   const targetWrapperHeight = Math.min(maxWrapperHeight, totalScaffoldingHeight);
   wrapper.style.height = `${targetWrapperHeight}px`;
 
@@ -1930,7 +2083,7 @@ function scaleCompactBracket() {
   if (wrapperWidth === 0) return;
 
   const targetWidth = Math.max(280, wrapperWidth - 16);
-  baseScale = targetWidth / 620;
+  baseScale = targetWidth / 960;
 
   const toggle = document.getElementById('bracket-zoom-toggle');
   if (toggle && toggle.checked) {
@@ -1944,15 +2097,28 @@ function scaleCompactBracket() {
 window.scaleCompactBracket = scaleCompactBracket;
 
 window.toggleBracketZoom = function(isZoomed) {
+  // Toggle map-mode class for mobile view switching
+  const mobileView = document.getElementById('mobile-bracket-view');
+  const compactWrapper = document.querySelector('.compact-bracket-wrapper');
+  const legend = document.querySelector('.bracket-legend');
+
   if (isZoomed) {
+    // Switch to compact radial map view
+    if (mobileView) mobileView.classList.add('map-mode');
+    if (compactWrapper) compactWrapper.classList.add('map-mode');
+    if (legend) legend.classList.add('map-mode');
     currentScale = 1.35;
   } else {
+    // Switch back to mobile list view
+    if (mobileView) mobileView.classList.remove('map-mode');
+    if (compactWrapper) compactWrapper.classList.remove('map-mode');
+    if (legend) legend.classList.remove('map-mode');
     const wrapper = document.querySelector('.compact-bracket-wrapper');
     if (wrapper) {
       const wrapperWidth = wrapper.clientWidth;
       if (wrapperWidth > 0) {
         const targetWidth = Math.max(280, wrapperWidth - 16);
-        baseScale = targetWidth / 620;
+        baseScale = targetWidth / 960;
       }
     }
     currentScale = baseScale;

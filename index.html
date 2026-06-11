@@ -190,20 +190,23 @@
       <!-- Standings Preview Panel -->
       <div id="bracket-standings-preview" class="bracket-standings-preview"></div>
 
-      <!-- Zoom Switch Toggle -->
-      <div class="switch-container">
+      <!-- Mobile Bracket View (Round-by-Round Card List) -->
+      <div id="mobile-bracket-view" class="mobile-bracket-view"></div>
+
+      <!-- View Mode Switch Toggle -->
+      <div class="switch-container" id="bracket-view-switch">
         <label class="switch">
           <input type="checkbox" id="bracket-zoom-toggle" onchange="window.toggleBracketZoom(this.checked)">
           <span class="slider"></span>
         </label>
-        <span>Zoom</span>
+        <span>Tampilan Peta</span>
       </div>
  
       <div class="compact-bracket-wrapper">
         <div class="bracket-scroll-scaffolding" id="bracket-scroll-scaffolding">
           <div class="compact-bracket-container" id="compact-bracket-container">
-            <svg id="bracket-svg-connections" width="620" height="600" style="position: absolute; top: 0; left: 0; pointer-events: none; z-index: 1;"></svg>
-            <div id="bracket-cards-root" style="position: relative; width: 620px; height: 600px; z-index: 2;"></div>
+            <svg id="bracket-svg-connections" width="960" height="760" style="position: absolute; top: 0; left: 0; pointer-events: none; z-index: 1;"></svg>
+            <div id="bracket-cards-root" style="position: relative; width: 960px; height: 760px; z-index: 2;"></div>
           </div>
         </div>
       </div>
