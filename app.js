@@ -1796,44 +1796,62 @@ window.closeSlotModal = function() {
 
 
 
-window.scrollBracketToEdge = function(direction) {
+window.scrollToBracketColumn = function(colIdx) {
   const container = document.getElementById('bracket-scroll-container');
   if (!container) return;
-
-  if (direction === 'left') {
-    container.scrollTo({
-      left: 0,
-      behavior: 'smooth'
-    });
-  } else if (direction === 'right') {
-    container.scrollTo({
-      left: container.scrollWidth,
-      behavior: 'smooth'
-    });
-  }
+  const columns = container.querySelectorAll('.bracket-column');
+  if (columns.length <= colIdx) return;
+  
+  const targetCol = columns[colIdx];
+  const containerWidth = container.clientWidth;
+  
+  const targetScrollLeft = targetCol.offsetLeft - (containerWidth / 2) + (targetCol.clientWidth / 2);
+  
+  container.scrollTo({
+    left: targetScrollLeft,
+    behavior: 'smooth'
+  });
+  
+  // Highlight active button manually (in addition to scroll listener to be immediate)
+  const buttons = document.querySelectorAll('.bracket-round-btn');
+  buttons.forEach((btn, idx) => {
+    if (idx === colIdx) {
+      btn.classList.add('active');
+    } else {
+      btn.classList.remove('active');
+    }
+  });
 };
 
-window.centerBracketVertical = function() {
-  const bracket = document.getElementById('bracket-root');
-  if (!bracket) return;
-
-  const rect = bracket.getBoundingClientRect();
-  const bracketCenterViewportY = rect.top + rect.height / 2;
-
-  // Dynamically calculate unobstructed viewport heights
-  const header = document.querySelector('header');
-  const bottomNav = document.querySelector('.bottom-nav');
-  const headerHeight = header ? header.getBoundingClientRect().height : 60;
-  const bottomNavHeight = bottomNav ? (window.innerHeight - bottomNav.getBoundingClientRect().top) : 92;
-
-  // Unobstructed center of the viewport
-  const unobstructedCenterY = headerHeight + (window.innerHeight - headerHeight - bottomNavHeight) / 2;
-
-  const targetScrollY = window.scrollY + bracketCenterViewportY - unobstructedCenterY;
-
-  window.scrollTo({
-    top: targetScrollY,
-    behavior: 'smooth'
+window.syncBracketRoundTabs = function() {
+  const container = document.getElementById('bracket-scroll-container');
+  if (!container) return;
+  const columns = container.querySelectorAll('.bracket-column');
+  if (columns.length === 0) return;
+  
+  const containerRect = container.getBoundingClientRect();
+  const containerCenter = containerRect.left + containerRect.width / 2;
+  
+  let closestIdx = 0;
+  let minDistance = Infinity;
+  
+  columns.forEach((col, idx) => {
+    const colRect = col.getBoundingClientRect();
+    const colCenter = colRect.left + colRect.width / 2;
+    const distance = Math.abs(colCenter - containerCenter);
+    if (distance < minDistance) {
+      minDistance = distance;
+      closestIdx = idx;
+    }
+  });
+  
+  const buttons = document.querySelectorAll('.bracket-round-btn');
+  buttons.forEach((btn, idx) => {
+    if (idx === closestIdx) {
+      btn.classList.add('active');
+    } else {
+      btn.classList.remove('active');
+    }
   });
 };
 
@@ -1901,13 +1919,6 @@ function initNavigation() {
       activeTab = item.getAttribute('data-tab');
       document.getElementById(activeTab).classList.add('active');
 
-      // Toggle center button visibility based on active tab
-      if (activeTab === 'tab-bracket') {
-        document.body.classList.add('bracket-active');
-      } else {
-        document.body.classList.remove('bracket-active');
-      }
-
       // Specific tab triggers
       if (activeTab === 'tab-schedule') {
         renderSchedule();
@@ -1915,6 +1926,10 @@ function initNavigation() {
         renderGroups();
       } else if (activeTab === 'tab-bracket') {
         renderBracket();
+        // Reset horizontal scroll view to first column and sync switcher highlight
+        setTimeout(() => {
+          window.scrollToBracketColumn(0);
+        }, 50);
       } else if (activeTab === 'tab-home') {
         renderFavorites();
         renderNearestMatches();
@@ -2279,6 +2294,17 @@ function mapApiStageToLocal(apiStage) {
 document.addEventListener('DOMContentLoaded', () => {
   initCountdown();
   initNavigation();
+  
+  // Bind horizontal scroll listener to sync bracket sub-tabs
+  const scrollContainer = document.getElementById('bracket-scroll-container');
+  if (scrollContainer) {
+    scrollContainer.addEventListener('scroll', () => {
+      if (window.syncBracketRoundTabs) {
+        window.syncBracketRoundTabs();
+      }
+    });
+  }
+
   initSettingsAndFilters();
   
   // Render default home view parts
