@@ -1478,7 +1478,7 @@ function renderBracket() {
 
       if (isThirdPlace) {
         matchesHtml += `
-          <div class="bracket-third-place-wrapper">
+          <div class="bracket-third-place-wrapper" style="position: absolute; top: 1380px; left: 0; right: 0; margin-top: 0;">
             <div class="bracket-third-place-header" style="font-size: 0.65rem; font-weight: 700; color: var(--primary-gold); text-align: center; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px;">Perebutan Juara 3</div>
             ${matchBoxHtml}
           </div>
