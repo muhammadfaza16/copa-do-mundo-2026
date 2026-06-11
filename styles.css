@@ -2219,10 +2219,11 @@ body.light-theme .welcome-mascot-side {
   text-align: center;
   overflow: auto !important;
   cursor: grab;
-  scrollbar-width: thin;
+  scrollbar-width: none !important;
+  -ms-overflow-style: none !important;
   width: 100%;
   position: relative;
-  margin: 12px 0 32px 0;
+  margin: 12px 0 16px 0;
   min-height: 600px;
 }
 
@@ -2440,7 +2441,7 @@ body.light-theme .bracket-line-inactive {
   align-items: center;
   gap: 14px;
   flex-wrap: wrap;
-  margin: 16px auto 8px auto;
+  margin: 10px auto 8px auto;
   padding: 6px 12px;
   max-width: 620px;
   background: transparent;
@@ -2479,7 +2480,7 @@ body.light-theme .bracket-line-inactive {
   display: flex;
   align-items: center;
   gap: 8px;
-  margin: 10px auto 16px auto;
+  margin: 10px auto 16px 12px;
   width: max-content;
   z-index: 20;
   position: relative;

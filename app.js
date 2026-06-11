@@ -1727,14 +1727,26 @@ function applyScale() {
   container.style.transform = `scale(${currentScale})`;
   container.style.transformOrigin = 'top left';
 
-  const scaledHeight = 600 * currentScale;
+  const baseHeight = 600;
+  const scaledHeight = baseHeight * currentScale;
+
+  // Dynamic bottom padding: decrease when zoomed out, increase when zoomed in
+  let paddingBottomVal = 0;
+  if (currentScale > baseScale) {
+    paddingBottomVal = 60 * currentScale;
+  } else {
+    paddingBottomVal = 10 * currentScale;
+  }
+
+  const totalScaffoldingHeight = scaledHeight + paddingBottomVal;
+
   if (scaffolding) {
     scaffolding.style.width = `${620 * currentScale}px`;
-    scaffolding.style.height = `${scaledHeight}px`;
+    scaffolding.style.height = `${totalScaffoldingHeight}px`;
   }
 
   const maxWrapperHeight = 600;
-  const targetWrapperHeight = Math.min(maxWrapperHeight, scaledHeight);
+  const targetWrapperHeight = Math.min(maxWrapperHeight, totalScaffoldingHeight);
   wrapper.style.height = `${targetWrapperHeight}px`;
 }
 
