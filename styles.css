@@ -2222,13 +2222,13 @@ body.light-theme .welcome-mascot-side {
   width: 100%;
   position: relative;
   margin: 12px 0 32px 0;
-  min-height: 650px;
+  min-height: 600px;
 }
 
 .compact-bracket-container {
   position: relative;
-  width: 650px;
-  height: 650px;
+  width: 600px;
+  height: 600px;
   transform-origin: top center;
   transition: transform 0.25s ease-out;
   flex-shrink: 0;
@@ -2236,7 +2236,7 @@ body.light-theme .welcome-mascot-side {
 
 .compact-match-card {
   position: absolute;
-  width: 84px;
+  width: 70px;
   height: 36px;
   display: flex;
   flex-direction: column;
@@ -2451,7 +2451,7 @@ body.light-theme .compact-match-card.round-third {
   flex-wrap: wrap;
   margin: 0 auto 16px auto;
   padding: 8px 16px;
-  max-width: 650px;
+  max-width: 600px;
   background: var(--panel-bg);
   border: 1px solid var(--glass-border);
   border-radius: var(--border-radius-md);

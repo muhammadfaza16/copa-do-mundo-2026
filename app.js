@@ -1552,7 +1552,7 @@ function renderBracketLines() {
   const svg = document.getElementById('bracket-svg-connections');
   if (!svg) return;
 
-  const cardWidth = 84;
+  const cardWidth = 70;
   const cardHeight = 36;
   let pathsHtml = '';
 
@@ -1613,16 +1613,16 @@ function renderBracketLines() {
     let d = '';
 
     if (conn.type === 'vertical-down') {
-      x_start = fromCoords.x + 42;
+      x_start = fromCoords.x + cardWidth / 2;
       y_start = fromCoords.y + cardHeight;
-      x_end = toCoords.x + 42;
+      x_end = toCoords.x + cardWidth / 2;
       y_end = toCoords.y;
       const ym = (y_start + y_end) / 2;
       d = `M ${x_start} ${y_start} V ${ym} H ${x_end} V ${y_end}`;
     } else if (conn.type === 'vertical-up') {
-      x_start = fromCoords.x + 42;
+      x_start = fromCoords.x + cardWidth / 2;
       y_start = fromCoords.y;
-      x_end = toCoords.x + 42;
+      x_end = toCoords.x + cardWidth / 2;
       y_end = toCoords.y + cardHeight;
       const ym = (y_start + y_end) / 2;
       d = `M ${x_start} ${y_start} V ${ym} H ${x_end} V ${y_end}`;
@@ -1652,7 +1652,7 @@ function renderBracketLines() {
       }
       d = `M ${x_start} ${y_start} H ${x_end}`;
     } else if (conn.type === 'vertical-straight') {
-      x_start = fromCoords.x + 42;
+      x_start = fromCoords.x + cardWidth / 2;
       if (fromCoords.y < toCoords.y) {
         y_start = fromCoords.y + cardHeight;
         y_end = toCoords.y;
@@ -1674,13 +1674,13 @@ function renderBracketLines() {
       d = `M ${x_start} ${y_start} H ${x_end}`;
     } else if (conn.type === 'center-third') {
       if (fromCoords.x < toCoords.x) {
-        x_start = fromCoords.x + cardWidth + 4.5;
+        x_start = fromCoords.x + cardWidth + 7.5;
         y_start = fromCoords.y + 18;
         x_end = toCoords.x;
         y_end = toCoords.y + 18;
         d = `M ${x_start} ${y_start} V ${y_end} H ${x_end}`;
       } else {
-        x_start = fromCoords.x - 4.5;
+        x_start = fromCoords.x - 7.5;
         y_start = fromCoords.y + 18;
         x_end = toCoords.x + cardWidth;
         y_end = toCoords.y + 18;
@@ -1725,7 +1725,7 @@ function applyScale() {
 
   container.style.transform = `scale(${currentScale})`;
   container.style.transformOrigin = 'top center';
-  wrapper.style.height = `${650 * currentScale}px`;
+  wrapper.style.height = `${600 * currentScale}px`;
 }
 
 function scaleCompactBracket() {
@@ -1737,7 +1737,7 @@ function scaleCompactBracket() {
   if (wrapperWidth === 0) return;
 
   const targetWidth = Math.max(280, wrapperWidth - 16);
-  baseScale = targetWidth / 650;
+  baseScale = targetWidth / 600;
 
   if (!hasPinched) {
     currentScale = baseScale;
