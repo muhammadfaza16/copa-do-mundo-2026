@@ -1413,46 +1413,46 @@ function getTeamCode(teamName) {
 
 const COMPACT_COORDINATES = {
   // Left Wing (Bottom-Left)
-  74: { x: 10, y: 130 },
-  77: { x: 10, y: 190 },
-  73: { x: 10, y: 424 },
-  75: { x: 10, y: 484 },
-  89: { x: 100, y: 160 },
-  90: { x: 100, y: 454 },
-  97: { x: 190, y: 454 },
+  74: { x: 12, y: 182 },
+  77: { x: 12, y: 272 },
+  73: { x: 12, y: 342 },
+  75: { x: 12, y: 432 },
+  89: { x: 106, y: 227 },
+  90: { x: 106, y: 387 },
+  97: { x: 200, y: 307 },
 
   // Top Wing (Top-Left)
-  83: { x: 142, y: 30 },
-  84: { x: 236, y: 30 },
-  81: { x: 330, y: 30 },
-  82: { x: 424, y: 30 },
-  93: { x: 189, y: 95 },
-  94: { x: 377, y: 95 },
-  98: { x: 190, y: 160 },
+  83: { x: 143, y: 20 },
+  84: { x: 239, y: 20 },
+  81: { x: 327, y: 20 },
+  82: { x: 423, y: 20 },
+  93: { x: 191, y: 105 },
+  94: { x: 375, y: 105 },
+  98: { x: 283, y: 190 },
 
   // Right Wing (Top-Right)
-  76: { x: 556, y: 130 },
-  78: { x: 556, y: 190 },
-  79: { x: 556, y: 424 },
-  80: { x: 556, y: 484 },
-  91: { x: 466, y: 160 },
-  92: { x: 466, y: 454 },
-  99: { x: 376, y: 160 },
+  76: { x: 554, y: 182 },
+  78: { x: 554, y: 272 },
+  79: { x: 554, y: 342 },
+  80: { x: 554, y: 432 },
+  91: { x: 460, y: 227 },
+  92: { x: 460, y: 387 },
+  99: { x: 366, y: 307 },
 
   // Bottom Wing (Bottom-Right)
-  85: { x: 142, y: 584 },
-  86: { x: 236, y: 584 },
-  87: { x: 330, y: 584 },
-  88: { x: 424, y: 584 },
-  95: { x: 189, y: 519 },
-  96: { x: 377, y: 519 },
-  100: { x: 376, y: 454 },
+  85: { x: 143, y: 594 },
+  86: { x: 239, y: 594 },
+  87: { x: 327, y: 594 },
+  88: { x: 423, y: 594 },
+  95: { x: 191, y: 509 },
+  96: { x: 375, y: 509 },
+  100: { x: 283, y: 424 },
 
   // Center
-  101: { x: 190, y: 307 }, // Semifinal 1
-  102: { x: 376, y: 307 }, // Semifinal 2
+  101: { x: 200, y: 248 }, // Semifinal 1
+  102: { x: 366, y: 366 }, // Semifinal 2
   104: { x: 283, y: 307 }, // Final
-  103: { x: 283, y: 454 }  // Juara 3
+  103: { x: 283, y: 425 }  // Juara 3
 };
 
 function renderBracket() {
@@ -1504,6 +1504,14 @@ function renderBracket() {
       cardStateClass = 'match-ready';
     }
 
+    let roundClass = '';
+    if (m.group === "Round of 32") roundClass = "round-32";
+    else if (m.group === "Round of 16") roundClass = "round-16";
+    else if (m.group === "Quarter-final") roundClass = "round-qf";
+    else if (m.group === "Semi-final") roundClass = "round-sf";
+    else if (m.group === "Third-place match") roundClass = "round-third";
+    else if (m.group === "Final") roundClass = "round-final";
+
     const flag1 = !isPlaceholder1 && m.team1 ? getFlagHtml(m.team1) : '';
     const flag2 = !isPlaceholder2 && m.team2 ? getFlagHtml(m.team2) : '';
 
@@ -1511,7 +1519,7 @@ function renderBracket() {
     const formattedFlag2 = flag2 ? flag2.replace('class="flag-crest"', 'class="flag-crest-compact"') : '';
 
     cardsHtml += `
-      <div class="compact-match-card ${cardStateClass}" 
+      <div class="compact-match-card ${cardStateClass} ${roundClass}" 
            style="left: ${coords.x}px; top: ${coords.y}px;"
            title="Laga ${m.match_id} - ${m.venue || ''}">
         <!-- Team 1 -->
@@ -1604,78 +1612,106 @@ function renderBracketLines() {
     let x_start, y_start, x_end, y_end;
     let d = '';
 
-    if (conn.type === 'horizontal-right') {
-      x_start = fromCoords.x + cardWidth;
-      y_start = fromCoords.y + 18;
-      x_end = toCoords.x;
-      y_end = toCoords.y + (isTeam1 ? 9 : 27);
-      const x_mid = (x_start + x_end) / 2;
-      d = `M ${x_start} ${y_start} H ${x_mid} V ${y_end} H ${x_end}`;
-    } else if (conn.type === 'horizontal-left') {
-      x_start = fromCoords.x;
-      y_start = fromCoords.y + 18;
-      x_end = toCoords.x + cardWidth;
-      y_end = toCoords.y + (isTeam1 ? 9 : 27);
-      const x_mid = (x_start + x_end) / 2;
-      d = `M ${x_start} ${y_start} H ${x_mid} V ${y_end} H ${x_end}`;
-    } else if (conn.type === 'vertical-down') {
-      x_start = fromCoords.x + 42;
-      y_start = fromCoords.y + cardHeight;
-      x_end = toCoords.x + (isTeam1 ? 28 : 56);
-      y_end = toCoords.y;
-      const y_mid = (y_start + y_end) / 2;
-      d = `M ${x_start} ${y_start} V ${y_mid} H ${x_end} V ${y_end}`;
-    } else if (conn.type === 'vertical-up') {
+    // Custom symmetrical connection path logic for clean radial layout
+    if (conn.from === 97 && conn.to === 101) {
+      // Left QF to Left SF (straight up)
       x_start = fromCoords.x + 42;
       y_start = fromCoords.y;
-      x_end = toCoords.x + (isTeam1 ? 28 : 56);
+      x_end = toCoords.x + 42;
       y_end = toCoords.y + cardHeight;
-      const y_mid = (y_start + y_end) / 2;
-      d = `M ${x_start} ${y_start} V ${y_mid} H ${x_end} V ${y_end}`;
-    } else if (conn.type === 'vertical-straight') {
-      if (fromCoords.y > toCoords.y) {
-        x_start = fromCoords.x + 42;
-        y_start = fromCoords.y;
-        x_end = toCoords.x + 42;
-        y_end = toCoords.y + cardHeight;
-      } else {
-        x_start = fromCoords.x + 42;
-        y_start = fromCoords.y + cardHeight;
-        x_end = toCoords.x + 42;
-        y_end = toCoords.y;
-      }
       d = `M ${x_start} ${y_start} V ${y_end}`;
-    } else if (conn.type === 'center-final') {
-      if (fromCoords.x < toCoords.x) {
+    } else if (conn.from === 98 && conn.to === 101) {
+      // Top QF to Left SF (horizontal then vertical)
+      x_start = fromCoords.x;
+      y_start = fromCoords.y + 18;
+      x_end = toCoords.x + 42;
+      y_end = toCoords.y;
+      d = `M ${x_start} ${y_start} H ${x_end} V ${y_end}`;
+    } else if (conn.from === 99 && conn.to === 102) {
+      // Right QF to Right SF (straight down)
+      x_start = fromCoords.x + 42;
+      y_start = fromCoords.y + cardHeight;
+      x_end = toCoords.x + 42;
+      y_end = toCoords.y;
+      d = `M ${x_start} ${y_start} V ${y_end}`;
+    } else if (conn.from === 100 && conn.to === 102) {
+      // Bottom QF to Right SF (horizontal then vertical)
+      x_start = fromCoords.x + cardWidth;
+      y_start = fromCoords.y + 18;
+      x_end = toCoords.x + 42;
+      y_end = toCoords.y + cardHeight;
+      d = `M ${x_start} ${y_start} H ${x_end} V ${y_end}`;
+    } else if (conn.from === 101 && conn.to === 104) {
+      // Left SF to Final (vertical down then horizontal right)
+      x_start = fromCoords.x + 42;
+      y_start = fromCoords.y + cardHeight;
+      x_end = toCoords.x;
+      y_end = toCoords.y + 9;
+      d = `M ${x_start} ${y_start} V ${y_end} H ${x_end}`;
+    } else if (conn.from === 102 && conn.to === 104) {
+      // Right SF to Final (vertical up then horizontal left)
+      x_start = fromCoords.x + 42;
+      y_start = fromCoords.y;
+      x_end = toCoords.x + cardWidth;
+      y_end = toCoords.y + 27;
+      d = `M ${x_start} ${y_start} V ${y_end} H ${x_end}`;
+    } else if (conn.from === 101 && conn.to === 103) {
+      // Left SF to 3rd Place (vertical down then horizontal right)
+      x_start = fromCoords.x + 42;
+      y_start = fromCoords.y + cardHeight;
+      x_end = toCoords.x;
+      y_end = toCoords.y + 9;
+      d = `M ${x_start} ${y_start} V ${y_end} H ${x_end}`;
+    } else if (conn.from === 102 && conn.to === 103) {
+      // Right SF to 3rd Place (vertical down then horizontal left)
+      x_start = fromCoords.x + 42;
+      y_start = fromCoords.y + cardHeight;
+      x_end = toCoords.x + cardWidth;
+      y_end = toCoords.y + 27;
+      d = `M ${x_start} ${y_start} V ${y_end} H ${x_end}`;
+    } else {
+      // Standard tree connections (R32 -> R16 -> QF)
+      if (conn.type === 'horizontal-right') {
         x_start = fromCoords.x + cardWidth;
         y_start = fromCoords.y + 18;
         x_end = toCoords.x;
-        y_end = toCoords.y + 9;
+        y_end = toCoords.y + (isTeam1 ? 9 : 27);
         const x_mid = (x_start + x_end) / 2;
         d = `M ${x_start} ${y_start} H ${x_mid} V ${y_end} H ${x_end}`;
-      } else {
+      } else if (conn.type === 'horizontal-left') {
         x_start = fromCoords.x;
         y_start = fromCoords.y + 18;
         x_end = toCoords.x + cardWidth;
-        y_end = toCoords.y + 27;
+        y_end = toCoords.y + (isTeam1 ? 9 : 27);
         const x_mid = (x_start + x_end) / 2;
         d = `M ${x_start} ${y_start} H ${x_mid} V ${y_end} H ${x_end}`;
-      }
-    } else if (conn.type === 'center-third') {
-      if (fromCoords.x < toCoords.x) {
-        x_start = fromCoords.x + cardWidth - 20;
+      } else if (conn.type === 'vertical-down') {
+        x_start = fromCoords.x + 42;
         y_start = fromCoords.y + cardHeight;
-        x_end = toCoords.x;
-        y_end = toCoords.y + 9;
-        const x_mid = (x_start + x_end) / 2;
-        d = `M ${x_start} ${y_start} V ${y_start + 15} H ${x_mid} V ${y_end} H ${x_end}`;
-      } else {
-        x_start = fromCoords.x + 20;
-        y_start = fromCoords.y + cardHeight;
-        x_end = toCoords.x + cardWidth;
-        y_end = toCoords.y + 27;
-        const x_mid = (x_start + x_end) / 2;
-        d = `M ${x_start} ${y_start} V ${y_start + 15} H ${x_mid} V ${y_end} H ${x_end}`;
+        x_end = toCoords.x + (isTeam1 ? 28 : 56);
+        y_end = toCoords.y;
+        const y_mid = (y_start + y_end) / 2;
+        d = `M ${x_start} ${y_start} V ${y_mid} H ${x_end} V ${y_end}`;
+      } else if (conn.type === 'vertical-up') {
+        x_start = fromCoords.x + 42;
+        y_start = fromCoords.y;
+        x_end = toCoords.x + (isTeam1 ? 28 : 56);
+        y_end = toCoords.y + cardHeight;
+        const y_mid = (y_start + y_end) / 2;
+        d = `M ${x_start} ${y_start} V ${y_mid} H ${x_end} V ${y_end}`;
+      } else if (conn.type === 'vertical-straight') {
+        if (fromCoords.y > toCoords.y) {
+          x_start = fromCoords.x + 42;
+          y_start = fromCoords.y;
+          x_end = toCoords.x + 42;
+          y_end = toCoords.y + cardHeight;
+        } else {
+          x_start = fromCoords.x + 42;
+          y_start = fromCoords.y + cardHeight;
+          x_end = toCoords.x + 42;
+          y_end = toCoords.y;
+        }
+        d = `M ${x_start} ${y_start} V ${y_end}`;
       }
     }
 
@@ -1688,6 +1724,22 @@ function renderBracketLines() {
   svg.innerHTML = pathsHtml;
 }
 
+let currentScale = 1;
+let baseScale = 1;
+let hasPinched = false;
+
+function applyScale() {
+  const wrapper = document.querySelector('.compact-bracket-wrapper');
+  const container = document.getElementById('compact-bracket-container');
+  if (!wrapper || !container) return;
+
+  currentScale = Math.max(0.25, Math.min(currentScale, 2.5));
+
+  container.style.transform = `scale(${currentScale})`;
+  container.style.transformOrigin = 'top center';
+  wrapper.style.height = `${650 * currentScale}px`;
+}
+
 function scaleCompactBracket() {
   const wrapper = document.querySelector('.compact-bracket-wrapper');
   const container = document.getElementById('compact-bracket-container');
@@ -1697,18 +1749,56 @@ function scaleCompactBracket() {
   if (wrapperWidth === 0) return;
 
   const targetWidth = Math.max(280, wrapperWidth - 16);
-  const scale = targetWidth / 650;
+  baseScale = targetWidth / 650;
 
-  if (scale < 1) {
-    container.style.transform = `scale(${scale})`;
-    container.style.transformOrigin = 'top center';
-    wrapper.style.height = `${650 * scale}px`;
-  } else {
-    container.style.transform = 'none';
-    wrapper.style.height = '650px';
+  if (!hasPinched) {
+    currentScale = baseScale;
   }
+
+  applyScale();
 }
 window.scaleCompactBracket = scaleCompactBracket;
+
+function initBracketTouchGestures() {
+  const wrapper = document.querySelector('.compact-bracket-wrapper');
+  if (!wrapper) return;
+
+  let initialDistance = null;
+  let startScale = 1;
+
+  wrapper.addEventListener('touchstart', (e) => {
+    if (e.touches.length === 2) {
+      initialDistance = getTouchDistance(e.touches[0], e.touches[1]);
+      startScale = currentScale;
+    }
+  }, { passive: false });
+
+  wrapper.addEventListener('touchmove', (e) => {
+    if (e.touches.length === 2 && initialDistance !== null) {
+      e.preventDefault();
+      hasPinched = true;
+
+      const currentDistance = getTouchDistance(e.touches[0], e.touches[1]);
+      const factor = currentDistance / initialDistance;
+      currentScale = startScale * factor;
+
+      applyScale();
+    }
+  }, { passive: false });
+
+  wrapper.addEventListener('touchend', (e) => {
+    if (e.touches.length < 2) {
+      initialDistance = null;
+    }
+  });
+
+  function getTouchDistance(t1, t2) {
+    const dx = t1.clientX - t2.clientX;
+    const dy = t1.clientY - t2.clientY;
+    return Math.sqrt(dx * dx + dy * dy);
+  }
+}
+window.initBracketTouchGestures = initBracketTouchGestures;
 
 // Selects 3rd-place team Group mapping in simulator
 window.select3rdPlaceGroup = function(matchId, groupName) {
@@ -2446,6 +2536,9 @@ document.addEventListener('DOMContentLoaded', () => {
       scaleCompactBracket();
     }
   });
+
+  // Initialize pinch-to-zoom gestures
+  initBracketTouchGestures();
 
   initSettingsAndFilters();
   

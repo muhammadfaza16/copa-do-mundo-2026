@@ -2333,4 +2333,57 @@ body.light-theme .bracket-line-inactive {
   stroke: rgba(0, 0, 0, 0.08);
 }
 
+/* Round-Specific Symmetrical Color Coding */
+.compact-match-card.round-32 {
+  border-color: rgba(99, 102, 241, 0.35); /* Indigo */
+}
+.compact-match-card.round-32.match-predicted {
+  border-color: #6366f1;
+  box-shadow: 0 0 8px rgba(99, 102, 241, 0.3);
+}
+
+.compact-match-card.round-16 {
+  border-color: rgba(20, 184, 166, 0.35); /* Teal */
+}
+.compact-match-card.round-16.match-predicted {
+  border-color: #14b8a6;
+  box-shadow: 0 0 8px rgba(20, 184, 166, 0.3);
+}
+
+.compact-match-card.round-qf {
+  border-color: rgba(168, 85, 247, 0.35); /* Purple/Violet */
+}
+.compact-match-card.round-qf.match-predicted {
+  border-color: #a855f7;
+  box-shadow: 0 0 8px rgba(168, 85, 247, 0.3);
+}
+
+.compact-match-card.round-sf {
+  border-color: rgba(249, 115, 22, 0.35); /* Orange/Amber */
+}
+.compact-match-card.round-sf.match-predicted {
+  border-color: #f97316;
+  box-shadow: 0 0 8px rgba(249, 115, 22, 0.3);
+}
+
+.compact-match-card.round-final {
+  border-color: rgba(234, 179, 8, 0.45); /* Gold */
+  background: rgba(234, 179, 8, 0.05);
+}
+.compact-match-card.round-final.match-predicted {
+  border-color: #eab308;
+  box-shadow: 0 0 12px rgba(234, 179, 8, 0.45);
+}
+body.light-theme .compact-match-card.round-final {
+  background: rgba(234, 179, 8, 0.08);
+}
+
+.compact-match-card.round-third {
+  border-color: rgba(148, 163, 184, 0.35); /* Slate/Bronze */
+}
+.compact-match-card.round-third.match-predicted {
+  border-color: #94a3b8;
+  box-shadow: 0 0 8px rgba(148, 163, 184, 0.3);
+}
+
 
