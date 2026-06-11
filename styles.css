@@ -2217,8 +2217,8 @@ body.light-theme .welcome-mascot-side {
 .compact-bracket-wrapper {
   display: block;
   text-align: center;
-  overflow: auto !important;
-  cursor: grab;
+  overflow: hidden;
+  cursor: default;
   scrollbar-width: none !important;
   -ms-overflow-style: none !important;
   width: 100%;
@@ -2546,13 +2546,6 @@ body.light-theme .slider {
 }
 
 /* Grabbing cursor states for drag scroll */
-.compact-bracket-wrapper {
-  overflow: auto !important;
-  cursor: grab;
-  scrollbar-width: none !important; /* Firefox */
-  -ms-overflow-style: none !important;  /* IE and Edge */
-}
-
 .compact-bracket-wrapper::-webkit-scrollbar {
   display: none !important; /* Chrome, Safari, Opera */
 }
