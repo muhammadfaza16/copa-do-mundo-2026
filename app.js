@@ -1546,6 +1546,7 @@ function renderBracket() {
 
   container.innerHTML = cardsHtml;
   renderBracketLines();
+  renderStandingsPreview();
 }
 
 function renderBracketLines() {
@@ -1711,6 +1712,84 @@ function renderBracketLines() {
 
   svg.innerHTML = pathsHtml;
 }
+
+function renderStandingsPreview() {
+  const container = document.getElementById('bracket-standings-preview');
+  if (!container) return;
+
+  // 1. Group Standings (Top 2 from each of 12 groups A to L)
+  let groupsHtml = '';
+  const alphabet = 'ABCDEFGHIJKL';
+  
+  for (let i = 0; i < alphabet.length; i++) {
+    const letter = alphabet[i];
+    const groupName = `Group ${letter}`;
+    const list = groupRankings[groupName] || [];
+    
+    const team1 = list[0] || '';
+    const team2 = list[1] || '';
+    
+    const flag1 = team1 ? getFlagHtml(team1) : '';
+    const flag2 = team2 ? getFlagHtml(team2) : '';
+    
+    const code1 = team1 ? getTeamCode(team1) : '???';
+    const code2 = team2 ? getTeamCode(team2) : '???';
+
+    const f1 = flag1 ? flag1.replace('class="flag-crest"', 'class="flag-crest-preview"') : '';
+    const f2 = flag2 ? flag2.replace('class="flag-crest"', 'class="flag-crest-preview"') : '';
+
+    groupsHtml += `
+      <div class="standings-group-capsule">
+        <span class="capsule-group-letter">${letter}</span>
+        <div class="capsule-team">${f1} <span>${code1}</span></div>
+        <div class="capsule-team">${f2} <span>${code2}</span></div>
+      </div>
+    `;
+  }
+
+  // 2. Best 3rd Place Teams (Top 8 qualifying)
+  const thirds = [];
+  for (const [groupName, teamList] of Object.entries(groupRankings)) {
+    if (teamList && teamList[2]) {
+      const team = teamList[2];
+      const stats = teamStats[team] || { played: 0, won: 0, drawn: 0, lost: 0, gf: 0, ga: 0, gd: 0, pts: 0 };
+      thirds.push({ group: groupName, team: team, pts: stats.pts, gd: stats.gd, gf: stats.gf, won: stats.won });
+    }
+  }
+  thirds.sort((a, b) => {
+    if (b.pts !== a.pts) return b.pts - a.pts;
+    if (b.gd !== a.gd) return b.gd - a.gd;
+    if (b.gf !== a.gf) return b.gf - a.gf;
+    if (b.won !== a.won) return b.won - a.won;
+    return a.group.localeCompare(b.group);
+  });
+
+  let thirdsHtml = '';
+  thirds.slice(0, 8).forEach(t => {
+    const flag = t.team ? getFlagHtml(t.team) : '';
+    const f = flag ? flag.replace('class="flag-crest"', 'class="flag-crest-preview"') : '';
+    const code = t.team ? getTeamCode(t.team) : '???';
+    
+    thirdsHtml += `
+      <div class="thirds-team-capsule">
+        ${f} <span>${code}</span> <span class="thirds-origin-group">(${t.group.replace('Group ', '')})</span>
+      </div>
+    `;
+  });
+
+  container.innerHTML = `
+    <div class="preview-row-title">Lolos Otomatis (Juara &amp; Runner-up)</div>
+    <div class="standings-groups-scroll">
+      ${groupsHtml}
+    </div>
+    
+    <div class="preview-row-title" style="margin-top: 10px;">Lolos Jalur Peringkat 3 Terbaik</div>
+    <div class="standings-thirds-scroll">
+      ${thirdsHtml || '<div style="font-size:0.65rem; color:var(--text-muted);">Belum ditentukan</div>'}
+    </div>
+  `;
+}
+window.renderStandingsPreview = renderStandingsPreview;
 
 let currentScale = 1;
 let baseScale = 1;
