@@ -3760,17 +3760,17 @@ body.light-theme .status-badge.gugur {
 
 /* Hero Panel Live Mode Styling */
 .countdown-container.live-active {
-  background: linear-gradient(135deg, rgba(239, 68, 68, 0.08) 0%, rgba(18, 20, 26, 0.95) 100%);
+  background: var(--panel-bg-solid);
   border-color: rgba(239, 68, 68, 0.3);
-  box-shadow: 0 12px 40px rgba(239, 68, 68, 0.15);
+  box-shadow: 0 12px 40px rgba(239, 68, 68, 0.12);
   animation: liveCardGlow 4s infinite ease-in-out;
   overflow: hidden; /* Contain diagonal sweep */
 }
 
 body.light-theme .countdown-container.live-active {
-  background: linear-gradient(135deg, rgba(239, 68, 68, 0.06) 0%, rgba(255, 255, 255, 0.98) 100%);
-  border-color: rgba(239, 68, 68, 0.25);
-  box-shadow: 0 12px 40px rgba(239, 68, 68, 0.08);
+  background: #ffffff;
+  border-color: rgba(239, 68, 68, 0.2);
+  box-shadow: 0 12px 40px rgba(239, 68, 68, 0.06);
   animation: liveCardGlowLight 4s infinite ease-in-out;
 }
 
@@ -3782,9 +3782,9 @@ body.light-theme .countdown-container.live-active {
   top: 0;
   bottom: 0;
   width: 5px;
-  background: var(--team1-color, #ef4444);
+  background: linear-gradient(180deg, var(--team1-color, #ef4444) 0%, transparent 100%);
   border-radius: 4px 0 0 4px;
-  box-shadow: 0 0 12px var(--team1-color, rgba(239, 68, 68, 0.5));
+  box-shadow: 0 0 12px var(--team1-color, rgba(239, 68, 68, 0.4));
   z-index: 3;
   transition: background 0.5s ease, box-shadow 0.5s ease;
 }
@@ -3797,9 +3797,9 @@ body.light-theme .countdown-container.live-active {
   top: 0;
   bottom: 0;
   width: 5px;
-  background: var(--team2-color, var(--primary-gold));
+  background: linear-gradient(180deg, var(--team2-color, var(--primary-gold)) 0%, transparent 100%);
   border-radius: 0 4px 4px 0;
-  box-shadow: 0 0 12px var(--team2-color, rgba(212, 175, 55, 0.5));
+  box-shadow: 0 0 12px var(--team2-color, rgba(212, 175, 55, 0.4));
   z-index: 3;
   transition: background 0.5s ease, box-shadow 0.5s ease;
 }
@@ -3808,22 +3808,22 @@ body.light-theme .countdown-container.live-active {
 @keyframes liveCardGlow {
   0%, 100% {
     border-color: rgba(239, 68, 68, 0.3);
-    box-shadow: 0 12px 40px rgba(239, 68, 68, 0.12), 0 0 15px rgba(239, 68, 68, 0.05) inset;
+    box-shadow: 0 12px 40px rgba(239, 68, 68, 0.12);
   }
   50% {
-    border-color: rgba(239, 68, 68, 0.6);
-    box-shadow: 0 12px 45px rgba(239, 68, 68, 0.25), 0 0 25px rgba(239, 68, 68, 0.15) inset;
+    border-color: rgba(239, 68, 68, 0.5);
+    box-shadow: 0 12px 45px rgba(239, 68, 68, 0.22);
   }
 }
 
 @keyframes liveCardGlowLight {
   0%, 100% {
-    border-color: rgba(239, 68, 68, 0.2);
-    box-shadow: 0 12px 30px rgba(239, 68, 68, 0.05), 0 0 10px rgba(239, 68, 68, 0.02) inset;
+    border-color: rgba(239, 68, 68, 0.15);
+    box-shadow: 0 12px 30px rgba(239, 68, 68, 0.04);
   }
   50% {
-    border-color: rgba(239, 68, 68, 0.45);
-    box-shadow: 0 12px 35px rgba(239, 68, 68, 0.12), 0 0 15px rgba(239, 68, 68, 0.08) inset;
+    border-color: rgba(239, 68, 68, 0.35);
+    box-shadow: 0 12px 35px rgba(239, 68, 68, 0.09);
   }
 }
 
