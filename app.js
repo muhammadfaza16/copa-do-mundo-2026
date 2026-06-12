@@ -487,6 +487,8 @@ function getEligibleGroupsFor3rd(label) {
 // ----------------------------------------------------
 // COUNTDOWN TIMER
 // ----------------------------------------------------
+let lastHeroMatchKey = null;
+
 function updateHeroPanel() {
   const container = document.querySelector('.countdown-container');
   const titleEl = document.querySelector('.countdown-title');
@@ -494,7 +496,7 @@ function updateHeroPanel() {
   const subEl = document.getElementById('countdown-sub');
   if (!container || !titleEl || !cdDisplay || !subEl) return;
 
-  // Ensure hero star button is removed (not requested)
+  // Ensure hero star button is removed
   const cdStarBtn = document.getElementById('cd-star-btn');
   if (cdStarBtn) cdStarBtn.remove();
 
@@ -559,65 +561,69 @@ function updateHeroPanel() {
     const cleanRedCards1 = parseScorers(scoreData.home_red_cards);
     const cleanRedCards2 = parseScorers(scoreData.away_red_cards);
 
-    titleEl.innerHTML = `<span class="live-pulse-dot"></span>Pertandingan Berlangsung`;
-    
-    cdDisplay.innerHTML = `
-      <div class="live-scoreboard" style="display: flex; flex-direction: column; width: 100%;">
-        <div style="display: flex; width: 100%; align-items: center; justify-content: space-between;">
-          <div class="live-team left-team">
-            ${flag1}
-            <div class="live-team-info">
-              <span class="live-team-name">${team1Name}</span>
-              <span class="live-team-code">${team1Code}</span>
+    // Cache key for current live match state
+    const liveKey = `live_${matchKey}_${scoreData.score1}_${scoreData.score2}_${scoreData.status}_${cleanScorers1}_${cleanScorers2}_${cleanRedCards1}_${cleanRedCards2}_${minuteLabel}`;
+
+    if (lastHeroMatchKey !== liveKey) {
+      lastHeroMatchKey = liveKey;
+
+      titleEl.innerHTML = `<span class="live-pulse-dot"></span>Pertandingan Berlangsung`;
+      
+      cdDisplay.innerHTML = `
+        <div class="live-scoreboard" style="display: flex; flex-direction: column; width: 100%;">
+          <div style="display: flex; width: 100%; align-items: center; justify-content: space-between;">
+            <div class="live-team left-team">
+              ${flag1}
+              <div class="live-team-info">
+                <span class="live-team-name">${team1Name}</span>
+                <span class="live-team-code">${team1Code}</span>
+              </div>
+              <span class="live-score">${scoreData.score1 !== null && scoreData.score1 !== undefined ? scoreData.score1 : 0}</span>
             </div>
-            <span class="live-score">${scoreData.score1 !== null && scoreData.score1 !== undefined ? scoreData.score1 : 0}</span>
-          </div>
-          
-          <div class="live-time-col">
-            <span class="live-minute-badge">${minuteLabel}</span>
-            <span class="live-vs">VS</span>
-          </div>
-          
-          <div class="live-team right-team">
-            <span class="live-score">${scoreData.score2 !== null && scoreData.score2 !== undefined ? scoreData.score2 : 0}</span>
-            <div class="live-team-info">
-              <span class="live-team-name">${team2Name}</span>
-              <span class="live-team-code">${team2Code}</span>
+            
+            <div class="live-time-col">
+              <span class="live-minute-badge">${minuteLabel}</span>
+              <span class="live-vs">VS</span>
             </div>
-            ${flag2}
+            
+            <div class="live-team right-team">
+              <span class="live-score">${scoreData.score2 !== null && scoreData.score2 !== undefined ? scoreData.score2 : 0}</span>
+              <div class="live-team-info">
+                <span class="live-team-name">${team2Name}</span>
+                <span class="live-team-code">${team2Code}</span>
+              </div>
+              ${flag2}
+            </div>
           </div>
+          ${(cleanScorers1 || cleanScorers2) ? `
+            <div class="live-scorers-box" style="display: grid; grid-template-columns: minmax(0, 1fr) 30px minmax(0, 1fr); gap: 12px; font-size: 0.65rem; color: rgba(255,255,255,0.7); padding: 8px 12px 0; border-top: 1px dashed rgba(255,255,255,0.12); margin-top: 8px; width: 100%;">
+              <div class="live-home-scorers" style="text-align: right; word-break: break-word; line-height: 1.4;" title="${cleanScorers1.replace(/<br>/g, ', ')}">${cleanScorers1 || ''}</div>
+              <div style="text-align: center; font-size: 0.8rem; line-height: 1.4; opacity: 0.85;">⚽</div>
+              <div class="live-away-scorers" style="text-align: left; word-break: break-word; line-height: 1.4;" title="${cleanScorers2.replace(/<br>/g, ', ')}">${cleanScorers2 || ''}</div>
+            </div>
+          ` : ''}
+          ${(cleanRedCards1 || cleanRedCards2) ? `
+            <div class="live-redcards-box" style="display: grid; grid-template-columns: minmax(0, 1fr) 30px minmax(0, 1fr); gap: 12px; font-size: 0.65rem; color: var(--accent-red); padding: 8px 12px 0; ${!(cleanScorers1 || cleanScorers2) ? 'border-top: 1px dashed rgba(255,255,255,0.12); margin-top: 8px;' : 'margin-top: -4px;'} width: 100%;">
+              <div class="live-home-redcards" style="text-align: right; word-break: break-word; line-height: 1.4; font-weight: 500;" title="${cleanRedCards1.replace(/<br>/g, ', ')}">${cleanRedCards1 || ''}</div>
+              <div style="text-align: center; font-size: 0.8rem; line-height: 1.4; display: flex; align-items: center; justify-content: center;"><span style="display: inline-block; width: 7px; height: 10px; background-color: var(--accent-red); border-radius: 1px; box-shadow: 0 0 4px rgba(239, 68, 68, 0.6);"></span></div>
+              <div class="live-away-redcards" style="text-align: left; word-break: break-word; line-height: 1.4; font-weight: 500;" title="${cleanRedCards2.replace(/<br>/g, ', ')}">${cleanRedCards2 || ''}</div>
+            </div>
+          ` : ''}
         </div>
-        ${(cleanScorers1 || cleanScorers2) ? `
-          <div class="live-scorers-box" style="display: grid; grid-template-columns: minmax(0, 1fr) 30px minmax(0, 1fr); gap: 12px; font-size: 0.65rem; color: rgba(255,255,255,0.7); padding: 8px 12px 0; border-top: 1px dashed rgba(255,255,255,0.12); margin-top: 8px; width: 100%;">
-            <div class="live-home-scorers" style="text-align: right; word-break: break-word; line-height: 1.4;" title="${cleanScorers1.replace(/<br>/g, ', ')}">${cleanScorers1 || ''}</div>
-            <div style="text-align: center; font-size: 0.8rem; line-height: 1.4; opacity: 0.85;">⚽</div>
-            <div class="live-away-scorers" style="text-align: left; word-break: break-word; line-height: 1.4;" title="${cleanScorers2.replace(/<br>/g, ', ')}">${cleanScorers2 || ''}</div>
-          </div>
-        ` : ''}
-        ${(cleanRedCards1 || cleanRedCards2) ? `
-          <div class="live-redcards-box" style="display: grid; grid-template-columns: minmax(0, 1fr) 30px minmax(0, 1fr); gap: 12px; font-size: 0.65rem; color: var(--accent-red); padding: 8px 12px 0; ${!(cleanScorers1 || cleanScorers2) ? 'border-top: 1px dashed rgba(255,255,255,0.12); margin-top: 8px;' : 'margin-top: -4px;'} width: 100%;">
-            <div class="live-home-redcards" style="text-align: right; word-break: break-word; line-height: 1.4; font-weight: 500;" title="${cleanRedCards1.replace(/<br>/g, ', ')}">${cleanRedCards1 || ''}</div>
-            <div style="text-align: center; font-size: 0.8rem; line-height: 1.4; display: flex; align-items: center; justify-content: center;"><span style="display: inline-block; width: 7px; height: 10px; background-color: var(--accent-red); border-radius: 1px; box-shadow: 0 0 4px rgba(239, 68, 68, 0.6);"></span></div>
-            <div class="live-away-redcards" style="text-align: left; word-break: break-word; line-height: 1.4; font-weight: 500;" title="${cleanRedCards2.replace(/<br>/g, ', ')}">${cleanRedCards2 || ''}</div>
-          </div>
-        ` : ''}
-      </div>
-    `;
-    
-    const venue = getMatchVenue(m);
-    const stageName = m.isKO ? m.group : `Grup ${m.group.replace('Grup ', '')}`;
-    subEl.innerHTML = `<span class="live-venue-label">${stageName} · ${venue}</span>`;
-    
-    // Remove countdown star button if it exists during live matches
-    const cdStarBtn = document.getElementById('cd-star-btn');
-    if (cdStarBtn) cdStarBtn.remove();
-    
-    subEl.style.display = 'block';
-    cdDisplay.style.display = 'block';
-    container.classList.add('live-active');
-    // Remove the team-preview row used in countdown mode
-    const existingCdRow = document.getElementById('cd-teams-row');
-    if (existingCdRow) existingCdRow.remove();
+      `;
+      
+      const venue = getMatchVenue(m);
+      const stageName = m.isKO ? m.group : `Grup ${m.group.replace('Grup ', '')}`;
+      subEl.innerHTML = `<span class="live-venue-label">${stageName} · ${venue}</span>`;
+      
+      subEl.style.display = 'block';
+      cdDisplay.style.display = 'block';
+      container.classList.add('live-active');
+      
+      // Remove the team-preview row used in countdown mode
+      const existingCdRow = document.getElementById('cd-teams-row');
+      if (existingCdRow) existingCdRow.remove();
+    }
     return;
   }
 
@@ -643,6 +649,8 @@ function updateHeroPanel() {
         <span class="time-label">Detik</span>
       </div>
     `;
+    // Force reset key when switching structures
+    lastHeroMatchKey = null;
   }
   
   subEl.style.display = 'block';
@@ -650,6 +658,7 @@ function updateHeroPanel() {
   const targetMatch = getNextMatch();
   if (!targetMatch) {
     container.style.display = 'none';
+    lastHeroMatchKey = null;
     return;
   }
 
@@ -663,52 +672,55 @@ function updateHeroPanel() {
   }
 
   const isOpening = targetMatch.date === "12/6" && targetMatch.time === "02:00" && targetMatch.team1 === "Meksiko";
-  titleEl.innerText = isOpening ? `Kick-Off Match Pertama` : `Kick-Off Match Berikutnya`;
+  const cdKey = `cd_${targetMatch.date}_${targetMatch.time}_${targetMatch.team1}_${targetMatch.team2}`;
 
-  const venue = getMatchVenue(targetMatch);
-  const flag1Cd = getFlagHtml(targetMatch.team1);
-  const flag2Cd = getFlagHtml(targetMatch.team2);
+  if (lastHeroMatchKey !== cdKey) {
+    lastHeroMatchKey = cdKey;
 
+    titleEl.innerText = isOpening ? `Kick-Off Match Pertama` : `Kick-Off Match Berikutnya`;
 
+    const venue = getMatchVenue(targetMatch);
+    const flag1Cd = getFlagHtml(targetMatch.team1);
+    const flag2Cd = getFlagHtml(targetMatch.team2);
 
-  // Rich team preview row
-  const cdTeamRowId = 'cd-teams-row';
-  let cdTeamRow = document.getElementById(cdTeamRowId);
-  if (!cdTeamRow) {
-    cdTeamRow = document.createElement('div');
-    cdTeamRow.id = cdTeamRowId;
-    cdTeamRow.className = 'countdown-teams-row';
-    // Insert after countdown-display, before subEl
-    cdDisplay.parentNode.insertBefore(cdTeamRow, subEl);
+    // Rich team preview row
+    const cdTeamRowId = 'cd-teams-row';
+    let cdTeamRow = document.getElementById(cdTeamRowId);
+    if (!cdTeamRow) {
+      cdTeamRow = document.createElement('div');
+      cdTeamRow.id = cdTeamRowId;
+      cdTeamRow.className = 'countdown-teams-row';
+      cdDisplay.parentNode.insertBefore(cdTeamRow, subEl);
+    }
+    cdTeamRow.innerHTML = `
+      <div class="cd-team cd-team-left">
+        <span class="cd-team-name">${targetMatch.team1}</span>
+        ${flag1Cd}
+      </div>
+      <span class="cd-vs">VS</span>
+      <div class="cd-team cd-team-right">
+        ${flag2Cd}
+        <span class="cd-team-name">${targetMatch.team2}</span>
+      </div>
+    `;
+
+    const timeInfo = getFormattedTime(targetMatch.date, targetMatch.time);
+    const dateStr = `${timeInfo.date} · ${timeInfo.time} ${timeInfo.tzLabel}`;
+    const stageName = targetMatch.isKO ? targetMatch.group : `Grup ${targetMatch.group.replace('Grup ', '')}`;
+    
+    subEl.style.opacity = '1';
+    subEl.innerHTML = `
+      <div style="font-size: 0.72rem; font-weight: 700; color: var(--primary-gold); margin-top: 8px; margin-bottom: 3px; letter-spacing: 0.5px;">
+        ${stageName}
+      </div>
+      <div style="font-size: 0.65rem; color: var(--text-primary); font-weight: 600; margin-bottom: 2px; opacity: 0.9;">
+        ${dateStr}
+      </div>
+      <div style="font-size: 0.6rem; color: var(--text-secondary); opacity: 0.6;">
+        ${venue}
+      </div>
+    `;
   }
-  cdTeamRow.innerHTML = `
-    <div class="cd-team cd-team-left">
-      <span class="cd-team-name">${targetMatch.team1}</span>
-      ${flag1Cd}
-    </div>
-    <span class="cd-vs">VS</span>
-    <div class="cd-team cd-team-right">
-      ${flag2Cd}
-      <span class="cd-team-name">${targetMatch.team2}</span>
-    </div>
-  `;
-
-  const timeInfo = getFormattedTime(targetMatch.date, targetMatch.time);
-  const dateStr = `${timeInfo.date} · ${timeInfo.time} ${timeInfo.tzLabel}`;
-  const stageName = targetMatch.isKO ? targetMatch.group : `Grup ${targetMatch.group.replace('Grup ', '')}`;
-  
-  subEl.style.opacity = '1';
-  subEl.innerHTML = `
-    <div style="font-size: 0.72rem; font-weight: 700; color: var(--primary-gold); margin-top: 8px; margin-bottom: 3px; letter-spacing: 0.5px;">
-      ${stageName}
-    </div>
-    <div style="font-size: 0.65rem; color: var(--text-primary); font-weight: 600; margin-bottom: 2px; opacity: 0.9;">
-      ${dateStr}
-    </div>
-    <div style="font-size: 0.6rem; color: var(--text-secondary); opacity: 0.6;">
-      ${venue}
-    </div>
-  `;
 
   const days = Math.floor(diff / (1000 * 60 * 60 * 24));
   const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
