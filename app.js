@@ -110,16 +110,30 @@ const FIFA_RANKINGS = {
 };
 
 function getMatchBadgeHtml(team1, team2) {
-  const r1 = FIFA_RANKINGS[team1] || 999;
-  const r2 = FIFA_RANKINGS[team2] || 999;
+  const bigMatchTeams = new Set([
+    "Brasil", "Maroko", "Jerman", "Belanda", "Jepang", 
+    "Belgia", "Spanyol", "Uruguay", "Norwegia", "Senegal", 
+    "Prancis", "Argentina", "Portugal", "Inggris", "Kroasia", "Kolombia"
+  ]);
 
-  const isTop15 = (r) => r <= 15;
+  if (!team1 || !team2) return '';
 
-  if (isTop15(r1) && isTop15(r2)) {
+  const isBigTeam = (team) => {
+    const clean = team.trim().toLowerCase();
+    for (const bigTeam of bigMatchTeams) {
+      if (clean.includes(bigTeam.toLowerCase())) {
+        return true;
+      }
+    }
+    return false;
+  };
+
+  if (isBigTeam(team1) && isBigTeam(team2)) {
     return '<span class="match-badge badge-big-match">BIG MATCH</span>';
   }
   return '';
 }
+
 
 const STADIUM_MAP = {
   "1": { "name": "Estadio Azteca", "city": "Mexico City", "country": "Meksiko", "capacity": 83000 },

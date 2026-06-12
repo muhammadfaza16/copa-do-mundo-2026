@@ -48,6 +48,7 @@ window.TEAM_FLAGS = {
   "Ghana": "gh",
   "Panama": "pa",
   "Uzbekistan": "uz",
+  "Kolombia": "co"
 };
 
 window.TEAM_COLORS = {
