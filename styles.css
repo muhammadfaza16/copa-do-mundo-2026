@@ -1940,7 +1940,8 @@ body.light-theme .flag-crest {
   stroke-width: 2;
   stroke-linecap: round;
   stroke-linejoin: round;
-  display: block;
+  display: inline-block;
+  vertical-align: middle;
   flex-shrink: 0;
   opacity: 0.65;
 }
@@ -1964,25 +1965,22 @@ body.light-theme .flag-crest {
   line-height: 1;
 }
 
-/* Star inline with venue row */
+/* Star inline with venue row — center stays, star absolute right */
 .match-venue-with-star {
-  justify-content: flex-start; /* icon + name left, star pushed right */
-}
-
-.match-venue-with-star .venue-name-text {
-  flex: 1;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  position: relative;
+  justify-content: center; /* keep venue centered */
 }
 
 .star-btn-inline {
-  flex-shrink: 0;
-  margin-left: auto;
+  position: absolute;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
   padding: 2px 3px;
   opacity: 0.35;
   transition: opacity 0.2s, color 0.2s;
   line-height: 0;
+  flex-shrink: 0;
 }
 
 .star-btn-inline svg {
