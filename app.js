@@ -1488,8 +1488,8 @@ function renderStatistics() {
       </div>
     `;
   } else {
-    // Only display top 5 scorers on Home page to prevent a crowded layout
-    const topScorers = sortedScorers.slice(0, 5);
+    // Only display top 10 scorers on Home page
+    const topScorers = sortedScorers.slice(0, 10);
     topScorers.forEach((s, index) => {
       const rank = index + 1;
       let rankClass = 'stats-rank-other';
