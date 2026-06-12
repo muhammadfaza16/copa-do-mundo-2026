@@ -1,5 +1,5 @@
 export default async function handler(req, res) {
-  // Allow CORS just in case
+  // Allow CORS
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
@@ -8,14 +8,8 @@ export default async function handler(req, res) {
     return res.status(200).end();
   }
 
-  const apiKey = '12aad17c1bf941f68c2318631dfcea1b';
-
   try {
-    const response = await fetch('https://api.football-data.org/v4/competitions/WC/matches', {
-      headers: {
-        'X-Auth-Token': apiKey
-      }
-    });
+    const response = await fetch('https://worldcup26.ir/get/games');
 
     if (!response.ok) {
       return res.status(response.status).json({ error: `API error (Status: ${response.status})` });

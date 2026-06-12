@@ -8,8 +8,11 @@ const TEAM_TRANSLATIONS = {
   "South Africa": "Afrika Selatan",
   "South Korea": "Korea Selatan",
   "Czechia": "Ceko",
+  "Czech Republic": "Ceko",
   "Canada": "Kanada",
+  "Democratic Republic of the Congo": "RD Kongo",
   "Bosnia and Herzegovina": "Bosnia dan Herzegovina",
+  "Bosnia-Herzegovina": "Bosnia dan Herzegovina",
   "Qatar": "Qatar",
   "Switzerland": "Swiss",
   "Brazil": "Brasil",
@@ -30,6 +33,7 @@ const TEAM_TRANSLATIONS = {
   "Tunisia": "Tunisia",
   "Spain": "Spanyol",
   "Cape Verde": "Tanjung Verde",
+  "Cape Verde Islands": "Tanjung Verde",
   "Belgium": "Belgia",
   "Egypt": "Mesir",
   "Saudi Arabia": "Arab Saudi",
@@ -46,6 +50,7 @@ const TEAM_TRANSLATIONS = {
   "Jordan": "Yordania",
   "Portugal": "Portugal",
   "DR Congo": "RD Kongo",
+  "Congo DR": "RD Kongo",
   "England": "Inggris",
   "Croatia": "Kroasia",
   "Ghana": "Ghana",
@@ -53,6 +58,35 @@ const TEAM_TRANSLATIONS = {
   "Uzbekistan": "Uzbekistan",
   "Colombia": "Kolombia"
 };
+
+const STADIUM_MAP = {
+  "1": { "name": "Estadio Azteca", "city": "Mexico City", "country": "Meksiko", "capacity": 83000 },
+  "2": { "name": "Estadio Guadalajara", "city": "Zapopan", "country": "Meksiko", "capacity": 48000 },
+  "3": { "name": "Estadio Monterrey", "city": "Monterrey", "country": "Meksiko", "capacity": 53500 },
+  "4": { "name": "Dallas Stadium", "city": "Arlington", "country": "Amerika Serikat", "capacity": 94000 },
+  "5": { "name": "Houston Stadium", "city": "Houston", "country": "Amerika Serikat", "capacity": 72000 },
+  "6": { "name": "Kansas City Stadium", "city": "Kansas City", "country": "Amerika Serikat", "capacity": 73000 },
+  "7": { "name": "Atlanta Stadium", "city": "Atlanta", "country": "Amerika Serikat", "capacity": 75000 },
+  "8": { "name": "Miami Stadium", "city": "Miami", "country": "Amerika Serikat", "capacity": 65000 },
+  "9": { "name": "Boston Stadium", "city": "Foxborough", "country": "Amerika Serikat", "capacity": 65000 },
+  "10": { "name": "Philadelphia Stadium", "city": "Philadelphia", "country": "Amerika Serikat", "capacity": 69000 },
+  "11": { "name": "NYNJ Stadium", "city": "East Rutherford", "country": "Amerika Serikat", "capacity": 82500 },
+  "12": { "name": "Toronto Stadium", "city": "Toronto", "country": "Kanada", "capacity": 45000 },
+  "13": { "name": "Vancouver Stadium", "city": "Vancouver", "country": "Kanada", "capacity": 54000 },
+  "14": { "name": "Seattle Stadium", "city": "Seattle", "country": "Amerika Serikat", "capacity": 69000 },
+  "15": { "name": "San Francisco Stadium", "city": "Santa Clara", "country": "Amerika Serikat", "capacity": 71000 },
+  "16": { "name": "Los Angeles Stadium", "city": "Inglewood", "country": "Amerika Serikat", "capacity": 70000 }
+};
+
+function parseScorers(scorersStr) {
+  if (!scorersStr || scorersStr === 'null' || scorersStr === '""' || scorersStr === '[]') return '';
+  let cleaned = scorersStr
+    .replace(/[{}""\[\]]/g, '')
+    .replace(/[“”]/g, '')
+    .trim();
+  if (!cleaned) return '';
+  return cleaned.split(',').map(s => s.trim().replace(/^['"]|['"]$/g, '')).join(', ');
+}
 
 function migrateLocalStorageToIndonesian() {
   // 1. Migrate Group Rankings
@@ -147,21 +181,29 @@ migrateLocalStorageToIndonesian();
 
 // STADIUM INFO & GROUP STAGE VENUE MAPPINGS
 const GROUP_VENUES = {
-  "Grup A": ["Estadio Azteca, Mexico City", "Estadio Akron, Guadalajara"],
-  "Grup B": ["BMO Field, Toronto", "BC Place, Vancouver"],
-  "Grup C": ["SoFi Stadium, Inglewood", "Levi's Stadium, Santa Clara"],
-  "Grup D": ["Lumen Field, Seattle", "NRG Stadium, Houston"],
-  "Grup E": ["AT&T Stadium, Arlington", "Arrowhead Stadium, Kansas City"],
-  "Grup F": ["Mercedes-Benz Stadium, Atlanta", "Gillette Stadium, Foxborough"],
-  "Grup G": ["Hard Rock Stadium, Miami Gardens", "Lincoln Financial Field, Philadelphia"],
-  "Grup H": ["MetLife Stadium, East Rutherford", "Estadio BBVA, Guadalupe"],
-  "Grup I": ["BC Place, Vancouver", "Lumen Field, Seattle"],
-  "Grup J": ["Estadio Azteca, Mexico City", "Estadio Akron, Guadalajara"],
-  "Grup K": ["BMO Field, Toronto", "Gillette Stadium, Foxborough"],
-  "Grup L": ["MetLife Stadium, East Rutherford", "Lincoln Financial Field, Philadelphia"]
+  "Grup A": ["Estadio Azteca, Mexico City", "Estadio Guadalajara, Zapopan"],
+  "Grup B": ["Toronto Stadium, Toronto", "Vancouver Stadium, Vancouver"],
+  "Grup C": ["Los Angeles Stadium, Inglewood", "San Francisco Stadium, Santa Clara"],
+  "Grup D": ["Seattle Stadium, Seattle", "Houston Stadium, Houston"],
+  "Grup E": ["Dallas Stadium, Arlington", "Kansas City Stadium, Kansas City"],
+  "Grup F": ["Atlanta Stadium, Atlanta", "Boston Stadium, Foxborough"],
+  "Grup G": ["Miami Stadium, Miami", "Philadelphia Stadium, Philadelphia"],
+  "Grup H": ["NYNJ Stadium, East Rutherford", "Estadio Monterrey, Monterrey"],
+  "Grup I": ["Vancouver Stadium, Vancouver", "Seattle Stadium, Seattle"],
+  "Grup J": ["Estadio Azteca, Mexico City", "Estadio Guadalajara, Zapopan"],
+  "Grup K": ["Toronto Stadium, Toronto", "Boston Stadium, Foxborough"],
+  "Grup L": ["NYNJ Stadium, East Rutherford", "Philadelphia Stadium, Philadelphia"]
 };
 
 function getMatchVenue(match) {
+  const matchKey = match.match_id ? `ko_${match.match_id}` : `gs_${match.date}_${match.team1}_${match.team2}`;
+  const scoreData = realScores[matchKey];
+  if (scoreData && scoreData.stadium_id) {
+    const stadium = STADIUM_MAP[scoreData.stadium_id];
+    if (stadium) {
+      return `${stadium.name}, ${stadium.city}`;
+    }
+  }
   if (match.venue) return match.venue;
   const venues = GROUP_VENUES[match.group];
   if (venues) {
@@ -288,10 +330,38 @@ function getFlagHtml(teamName) {
 function getMatchDate(dateStr, timeStr) {
   const [day, month] = dateStr.split('/').map(Number);
   const [hours, minutes] = timeStr.split(':').map(Number);
-  // WIB is UTC+7
-  const utcTimestamp = Date.UTC(2026, month - 1, day, hours - 7, minutes, 0);
-  return new Date(utcTimestamp);
+  // Create date in UTC
+  const utcDate = new Date(Date.UTC(2026, month - 1, day, hours, minutes, 0));
+  // Subtract 7 hours (WIB is UTC+7) to get actual UTC time
+  utcDate.setUTCHours(utcDate.getUTCHours() - 7);
+  return utcDate;
 }
+
+// Reconstruct match object from match key
+function getMatchFromKey(matchKey) {
+  if (matchKey.startsWith('gs_')) {
+    const parts = matchKey.split('_');
+    const date = parts[1];
+    const team1 = parts[2];
+    const team2 = parts[3];
+    return WORLD_CUP_DATA.group_stage.find(m => m.date === date && m.team1 === team1 && m.team2 === team2);
+  } else if (matchKey.startsWith('ko_')) {
+    const matchId = parseInt(matchKey.replace('ko_', ''));
+    return knockoutMatches.find(m => m.match_id === matchId);
+  }
+  return null;
+}
+
+// Get score of a match dynamically
+function getMatchScore(matchKey) {
+  // Check if there is an API score that is FINISHED, IN_PLAY, or PAUSED
+  const apiScore = realScores[matchKey];
+  if (apiScore && apiScore.score1 !== null && apiScore.score2 !== null && apiScore.status !== 'TIMED') {
+    return apiScore;
+  }
+  return null;
+}
+
 
 function getLocalDateString(dateObj) {
   const year = dateObj.getFullYear();
@@ -321,7 +391,7 @@ function getMatchDateString(match) {
 function isGroupStageComplete() {
   return WORLD_CUP_DATA.group_stage.every(m => {
     const matchKey = `gs_${m.date}_${m.team1}_${m.team2}`;
-    const score = realScores[matchKey];
+    const score = getMatchScore(matchKey);
     return score && score.status === 'FINISHED';
   });
 }
@@ -411,31 +481,112 @@ function updateHeroPanel() {
     ...knockoutMatches.map(m => ({ ...m, isKO: true }))
   ];
 
-  // 1. Check if there is a LIVE match
+  // 1. Check if there is a LIVE match (via API status OR time-based check)
   const liveMatches = allMatches.filter(m => {
     const matchKey = m.isKO ? `ko_${m.match_id}` : `gs_${m.date}_${m.team1}_${m.team2}`;
-    const scoreData = realScores[matchKey];
-    return scoreData && (scoreData.status === 'IN_PLAY' || scoreData.status === 'PAUSED');
+    const scoreData = getMatchScore(matchKey);
+    
+    if (scoreData && (scoreData.status === 'IN_PLAY' || scoreData.status === 'PAUSED' || scoreData.status === 'EXTRA_TIME' || scoreData.status === 'PENALTY_SHOOTOUT')) {
+      return true;
+    }
+    
+    const matchTime = getMatchDate(m.date, m.time).getTime();
+    const isFinished = scoreData && scoreData.status === 'FINISHED';
+    return matchTime <= now && now < matchTime + (125 * 60 * 1000) && !isFinished;
   });
 
   if (liveMatches.length > 0) {
-    // MODE 1: LIVE Matches Active
-    titleEl.innerHTML = `<span class="live-blink-dot" style="margin-right: 8px;"></span>Pertandingan Sedang Berlangsung`;
+    // MODE 1: LIVE Matches Active (Show premium scoreboard)
+    const m = liveMatches[0];
+    const matchKey = m.isKO ? `ko_${m.match_id}` : `gs_${m.date}_${m.team1}_${m.team2}`;
+    const scoreData = getMatchScore(matchKey) || { score1: 0, score2: 0, status: 'IN_PLAY' };
+
+    const team1Name = m.team1;
+    const team2Name = m.team2;
+    const team1Code = getTeamCode(m.team1);
+    const team2Code = getTeamCode(m.team2);
+    const flag1 = getFlagHtml(m.team1);
+    const flag2 = getFlagHtml(m.team2);
+
+    // Calculate match minute dynamically
+    const matchTime = getMatchDate(m.date, m.time).getTime();
+    const elapsedMins = Math.floor((now - matchTime) / (60 * 1000));
     
-    let liveHtml = '<div style="width: 100%; display: flex; flex-direction: column; gap: 10px; margin-top: 15px; margin-bottom: 5px;">';
-    liveMatches.forEach(m => {
-      liveHtml += createMatchCardHtml(m, 0, m.isKO);
-    });
-    liveHtml += '</div>';
+    let minuteLabel = "LIVE";
+    if (scoreData.status === 'EXTRA_TIME') {
+      minuteLabel = "ET";
+    } else if (scoreData.status === 'PENALTY_SHOOTOUT') {
+      minuteLabel = "PEN";
+    } else if (elapsedMins >= 0 && elapsedMins < 45) {
+      minuteLabel = `${elapsedMins + 1}'`;
+    } else if (elapsedMins >= 45 && elapsedMins < 50) {
+      minuteLabel = `45+'`;
+    } else if (elapsedMins >= 50 && elapsedMins < 65) {
+      minuteLabel = `HT`;
+    } else if (elapsedMins >= 65 && elapsedMins < 110) {
+      minuteLabel = `${elapsedMins - 19}'`;
+    } else if (elapsedMins >= 110 && elapsedMins < 115) {
+      minuteLabel = `90+'`;
+    } else {
+      minuteLabel = `FT`;
+    }
+
+    const cleanScorers1 = parseScorers(scoreData.home_scorers);
+    const cleanScorers2 = parseScorers(scoreData.away_scorers);
+
+    titleEl.innerHTML = `<span class="live-pulse-dot"></span>Pertandingan Berlangsung`;
     
-    cdDisplay.innerHTML = liveHtml;
+    cdDisplay.innerHTML = `
+      <div class="live-scoreboard" style="display: flex; flex-direction: column; width: 100%;">
+        <div style="display: flex; width: 100%; align-items: center; justify-content: space-between;">
+          <div class="live-team left-team">
+            ${flag1}
+            <div class="live-team-info">
+              <span class="live-team-name">${team1Name}</span>
+              <span class="live-team-code">${team1Code}</span>
+            </div>
+            <span class="live-score">${scoreData.score1 !== null && scoreData.score1 !== undefined ? scoreData.score1 : 0}</span>
+          </div>
+          
+          <div class="live-time-col">
+            <span class="live-minute-badge">${minuteLabel}</span>
+            <span class="live-vs">VS</span>
+          </div>
+          
+          <div class="live-team right-team">
+            <span class="live-score">${scoreData.score2 !== null && scoreData.score2 !== undefined ? scoreData.score2 : 0}</span>
+            <div class="live-team-info">
+              <span class="live-team-name">${team2Name}</span>
+              <span class="live-team-code">${team2Code}</span>
+            </div>
+            ${flag2}
+          </div>
+        </div>
+        ${(cleanScorers1 || cleanScorers2) ? `
+          <div class="live-scorers-box" style="display: flex; justify-content: space-between; font-size: 0.65rem; color: rgba(255,255,255,0.7); padding: 8px 12px 0; border-top: 1px dashed rgba(255,255,255,0.12); margin-top: 8px; width: 100%;">
+            <div class="live-home-scorers" style="text-align: left; max-width: 45%; word-break: break-word;" title="${cleanScorers1}">${cleanScorers1 ? '⚽ ' + cleanScorers1 : ''}</div>
+            <div class="live-away-scorers" style="text-align: right; max-width: 45%; word-break: break-word;" title="${cleanScorers2}">${cleanScorers2 ? '⚽ ' + cleanScorers2 : ''}</div>
+          </div>
+        ` : ''}
+      </div>
+    `;
+    
+    const venue = getMatchVenue(m);
+    const stageName = m.isKO ? m.group : `Grup ${m.group.replace('Grup ', '')}`;
+    subEl.innerHTML = `<span class="live-venue-label">${stageName} · ${venue}</span>`;
+    
+    subEl.style.display = 'block';
     cdDisplay.style.display = 'block';
-    subEl.style.display = 'none';
+    container.classList.add('live-active');
+    // Remove the team-preview row used in countdown mode
+    const existingCdRow = document.getElementById('cd-teams-row');
+    if (existingCdRow) existingCdRow.remove();
     return;
   }
 
   // MODE 2: Countdown Active (No live matches)
-  const hasLiveStructure = cdDisplay.querySelector('.match-card') || cdDisplay.innerHTML.includes('match-card');
+  container.classList.remove('live-active');
+  const hasLiveStructure = cdDisplay.querySelector('.live-scoreboard') || cdDisplay.innerHTML.includes('live-scoreboard');
   if (hasLiveStructure || cdDisplay.innerHTML.trim() === "" || !document.getElementById('cd-days')) {
     cdDisplay.innerHTML = `
       <div class="time-segment">
@@ -478,7 +629,32 @@ function updateHeroPanel() {
   titleEl.innerText = isOpening ? `Kick-Off Match Pertama` : `Kick-Off Match Berikutnya`;
 
   const venue = getMatchVenue(targetMatch);
-  subEl.innerText = `${targetMatch.team1} vs ${targetMatch.team2} - ${venue}`;
+  const flag1Cd = getFlagHtml(targetMatch.team1);
+  const flag2Cd = getFlagHtml(targetMatch.team2);
+
+  // Rich team preview row
+  const cdTeamRowId = 'cd-teams-row';
+  let cdTeamRow = document.getElementById(cdTeamRowId);
+  if (!cdTeamRow) {
+    cdTeamRow = document.createElement('div');
+    cdTeamRow.id = cdTeamRowId;
+    cdTeamRow.className = 'countdown-teams-row';
+    // Insert after countdown-display, before subEl
+    cdDisplay.parentNode.insertBefore(cdTeamRow, subEl);
+  }
+  cdTeamRow.innerHTML = `
+    <div class="cd-team cd-team-left">
+      <span class="cd-team-name">${targetMatch.team1}</span>
+      ${flag1Cd}
+    </div>
+    <span class="cd-vs">VS</span>
+    <div class="cd-team cd-team-right">
+      ${flag2Cd}
+      <span class="cd-team-name">${targetMatch.team2}</span>
+    </div>
+  `;
+
+  subEl.innerText = venue;
 
   const days = Math.floor(diff / (1000 * 60 * 60 * 24));
   const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
@@ -511,58 +687,101 @@ function createMatchCardHtml(match, index, isKnockout = false) {
   const timeInfo = getFormattedTime(match.date, match.time);
   const starredClass = isStarred(matchKey) ? 'active' : '';
   
-  const labelStage = match.group;
+  const scoreData = getMatchScore(matchKey);
+  const rawScore = realScores[matchKey];
+  const matchday = (rawScore && rawScore.matchday) ? rawScore.matchday : null;
   const labelVenue = getMatchVenue(match);
 
-  return `
-    <div class="match-card" data-key="${matchKey}">
-      <div class="match-header">
-        <span class="match-stage">${labelStage}</span>
-        <span class="match-date-label">${timeInfo.date}</span>
-      </div>
-      <div class="match-body">
-        <div class="team-display left">
-          <span class="team-name">${match.team1}</span>
-          ${getFlagHtml(match.team1)}
-        </div>
-        <div class="match-time-box">
-          ${(() => {
-            const scoreData = realScores[matchKey];
-            if (scoreData) {
-              const isLive = scoreData.status === 'IN_PLAY' || scoreData.status === 'PAUSED';
-              const statusText = isLive ? 'LIVE' : 'FT';
-              return `
-                <div class="score-display">${scoreData.score1} - ${scoreData.score2}</div>
-                <div class="score-status ${isLive ? 'status-live' : 'status-ft'}">${statusText}</div>
-              `;
-            }
-            return `
-              <div>${timeInfo.time}</div>
-              <div class="time-tz-label">${timeInfo.tzLabel}</div>
-            `;
-          })()}
-        </div>
-        <div class="team-display right">
-          ${getFlagHtml(match.team2)}
-          <span class="team-name">${match.team2}</span>
-        </div>
-      </div>
-      <div class="match-footer">
-        <div class="match-footer-left">
-          <span class="match-venue-label">${labelVenue}</span>
-        </div>
-        <button class="star-btn ${starredClass}" onclick="toggleMatchStar('${matchKey}', this)" aria-label="Simpan Pertandingan">
-          <svg viewBox="0 0 24 24">
-            <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
-          </svg>
-        </button>
-      </div>
+  const venueIconSvg = `<svg class="venue-icon" viewBox="0 0 24 24"><path d="M2 10c0-3.9 4.5-7 10-7s10 3.1 10 7-4.5 7-10 7S2 13.9 2 10z"></path><path d="M4 11v5a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-5"></path><path d="M7 10c0-1.7 2.2-3 5-3s5 1.3 5 3-2.2 3-5 3-5-1.3-5-3z"></path></svg>`;
+
+  const stageHeaderHtml = `
+    <div class="match-stage-container">
+      <span class="match-stage">${match.group}</span>
+      ${matchday ? `<span class="match-week">Pekan ${matchday}</span>` : ''}
     </div>
   `;
+
+  if (scoreData) {
+    const isLive = scoreData.status === 'IN_PLAY' || scoreData.status === 'PAUSED' || scoreData.status === 'EXTRA_TIME' || scoreData.status === 'PENALTY_SHOOTOUT';
+    let statusText = 'FT';
+    if (scoreData.status === 'IN_PLAY' || scoreData.status === 'PAUSED') statusText = 'LIVE';
+    else if (scoreData.status === 'EXTRA_TIME') statusText = 'ET';
+    else if (scoreData.status === 'PENALTY_SHOOTOUT') statusText = 'PEN';
+
+    const cleanScorers1 = parseScorers(scoreData.home_scorers);
+    const cleanScorers2 = parseScorers(scoreData.away_scorers);
+
+    return `
+      <div class="match-card" data-key="${matchKey}" title="${labelVenue}">
+        <div class="match-header">
+          ${stageHeaderHtml}
+          <span class="match-date-label">${timeInfo.date}</span>
+        </div>
+        <div class="match-body">
+          <div class="team-display left">
+            <span class="team-name">${match.team1}</span>
+            ${getFlagHtml(match.team1)}
+          </div>
+          <div class="match-time-box">
+            <div class="score-display">${scoreData.score1} - ${scoreData.score2}</div>
+            <div class="score-status ${isLive ? 'status-live' : 'status-ft'}">${statusText}</div>
+          </div>
+          <div class="team-display right">
+            ${getFlagHtml(match.team2)}
+            <span class="team-name">${match.team2}</span>
+          </div>
+          <div class="match-venue-subtle">${venueIconSvg}${labelVenue}</div>
+        </div>
+        ${(cleanScorers1 || cleanScorers2) ? `
+          <div class="match-scorers-row" style="display: grid; grid-template-columns: minmax(0, 1fr) 50px minmax(0, 1fr); gap: 16px; margin: 4px 0 10px; padding: 6px 12px 0; border-top: 1px dashed rgba(128, 128, 128, 0.15); font-size: 0.65rem; color: var(--text-secondary); opacity: 0.8;">
+            <div class="scorers-left" style="text-align: right; word-break: break-word; line-height: 1.3;">
+              ${cleanScorers1 ? '⚽ ' + cleanScorers1 : ''}
+            </div>
+            <div></div> <!-- Middle spacer aligning with the time box -->
+            <div class="scorers-right" style="text-align: left; word-break: break-word; line-height: 1.3;">
+              ${cleanScorers2 ? '⚽ ' + cleanScorers2 : ''}
+            </div>
+          </div>
+        ` : ''}
+      </div>
+    `;
+  } else {
+    return `
+      <div class="match-card" data-key="${matchKey}" title="${labelVenue}">
+        <div class="match-header">
+          ${stageHeaderHtml}
+          <div class="match-header-right">
+            <span class="match-date-label">${timeInfo.date}</span>
+            <button class="star-btn ${starredClass}" onclick="toggleMatchStar('${matchKey}', this)" aria-label="Simpan Pertandingan">
+              <svg viewBox="0 0 24 24">
+                <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+              </svg>
+            </button>
+          </div>
+        </div>
+        <div class="match-body">
+          <div class="team-display left">
+            <span class="team-name">${match.team1}</span>
+            ${getFlagHtml(match.team1)}
+          </div>
+          <div class="match-time-box">
+            <div>${timeInfo.time}</div>
+            <div class="time-tz-label">${timeInfo.tzLabel}</div>
+          </div>
+          <div class="team-display right">
+            ${getFlagHtml(match.team2)}
+            <span class="team-name">${match.team2}</span>
+          </div>
+          <div class="match-venue-subtle">${venueIconSvg}${labelVenue}</div>
+        </div>
+      </div>
+    `;
+  }
 }
 
 // Render schedule list based on search/filters
 function renderSchedule() {
+  recalculateKnockoutTree();
   const container = document.getElementById('schedule-list');
   if (!container) return;
 
@@ -616,7 +835,8 @@ function renderSchedule() {
 
   const allFiltered = combined.filter(m => {
     const matchKey = m.isKO ? `ko_${m.match_id}` : `gs_${m.date}_${m.team1}_${m.team2}`;
-    const hasScore = !!realScores[matchKey];
+    const score = getMatchScore(matchKey);
+    const hasScore = score && (score.status === 'FINISHED' || score.status === 'IN_PLAY');
     return scheduleSubTab === 'results' ? hasScore : !hasScore;
   });
 
@@ -670,6 +890,7 @@ function renderSchedule() {
 
 // Render Dashboard/Home tab favorites
 function renderFavorites() {
+  recalculateKnockoutTree();
   const container = document.getElementById('favorites-list');
   if (!container) return;
 
@@ -714,6 +935,7 @@ function renderFavorites() {
 
 // Render Latest Match Results (Hasil Pertandingan Terbaru)
 function renderLatestResults() {
+  recalculateKnockoutTree();
   const container = document.getElementById('latest-results-list');
   if (!container) return;
 
@@ -723,10 +945,11 @@ function renderLatestResults() {
     ...knockoutMatches.map(m => ({ ...m, isKO: true }))
   ];
 
-  // Filter matches that have real scores recorded
+  // Filter matches that have scores recorded (finished or live)
   const matchesWithScores = allMatches.filter(m => {
     const matchKey = m.isKO ? `ko_${m.match_id}` : `gs_${m.date}_${m.team1}_${m.team2}`;
-    return !!realScores[matchKey];
+    const score = getMatchScore(matchKey);
+    return score && (score.status === 'FINISHED' || score.status === 'IN_PLAY');
   });
 
   if (matchesWithScores.length === 0) {
@@ -759,6 +982,7 @@ function renderLatestResults() {
 
 // Render Dashboard/Home tab nearest matches (2 Days from the first upcoming match day)
 function renderNearestMatches() {
+  recalculateKnockoutTree();
   const container = document.getElementById('nearest-matches-list');
   if (!container) return;
 
@@ -778,7 +1002,8 @@ function renderNearestMatches() {
       if (isPlaceholder1 || isPlaceholder2) return false;
     }
     const matchKey = m.isKO ? `ko_${m.match_id}` : `gs_${m.date}_${m.team1}_${m.team2}`;
-    const score = realScores[matchKey];
+    const score = getMatchScore(matchKey);
+    if (score && score.status === 'FINISHED') return false;
     const isLive = score && (score.status === 'IN_PLAY' || score.status === 'PAUSED');
     return isLive || getMatchDate(m.date, m.time) >= now;
   });
@@ -798,13 +1023,18 @@ function renderNearestMatches() {
     const day1Str = useLocalTimezone ? getLocalDateString(day1Date) : getWibDateString(day1Date);
     const day2Str = useLocalTimezone ? getLocalDateString(day2Date) : getWibDateString(day2Date);
 
-    // Get all matches (both finished and upcoming) on these two days
+    // Get all matches on these two days that are NOT finished
     upcoming = allMatches.filter(m => {
       if (m.isKO) {
         const isPlaceholder1 = m.team1.startsWith('Winner Match') || m.team1.startsWith('Loser Match') || m.team1.startsWith('3rd Group') || m.team1.startsWith('Runner-up Group') || m.team1.startsWith('Winner Group');
         const isPlaceholder2 = m.team2.startsWith('Winner Match') || m.team2.startsWith('Loser Match') || m.team2.startsWith('3rd Group') || m.team2.startsWith('Runner-up Group') || m.team2.startsWith('Winner Group');
         if (isPlaceholder1 || isPlaceholder2) return false;
       }
+      
+      const matchKey = m.isKO ? `ko_${m.match_id}` : `gs_${m.date}_${m.team1}_${m.team2}`;
+      const score = getMatchScore(matchKey);
+      if (score && score.status === 'FINISHED') return false;
+
       const matchDateStr = getMatchDateString(m);
       return matchDateStr === day1Str || matchDateStr === day2Str;
     });
@@ -846,7 +1076,7 @@ function getNextMatch() {
 
   const upcoming = allMatches.filter(m => {
     const matchKey = m.isKO ? `ko_${m.match_id}` : `gs_${m.date}_${m.team1}_${m.team2}`;
-    const scoreData = realScores[matchKey];
+    const scoreData = getMatchScore(matchKey);
     if (scoreData && scoreData.status === 'FINISHED') return false;
     const matchTime = getMatchDate(m.date, m.time).getTime();
     return matchTime > now;
@@ -869,6 +1099,7 @@ function renderLiveMatches() {
 
 // Render Groups Tab
 function renderGroups() {
+  recalculateKnockoutTree();
   const container = document.getElementById('groups-grid');
   if (!container) return;
 
@@ -1012,8 +1243,8 @@ function calculateGroupStandings() {
   // Calculate from real scores
   WORLD_CUP_DATA.group_stage.forEach(m => {
     const matchKey = `gs_${m.date}_${m.team1}_${m.team2}`;
-    const score = realScores[matchKey];
-    if (score && (score.status === 'FINISHED' || score.status === 'IN_PLAY' || score.status === 'PAUSED')) {
+    const score = getMatchScore(matchKey);
+    if (score && (score.status === 'FINISHED' || score.status === 'IN_PLAY')) {
       const s1 = score.score1;
       const s2 = score.score2;
       
@@ -1486,6 +1717,7 @@ function getVenueStadium(venueStr) {
 }
 
 function renderBracket() {
+  recalculateKnockoutTree();
   const container = document.getElementById('bracket-cards-root');
   if (!container) return;
 
@@ -1553,7 +1785,7 @@ function renderBracket() {
     cardsHtml += `
       <div class="compact-match-card ${cardStateClass} ${roundClass}" 
            style="left: ${coords.x}px; top: ${coords.y}px;"
-           title="Laga ${m.match_id} - ${m.venue || ''}">
+           title="Laga ${m.match_id} - ${getMatchVenue(m)}">
         <span class="compact-match-date">${dateVenueText}</span>
         <!-- Team 1 -->
         <div class="compact-team-row ${isPlaceholder1 ? 'placeholder' : ''} ${team1WinnerClass}"
@@ -1804,11 +2036,6 @@ function renderStandingsSummary() {
           <span class="summary-rank">${idx + 1}</span>
           ${flag}
           <span class="summary-code">${code}</span>
-          <div class="grip-dots">
-            <div class="grip-dot"></div><div class="grip-dot"></div>
-            <div class="grip-dot"></div><div class="grip-dot"></div>
-            <div class="grip-dot"></div><div class="grip-dot"></div>
-          </div>
         </div>
       `;
     });
@@ -2658,119 +2885,159 @@ async function fetchRealTimeScores(isManual = false) {
     return;
   }
 
-  if (!apiKey) {
-    statusMsg.innerHTML = '<span class="pulse-dot error"></span> API Key tidak dikonfigurasi.';
-    statusMsg.style.color = "var(--accent-red)";
-    return;
-  }
-
   statusMsg.innerHTML = '<span class="pulse-dot loading"></span> Sinkronisasi skor otomatis sedang berjalan...';
   statusMsg.style.color = "var(--text-secondary)";
 
-  let fetchUrl = 'https://corsproxy.io/?url=https://api.football-data.org/v4/competitions/WC/matches';
-  let headers = { 'X-Auth-Token': apiKey };
+  let data = null;
+  let errorMsg = "";
 
-  // If deployed (running on Vercel), use the Vercel serverless proxy endpoint
-  const isVercel = typeof window !== 'undefined' && window.location && (window.location.hostname === 'julesrimet26.vercel.app' || window.location.hostname.endsWith('.vercel.app'));
-  if (isVercel) {
-    fetchUrl = '/api/matches';
-    headers = {}; // headers are handled by the serverless function
+  const directFetch = async () => {
+    console.log("Trying direct API fetch from worldcup26.ir...");
+    const response = await fetch('https://worldcup26.ir/get/games');
+    if (!response.ok) throw new Error(`Direct API returned status ${response.status}`);
+    return await response.json();
+  };
+
+  const proxyFetch = async () => {
+    console.log("Trying relative Vercel proxy fetch...");
+    const response = await fetch('/api/matches');
+    if (!response.ok) throw new Error(`Vercel proxy returned status ${response.status}`);
+    return await response.json();
+  };
+
+  const corsFetch = async () => {
+    console.log("Trying CORS proxy fallback fetch from worldcup26.ir...");
+    const response = await fetch('https://corsproxy.io/?url=https://worldcup26.ir/get/games');
+    if (!response.ok) throw new Error(`CORS proxy returned status ${response.status}`);
+    return await response.json();
+  };
+
+  // Always prioritize Direct API first to allow browser-level mock interceptors (e.g. Cypress, MSW) to capture the call.
+  const order = [
+    { name: "Direct API", fn: directFetch },
+    { name: "Vercel Proxy", fn: proxyFetch },
+    { name: "CORS Proxy Fallback", fn: corsFetch }
+  ];
+
+  for (const step of order) {
+    try {
+      data = await step.fn();
+      console.log(`${step.name} fetch succeeded!`);
+      break;
+    } catch (err) {
+      errorMsg = err.message || `Error on ${step.name}`;
+      console.log(`${step.name} fetch failed:`, err);
+    }
   }
 
-  try {
-    const response = await fetch(fetchUrl, { headers });
-
-    if (!response.ok) {
-      if (response.status === 403) {
-        throw new Error("API Key tidak valid (403 Forbidden).");
-      } else if (response.status === 429) {
-        throw new Error("Terlalu banyak permintaan (429 Rate Limit). Silakan tunggu sebentar.");
+  // Helper to determine the winner of a knockout match from the API
+  const getApiKnockoutWinner = (apiMatch, allApiMatches) => {
+    const score1 = parseInt(apiMatch.home_score);
+    const score2 = parseInt(apiMatch.away_score);
+    const team1 = apiMatch.home_team_name_en;
+    const team2 = apiMatch.away_team_name_en;
+    
+    if (score1 > score2) return team1;
+    if (score2 > score1) return team2;
+    
+    const matchId = parseInt(apiMatch.id);
+    const nextMatch = allApiMatches.find(m => 
+      parseInt(m.id) > matchId && 
+      (m.home_team_name_en === team1 || m.away_team_name_en === team1 || 
+       m.home_team_name_en === team2 || m.away_team_name_en === team2)
+    );
+    
+    if (nextMatch) {
+      if (nextMatch.home_team_name_en === team1 || nextMatch.away_team_name_en === team1) {
+        return team1;
       }
-      throw new Error(`API error (Status: ${response.status})`);
+      if (nextMatch.home_team_name_en === team2 || nextMatch.away_team_name_en === team2) {
+        return team2;
+      }
+    }
+    return team1;
+  };
+
+  try {
+    if (!data) {
+      throw new Error(errorMsg || "Gagal mengambil data dari API utama maupun proxy.");
     }
 
-    const data = await response.json();
-    if (!data || !data.matches || !Array.isArray(data.matches)) {
+    if (!data.games || !Array.isArray(data.games)) {
       throw new Error("Struktur data API tidak dikenal.");
     }
 
     let updatedCount = 0;
     let winnerAdvancedCount = 0;
 
-    data.matches.forEach(apiMatch => {
-      // We only care about played or in-progress matches
-      if (apiMatch.status === 'FINISHED' || apiMatch.status === 'IN_PLAY' || apiMatch.status === 'PAUSED') {
-        const team1Indo = TEAM_TRANSLATIONS[apiMatch.homeTeam.name] || apiMatch.homeTeam.name;
-        const team2Indo = TEAM_TRANSLATIONS[apiMatch.awayTeam.name] || apiMatch.awayTeam.name;
+    data.games.forEach(apiMatch => {
+      const isFinished = apiMatch.finished === 'TRUE' || apiMatch.time_elapsed === 'finished';
+      const isLive = !isFinished && apiMatch.time_elapsed !== 'notstarted';
+
+      const team1Indo = TEAM_TRANSLATIONS[apiMatch.home_team_name_en] || apiMatch.home_team_name_en;
+      const team2Indo = TEAM_TRANSLATIONS[apiMatch.away_team_name_en] || apiMatch.away_team_name_en;
+      
+      let localKey = null;
+      const matchId = parseInt(apiMatch.id);
+      
+      if (matchId <= 72) {
+        const match = WORLD_CUP_DATA.group_stage.find(m => 
+          (m.team1 === team1Indo && m.team2 === team2Indo) || 
+          (m.team1 === team2Indo && m.team2 === team1Indo)
+        );
+        if (match) {
+          localKey = `gs_${match.date}_${match.team1}_${match.team2}`;
+        }
+      } else {
+        const match = WORLD_CUP_DATA.knockout_stage.find(m => m.match_id === matchId);
+        if (match) {
+          localKey = `ko_${match.match_id}`;
+        }
+      }
+
+      if (localKey) {
+        const match = getMatchFromKey(localKey);
+        let score1 = null;
+        let score2 = null;
         
-        let localKey = null;
-        if (apiMatch.stage === 'GROUP_STAGE') {
-          const match = WORLD_CUP_DATA.group_stage.find(m => 
-            (m.team1 === team1Indo && m.team2 === team2Indo) || 
-            (m.team1 === team2Indo && m.team2 === team1Indo)
-          );
+        if (isFinished || isLive) {
+          const rawScore1 = parseInt(apiMatch.home_score);
+          const rawScore2 = parseInt(apiMatch.away_score);
+          
           if (match) {
-            localKey = `gs_${match.date}_${match.team1}_${match.team2}`;
-          }
-        } else {
-          const localStage = mapApiStageToLocal(apiMatch.stage);
-          if (localStage) {
-            // Find by stage, date, time
-            const apiDate = new Date(apiMatch.utcDate);
-            const wibOffset = 7 * 60 * 60 * 1000;
-            const wibDate = new Date(apiDate.getTime() + wibOffset);
-            
-            const day = wibDate.getUTCDate();
-            const month = wibDate.getUTCMonth() + 1;
-            const hours = String(wibDate.getUTCHours()).padStart(2, '0');
-            const minutes = String(wibDate.getUTCMinutes()).padStart(2, '0');
-            
-            const localDateStr = `${day}/${month}`;
-            const localTimeStr = `${hours}:${minutes}`;
-            
-            const match = WORLD_CUP_DATA.knockout_stage.find(m => 
-              m.group === localStage && 
-              m.date === localDateStr && 
-              m.time === localTimeStr
-            );
-            if (match) {
-              localKey = `ko_${match.match_id}`;
+            if (match.team1 === team1Indo) {
+              score1 = rawScore1;
+              score2 = rawScore2;
             } else {
-              // Fallback matching by teams
-              const fallbackMatch = WORLD_CUP_DATA.knockout_stage.find(m => 
-                m.group === localStage && 
-                ((m.team1 === team1Indo && m.team2 === team2Indo) || 
-                 (m.team1 === team2Indo && m.team2 === team1Indo))
-              );
-              if (fallbackMatch) {
-                localKey = `ko_${fallbackMatch.match_id}`;
-              }
+              score1 = rawScore2;
+              score2 = rawScore1;
             }
+          } else {
+            score1 = rawScore1;
+            score2 = rawScore2;
           }
         }
 
-        if (localKey) {
-          realScores[localKey] = {
-            score1: apiMatch.score.fullTime.home,
-            score2: apiMatch.score.fullTime.away,
-            status: apiMatch.status
-          };
-          updatedCount++;
+        const status = isFinished ? 'FINISHED' : (isLive ? 'IN_PLAY' : 'TIMED');
 
-          // Advance real-life winners to the simulator bracket
-          if (apiMatch.stage !== 'GROUP_STAGE' && apiMatch.status === 'FINISHED') {
-            const matchId = parseInt(localKey.replace('ko_', ''));
-            const winner = apiMatch.score.winner;
-            let winnerTeam = "";
-            if (winner === 'HOME_TEAM') {
-              winnerTeam = team1Indo;
-            } else if (winner === 'AWAY_TEAM') {
-              winnerTeam = team2Indo;
-            }
-            if (winnerTeam && simulatedWinners[matchId] !== winnerTeam) {
-              simulatedWinners[matchId] = winnerTeam;
-              winnerAdvancedCount++;
-            }
+        realScores[localKey] = {
+          score1: score1,
+          score2: score2,
+          status: status,
+          stadium_id: apiMatch.stadium_id,
+          matchday: apiMatch.matchday,
+          home_scorers: apiMatch.home_scorers,
+          away_scorers: apiMatch.away_scorers
+        };
+        updatedCount++;
+
+        // Advance real-life winners to the simulator bracket
+        if (matchId >= 73 && isFinished) {
+          const apiWinner = getApiKnockoutWinner(apiMatch, data.games);
+          const winnerTeam = TEAM_TRANSLATIONS[apiWinner] || apiWinner;
+          if (winnerTeam && simulatedWinners[matchId] !== winnerTeam) {
+            simulatedWinners[matchId] = winnerTeam;
+            winnerAdvancedCount++;
           }
         }
       }
