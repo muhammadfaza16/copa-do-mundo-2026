@@ -480,6 +480,7 @@ body.light-theme .hero-banner {
 
 /* Top Countdown Card */
 .countdown-container {
+  position: relative;
   text-align: center;
   background: linear-gradient(160deg, rgba(212, 175, 55, 0.07) 0%, rgba(0,0,0,0) 60%), var(--panel-bg);
   border: 1px solid rgba(212, 175, 55, 0.22);
@@ -552,17 +553,13 @@ body.light-theme .hero-banner {
 }
 
 .countdown-sub {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 3px;
+  text-align: center;
   font-size: 0.62rem;
   color: var(--text-secondary);
   font-weight: 500;
   letter-spacing: var(--tracking-wide);
   opacity: 0.6;
   margin-top: 2px;
-  line-height: 1;
 }
 
 body.light-theme .countdown-teams-row {
@@ -820,16 +817,32 @@ body.light-theme .match-week {
 }
 
 .match-time-box {
+  position: relative;
   background: rgba(255, 255, 255, 0.015);
   border: 1px solid rgba(255, 255, 255, 0.04);
   border-radius: var(--border-radius-sm);
-  padding: 6px 14px;
   font-family: var(--font-display);
   font-size: 0.8rem;
   font-weight: 700;
   text-align: center;
   min-width: 76px;
   color: var(--text-primary);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  box-sizing: border-box;
+}
+
+.match-time-box.score-box {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 14px 14px 14px 14px;
+}
+
+.match-time-box.time-box {
+  display: block;
+  padding: 6px 14px;
 }
 
 .match-badge {
@@ -1886,6 +1899,14 @@ body.light-theme .flag-crest {
   line-height: 1.2;
 }
 
+.score-box .score-status {
+  position: absolute;
+  bottom: 4px;
+  left: 0;
+  right: 0;
+  text-align: center;
+}
+
 .score-status {
   font-size: 0.55rem;
   font-weight: 700;
@@ -1932,34 +1953,13 @@ body.light-theme .flag-crest {
   opacity: 0.7;
 }
 
-.venue-icon {
-  width: 11px;
-  height: 11px;
-  fill: none;
-  stroke: currentColor;
-  stroke-width: 2;
-  stroke-linecap: round;
-  stroke-linejoin: round;
-  display: block;
-  align-self: center;
-  flex-shrink: 0;
-  opacity: 0.65;
-}
-
-/* In countdown-sub (non-flex inline context) force inline alignment */
-.countdown-sub .venue-icon {
-  display: inline-block;
-  vertical-align: middle;
-  position: relative;
-  top: -0.5px;
-}
 
 .match-venue-subtle {
   grid-column: 1 / -1;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 3px;
+  gap: 0;
   font-size: 0.62rem;
   color: var(--text-secondary);
   opacity: 0.6;
@@ -2439,11 +2439,26 @@ body.light-theme .welcome-mascot-side {
     height: 22px;
   }
 
-  .match-time-box {
+  .match-time-box.score-box {
+    padding: 12px 8px 12px 8px;
+    font-size: 0.72rem;
+    min-width: 52px;
+    text-align: center;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .match-time-box.time-box {
     padding: 4px 8px;
     font-size: 0.72rem;
     min-width: 52px;
     text-align: center;
+    display: block;
+  }
+  
+  .score-box .score-status {
+    bottom: 2px;
   }
   
   .score-display {
@@ -3808,6 +3823,59 @@ body.light-theme .countdown-container.live-active {
   font-size: 0.7rem;
   font-weight: 500;
   color: var(--text-secondary);
+}
+
+/* Slider / Carousel for Results Section */
+.results-slider-container {
+  position: relative;
+  overflow: hidden;
+  width: 100%;
+  border-radius: var(--border-radius-md);
+}
+
+.results-slider-track {
+  display: flex;
+  transition: transform 0.6s cubic-bezier(0.25, 1, 0.5, 1);
+  width: 100%;
+}
+
+.results-slide {
+  flex: 0 0 100%;
+  width: 100%;
+  box-sizing: border-box;
+  padding: 4px 6px;
+}
+
+.results-slider-dots {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  margin-top: 12px;
+  margin-bottom: 8px;
+}
+
+.results-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.25);
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.results-dot.active {
+  background: var(--primary-gold);
+  width: 18px;
+  border-radius: 4px;
+}
+
+body.light-theme .results-dot {
+  background: rgba(0, 0, 0, 0.2);
+}
+
+body.light-theme .results-dot.active {
+  background: var(--primary-gold);
 }
 
 

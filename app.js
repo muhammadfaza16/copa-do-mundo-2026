@@ -85,7 +85,13 @@ function parseScorers(scorersStr) {
     .replace(/[“”]/g, '')
     .trim();
   if (!cleaned) return '';
-  return cleaned.split(',').map(s => s.trim().replace(/^['"]|['"]$/g, '')).join(', ');
+  return cleaned.split(',')
+    .map(s => {
+      let item = s.trim().replace(/^['"]|['"]$/g, '');
+      return item.replace(/(\d+)(?!')/g, "$1'");
+    })
+    .filter(Boolean)
+    .join('<br>');
 }
 
 function migrateLocalStorageToIndonesian() {
@@ -438,16 +444,29 @@ function isStarred(matchKey) {
 
 // Toggle favorites
 function toggleStar(matchKey, btnElement) {
-  if (favorites.includes(matchKey)) {
+  const isFavorited = favorites.includes(matchKey);
+  if (isFavorited) {
     favorites = favorites.filter(id => id !== matchKey);
-    btnElement.classList.remove('active');
   } else {
     favorites.push(matchKey);
-    btnElement.classList.add('active');
   }
+  
   localStorage.setItem('wc2026_favorites', JSON.stringify(favorites));
   renderFavorites();
   renderFavoritesCount();
+
+  // Find all star buttons for this match across the page and sync their active state
+  // 1. Regular match cards
+  const cards = document.querySelectorAll(`.match-card[data-key="${matchKey}"]`);
+  cards.forEach(card => {
+    const starBtn = card.querySelector('.star-btn');
+    if (starBtn) {
+      if (isFavorited) starBtn.classList.remove('active');
+      else starBtn.classList.add('active');
+    }
+  });
+
+
 }
 
 // Render the count of favorites in header/dashboard
@@ -474,6 +493,10 @@ function updateHeroPanel() {
   const cdDisplay = document.getElementById('countdown-display');
   const subEl = document.getElementById('countdown-sub');
   if (!container || !titleEl || !cdDisplay || !subEl) return;
+
+  // Ensure hero star button is removed (not requested)
+  const cdStarBtn = document.getElementById('cd-star-btn');
+  if (cdStarBtn) cdStarBtn.remove();
 
   const now = Date.now();
   const allMatches = [
@@ -563,9 +586,10 @@ function updateHeroPanel() {
           </div>
         </div>
         ${(cleanScorers1 || cleanScorers2) ? `
-          <div class="live-scorers-box" style="display: flex; justify-content: space-between; font-size: 0.65rem; color: rgba(255,255,255,0.7); padding: 8px 12px 0; border-top: 1px dashed rgba(255,255,255,0.12); margin-top: 8px; width: 100%;">
-            <div class="live-home-scorers" style="text-align: left; max-width: 45%; word-break: break-word;" title="${cleanScorers1}">${cleanScorers1 ? '⚽ ' + cleanScorers1 : ''}</div>
-            <div class="live-away-scorers" style="text-align: right; max-width: 45%; word-break: break-word;" title="${cleanScorers2}">${cleanScorers2 ? '⚽ ' + cleanScorers2 : ''}</div>
+          <div class="live-scorers-box" style="display: grid; grid-template-columns: minmax(0, 1fr) 30px minmax(0, 1fr); gap: 12px; font-size: 0.65rem; color: rgba(255,255,255,0.7); padding: 8px 12px 0; border-top: 1px dashed rgba(255,255,255,0.12); margin-top: 8px; width: 100%;">
+            <div class="live-home-scorers" style="text-align: right; word-break: break-word; line-height: 1.4;" title="${cleanScorers1.replace(/<br>/g, ', ')}">${cleanScorers1 || ''}</div>
+            <div style="text-align: center; font-size: 0.8rem; line-height: 1.4; opacity: 0.85;">⚽</div>
+            <div class="live-away-scorers" style="text-align: left; word-break: break-word; line-height: 1.4;" title="${cleanScorers2.replace(/<br>/g, ', ')}">${cleanScorers2 || ''}</div>
           </div>
         ` : ''}
       </div>
@@ -574,6 +598,10 @@ function updateHeroPanel() {
     const venue = getMatchVenue(m);
     const stageName = m.isKO ? m.group : `Grup ${m.group.replace('Grup ', '')}`;
     subEl.innerHTML = `<span class="live-venue-label">${stageName} · ${venue}</span>`;
+    
+    // Remove countdown star button if it exists during live matches
+    const cdStarBtn = document.getElementById('cd-star-btn');
+    if (cdStarBtn) cdStarBtn.remove();
     
     subEl.style.display = 'block';
     cdDisplay.style.display = 'block';
@@ -632,6 +660,8 @@ function updateHeroPanel() {
   const flag1Cd = getFlagHtml(targetMatch.team1);
   const flag2Cd = getFlagHtml(targetMatch.team2);
 
+
+
   // Rich team preview row
   const cdTeamRowId = 'cd-teams-row';
   let cdTeamRow = document.getElementById(cdTeamRowId);
@@ -654,8 +684,22 @@ function updateHeroPanel() {
     </div>
   `;
 
-  const venueIconSvgCd = `<svg class="venue-icon" viewBox="0 0 24 24"><path d="M2 10c0-3.9 4.5-7 10-7s10 3.1 10 7-4.5 7-10 7S2 13.9 2 10z"></path><path d="M4 11v5a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-5"></path><path d="M7 10c0-1.7 2.2-3 5-3s5 1.3 5 3-2.2 3-5 3-5-1.3-5-3z"></path></svg>`;
-  subEl.innerHTML = `${venueIconSvgCd}<span>${venue}</span>`;
+  const timeInfo = getFormattedTime(targetMatch.date, targetMatch.time);
+  const dateStr = `${timeInfo.date} · ${timeInfo.time} ${timeInfo.tzLabel}`;
+  const stageName = targetMatch.isKO ? targetMatch.group : `Grup ${targetMatch.group.replace('Grup ', '')}`;
+  
+  subEl.style.opacity = '1';
+  subEl.innerHTML = `
+    <div style="font-size: 0.72rem; font-weight: 700; color: var(--primary-gold); margin-top: 8px; margin-bottom: 3px; letter-spacing: 0.5px;">
+      ${stageName}
+    </div>
+    <div style="font-size: 0.65rem; color: var(--text-primary); font-weight: 600; margin-bottom: 2px; opacity: 0.9;">
+      ${dateStr}
+    </div>
+    <div style="font-size: 0.6rem; color: var(--text-secondary); opacity: 0.6;">
+      ${venue}
+    </div>
+  `;
 
   const days = Math.floor(diff / (1000 * 60 * 60 * 24));
   const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
@@ -693,8 +737,6 @@ function createMatchCardHtml(match, index, isKnockout = false) {
   const matchday = (rawScore && rawScore.matchday) ? rawScore.matchday : null;
   const labelVenue = getMatchVenue(match);
 
-  const venueIconSvg = `<svg class="venue-icon" viewBox="0 0 24 24"><path d="M2 10c0-3.9 4.5-7 10-7s10 3.1 10 7-4.5 7-10 7S2 13.9 2 10z"></path><path d="M4 11v5a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-5"></path><path d="M7 10c0-1.7 2.2-3 5-3s5 1.3 5 3-2.2 3-5 3-5-1.3-5-3z"></path></svg>`;
-
   const stageHeaderHtml = `
     <div class="match-stage-container">
       <span class="match-stage">${match.group}</span>
@@ -702,7 +744,6 @@ function createMatchCardHtml(match, index, isKnockout = false) {
   `;
 
   const starBtnHtml = `<button class="star-btn star-btn-inline ${starredClass}" onclick="toggleMatchStar('${matchKey}', this)" aria-label="Simpan Pertandingan"><svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg></button>`;
-
 
   if (scoreData) {
     const isLive = scoreData.status === 'IN_PLAY' || scoreData.status === 'PAUSED' || scoreData.status === 'EXTRA_TIME' || scoreData.status === 'PENALTY_SHOOTOUT';
@@ -725,7 +766,7 @@ function createMatchCardHtml(match, index, isKnockout = false) {
             <span class="team-name">${match.team1}</span>
             ${getFlagHtml(match.team1)}
           </div>
-          <div class="match-time-box">
+          <div class="match-time-box score-box">
             <div class="score-display">${scoreData.score1} - ${scoreData.score2}</div>
             <div class="score-status ${isLive ? 'status-live' : 'status-ft'}">${statusText}</div>
           </div>
@@ -733,16 +774,16 @@ function createMatchCardHtml(match, index, isKnockout = false) {
             ${getFlagHtml(match.team2)}
             <span class="team-name">${match.team2}</span>
           </div>
-          <div class="match-venue-subtle">${venueIconSvg}${labelVenue}</div>
+          <div class="match-venue-subtle">${labelVenue}</div>
         </div>
         ${(cleanScorers1 || cleanScorers2) ? `
           <div class="match-scorers-row" style="display: grid; grid-template-columns: minmax(0, 1fr) 50px minmax(0, 1fr); gap: 16px; margin: 4px 0 10px; padding: 6px 12px 0; border-top: 1px dashed rgba(128, 128, 128, 0.15); font-size: 0.65rem; color: var(--text-secondary); opacity: 0.8;">
-            <div class="scorers-left" style="text-align: right; word-break: break-word; line-height: 1.3;">
-              ${cleanScorers1 ? '⚽ ' + cleanScorers1 : ''}
+            <div class="scorers-left" style="text-align: right; word-break: break-word; line-height: 1.4;">
+              ${cleanScorers1 || ''}
             </div>
-            <div></div> <!-- Middle spacer aligning with the time box -->
-            <div class="scorers-right" style="text-align: left; word-break: break-word; line-height: 1.3;">
-              ${cleanScorers2 ? '⚽ ' + cleanScorers2 : ''}
+            <div style="text-align: center; font-size: 0.8rem; line-height: 1.4; opacity: 0.85;">⚽</div>
+            <div class="scorers-right" style="text-align: left; word-break: break-word; line-height: 1.4;">
+              ${cleanScorers2 || ''}
             </div>
           </div>
         ` : ''}
@@ -760,7 +801,7 @@ function createMatchCardHtml(match, index, isKnockout = false) {
             <span class="team-name">${match.team1}</span>
             ${getFlagHtml(match.team1)}
           </div>
-          <div class="match-time-box">
+          <div class="match-time-box time-box">
             <div>${timeInfo.time}</div>
             <div class="time-tz-label">${timeInfo.tzLabel}</div>
           </div>
@@ -768,7 +809,7 @@ function createMatchCardHtml(match, index, isKnockout = false) {
             ${getFlagHtml(match.team2)}
             <span class="team-name">${match.team2}</span>
           </div>
-          <div class="match-venue-subtle match-venue-with-star">${venueIconSvg}<span class="venue-name-text">${labelVenue}</span>${starBtnHtml}</div>
+          <div class="match-venue-subtle match-venue-with-star"><span class="venue-name-text">${labelVenue}</span>${starBtnHtml}</div>
         </div>
       </div>
     `;
@@ -855,7 +896,7 @@ function renderSchedule() {
   if (allFiltered.length === 0) {
     const emptyMsg = scheduleSubTab === 'results'
       ? 'Belum ada hasil pertandingan yang tersedia untuk kriteria pencarian/filter ini.'
-      : 'Tidak ada jadwal pertandingan mendatang yang tersedia untuk kriteria pencarian/filter ini.';
+      : 'Tidak ada jadwal pertandingan yang tersedia untuk kriteria pencarian/filter ini.';
     container.innerHTML = `
       <div class="empty-placeholder">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
@@ -929,6 +970,47 @@ function renderFavorites() {
   container.innerHTML = listHtml;
 }
 
+let resultsSliderInterval = null;
+let currentResultsSlide = 0;
+
+function startResultsAutoplay(count) {
+  if (resultsSliderInterval) clearInterval(resultsSliderInterval);
+  resultsSliderInterval = setInterval(() => {
+    currentResultsSlide = (currentResultsSlide + 1) % count;
+    goToResultsSlide(currentResultsSlide);
+  }, 4000);
+}
+
+function goToResultsSlide(index) {
+  currentResultsSlide = index;
+  const track = document.querySelector('.results-slider-track');
+  if (!track) {
+    if (resultsSliderInterval) {
+      clearInterval(resultsSliderInterval);
+      resultsSliderInterval = null;
+    }
+    return;
+  }
+  track.style.transform = `translateX(-${index * 100}%)`;
+  const dots = document.querySelectorAll('.results-dot');
+  dots.forEach((dot, idx) => {
+    if (idx === index) {
+      dot.classList.add('active');
+    } else {
+      dot.classList.remove('active');
+    }
+  });
+}
+
+window.handleResultDotClick = function(index) {
+  goToResultsSlide(index);
+  const containerEl = document.querySelector('.results-slider-container');
+  if (containerEl) {
+    const slides = containerEl.querySelectorAll('.results-slide');
+    startResultsAutoplay(slides.length);
+  }
+};
+
 // Render Latest Match Results (Hasil Pertandingan Terbaru)
 function renderLatestResults() {
   recalculateKnockoutTree();
@@ -968,12 +1050,93 @@ function renderLatestResults() {
   // Take top 3 latest matches
   const latestMatches = matchesWithScores.slice(0, 3);
 
-  let listHtml = '';
-  latestMatches.forEach(match => {
-    listHtml += createMatchCardHtml(match, match.match_id || 0, match.isKO);
+  if (latestMatches.length <= 1) {
+    let listHtml = '';
+    latestMatches.forEach(match => {
+      listHtml += createMatchCardHtml(match, match.match_id || 0, match.isKO);
+    });
+    container.innerHTML = listHtml;
+    if (resultsSliderInterval) {
+      clearInterval(resultsSliderInterval);
+      resultsSliderInterval = null;
+    }
+  } else {
+    let listHtml = '';
+    latestMatches.forEach(match => {
+      listHtml += `
+        <div class="results-slide">
+          ${createMatchCardHtml(match, match.match_id || 0, match.isKO)}
+        </div>
+      `;
+    });
+
+    let dotsHtml = '';
+    latestMatches.forEach((_, idx) => {
+      dotsHtml += `<span class="results-dot ${idx === 0 ? 'active' : ''}" onclick="handleResultDotClick(${idx})"></span>`;
+    });
+
+    container.innerHTML = `
+      <div class="results-slider-container">
+        <div class="results-slider-track">
+          ${listHtml}
+        </div>
+      </div>
+      <div class="results-slider-dots">
+        ${dotsHtml}
+      </div>
+    `;
+
+    currentResultsSlide = 0;
+    startResultsAutoplay(latestMatches.length);
+
+    // Pause on hover
+    const containerEl = container.querySelector('.results-slider-container');
+    if (containerEl) {
+      containerEl.addEventListener('mouseenter', () => {
+        if (resultsSliderInterval) clearInterval(resultsSliderInterval);
+      });
+      containerEl.addEventListener('mouseleave', () => {
+        startResultsAutoplay(latestMatches.length);
+      });
+    }
+  }
+}
+
+// Render Dashboard/Home tab nearest matches (2 Days from the first upcoming match day)
+function getHeroMatch() {
+  const now = Date.now();
+  const allMatches = [
+    ...WORLD_CUP_DATA.group_stage.map(m => ({ ...m, isKO: false })),
+    ...knockoutMatches.map(m => ({ ...m, isKO: true }))
+  ];
+
+  const liveMatches = allMatches.filter(m => {
+    const matchKey = m.isKO ? `ko_${m.match_id}` : `gs_${m.date}_${m.team1}_${m.team2}`;
+    const scoreData = getMatchScore(matchKey);
+    
+    if (scoreData && (scoreData.status === 'IN_PLAY' || scoreData.status === 'PAUSED' || scoreData.status === 'EXTRA_TIME' || scoreData.status === 'PENALTY_SHOOTOUT')) {
+      return true;
+    }
+    
+    const matchTime = getMatchDate(m.date, m.time).getTime();
+    const isFinished = scoreData && scoreData.status === 'FINISHED';
+    return matchTime <= now && now < matchTime + (125 * 60 * 1000) && !isFinished;
   });
 
-  container.innerHTML = listHtml;
+  if (liveMatches.length > 0) {
+    return liveMatches[0];
+  }
+
+  return getNextMatch();
+}
+
+function isSameMatch(m1, m2) {
+  if (!m1 || !m2) return false;
+  if (m1.isKO !== m2.isKO) return false;
+  if (m1.isKO) {
+    return m1.match_id === m2.match_id;
+  }
+  return m1.date === m2.date && m1.team1 === m2.team1 && m1.team2 === m2.team2;
 }
 
 // Render Dashboard/Home tab nearest matches (2 Days from the first upcoming match day)
@@ -1049,7 +1212,26 @@ function renderNearestMatches() {
           <circle cx="12" cy="12" r="10"></circle>
           <line x1="8" y1="12" x2="16" y2="12"></line>
         </svg>
-        <p>Tidak ada pertandingan yang dijadwalkan.</p>
+        <p>Tidak ada pertandingan lainnya yang dijadwalkan.</p>
+      </div>
+    `;
+    return;
+  }
+
+  // Filter out the hero match shown in countdown/live panel
+  const heroMatch = getHeroMatch();
+  if (heroMatch) {
+    upcoming = upcoming.filter(m => !isSameMatch(m, heroMatch));
+  }
+
+  if (upcoming.length === 0) {
+    container.innerHTML = `
+      <div class="empty-placeholder">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+          <circle cx="12" cy="12" r="10"></circle>
+          <line x1="8" y1="12" x2="16" y2="12"></line>
+        </svg>
+        <p>Tidak ada pertandingan lainnya yang dijadwalkan.</p>
       </div>
     `;
     return;
@@ -1138,11 +1320,19 @@ function renderGroups() {
       `;
     });
 
+    const isGroupLive = WORLD_CUP_DATA.group_stage.some(m => {
+      const matchGroup = m.group.replace('Grup ', '').trim();
+      if (matchGroup !== groupLetter) return false;
+      const matchKey = `gs_${m.date}_${m.team1}_${m.team2}`;
+      const score = getMatchScore(matchKey);
+      return score && (score.status === 'IN_PLAY' || score.status === 'PAUSED' || score.status === 'EXTRA_TIME' || score.status === 'PENALTY_SHOOTOUT');
+    });
+
     gridHtml += `
       <div class="group-card" onclick="window.showGroupMatches('Grup ${groupLetter}')">
         <div class="group-title" style="display: flex; justify-content: space-between; align-items: center;">
           <span>Grup ${groupLetter}</span>
-          ${groupMatchesPlayed > 0 ? '<span style="font-size: 0.55rem; color: var(--accent-emerald); border: 1px solid rgba(16, 185, 129, 0.3); padding: 2px 6px; border-radius: 4px; font-weight: bold; letter-spacing: 0.5px; animation: pulse-blink 2s infinite;">LIVE</span>' : ''}
+          ${isGroupLive ? '<span style="font-size: 0.55rem; color: var(--accent-red); border: 1px solid rgba(239, 68, 68, 0.3); padding: 2px 6px; border-radius: 4px; font-weight: bold; letter-spacing: 0.5px; animation: pulse-blink 1.5s infinite;">LIVE</span>' : ''}
         </div>
         <table class="group-table">
           <thead>
@@ -2793,7 +2983,7 @@ function initSettingsAndFilters() {
     });
   });
 
-  // Sub-tabs switcher (Jadwal Mendatang vs Hasil Pertandingan)
+  // Sub-tabs switcher (Jadwal vs Hasil Pertandingan)
   const subtabUpcoming = document.getElementById('subtab-upcoming');
   const subtabResults = document.getElementById('subtab-results');
   if (subtabUpcoming && subtabResults) {
