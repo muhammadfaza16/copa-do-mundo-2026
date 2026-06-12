@@ -782,7 +782,7 @@ function createMatchCardHtml(match, index, isKnockout = false) {
       <div class="match-card" data-key="${matchKey}" title="${labelVenue}">
         <div class="match-header">
           ${stageHeaderHtml}
-          <span class="match-date-label">${timeInfo.date}</span>
+          <span class="match-date-label">${timeInfo.date} · ${timeInfo.time} ${timeInfo.tzLabel}</span>
         </div>
         <div class="match-body">
           <div class="team-display left">
@@ -917,14 +917,13 @@ function renderSchedule() {
     return m * 100 + d;
   }
 
-  // Sort based on active sub-tab: upcoming is ascending, results is descending
+  // Sort: always ascending (oldest matches first)
   allFiltered.sort((a, b) => {
     const dateDiff = dateToVal(a.date) - dateToVal(b.date);
     if (dateDiff !== 0) {
-      return scheduleSubTab === 'results' ? -dateDiff : dateDiff;
+      return dateDiff;
     }
-    const timeDiff = a.time.localeCompare(b.time);
-    return scheduleSubTab === 'results' ? -timeDiff : timeDiff;
+    return a.time.localeCompare(b.time);
   });
 
   if (allFiltered.length === 0) {
