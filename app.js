@@ -1001,7 +1001,7 @@ function startResultsAutoplay(count) {
   resultsSliderInterval = setInterval(() => {
     if (resultsSliderTransitioning) return;
     goToResultsSlide(currentResultsSlide + 1);
-  }, 4000);
+  }, 6000);
 }
 
 function goToResultsSlide(targetRealIndex, animate = true) {
@@ -1023,7 +1023,7 @@ function goToResultsSlide(targetRealIndex, animate = true) {
 
   if (animate) {
     resultsSliderTransitioning = true;
-    track.style.transition = 'transform 0.8s cubic-bezier(0.16, 1, 0.3, 1)';
+    track.style.transition = 'transform 1.0s cubic-bezier(0.16, 1, 0.3, 1)';
   } else {
     track.style.transition = 'none';
   }
