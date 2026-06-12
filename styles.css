@@ -3788,43 +3788,6 @@ body.light-theme .countdown-container.live-active {
   z-index: 3;
 }
 
-/* Diagonal Premium Sweep Effect */
-.countdown-container.live-active::after {
-  content: "";
-  position: absolute;
-  top: -50%;
-  left: -60%;
-  width: 200%;
-  height: 200%;
-  background: linear-gradient(
-    45deg,
-    transparent 45%,
-    rgba(255, 255, 255, 0.08) 50%,
-    transparent 55%
-  );
-  transform: rotate(45deg);
-  animation: liveSweep 7s infinite cubic-bezier(0.25, 1, 0.5, 1);
-  pointer-events: none;
-  z-index: 1;
-}
-
-body.light-theme .countdown-container.live-active::after {
-  background: linear-gradient(
-    45deg,
-    transparent 45%,
-    rgba(239, 68, 68, 0.05) 50%,
-    transparent 55%
-  );
-}
-
-@keyframes liveSweep {
-  0% {
-    transform: translate(-30%, -30%) rotate(45deg);
-  }
-  20%, 100% {
-    transform: translate(30%, 30%) rotate(45deg);
-  }
-}
 
 @keyframes liveCardGlow {
   0%, 100% {
