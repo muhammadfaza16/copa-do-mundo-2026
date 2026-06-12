@@ -643,11 +643,11 @@ function updateHeroPanel() {
           <div class="live-main-row">
             <!-- Team 1 -->
             <div class="live-team left-team">
-              ${flag1}
               <div class="live-team-info">
                 <span class="live-team-code highlighted-code">${team1Code}</span>
                 <span class="subtle-fullname">${team1Name}</span>
               </div>
+              ${flag1}
             </div>
             
             <!-- Center Block (Score) -->
@@ -659,11 +659,11 @@ function updateHeroPanel() {
             
             <!-- Team 2 -->
             <div class="live-team right-team">
+              ${flag2}
               <div class="live-team-info">
                 <span class="live-team-code highlighted-code">${team2Code}</span>
                 <span class="subtle-fullname">${team2Name}</span>
               </div>
-              ${flag2}
             </div>
           </div>
           ${(cleanScorers1 || cleanScorers2) ? `

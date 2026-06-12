@@ -1950,6 +1950,11 @@ input:checked + .slider:before {
   box-shadow: none !important; /* Placeholder doesn't need shadows */
 }
 
+.flag-crest-placeholder svg {
+  width: 40% !important;
+  height: 40% !important;
+}
+
 body.light-theme .flag-crest-placeholder {
   background: rgba(0, 0, 0, 0.03) !important;
   border-color: rgba(0, 0, 0, 0.1) !important;
@@ -3929,25 +3934,52 @@ body.light-theme .countdown-container.live-active::after {
   text-align: right;
 }
 
+.left-team .live-team-info {
+  align-items: flex-end;
+  text-align: right;
+}
+
 .right-team {
   justify-content: flex-start;
   text-align: left;
 }
 
+.right-team .live-team-info {
+  align-items: flex-start;
+  text-align: left;
+}
+
 .live-team .flag-crest {
-  width: 38px !important;
-  height: 38px !important;
+  width: 60px !important;
+  height: 60px !important;
   border-radius: 50%;
   object-fit: cover;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
-  border: 1.5px solid var(--glass-border);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.5);
+  border: 2px solid rgba(255, 255, 255, 0.15);
   flex-shrink: 0;
+  transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.3s ease, border-color 0.3s ease;
+}
+
+.live-team:hover .flag-crest {
+  transform: scale(1.1);
+  box-shadow: 0 0 16px rgba(239, 68, 68, 0.4), 0 4px 18px rgba(0, 0, 0, 0.6);
+  border-color: rgba(239, 68, 68, 0.5);
+}
+
+body.light-theme .live-team .flag-crest {
+  border-color: rgba(0, 0, 0, 0.08);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+body.light-theme .live-team:hover .flag-crest {
+  box-shadow: 0 0 16px rgba(239, 68, 68, 0.25), 0 4px 14px rgba(0, 0, 0, 0.15);
+  border-color: rgba(239, 68, 68, 0.3);
 }
 
 @media (max-width: 480px) {
   .live-team .flag-crest {
-    width: 30px !important;
-    height: 30px !important;
+    width: 46px !important;
+    height: 46px !important;
   }
 }
 
@@ -3959,36 +3991,38 @@ body.light-theme .countdown-container.live-active::after {
 
 .highlighted-code {
   font-family: var(--font-display);
-  font-size: 1.25rem;
-  font-weight: 850;
-  color: var(--text-primary);
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--text-secondary);
   line-height: 1.1;
-  letter-spacing: 0.5px;
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
 }
 
 @media (max-width: 480px) {
   .highlighted-code {
-    font-size: 1.05rem;
+    font-size: 0.85rem;
+    letter-spacing: 0.5px;
   }
 }
 
 .subtle-fullname {
   font-family: var(--font-display);
-  font-size: 0.72rem;
+  font-size: 0.68rem;
   font-weight: 500;
-  color: var(--text-secondary);
+  color: var(--text-muted);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
   line-height: 1.2;
   margin-top: 2px;
-  opacity: 0.85;
+  opacity: 0.75;
 }
 
 @media (max-width: 480px) {
   .subtle-fullname {
-    font-size: 0.62rem;
-    max-width: 65px; /* Safely constrain to avoid colliding with score on narrow screens */
+    font-size: 0.58rem;
+    max-width: 60px; /* Safely constrain to avoid colliding with score on narrow screens */
   }
 }
 
