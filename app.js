@@ -579,7 +579,8 @@ function updateHeroPanel() {
     
     const matchTime = getMatchDate(m.date, m.time).getTime();
     const isFinished = scoreData && scoreData.status === 'FINISHED';
-    return matchTime <= now && now < matchTime + (125 * 60 * 1000) && !isFinished;
+    const isTimed = scoreData && scoreData.status === 'TIMED';
+    return matchTime <= now && now < matchTime + (125 * 60 * 1000) && !isFinished && !isTimed;
   });
 
   if (liveMatches.length > 0) {
@@ -595,27 +596,60 @@ function updateHeroPanel() {
     const flag1 = getFlagHtml(m.team1);
     const flag2 = getFlagHtml(m.team2);
 
-    // Calculate match minute dynamically
-    const matchTime = getMatchDate(m.date, m.time).getTime();
-    const elapsedMins = Math.floor((now - matchTime) / (60 * 1000));
-    
+    // Calculate match minute dynamically based on API time_elapsed if available
     let minuteLabel = "LIVE";
-    if (scoreData.status === 'EXTRA_TIME') {
+    if (scoreData && scoreData.status === 'EXTRA_TIME') {
       minuteLabel = "ET";
-    } else if (scoreData.status === 'PENALTY_SHOOTOUT') {
+    } else if (scoreData && scoreData.status === 'PENALTY_SHOOTOUT') {
       minuteLabel = "PEN";
-    } else if (elapsedMins >= 0 && elapsedMins < 45) {
-      minuteLabel = `${elapsedMins + 1}'`;
-    } else if (elapsedMins >= 45 && elapsedMins < 50) {
-      minuteLabel = `45+'`;
-    } else if (elapsedMins >= 50 && elapsedMins < 65) {
-      minuteLabel = `HT`;
-    } else if (elapsedMins >= 65 && elapsedMins < 110) {
-      minuteLabel = `${elapsedMins - 19}'`;
-    } else if (elapsedMins >= 110 && elapsedMins < 115) {
-      minuteLabel = `90+'`;
+    } else if (scoreData && scoreData.time_elapsed) {
+      const timeElapsed = scoreData.time_elapsed;
+      if (timeElapsed === 'finished') {
+        minuteLabel = "FT";
+      } else if (timeElapsed === 'notstarted') {
+        minuteLabel = "0'";
+      } else {
+        const baseMin = parseInt(timeElapsed);
+        if (isNaN(baseMin)) {
+          minuteLabel = timeElapsed;
+        } else {
+          const fetchedAt = scoreData.fetched_at || Date.now();
+          const elapsedSinceFetch = Math.floor((Date.now() - fetchedAt) / (60 * 1000));
+          const currentMin = baseMin + elapsedSinceFetch;
+          
+          if (currentMin >= 45 && baseMin < 50) {
+            if (currentMin === 45) {
+              minuteLabel = "45'";
+            } else {
+              minuteLabel = `45+${currentMin - 45}'`;
+            }
+          } else if (currentMin >= 90 && baseMin >= 90) {
+            if (currentMin === 90) {
+              minuteLabel = "90'";
+            } else {
+              minuteLabel = `90+${currentMin - 90}'`;
+            }
+          } else {
+            minuteLabel = `${currentMin}'`;
+          }
+        }
+      }
     } else {
-      minuteLabel = `FT`;
+      const matchTime = getMatchDate(m.date, m.time).getTime();
+      const elapsedMins = Math.floor((now - matchTime) / (60 * 1000));
+      if (elapsedMins >= 0 && elapsedMins < 45) {
+        minuteLabel = `${elapsedMins + 1}'`;
+      } else if (elapsedMins >= 45 && elapsedMins < 50) {
+        minuteLabel = `45+'`;
+      } else if (elapsedMins >= 50 && elapsedMins < 65) {
+        minuteLabel = `HT`;
+      } else if (elapsedMins >= 65 && elapsedMins < 110) {
+        minuteLabel = `${elapsedMins - 19}'`;
+      } else if (elapsedMins >= 110 && elapsedMins < 115) {
+        minuteLabel = `90+'`;
+      } else {
+        minuteLabel = `FT`;
+      }
     }
 
     const cleanScorers1 = parseScorers(scoreData.home_scorers);
@@ -730,6 +764,61 @@ function updateHeroPanel() {
   const diff = targetTime - now;
 
   if (diff <= 0) {
+    const cdKey = `cd_waiting_${targetMatch.date}_${targetMatch.time}_${targetMatch.team1}_${targetMatch.team2}`;
+    if (lastHeroMatchKey !== cdKey) {
+      lastHeroMatchKey = cdKey;
+
+      const isOpening = targetMatch.date === "12/6" && targetMatch.time === "02:00" && targetMatch.team1 === "Meksiko";
+      titleEl.innerText = isOpening ? `Kick-Off Match Pertama` : `Kick-Off Match Berikutnya`;
+
+      const venue = getMatchVenue(targetMatch);
+      const flag1Cd = getFlagHtml(targetMatch.team1);
+      const flag2Cd = getFlagHtml(targetMatch.team2);
+
+      const cdTeamRowId = 'cd-teams-row';
+      let cdTeamRow = document.getElementById(cdTeamRowId);
+      if (!cdTeamRow) {
+        cdTeamRow = document.createElement('div');
+        cdTeamRow.id = cdTeamRowId;
+        cdTeamRow.className = 'countdown-teams-row';
+        cdDisplay.parentNode.insertBefore(cdTeamRow, subEl);
+      }
+      cdTeamRow.innerHTML = `
+        <div class="cd-team cd-team-left">
+          <span class="cd-team-name">${targetMatch.team1}</span>
+          ${flag1Cd}
+        </div>
+        <span class="cd-vs">VS</span>
+        <div class="cd-team cd-team-right">
+          ${flag2Cd}
+          <span class="cd-team-name">${targetMatch.team2}</span>
+        </div>
+      `;
+
+      const timeInfo = getFormattedTime(targetMatch.date, targetMatch.time);
+      const dateStr = `${timeInfo.date} · ${timeInfo.time} ${timeInfo.tzLabel}`;
+      const stageName = targetMatch.isKO ? targetMatch.group : `Grup ${targetMatch.group.replace('Grup ', '')}`;
+
+      subEl.style.opacity = '1';
+      subEl.innerHTML = `
+        <div style="font-size: 0.72rem; font-weight: 700; color: var(--primary-gold); margin-top: 8px; margin-bottom: 3px; letter-spacing: 0.5px;">
+          ${stageName}
+        </div>
+        <div style="font-size: 0.65rem; color: var(--text-primary); font-weight: 600; margin-bottom: 2px; opacity: 0.9;">
+          ${dateStr}
+        </div>
+        <div style="font-size: 0.6rem; color: var(--text-secondary); opacity: 0.6;">
+          ${venue}
+        </div>
+      `;
+    }
+
+    cdDisplay.innerHTML = `
+      <div style="font-size: 0.82rem; font-weight: 700; color: var(--primary-gold); padding: 8px 0; display: flex; align-items: center; justify-content: center; gap: 8px; letter-spacing: 0.5px;">
+        <span class="waiting-pulse-dot"></span>
+        MENUNGGU KICK-OFF...
+      </div>
+    `;
     return;
   }
 
@@ -1324,7 +1413,8 @@ function getHeroMatch() {
     
     const matchTime = getMatchDate(m.date, m.time).getTime();
     const isFinished = scoreData && scoreData.status === 'FINISHED';
-    return matchTime <= now && now < matchTime + (125 * 60 * 1000) && !isFinished;
+    const isTimed = scoreData && scoreData.status === 'TIMED';
+    return matchTime <= now && now < matchTime + (125 * 60 * 1000) && !isFinished && !isTimed;
   });
 
   if (liveMatches.length > 0) {
@@ -3430,7 +3520,9 @@ async function fetchRealTimeScores(isManual = false) {
           home_scorers: apiMatch.home_scorers,
           away_scorers: apiMatch.away_scorers,
           home_red_cards: apiMatch.home_red_cards || apiMatch.home_redcards || null,
-          away_red_cards: apiMatch.away_red_cards || apiMatch.away_redcards || null
+          away_red_cards: apiMatch.away_red_cards || apiMatch.away_redcards || null,
+          time_elapsed: apiMatch.time_elapsed || null,
+          fetched_at: Date.now()
         };
         updatedCount++;
 
