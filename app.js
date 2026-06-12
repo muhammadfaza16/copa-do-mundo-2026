@@ -1393,6 +1393,137 @@ function renderLatestResults() {
       startResultsAutoplay(n);
     }
   }
+  
+  // Render statistics and top scorers on the Home tab
+  renderStatistics();
+}
+
+function renderStatistics() {
+  const scorersListContainer = document.getElementById('top-scorers-list');
+  if (!scorersListContainer) return;
+
+  const scorersMap = {};
+  let totalGoals = 0;
+  let matchesPlayed = 0;
+  const teamGoalsMap = {};
+
+  const allMatches = [
+    ...WORLD_CUP_DATA.group_stage.map(m => ({ ...m, isKO: false })),
+    ...knockoutMatches.map(m => ({ ...m, isKO: true }))
+  ];
+
+  allMatches.forEach(m => {
+    const matchKey = m.isKO ? `ko_${m.match_id}` : `gs_${m.date}_${m.team1}_${m.team2}`;
+    const score = getMatchScore(matchKey);
+
+    if (score && (score.status === 'FINISHED' || score.status === 'IN_PLAY')) {
+      const s1 = parseInt(score.score1) || 0;
+      const s2 = parseInt(score.score2) || 0;
+      
+      totalGoals += (s1 + s2);
+      matchesPlayed++;
+
+      teamGoalsMap[m.team1] = (teamGoalsMap[m.team1] || 0) + s1;
+      teamGoalsMap[m.team2] = (teamGoalsMap[m.team2] || 0) + s2;
+
+      const addScorers = (scorersStr, teamName) => {
+        if (!scorersStr || scorersStr === 'null' || scorersStr === '""' || scorersStr === '[]') return;
+        const cleaned = scorersStr.replace(/[{}""\[\]]/g, '').replace(/[“”]/g, '').trim();
+        if (!cleaned) return;
+
+        cleaned.split(',').forEach(s => {
+          const item = s.trim().replace(/^['"]|['"]$/g, '');
+          if (!item) return;
+
+          const minutesMatch = item.match(/\d+'/g);
+          const goalCount = minutesMatch ? minutesMatch.length : 1;
+
+          let playerName = item.split(/\d/)[0].trim();
+          if (!playerName) playerName = item.trim();
+
+          if (playerName) {
+            if (!scorersMap[playerName]) {
+              scorersMap[playerName] = { name: playerName, team: teamName, goals: 0 };
+            }
+            scorersMap[playerName].goals += goalCount;
+          }
+        });
+      };
+
+      addScorers(score.home_scorers, m.team1);
+      addScorers(score.away_scorers, m.team2);
+    }
+  });
+
+  const sortedScorers = Object.values(scorersMap).sort((a, b) => b.goals - a.goals);
+
+  let topTeam = "-";
+  let topTeamGoals = 0;
+  Object.entries(teamGoalsMap).forEach(([team, goals]) => {
+    if (goals > topTeamGoals) {
+      topTeam = team;
+      topTeamGoals = goals;
+    }
+  });
+
+  let scorersHtml = '';
+  if (sortedScorers.length === 0) {
+    scorersHtml = `
+      <div class="empty-placeholder">
+        <p>Belum ada gol yang dicetak.</p>
+      </div>
+    `;
+  } else {
+    // Only display top 5 scorers on Home page to prevent a crowded layout
+    const topScorers = sortedScorers.slice(0, 5);
+    topScorers.forEach((s, index) => {
+      const rank = index + 1;
+      let rankClass = 'stats-rank-other';
+      if (rank === 1) rankClass = 'stats-rank-1st';
+      else if (rank === 2) rankClass = 'stats-rank-2nd';
+      else if (rank === 3) rankClass = 'stats-rank-3rd';
+
+      scorersHtml += `
+        <div class="stats-row">
+          <div class="stats-row-left">
+            <span class="stats-rank ${rankClass}">${rank}</span>
+            <div class="stats-player-info">
+              <span class="stats-player-name">${s.name}</span>
+              <div class="stats-player-team">
+                ${getFlagHtml(s.team)}
+                <span>${s.team}</span>
+              </div>
+            </div>
+          </div>
+          <div class="stats-row-right">
+            <span class="stats-goals-num">${s.goals}</span>
+            <span class="stats-goals-label">Gol</span>
+          </div>
+        </div>
+      `;
+    });
+  }
+
+  scorersListContainer.innerHTML = scorersHtml;
+
+  const totalGoalsEl = document.getElementById('stats-total-goals');
+  const avgGoalsEl = document.getElementById('stats-avg-goals');
+  const topTeamEl = document.getElementById('stats-top-team');
+
+  if (totalGoalsEl) totalGoalsEl.textContent = totalGoals;
+  if (avgGoalsEl) avgGoalsEl.textContent = matchesPlayed > 0 ? (totalGoals / matchesPlayed).toFixed(2) : "0.00";
+  if (topTeamEl) {
+    if (topTeam !== "-") {
+      topTeamEl.innerHTML = `
+        <div style="display: flex; align-items: center; gap: 6px; justify-content: center;">
+          ${getFlagHtml(topTeam)}
+          <span style="font-weight: 700;">${topTeam} (${topTeamGoals} Gol)</span>
+        </div>
+      `;
+    } else {
+      topTeamEl.textContent = "-";
+    }
+  }
 }
 
 // Render Dashboard/Home tab nearest matches (2 Days from the first upcoming match day)

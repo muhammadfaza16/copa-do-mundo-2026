@@ -141,6 +141,38 @@
           <p>Belum ada pertandingan favorit. Ketuk ikon bintang di tab Jadwal untuk menyimpannya.</p>
         </div>
       </div>
+
+      <!-- Statistik Turnamen & Top Scorer -->
+      <div class="section-title" style="margin-top: 32px; margin-bottom: 16px;">
+        Statistik Turnamen
+      </div>
+
+      <div class="stats-overview-grid" style="margin-bottom: 20px;">
+        <div class="stats-overview-card">
+          <span class="stats-overview-label">Total Gol</span>
+          <span id="stats-total-goals" class="stats-overview-val">0</span>
+        </div>
+        <div class="stats-overview-card">
+          <span class="stats-overview-label">Rata-rata Gol</span>
+          <span id="stats-avg-goals" class="stats-overview-val">0.00</span>
+        </div>
+        <div class="stats-overview-card">
+          <span class="stats-overview-label">Tim Tersubur</span>
+          <span id="stats-top-team" class="stats-overview-val">-</span>
+        </div>
+      </div>
+
+      <div class="stats-container" style="margin-bottom: 20px;">
+        <div class="stats-card">
+          <div class="stats-card-header">
+            <h3>Pencetak Gol Terbanyak</h3>
+            <span class="stats-card-icon">⚽</span>
+          </div>
+          <div class="stats-list" id="top-scorers-list">
+            <!-- Will be populated by JS -->
+          </div>
+        </div>
+      </div>
     </section>
 
 

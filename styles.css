@@ -3919,4 +3919,202 @@ body.light-theme .results-dot.active {
   background: var(--primary-gold);
 }
 
+/* Tab Statistik Styles */
+.stats-overview-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.stats-overview-card {
+  background: var(--panel-bg);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--border-radius-md);
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  backdrop-filter: blur(10px);
+}
+
+.stats-overview-label {
+  font-size: 0.65rem;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  margin-bottom: 6px;
+}
+
+.stats-overview-val {
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: var(--text-primary);
+  font-family: var(--font-display);
+}
+
+#stats-top-team {
+  font-size: 0.75rem;
+}
+
+.stats-card {
+  background: var(--panel-bg);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--border-radius-md);
+  padding: 20px;
+  backdrop-filter: blur(10px);
+}
+
+.stats-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+  border-bottom: 1px dashed rgba(255, 255, 255, 0.1);
+  padding-bottom: 12px;
+}
+
+body.light-theme .stats-card-header {
+  border-bottom-color: rgba(0, 0, 0, 0.1);
+}
+
+.stats-card-header h3 {
+  font-size: 0.85rem;
+  font-weight: 800;
+  color: var(--primary-gold);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.stats-card-icon {
+  font-size: 1rem;
+}
+
+.stats-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.stats-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 12px;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.03);
+  border-radius: var(--border-radius-sm);
+  transition: var(--transition-smooth);
+}
+
+body.light-theme .stats-row {
+  background: rgba(0, 0, 0, 0.01);
+  border-color: rgba(0, 0, 0, 0.03);
+}
+
+.stats-row:hover {
+  background: rgba(255, 255, 255, 0.04);
+  border-color: rgba(212, 175, 55, 0.15);
+  transform: translateY(-1px);
+}
+
+body.light-theme .stats-row:hover {
+  background: rgba(0, 0, 0, 0.03);
+  border-color: rgba(212, 175, 55, 0.3);
+}
+
+.stats-row-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+}
+
+.stats-rank {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  font-size: 0.65rem;
+  font-weight: 800;
+  flex-shrink: 0;
+}
+
+.stats-rank-1st {
+  background: #ffd700;
+  color: #12141a;
+  box-shadow: 0 0 8px rgba(255, 215, 0, 0.3);
+}
+
+.stats-rank-2nd {
+  background: #c0c0c0;
+  color: #12141a;
+  box-shadow: 0 0 8px rgba(192, 192, 192, 0.3);
+}
+
+.stats-rank-3rd {
+  background: #cd7f32;
+  color: #12141a;
+  box-shadow: 0 0 8px rgba(205, 127, 50, 0.3);
+}
+
+.stats-rank-other {
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--text-secondary);
+}
+
+body.light-theme .stats-rank-other {
+  background: rgba(0, 0, 0, 0.05);
+}
+
+.stats-player-info {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.stats-player-name {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.stats-player-team {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.58rem;
+  color: var(--text-secondary);
+  margin-top: 2px;
+}
+
+.stats-row-right {
+  display: flex;
+  align-items: baseline;
+  gap: 3px;
+  flex-shrink: 0;
+}
+
+.stats-goals-num {
+  font-size: 0.95rem;
+  font-weight: 800;
+  color: var(--primary-gold);
+  font-family: var(--font-display);
+}
+
+.stats-goals-label {
+  font-size: 0.55rem;
+  color: var(--text-secondary);
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
 
