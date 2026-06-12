@@ -933,35 +933,35 @@ body.light-theme .match-redcards-row.no-scorers {
   border-radius: 4px;
   border: none;
   background: linear-gradient(
-    90deg,
-    #d4af37 0%,
-    #ffd700 25%,
+    120deg,
+    #d4af37 30%,
+    #f3e5ab 45%,
     #fff8dc 50%,
-    #ffd700 75%,
-    #d4af37 100%
+    #f3e5ab 55%,
+    #d4af37 70%
   );
   background-size: 200% auto;
-  animation: goldShimmer 3s infinite linear;
+  animation: goldShimmer 6s infinite linear;
   color: #000000;
   font-weight: 800;
   text-transform: uppercase;
   letter-spacing: 0.8px;
   pointer-events: none;
-  box-shadow: 0 0 8px rgba(212, 175, 55, 0.4);
+  box-shadow: 0 0 8px rgba(212, 175, 55, 0.3);
 }
 
 body.light-theme .badge-big-match {
   background: linear-gradient(
-    90deg,
-    #c5a028 0%,
-    #e5c130 25%,
+    120deg,
+    #c5a028 30%,
+    #e5c130 45%,
     #fff8dc 50%,
-    #e5c130 75%,
-    #c5a028 100%
+    #e5c130 55%,
+    #c5a028 70%
   );
   background-size: 200% auto;
   color: #000000;
-  box-shadow: 0 0 8px rgba(197, 160, 40, 0.3);
+  box-shadow: 0 0 8px rgba(197, 160, 40, 0.2);
 }
 
 @keyframes goldShimmer {
