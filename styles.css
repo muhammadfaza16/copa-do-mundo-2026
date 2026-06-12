@@ -858,22 +858,10 @@ body.light-theme .match-week {
   letter-spacing: 0.5px;
 }
 
-.badge-top10 {
-  background: rgba(239, 68, 68, 0.08);
-  color: #fca5a5;
-  border: 1px solid rgba(239, 68, 68, 0.2);
-}
-
-.badge-top20 {
-  background: rgba(212, 175, 55, 0.08);
-  color: var(--primary-gold);
-  border: 1px solid rgba(212, 175, 55, 0.2);
-}
-
 .badge-big-match {
-  background: rgba(212, 175, 55, 0.08);
-  color: var(--primary-gold);
-  border: 1px solid rgba(212, 175, 55, 0.2);
+  background: var(--primary-gold);
+  color: #12141a;
+  border: 1px solid var(--primary-gold);
 }
 
 .star-btn {
