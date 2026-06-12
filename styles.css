@@ -1946,6 +1946,14 @@ body.light-theme .flag-crest {
   opacity: 0.65;
 }
 
+/* In countdown-sub (non-flex inline context) force inline alignment */
+.countdown-sub .venue-icon {
+  display: inline-block;
+  vertical-align: middle;
+  position: relative;
+  top: -0.5px;
+}
+
 .match-venue-subtle {
   grid-column: 1 / -1;
   display: flex;
@@ -1959,9 +1967,6 @@ body.light-theme .flag-crest {
   margin-top: 6px;
   letter-spacing: 0.2px;
   text-transform: none;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
   line-height: 1;
 }
 
@@ -1969,6 +1974,7 @@ body.light-theme .flag-crest {
 .match-venue-with-star {
   position: relative;
   justify-content: center; /* keep venue centered */
+  overflow: visible; /* don't clip the absolute star button */
 }
 
 .star-btn-inline {
