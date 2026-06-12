@@ -1966,7 +1966,9 @@ function renderBracket() {
     const formattedFlag1 = flag1 ? flag1.replace('class="flag-crest"', 'class="flag-crest-compact"') : '';
     const formattedFlag2 = flag2 ? flag2.replace('class="flag-crest"', 'class="flag-crest-compact"') : '';
 
-    const dateVenueText = `M${m.match_id}`;
+    const timeInfo = getFormattedTime(m.date, m.time);
+    const compactDate = timeInfo.date.split(',')[1] ? timeInfo.date.split(',')[1].trim() : timeInfo.date;
+    const dateVenueText = `M${m.match_id} · ${compactDate} · ${timeInfo.time}`;
 
     cardsHtml += `
       <div class="compact-match-card ${cardStateClass} ${roundClass}" 

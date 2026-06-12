@@ -818,8 +818,8 @@ body.light-theme .match-week {
 
 .match-time-box {
   position: relative;
-  background: rgba(255, 255, 255, 0.015);
-  border: 1px solid rgba(255, 255, 255, 0.04);
+  background: transparent;
+  border: none;
   border-radius: var(--border-radius-sm);
   font-family: var(--font-display);
   font-size: 0.8rem;
@@ -2963,10 +2963,10 @@ body.light-theme .mobile-team-name {
 /* Subtle match date/schedule label (clean text, no background or border) */
 .compact-match-date {
   position: absolute;
-  top: -11px;
+  top: -12px;
   left: 0;
-  font-size: 6px;
-  font-weight: 500;
+  font-size: 7.5px;
+  font-weight: 600;
   color: var(--text-secondary);
   line-height: 1;
   white-space: nowrap;
@@ -2974,13 +2974,13 @@ body.light-theme .mobile-team-name {
   z-index: 15;
   text-transform: none; /* mixed-case reads much softer */
   letter-spacing: 0.1px;
-  opacity: 0.6; /* subtle yet legible */
+  opacity: 0.8; /* subtle yet legible */
   text-shadow: 0 0 1.5px var(--bg-gradient-start);
 }
 
 body.light-theme .compact-match-date {
   color: #8e8e93;
-  opacity: 0.75;
+  opacity: 0.9;
 }
 
 /* Maintain rounded corners when rows have background colors since card overflow is visible */
