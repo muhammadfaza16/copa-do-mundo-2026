@@ -546,6 +546,40 @@ function getEligibleGroupsFor3rd(label) {
   return groupsPart.split('/').map(letter => `Grup ${letter}`);
 }
 
+// Helper to calculate match minute dynamically based on score status and time_elapsed
+function getMatchMinuteLabel(match, scoreData) {
+  if (!scoreData) return "LIVE";
+  
+  if (scoreData.status === 'FINISHED') return "FT";
+  if (scoreData.status === 'EXTRA_TIME') return "ET";
+  if (scoreData.status === 'PENALTY_SHOOTOUT') return "PEN";
+  if (scoreData.status === 'PAUSED') return "HT";
+  
+  return "LIVE";
+}
+
+
+// Centralized live match detection: API status first, then time-based fallback
+function isMatchLive(match, scoreData) {
+  // 1. API status takes priority
+  if (scoreData && (scoreData.status === 'IN_PLAY' || scoreData.status === 'PAUSED' || scoreData.status === 'EXTRA_TIME' || scoreData.status === 'PENALTY_SHOOTOUT')) {
+    return true;
+  }
+  // 2. Already finished
+  if (scoreData && scoreData.status === 'FINISHED') return false;
+  // 3. Time-based fallback: if kickoff has passed but within 130 min window, treat as live
+  if (match && match.date && match.time) {
+    const now = Date.now();
+    const DELAY_OFFSET_MS = 2 * 60 * 1000;
+    const kickoff = getMatchDate(match.date, match.time).getTime();
+    const elapsed = now - kickoff - DELAY_OFFSET_MS;
+    if (elapsed > 0 && elapsed < 130 * 60 * 1000) {
+      return true;
+    }
+  }
+  return false;
+}
+
 // ----------------------------------------------------
 // COUNTDOWN TIMER
 // ----------------------------------------------------
@@ -568,19 +602,11 @@ function updateHeroPanel() {
     ...knockoutMatches.map(m => ({ ...m, isKO: true }))
   ];
 
-  // 1. Check if there is a LIVE match (via API status OR time-based check)
+  // 1. Check if there is a LIVE match (API status + time-based fallback)
   const liveMatches = allMatches.filter(m => {
     const matchKey = m.isKO ? `ko_${m.match_id}` : `gs_${m.date}_${m.team1}_${m.team2}`;
     const scoreData = getMatchScore(matchKey);
-    
-    if (scoreData && (scoreData.status === 'IN_PLAY' || scoreData.status === 'PAUSED' || scoreData.status === 'EXTRA_TIME' || scoreData.status === 'PENALTY_SHOOTOUT')) {
-      return true;
-    }
-    
-    const matchTime = getMatchDate(m.date, m.time).getTime();
-    const isFinished = scoreData && scoreData.status === 'FINISHED';
-    const isTimed = scoreData && scoreData.status === 'TIMED';
-    return matchTime <= now && now < matchTime + (125 * 60 * 1000) && !isFinished && !isTimed;
+    return isMatchLive(m, scoreData);
   });
 
   if (liveMatches.length > 0) {
@@ -597,60 +623,7 @@ function updateHeroPanel() {
     const flag2 = getFlagHtml(m.team2);
 
     // Calculate match minute dynamically based on API time_elapsed if available
-    let minuteLabel = "LIVE";
-    if (scoreData && scoreData.status === 'EXTRA_TIME') {
-      minuteLabel = "ET";
-    } else if (scoreData && scoreData.status === 'PENALTY_SHOOTOUT') {
-      minuteLabel = "PEN";
-    } else if (scoreData && scoreData.time_elapsed) {
-      const timeElapsed = scoreData.time_elapsed;
-      if (timeElapsed === 'finished') {
-        minuteLabel = "FT";
-      } else if (timeElapsed === 'notstarted') {
-        minuteLabel = "0'";
-      } else {
-        const baseMin = parseInt(timeElapsed);
-        if (isNaN(baseMin)) {
-          minuteLabel = timeElapsed;
-        } else {
-          const fetchedAt = scoreData.fetched_at || Date.now();
-          const elapsedSinceFetch = Math.floor((Date.now() - fetchedAt) / (60 * 1000));
-          const currentMin = baseMin + elapsedSinceFetch;
-          
-          if (currentMin >= 45 && baseMin < 50) {
-            if (currentMin === 45) {
-              minuteLabel = "45'";
-            } else {
-              minuteLabel = `45+${currentMin - 45}'`;
-            }
-          } else if (currentMin >= 90 && baseMin >= 90) {
-            if (currentMin === 90) {
-              minuteLabel = "90'";
-            } else {
-              minuteLabel = `90+${currentMin - 90}'`;
-            }
-          } else {
-            minuteLabel = `${currentMin}'`;
-          }
-        }
-      }
-    } else {
-      const matchTime = getMatchDate(m.date, m.time).getTime();
-      const elapsedMins = Math.floor((now - matchTime) / (60 * 1000));
-      if (elapsedMins >= 0 && elapsedMins < 45) {
-        minuteLabel = `${elapsedMins + 1}'`;
-      } else if (elapsedMins >= 45 && elapsedMins < 50) {
-        minuteLabel = `45+'`;
-      } else if (elapsedMins >= 50 && elapsedMins < 65) {
-        minuteLabel = `HT`;
-      } else if (elapsedMins >= 65 && elapsedMins < 110) {
-        minuteLabel = `${elapsedMins - 19}'`;
-      } else if (elapsedMins >= 110 && elapsedMins < 115) {
-        minuteLabel = `90+'`;
-      } else {
-        minuteLabel = `FT`;
-      }
-    }
+    const minuteLabel = getMatchMinuteLabel(m, scoreData);
 
     const cleanScorers1 = parseScorers(scoreData.home_scorers);
     const cleanScorers2 = parseScorers(scoreData.away_scorers);
@@ -663,46 +636,48 @@ function updateHeroPanel() {
     if (lastHeroMatchKey !== liveKey) {
       lastHeroMatchKey = liveKey;
 
-      titleEl.innerHTML = `<span class="live-pulse-dot"></span>Pertandingan Berlangsung`;
+      titleEl.innerHTML = `<span class="live-badge-header">${minuteLabel}</span>`;
       
       cdDisplay.innerHTML = `
-        <div class="live-scoreboard" style="display: flex; flex-direction: column; width: 100%;">
-          <div style="display: flex; width: 100%; align-items: center; justify-content: space-between;">
+        <div class="live-scoreboard">
+          <div class="live-main-row">
+            <!-- Team 1 -->
             <div class="live-team left-team">
               ${flag1}
               <div class="live-team-info">
-                <span class="live-team-name">${team1Name}</span>
-                <span class="live-team-code">${team1Code}</span>
+                <span class="live-team-code highlighted-code">${team1Code}</span>
+                <span class="subtle-fullname">${team1Name}</span>
               </div>
+            </div>
+            
+            <!-- Center Block (Score) -->
+            <div class="live-center-block">
               <span class="live-score">${scoreData.score1 !== null && scoreData.score1 !== undefined ? scoreData.score1 : 0}</span>
-            </div>
-            
-            <div class="live-time-col">
-              <span class="live-minute-badge">${minuteLabel}</span>
-              <span class="live-vs">VS</span>
-            </div>
-            
-            <div class="live-team right-team">
+              <span class="live-score-separator">:</span>
               <span class="live-score">${scoreData.score2 !== null && scoreData.score2 !== undefined ? scoreData.score2 : 0}</span>
+            </div>
+            
+            <!-- Team 2 -->
+            <div class="live-team right-team">
               <div class="live-team-info">
-                <span class="live-team-name">${team2Name}</span>
-                <span class="live-team-code">${team2Code}</span>
+                <span class="live-team-code highlighted-code">${team2Code}</span>
+                <span class="subtle-fullname">${team2Name}</span>
               </div>
               ${flag2}
             </div>
           </div>
           ${(cleanScorers1 || cleanScorers2) ? `
-            <div class="live-scorers-box" style="display: grid; grid-template-columns: minmax(0, 1fr) 30px minmax(0, 1fr); gap: 12px; font-size: 0.65rem; color: rgba(255,255,255,0.7); padding: 8px 12px 0; border-top: 1px dashed rgba(255,255,255,0.12); margin-top: 8px; width: 100%;">
-              <div class="live-home-scorers" style="text-align: right; word-break: break-word; line-height: 1.4;" title="${cleanScorers1.replace(/<br>/g, ', ')}">${cleanScorers1 || ''}</div>
-              <div style="text-align: center; font-size: 0.8rem; line-height: 1.4; opacity: 0.85;">⚽</div>
-              <div class="live-away-scorers" style="text-align: left; word-break: break-word; line-height: 1.4;" title="${cleanScorers2.replace(/<br>/g, ', ')}">${cleanScorers2 || ''}</div>
+            <div class="live-events-row">
+              <div class="live-events-left">${cleanScorers1 || ''}</div>
+              <div class="live-events-icon">⚽</div>
+              <div class="live-events-right">${cleanScorers2 || ''}</div>
             </div>
           ` : ''}
           ${(cleanRedCards1 || cleanRedCards2) ? `
-            <div class="live-redcards-box" style="display: grid; grid-template-columns: minmax(0, 1fr) 30px minmax(0, 1fr); gap: 12px; font-size: 0.65rem; color: var(--accent-red); padding: 8px 12px 0; ${!(cleanScorers1 || cleanScorers2) ? 'border-top: 1px dashed rgba(255,255,255,0.12); margin-top: 8px;' : 'margin-top: -4px;'} width: 100%;">
-              <div class="live-home-redcards" style="text-align: right; word-break: break-word; line-height: 1.4; font-weight: 500;" title="${cleanRedCards1.replace(/<br>/g, ', ')}">${cleanRedCards1 || ''}</div>
-              <div style="text-align: center; font-size: 0.8rem; line-height: 1.4; display: flex; align-items: center; justify-content: center;"><span style="display: inline-block; width: 7px; height: 10px; background-color: var(--accent-red); border-radius: 1px; box-shadow: 0 0 4px rgba(239, 68, 68, 0.6);"></span></div>
-              <div class="live-away-redcards" style="text-align: left; word-break: break-word; line-height: 1.4; font-weight: 500;" title="${cleanRedCards2.replace(/<br>/g, ', ')}">${cleanRedCards2 || ''}</div>
+            <div class="live-events-row redcard-row">
+              <div class="live-events-left">${cleanRedCards1 || ''}</div>
+              <div class="live-events-icon"><span class="red-card-icon"></span></div>
+              <div class="live-events-right">${cleanRedCards2 || ''}</div>
             </div>
           ` : ''}
         </div>
@@ -919,11 +894,11 @@ function createMatchCardHtml(match, index, isKnockout = false) {
   const starBtnHtml = `<button class="star-btn star-btn-inline ${starredClass}" onclick="toggleMatchStar('${matchKey}', this)" aria-label="Simpan Pertandingan"><svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg></button>`;
 
   if (scoreData) {
-    const isLive = scoreData.status === 'IN_PLAY' || scoreData.status === 'PAUSED' || scoreData.status === 'EXTRA_TIME' || scoreData.status === 'PENALTY_SHOOTOUT';
+    const isLive = isMatchLive(match, scoreData);
     let statusText = 'FT';
-    if (scoreData.status === 'IN_PLAY' || scoreData.status === 'PAUSED') statusText = 'LIVE';
-    else if (scoreData.status === 'EXTRA_TIME') statusText = 'ET';
-    else if (scoreData.status === 'PENALTY_SHOOTOUT') statusText = 'PEN';
+    if (isLive) {
+      statusText = getMatchMinuteLabel(match, scoreData);
+    }
 
     const cleanScorers1 = parseScorers(scoreData.home_scorers);
     const cleanScorers2 = parseScorers(scoreData.away_scorers);
@@ -952,23 +927,25 @@ function createMatchCardHtml(match, index, isKnockout = false) {
           <div class="match-venue-subtle">${labelVenue}</div>
         </div>
         ${(cleanScorers1 || cleanScorers2) ? `
-          <div class="match-scorers-row" style="display: grid; grid-template-columns: minmax(0, 1fr) 50px minmax(0, 1fr); gap: 16px; margin: 4px 0 10px; padding: 6px 12px 0; border-top: 1px dashed rgba(128, 128, 128, 0.15); font-size: 0.65rem; color: var(--text-secondary); opacity: 0.8;">
-            <div class="scorers-left" style="text-align: right; word-break: break-word; line-height: 1.4;">
+          <div class="match-scorers-row">
+            <div class="scorers-left">
               ${cleanScorers1 || ''}
             </div>
-            <div style="text-align: center; font-size: 0.8rem; line-height: 1.4; opacity: 0.85;">⚽</div>
-            <div class="scorers-right" style="text-align: left; word-break: break-word; line-height: 1.4;">
+            <div class="scorers-icon">⚽</div>
+            <div class="scorers-right">
               ${cleanScorers2 || ''}
             </div>
           </div>
         ` : ''}
         ${(cleanRedCards1 || cleanRedCards2) ? `
-          <div class="match-redcards-row" style="display: grid; grid-template-columns: minmax(0, 1fr) 50px minmax(0, 1fr); gap: 16px; margin: -4px 0 10px; padding: 6px 12px 0; font-size: 0.65rem; color: var(--text-secondary); opacity: 0.8; ${!(cleanScorers1 || cleanScorers2) ? 'border-top: 1px dashed rgba(128, 128, 128, 0.15); margin-top: 4px;' : ''}">
-            <div class="redcards-left" style="text-align: right; word-break: break-word; line-height: 1.4; color: var(--accent-red); font-weight: 500;">
+          <div class="match-redcards-row${!(cleanScorers1 || cleanScorers2) ? ' no-scorers' : ''}">
+            <div class="redcards-left">
               ${cleanRedCards1 || ''}
             </div>
-            <div style="text-align: center; font-size: 0.65rem; line-height: 1.4; display: flex; align-items: center; justify-content: center;"><span style="display: inline-block; width: 7px; height: 10px; background-color: var(--accent-red); border-radius: 1px; box-shadow: 0 0 4px rgba(239, 68, 68, 0.5);"></span></div>
-            <div class="redcards-right" style="text-align: left; word-break: break-word; line-height: 1.4; color: var(--accent-red); font-weight: 500;">
+            <div class="redcards-icon">
+              <span class="red-card-icon"></span>
+            </div>
+            <div class="redcards-right">
               ${cleanRedCards2 || ''}
             </div>
           </div>
@@ -1242,11 +1219,11 @@ function renderLatestResults() {
     ...knockoutMatches.map(m => ({ ...m, isKO: true }))
   ];
 
-  // Filter matches that have scores recorded (finished or live)
+  // Filter matches that have scores recorded and are finished
   const matchesWithScores = allMatches.filter(m => {
     const matchKey = m.isKO ? `ko_${m.match_id}` : `gs_${m.date}_${m.team1}_${m.team2}`;
     const score = getMatchScore(matchKey);
-    return score && (score.status === 'FINISHED' || score.status === 'IN_PLAY');
+    return score && score.status === 'FINISHED';
   });
 
   if (matchesWithScores.length === 0) {
@@ -1539,15 +1516,7 @@ function getHeroMatch() {
   const liveMatches = allMatches.filter(m => {
     const matchKey = m.isKO ? `ko_${m.match_id}` : `gs_${m.date}_${m.team1}_${m.team2}`;
     const scoreData = getMatchScore(matchKey);
-    
-    if (scoreData && (scoreData.status === 'IN_PLAY' || scoreData.status === 'PAUSED' || scoreData.status === 'EXTRA_TIME' || scoreData.status === 'PENALTY_SHOOTOUT')) {
-      return true;
-    }
-    
-    const matchTime = getMatchDate(m.date, m.time).getTime();
-    const isFinished = scoreData && scoreData.status === 'FINISHED';
-    const isTimed = scoreData && scoreData.status === 'TIMED';
-    return matchTime <= now && now < matchTime + (125 * 60 * 1000) && !isFinished && !isTimed;
+    return isMatchLive(m, scoreData);
   });
 
   if (liveMatches.length > 0) {
@@ -1752,7 +1721,7 @@ function renderGroups() {
       if (matchGroup !== groupLetter) return false;
       const matchKey = `gs_${m.date}_${m.team1}_${m.team2}`;
       const score = getMatchScore(matchKey);
-      return score && (score.status === 'IN_PLAY' || score.status === 'PAUSED' || score.status === 'EXTRA_TIME' || score.status === 'PENALTY_SHOOTOUT');
+      return isMatchLive(m, score);
     });
 
     gridHtml += `
@@ -3475,6 +3444,22 @@ function initSettingsAndFilters() {
 }
 
 // Background Polling functions
+let currentPollInterval = 60000; // Default: 60s
+let consecutiveErrors = 0;
+const MAX_CONSECUTIVE_ERRORS = 5;
+
+function hasLiveMatches() {
+  const allMatches = [
+    ...WORLD_CUP_DATA.group_stage.map(m => ({ ...m, isKO: false })),
+    ...knockoutMatches.map(m => ({ ...m, isKO: true }))
+  ];
+  return allMatches.some(m => {
+    const matchKey = m.isKO ? `ko_${m.match_id}` : `gs_${m.date}_${m.team1}_${m.team2}`;
+    const scoreData = getMatchScore(matchKey);
+    return isMatchLive(m, scoreData);
+  });
+}
+
 function startScorePolling() {
   if (scorePollInterval) {
     clearInterval(scorePollInterval);
@@ -3483,11 +3468,25 @@ function startScorePolling() {
   // Fetch immediately
   fetchRealTimeScores(false);
   
-  // Set interval every 60 seconds
+  // Adaptive interval: 30s when live, 60s otherwise
+  const targetInterval = hasLiveMatches() ? 30000 : 60000;
+  currentPollInterval = targetInterval;
+  
   scorePollInterval = setInterval(() => {
     fetchRealTimeScores(false);
-  }, 60000);
-  console.log("Score polling started.");
+    
+    // Re-evaluate poll speed after each fetch
+    const newInterval = hasLiveMatches() ? 30000 : 60000;
+    if (newInterval !== currentPollInterval) {
+      currentPollInterval = newInterval;
+      clearInterval(scorePollInterval);
+      scorePollInterval = setInterval(() => {
+        fetchRealTimeScores(false);
+      }, currentPollInterval);
+      console.log(`Poll interval adjusted to ${currentPollInterval / 1000}s`);
+    }
+  }, currentPollInterval);
+  console.log(`Score polling started (${currentPollInterval / 1000}s interval).`);
 }
 
 function stopScorePolling() {
@@ -3504,7 +3503,8 @@ async function fetchRealTimeScores(isManual = false) {
   if (!statusMsg) return;
 
   const manual = isManual === true;
-  if (!manual && Date.now() - lastFetchTime < 60000) {
+  const throttleMs = Math.max(currentPollInterval - 5000, 20000); // Slightly less than interval to avoid skips
+  if (!manual && Date.now() - lastFetchTime < throttleMs) {
     console.log("Score auto-fetch skipped (throttled).");
     return;
   }
@@ -3596,7 +3596,7 @@ async function fetchRealTimeScores(isManual = false) {
 
     data.games.forEach(apiMatch => {
       const isFinished = apiMatch.finished === 'TRUE' || apiMatch.time_elapsed === 'finished';
-      const isLive = !isFinished && apiMatch.time_elapsed !== 'notstarted';
+      let isLive = !isFinished && apiMatch.time_elapsed !== 'notstarted';
 
       const team1Indo = TEAM_TRANSLATIONS[apiMatch.home_team_name_en] || apiMatch.home_team_name_en;
       const team2Indo = TEAM_TRANSLATIONS[apiMatch.away_team_name_en] || apiMatch.away_team_name_en;
@@ -3621,24 +3621,73 @@ async function fetchRealTimeScores(isManual = false) {
 
       if (localKey) {
         const match = getMatchFromKey(localKey);
+        
+        // Time-based fallback: if API says notstarted but kickoff has passed, treat as live
+        if (!isFinished && !isLive && match && match.date && match.time) {
+          const kickoff = getMatchDate(match.date, match.time).getTime();
+          const elapsed = Date.now() - kickoff - (2 * 60 * 1000);
+          if (elapsed > 0 && elapsed < 130 * 60 * 1000) {
+            isLive = true;
+          }
+        }
+        
         let score1 = null;
         let score2 = null;
+        let scorers1 = null;
+        let scorers2 = null;
+        let redCards1 = null;
+        let redCards2 = null;
         
+        const rawHomeRed = apiMatch.home_red_cards || apiMatch.home_redcards || null;
+        const rawAwayRed = apiMatch.away_red_cards || apiMatch.away_redcards || null;
+
         if (isFinished || isLive) {
-          const rawScore1 = parseInt(apiMatch.home_score);
-          const rawScore2 = parseInt(apiMatch.away_score);
+          const rawScore1 = parseInt(apiMatch.home_score) || 0;
+          const rawScore2 = parseInt(apiMatch.away_score) || 0;
           
           if (match) {
             if (match.team1 === team1Indo) {
               score1 = rawScore1;
               score2 = rawScore2;
+              scorers1 = apiMatch.home_scorers;
+              scorers2 = apiMatch.away_scorers;
+              redCards1 = rawHomeRed;
+              redCards2 = rawAwayRed;
             } else {
               score1 = rawScore2;
               score2 = rawScore1;
+              scorers1 = apiMatch.away_scorers;
+              scorers2 = apiMatch.home_scorers;
+              redCards1 = rawAwayRed;
+              redCards2 = rawHomeRed;
             }
           } else {
             score1 = rawScore1;
             score2 = rawScore2;
+            scorers1 = apiMatch.home_scorers;
+            scorers2 = apiMatch.away_scorers;
+            redCards1 = rawHomeRed;
+            redCards2 = rawAwayRed;
+          }
+        } else {
+          // Scheduled / not started
+          if (match) {
+            if (match.team1 === team1Indo) {
+              scorers1 = apiMatch.home_scorers;
+              scorers2 = apiMatch.away_scorers;
+              redCards1 = rawHomeRed;
+              redCards2 = rawAwayRed;
+            } else {
+              scorers1 = apiMatch.away_scorers;
+              scorers2 = apiMatch.home_scorers;
+              redCards1 = rawAwayRed;
+              redCards2 = rawHomeRed;
+            }
+          } else {
+            scorers1 = apiMatch.home_scorers;
+            scorers2 = apiMatch.away_scorers;
+            redCards1 = rawHomeRed;
+            redCards2 = rawAwayRed;
           }
         }
 
@@ -3650,10 +3699,10 @@ async function fetchRealTimeScores(isManual = false) {
           status: status,
           stadium_id: apiMatch.stadium_id,
           matchday: apiMatch.matchday,
-          home_scorers: apiMatch.home_scorers,
-          away_scorers: apiMatch.away_scorers,
-          home_red_cards: apiMatch.home_red_cards || apiMatch.home_redcards || null,
-          away_red_cards: apiMatch.away_red_cards || apiMatch.away_redcards || null,
+          home_scorers: scorers1,
+          away_scorers: scorers2,
+          home_red_cards: redCards1,
+          away_red_cards: redCards2,
           time_elapsed: apiMatch.time_elapsed || null,
           fetched_at: Date.now()
         };
@@ -3682,6 +3731,7 @@ async function fetchRealTimeScores(isManual = false) {
     statusMsg.innerHTML = `<span class="pulse-dot"></span> Sinkronisasi otomatis aktif. Terakhir diperbarui: ${timeString} (${updatedCount} skor diperbarui).`;
     statusMsg.style.color = "var(--accent-emerald)";
     lastFetchTime = Date.now();
+    consecutiveErrors = 0; // Reset error count on success
 
     // Refresh active views
     if (activeTab === 'tab-schedule') {
@@ -3698,9 +3748,13 @@ async function fetchRealTimeScores(isManual = false) {
     }
 
   } catch (err) {
-    console.error("Score fetch failed:", err);
-    statusMsg.innerHTML = `<span class="pulse-dot error"></span> Gagal memperbarui skor: ${err.message || 'Error koneksi API'}`;
+    consecutiveErrors++;
+    console.error(`Score fetch failed (attempt ${consecutiveErrors}):`, err);
+    const retryIn = Math.round(currentPollInterval / 1000);
+    statusMsg.innerHTML = `<span class="pulse-dot error"></span> Gagal memperbarui skor: ${err.message || 'Error koneksi API'} (percobaan ke-${consecutiveErrors}, retry ${retryIn}s)`;
     statusMsg.style.color = "var(--accent-red)";
+    // Still update lastFetchTime to prevent rapid-fire retries
+    lastFetchTime = Date.now();
   }
 }
 
