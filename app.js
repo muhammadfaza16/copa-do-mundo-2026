@@ -575,6 +575,14 @@ function getMatchMinuteLabel(match, scoreData) {
 
 // Centralized live match detection: API status first, then time-based fallback
 function isMatchLive(match, scoreData) {
+  // Guard: if kickoff is in the future, it cannot be live!
+  if (match && match.date && match.time) {
+    const kickoff = getMatchDate(match.date, match.time).getTime();
+    if (Date.now() < kickoff) {
+      return false;
+    }
+  }
+
   // 1. API status takes priority
   if (scoreData && (scoreData.status === 'IN_PLAY' || scoreData.status === 'PAUSED' || scoreData.status === 'EXTRA_TIME' || scoreData.status === 'PENALTY_SHOOTOUT')) {
     return true;
@@ -3675,7 +3683,7 @@ async function fetchRealTimeScores(isManual = false) {
     let winnerAdvancedCount = 0;
 
     data.games.forEach(apiMatch => {
-      const isFinished = apiMatch.finished === 'TRUE' || apiMatch.time_elapsed === 'finished';
+      let isFinished = apiMatch.finished === 'TRUE' || apiMatch.time_elapsed === 'finished';
       let isLive = !isFinished && apiMatch.time_elapsed !== 'notstarted';
 
       const team1Indo = TEAM_TRANSLATIONS[apiMatch.home_team_name_en] || apiMatch.home_team_name_en;
@@ -3701,6 +3709,15 @@ async function fetchRealTimeScores(isManual = false) {
 
       if (localKey) {
         const match = getMatchFromKey(localKey);
+        
+        // Guard: if kickoff is in the future, force notstarted / TIMED status
+        if (match && match.date && match.time) {
+          const kickoff = getMatchDate(match.date, match.time).getTime();
+          if (Date.now() < kickoff) {
+            isFinished = false;
+            isLive = false;
+          }
+        }
         
         // Time-based fallback: if API says notstarted but kickoff has passed, treat as live
         if (!isFinished && !isLive && match && match.date && match.time) {
