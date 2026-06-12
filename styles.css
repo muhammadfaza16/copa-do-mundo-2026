@@ -555,7 +555,7 @@ body.light-theme .hero-banner {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 3px;
+  gap: 5px;
   font-size: 0.62rem;
   color: var(--text-secondary);
   font-weight: 500;
@@ -1997,6 +1997,13 @@ body.light-theme .flag-crest {
 .star-btn-inline:hover,
 .star-btn-inline.active {
   opacity: 1;
+  /* override base .star-btn.active transform to preserve translateY */
+  transform: translateY(-50%) scale(1.1);
+  filter: drop-shadow(0 0 4px rgba(255, 215, 0, 0.5));
+}
+
+.star-btn-inline:active {
+  transform: translateY(-50%) scale(0.9);
 }
 
 .match-date-label {
