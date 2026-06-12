@@ -652,6 +652,9 @@ function updateHeroPanel() {
 
       titleEl.innerHTML = `<span class="live-badge-header">${minuteLabel}</span>`;
       
+      const venue = getMatchVenue(m);
+      const stageName = m.isKO ? m.group : `Grup ${m.group.replace('Grup ', '')}`;
+
       cdDisplay.innerHTML = `
         <div class="live-scoreboard">
           <div class="live-main-row">
@@ -680,6 +683,11 @@ function updateHeroPanel() {
               </div>
             </div>
           </div>
+          
+          <div class="live-venue-row">
+            <span class="live-venue-label">${stageName} · ${venue}</span>
+          </div>
+
           ${(cleanScorers1 || cleanScorers2) ? `
             <div class="live-events-row">
               <div class="live-events-left">${cleanScorers1 || ''}</div>
@@ -697,17 +705,19 @@ function updateHeroPanel() {
         </div>
       `;
       
-      const venue = getMatchVenue(m);
-      const stageName = m.isKO ? m.group : `Grup ${m.group.replace('Grup ', '')}`;
       subEl.innerHTML = `<span class="live-venue-label">${stageName} · ${venue}</span>`;
-      
-      subEl.style.display = 'block';
+      subEl.style.display = 'none';
       cdDisplay.style.display = 'block';
       container.classList.add('live-active');
       
       // Dynamic team brand colors for left/right accent bars
-      container.style.setProperty('--team1-color', getTeamColor(team1Name, false));
-      container.style.setProperty('--team2-color', getTeamColor(team2Name, true));
+      const colors1 = getTeamColor(team1Name, false);
+      const colors2 = getTeamColor(team2Name, true);
+      
+      container.style.setProperty('--team1-color', getTeamGradientCss(colors1));
+      container.style.setProperty('--team2-color', getTeamGradientCss(colors2));
+      container.style.setProperty('--team1-glow', Array.isArray(colors1) ? colors1[0] : colors1);
+      container.style.setProperty('--team2-glow', Array.isArray(colors2) ? colors2[0] : colors2);
       
       // Remove the team-preview row used in countdown mode
       const existingCdRow = document.getElementById('cd-teams-row');
@@ -752,6 +762,14 @@ function updateHeroPanel() {
   }
 
   container.style.display = 'block';
+  
+  // Set team colors for countdown card edge stripes
+  const colors1 = getTeamColor(targetMatch.team1, false);
+  const colors2 = getTeamColor(targetMatch.team2, true);
+  container.style.setProperty('--team1-color', getTeamGradientCss(colors1));
+  container.style.setProperty('--team2-color', getTeamGradientCss(colors2));
+  container.style.setProperty('--team1-glow', Array.isArray(colors1) ? colors1[0] : colors1);
+  container.style.setProperty('--team2-glow', Array.isArray(colors2) ? colors2[0] : colors2);
 
   const targetTime = getMatchDate(targetMatch.date, targetMatch.time).getTime();
   const diff = targetTime - now;
@@ -2259,8 +2277,35 @@ function getTeamColor(teamName, isAway = false) {
       }
     }
   }
-  return isAway ? "#d4af37" : "#ef4444";
+  return "transparent";
 }
+
+function getTeamGradientCss(teamColorsOrColor) {
+  if (Array.isArray(teamColorsOrColor)) {
+    if (teamColorsOrColor.length === 1) {
+      return teamColorsOrColor[0];
+    }
+    const n = teamColorsOrColor.length;
+    const w = 0.50; // Width proportion of solid segment (50% solid, 50% transition)
+    const stops = teamColorsOrColor.map((color, i) => {
+      let start, end;
+      if (i === 0) {
+        start = 0;
+        end = ((0.5 + w / 2) / n) * 100;
+      } else if (i === n - 1) {
+        start = ((i + 0.5 - w / 2) / n) * 100;
+        end = 100;
+      } else {
+        start = ((i + 0.5 - w / 2) / n) * 100;
+        end = ((i + 0.5 + w / 2) / n) * 100;
+      }
+      return `${color} ${start.toFixed(2)}%, ${color} ${end.toFixed(2)}%`;
+    });
+    return `linear-gradient(180deg, ${stops.join(', ')})`;
+  }
+  return teamColorsOrColor;
+}
+
 
 
 const COMPACT_COORDINATES = {

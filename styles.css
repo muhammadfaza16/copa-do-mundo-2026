@@ -485,6 +485,7 @@ body.light-theme .hero-banner {
   background: linear-gradient(160deg, rgba(212, 175, 55, 0.07) 0%, rgba(0,0,0,0) 60%), var(--panel-bg);
   border: 1px solid rgba(212, 175, 55, 0.22);
   padding: 24px 28px 20px;
+  overflow: hidden; /* Clip side accent bars to rounded corners */
 }
 
 .countdown-title {
@@ -931,17 +932,45 @@ body.light-theme .match-redcards-row.no-scorers {
   padding: 2px 7px;
   border-radius: 4px;
   border: none;
-  background-color: var(--primary-gold);
+  background: linear-gradient(
+    90deg,
+    #d4af37 0%,
+    #ffd700 25%,
+    #fff8dc 50%,
+    #ffd700 75%,
+    #d4af37 100%
+  );
+  background-size: 200% auto;
+  animation: goldShimmer 3s infinite linear;
   color: #000000;
   font-weight: 800;
   text-transform: uppercase;
   letter-spacing: 0.8px;
   pointer-events: none;
+  box-shadow: 0 0 8px rgba(212, 175, 55, 0.4);
 }
 
 body.light-theme .badge-big-match {
-  background-color: var(--primary-gold);
-  color: #ffffff;
+  background: linear-gradient(
+    90deg,
+    #c5a028 0%,
+    #e5c130 25%,
+    #fff8dc 50%,
+    #e5c130 75%,
+    #c5a028 100%
+  );
+  background-size: 200% auto;
+  color: #000000;
+  box-shadow: 0 0 8px rgba(197, 160, 40, 0.3);
+}
+
+@keyframes goldShimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
 }
 
 .star-btn {
@@ -3787,31 +3816,31 @@ body.light-theme .countdown-container.live-active {
 }
 
 /* Dynamic Left Accent Bar (Team 1) */
-.countdown-container.live-active::before {
+.countdown-container::before {
   content: "";
   position: absolute;
   left: 0;
   top: 0;
   bottom: 0;
   width: 5px;
-  background: var(--team1-color, #ef4444);
+  background: var(--team1-color, transparent);
   border-radius: 4px 0 0 4px;
-  box-shadow: 0 0 12px var(--team1-color, rgba(239, 68, 68, 0.4));
+  box-shadow: 0 0 12px var(--team1-glow, transparent);
   z-index: 3;
   transition: background 0.5s ease, box-shadow 0.5s ease;
 }
 
 /* Dynamic Right Accent Bar (Team 2) */
-.countdown-container.live-active::after {
+.countdown-container::after {
   content: "";
   position: absolute;
   right: 0;
   top: 0;
   bottom: 0;
   width: 5px;
-  background: var(--team2-color, var(--primary-gold));
+  background: var(--team2-color, transparent);
   border-radius: 0 4px 4px 0;
-  box-shadow: 0 0 12px var(--team2-color, rgba(212, 175, 55, 0.4));
+  box-shadow: 0 0 12px var(--team2-glow, transparent);
   z-index: 3;
   transition: background 0.5s ease, box-shadow 0.5s ease;
 }
@@ -4110,6 +4139,15 @@ body.light-theme .live-team:hover .flag-crest {
   font-size: 0.72rem;
   font-weight: 600;
   color: var(--text-secondary);
+}
+
+.live-venue-row {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  text-align: center;
+  margin: 6px 0 2px;
 }
 
 /* Scorer and Events row styling */
