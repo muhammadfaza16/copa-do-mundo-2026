@@ -1506,18 +1506,20 @@ function renderStatistics() {
 
   scorersListContainer.innerHTML = scorersHtml;
 
+  const matchesPlayedEl = document.getElementById('stats-matches-played');
   const totalGoalsEl = document.getElementById('stats-total-goals');
   const avgGoalsEl = document.getElementById('stats-avg-goals');
   const topTeamEl = document.getElementById('stats-top-team');
 
+  if (matchesPlayedEl) matchesPlayedEl.textContent = matchesPlayed;
   if (totalGoalsEl) totalGoalsEl.textContent = totalGoals;
   if (avgGoalsEl) avgGoalsEl.textContent = matchesPlayed > 0 ? (totalGoals / matchesPlayed).toFixed(2) : "0.00";
   if (topTeamEl) {
     if (topTeam !== "-") {
       topTeamEl.innerHTML = `
-        <div style="display: flex; align-items: center; gap: 6px; justify-content: center;">
+        <div style="display: flex; align-items: center; gap: 6px; margin-top: 2px;">
           ${getFlagHtml(topTeam)}
-          <span style="font-weight: 700;">${topTeam} (${topTeamGoals} Gol)</span>
+          <span style="font-size: 0.8rem; font-weight: 800; color: var(--text-primary);">${topTeam} (${topTeamGoals} Gol)</span>
         </div>
       `;
     } else {

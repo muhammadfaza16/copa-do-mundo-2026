@@ -142,27 +142,37 @@
         </div>
       </div>
 
-      <!-- Statistik Turnamen & Top Scorer -->
+      <!-- Statistik Turnamen -->
       <div class="section-title" style="margin-top: 32px; margin-bottom: 16px;">
         Statistik Turnamen
       </div>
 
-      <div class="stats-overview-grid" style="margin-bottom: 20px;">
-        <div class="stats-overview-card">
-          <span class="stats-overview-label">Total Gol</span>
-          <span id="stats-total-goals" class="stats-overview-val">0</span>
+      <div class="stats-layout-wrapper">
+        <!-- Grid Overview -->
+        <div class="stats-overview-grid">
+          <div class="stats-overview-item">
+            <span class="stats-overview-label">Laga Dimainkan</span>
+            <span id="stats-matches-played" class="stats-overview-val">0</span>
+            <span class="stats-overview-sub">Laga berjalan & selesai</span>
+          </div>
+          <div class="stats-overview-item">
+            <span class="stats-overview-label">Total Gol</span>
+            <span id="stats-total-goals" class="stats-overview-val">0</span>
+            <span class="stats-overview-sub">Gol tercatat</span>
+          </div>
+          <div class="stats-overview-item">
+            <span class="stats-overview-label">Rata-rata Gol</span>
+            <span id="stats-avg-goals" class="stats-overview-val">0.00</span>
+            <span class="stats-overview-sub">Per pertandingan</span>
+          </div>
+          <div class="stats-overview-item">
+            <span class="stats-overview-label">Tim Tersubur</span>
+            <span id="stats-top-team" class="stats-overview-val">-</span>
+            <span class="stats-overview-sub">Gol terbanyak</span>
+          </div>
         </div>
-        <div class="stats-overview-card">
-          <span class="stats-overview-label">Rata-rata Gol</span>
-          <span id="stats-avg-goals" class="stats-overview-val">0.00</span>
-        </div>
-        <div class="stats-overview-card">
-          <span class="stats-overview-label">Tim Tersubur</span>
-          <span id="stats-top-team" class="stats-overview-val">-</span>
-        </div>
-      </div>
 
-      <div class="stats-container" style="margin-bottom: 20px;">
+        <!-- Top Scorers Card -->
         <div class="stats-card">
           <div class="stats-card-header">
             <h3>Pencetak Gol Terbanyak</h3>

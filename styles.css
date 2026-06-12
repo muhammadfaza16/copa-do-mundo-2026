@@ -3920,44 +3920,64 @@ body.light-theme .results-dot.active {
 }
 
 /* Tab Statistik Styles */
-.stats-overview-grid {
+.stats-layout-wrapper {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-  gap: 12px;
-  margin-bottom: 20px;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-bottom: 30px;
 }
 
-.stats-overview-card {
-  background: var(--panel-bg);
-  border: 1px solid var(--glass-border);
-  border-radius: var(--border-radius-md);
-  padding: 16px;
+@media (max-width: 768px) {
+  .stats-layout-wrapper {
+    grid-template-columns: 1fr;
+    gap: 14px;
+    margin-bottom: 20px;
+  }
+}
+
+.stats-overview-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.stats-overview-item {
   display: flex;
   flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  text-align: center;
-  backdrop-filter: blur(10px);
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.03);
+  border-radius: var(--border-radius-sm);
+  padding: 10px 12px;
+  text-align: left;
+}
+
+body.light-theme .stats-overview-item {
+  background: rgba(0, 0, 0, 0.01);
+  border-color: rgba(0, 0, 0, 0.03);
 }
 
 .stats-overview-label {
-  font-size: 0.65rem;
+  font-size: 0.55rem;
   color: var(--text-secondary);
   text-transform: uppercase;
   font-weight: 700;
   letter-spacing: 0.5px;
-  margin-bottom: 6px;
+  margin-bottom: 4px;
 }
 
 .stats-overview-val {
-  font-size: 1.1rem;
+  font-size: 0.95rem;
   font-weight: 800;
   color: var(--text-primary);
   font-family: var(--font-display);
+  line-height: 1.25;
 }
 
-#stats-top-team {
-  font-size: 0.75rem;
+.stats-overview-sub {
+  font-size: 0.5rem;
+  color: var(--text-muted);
+  margin-top: 4px;
+  font-weight: 500;
 }
 
 .stats-card {
