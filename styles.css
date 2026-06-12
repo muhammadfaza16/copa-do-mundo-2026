@@ -1964,28 +1964,34 @@ body.light-theme .flag-crest {
   line-height: 1;
 }
 
-/* Card footer — bottom-right star */
-.match-card-footer {
-  display: flex;
-  justify-content: flex-end;
-  padding: 0 4px 4px;
-  margin-top: -2px;
+/* Star inline with venue row */
+.match-venue-with-star {
+  justify-content: flex-start; /* icon + name left, star pushed right */
 }
 
-.star-btn-bottom {
-  padding: 5px 6px;
-  border-radius: 8px;
-  opacity: 0.45;
+.match-venue-with-star .venue-name-text {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.star-btn-inline {
+  flex-shrink: 0;
+  margin-left: auto;
+  padding: 2px 3px;
+  opacity: 0.35;
   transition: opacity 0.2s, color 0.2s;
+  line-height: 0;
 }
 
-.star-btn-bottom svg {
-  width: 13px;
-  height: 13px;
+.star-btn-inline svg {
+  width: 12px;
+  height: 12px;
 }
 
-.star-btn-bottom:hover,
-.star-btn-bottom.active {
+.star-btn-inline:hover,
+.star-btn-inline.active {
   opacity: 1;
 }
 
