@@ -3755,14 +3755,92 @@ body.light-theme .status-badge.gugur {
 
 /* Hero Panel Live Mode Styling */
 .countdown-container.live-active {
-  background: linear-gradient(135deg, rgba(220, 38, 38, 0.08) 0%, rgba(22, 22, 23, 0.85) 100%);
-  border-color: rgba(220, 38, 38, 0.25);
-  box-shadow: 0 10px 40px rgba(220, 38, 38, 0.15);
+  background: linear-gradient(135deg, rgba(239, 68, 68, 0.08) 0%, rgba(18, 20, 26, 0.95) 100%);
+  border-color: rgba(239, 68, 68, 0.3);
+  box-shadow: 0 12px 40px rgba(239, 68, 68, 0.15);
+  animation: liveCardGlow 4s infinite ease-in-out;
+  overflow: hidden; /* Contain diagonal sweep */
 }
 
 body.light-theme .countdown-container.live-active {
-  background: linear-gradient(135deg, rgba(220, 38, 38, 0.05) 0%, rgba(255, 255, 255, 0.95) 100%);
-  border-color: rgba(220, 38, 38, 0.2);
+  background: linear-gradient(135deg, rgba(239, 68, 68, 0.06) 0%, rgba(255, 255, 255, 0.98) 100%);
+  border-color: rgba(239, 68, 68, 0.25);
+  box-shadow: 0 12px 40px rgba(239, 68, 68, 0.08);
+  animation: liveCardGlowLight 4s infinite ease-in-out;
+}
+
+/* Neon Left Accent Bar */
+.countdown-container.live-active::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 4px;
+  background: linear-gradient(180deg, #ef4444 0%, var(--primary-gold) 100%);
+  border-radius: 4px 0 0 4px;
+  box-shadow: 0 0 10px rgba(239, 68, 68, 0.5);
+  z-index: 3;
+}
+
+/* Diagonal Premium Sweep Effect */
+.countdown-container.live-active::after {
+  content: "";
+  position: absolute;
+  top: -50%;
+  left: -60%;
+  width: 200%;
+  height: 200%;
+  background: linear-gradient(
+    45deg,
+    transparent 45%,
+    rgba(255, 255, 255, 0.08) 50%,
+    transparent 55%
+  );
+  transform: rotate(45deg);
+  animation: liveSweep 7s infinite cubic-bezier(0.25, 1, 0.5, 1);
+  pointer-events: none;
+  z-index: 1;
+}
+
+body.light-theme .countdown-container.live-active::after {
+  background: linear-gradient(
+    45deg,
+    transparent 45%,
+    rgba(239, 68, 68, 0.05) 50%,
+    transparent 55%
+  );
+}
+
+@keyframes liveSweep {
+  0% {
+    transform: translate(-30%, -30%) rotate(45deg);
+  }
+  20%, 100% {
+    transform: translate(30%, 30%) rotate(45deg);
+  }
+}
+
+@keyframes liveCardGlow {
+  0%, 100% {
+    border-color: rgba(239, 68, 68, 0.3);
+    box-shadow: 0 12px 40px rgba(239, 68, 68, 0.12), 0 0 15px rgba(239, 68, 68, 0.05) inset;
+  }
+  50% {
+    border-color: rgba(239, 68, 68, 0.6);
+    box-shadow: 0 12px 45px rgba(239, 68, 68, 0.25), 0 0 25px rgba(239, 68, 68, 0.15) inset;
+  }
+}
+
+@keyframes liveCardGlowLight {
+  0%, 100% {
+    border-color: rgba(239, 68, 68, 0.2);
+    box-shadow: 0 12px 30px rgba(239, 68, 68, 0.05), 0 0 10px rgba(239, 68, 68, 0.02) inset;
+  }
+  50% {
+    border-color: rgba(239, 68, 68, 0.45);
+    box-shadow: 0 12px 35px rgba(239, 68, 68, 0.12), 0 0 15px rgba(239, 68, 68, 0.08) inset;
+  }
 }
 
 /* Pulsing Live Dot */
