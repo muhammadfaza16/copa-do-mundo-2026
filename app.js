@@ -59,6 +59,68 @@ const TEAM_TRANSLATIONS = {
   "Colombia": "Kolombia"
 };
 
+const FIFA_RANKINGS = {
+  "Argentina": 1,
+  "Prancis": 2,
+  "Spanyol": 3,
+  "Inggris": 4,
+  "Brasil": 5,
+  "Belgia": 6,
+  "Belanda": 7,
+  "Portugal": 8,
+  "Kolombia": 9,
+  "Kroasia": 10,
+  "Jerman": 11,
+  "Maroko": 12,
+  "Uruguay": 13,
+  "Swiss": 14,
+  "Amerika Serikat": 15,
+  "Meksiko": 16,
+  "Jepang": 17,
+  "Senegal": 18,
+  "Iran": 19,
+  "Korea Selatan": 22,
+  "Australia": 24,
+  "Turki": 26,
+  "Swedia": 28,
+  "Ekuador": 30,
+  "Tunisia": 35,
+  "Aljazair": 40,
+  "Arab Saudi": 56,
+  "Irak": 58,
+  "Ceko": 45,
+  "Kanada": 40,
+  "Skotlandia": 39,
+  "RD Kongo": 60,
+  "Bosnia dan Herzegovina": 74,
+  "Qatar": 38,
+  "Haiti": 86,
+  "Paraguay": 55,
+  "Curaçao": 88,
+  "Pantai Gading": 33,
+  "Tanjung Verde": 65,
+  "Mesir": 36,
+  "Selandia Baru": 95,
+  "Norwegia": 47,
+  "Austria": 25,
+  "Yordania": 68,
+  "Panama": 41,
+  "Uzbekistan": 64,
+  "Afrika Selatan": 60
+};
+
+function getMatchBadgeHtml(team1, team2) {
+  const r1 = FIFA_RANKINGS[team1] || 999;
+  const r2 = FIFA_RANKINGS[team2] || 999;
+
+  const isTop15 = (r) => r <= 15;
+
+  if (isTop15(r1) && isTop15(r2)) {
+    return '<span class="match-badge badge-big-match">BIG MATCH</span>';
+  }
+  return '';
+}
+
 const STADIUM_MAP = {
   "1": { "name": "Estadio Azteca", "city": "Mexico City", "country": "Meksiko", "capacity": 83000 },
   "2": { "name": "Estadio Guadalajara", "city": "Zapopan", "country": "Meksiko", "capacity": 48000 },
@@ -761,6 +823,7 @@ function createMatchCardHtml(match, index, isKnockout = false) {
   const stageHeaderHtml = `
     <div class="match-stage-container">
       <span class="match-stage">${match.group}</span>
+      ${getMatchBadgeHtml(match.team1, match.team2)}
     </div>
   `;
 
@@ -1026,6 +1089,17 @@ function goToResultsSlide(targetRealIndex, animate = true) {
     return;
   }
 
+  // If the slider container is hidden (e.g. user navigated to another tab),
+  // stop autoplay and don't transition.
+  if (containerEl.offsetParent === null) {
+    if (resultsSliderInterval) {
+      clearInterval(resultsSliderInterval);
+      resultsSliderInterval = null;
+    }
+    resultsSliderTransitioning = false;
+    return;
+  }
+
   const slides = track.querySelectorAll('.results-slide');
   const count = slides.length - 2;
   if (count <= 0) return;
@@ -1120,6 +1194,16 @@ function renderLatestResults() {
   }).join('|');
 
   if (container.getAttribute('data-matches-hash') === matchesContentHash) {
+    // If returning back to home tab and the slider was paused, restart autoplay
+    if (activeTab === 'tab-home') {
+      const track = container.querySelector('.results-slider-track');
+      if (track) {
+        const n = track.querySelectorAll('.results-slide').length - 2;
+        if (n > 1 && !resultsSliderInterval) {
+          startResultsAutoplay(n);
+        }
+      }
+    }
     return;
   }
   container.setAttribute('data-matches-hash', matchesContentHash);
@@ -2999,6 +3083,15 @@ function initNavigation() {
       item.classList.add('active');
       activeTab = item.getAttribute('data-tab');
       document.getElementById(activeTab).classList.add('active');
+
+      // Stop results slider autoplay and reset transition state when navigating away from Home tab
+      if (activeTab !== 'tab-home') {
+        if (resultsSliderInterval) {
+          clearInterval(resultsSliderInterval);
+          resultsSliderInterval = null;
+        }
+        resultsSliderTransitioning = false;
+      }
 
       // Specific tab triggers
       if (activeTab === 'tab-schedule') {
