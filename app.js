@@ -691,6 +691,10 @@ function updateHeroPanel() {
       cdDisplay.style.display = 'block';
       container.classList.add('live-active');
       
+      // Dynamic team brand colors for left/right accent bars
+      container.style.setProperty('--team1-color', getTeamColor(team1Name, false));
+      container.style.setProperty('--team2-color', getTeamColor(team2Name, true));
+      
       // Remove the team-preview row used in countdown mode
       const existingCdRow = document.getElementById('cd-teams-row');
       if (existingCdRow) existingCdRow.remove();
@@ -2227,6 +2231,22 @@ function getTeamCode(teamName) {
   }
   return clean.substring(0, 3).toUpperCase();
 }
+
+function getTeamColor(teamName, isAway = false) {
+  if (window.TEAM_COLORS && window.TEAM_COLORS[teamName]) {
+    return window.TEAM_COLORS[teamName];
+  }
+  if (teamName) {
+    const cleanName = teamName.trim().toLowerCase();
+    for (const key in window.TEAM_COLORS) {
+      if (cleanName.includes(key.toLowerCase()) || key.toLowerCase().includes(cleanName)) {
+        return window.TEAM_COLORS[key];
+      }
+    }
+  }
+  return isAway ? "#d4af37" : "#ef4444";
+}
+
 
 const COMPACT_COORDINATES = {
   // Left Wing (Outer Left R32, Column 2 Upper R16, Stack Top R16 & QF)

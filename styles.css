@@ -3774,18 +3774,34 @@ body.light-theme .countdown-container.live-active {
   animation: liveCardGlowLight 4s infinite ease-in-out;
 }
 
-/* Neon Left Accent Bar */
+/* Dynamic Left Accent Bar (Team 1) */
 .countdown-container.live-active::before {
   content: "";
   position: absolute;
   left: 0;
   top: 0;
   bottom: 0;
-  width: 4px;
-  background: linear-gradient(180deg, #ef4444 0%, var(--primary-gold) 100%);
+  width: 5px;
+  background: var(--team1-color, #ef4444);
   border-radius: 4px 0 0 4px;
-  box-shadow: 0 0 10px rgba(239, 68, 68, 0.5);
+  box-shadow: 0 0 12px var(--team1-color, rgba(239, 68, 68, 0.5));
   z-index: 3;
+  transition: background 0.5s ease, box-shadow 0.5s ease;
+}
+
+/* Dynamic Right Accent Bar (Team 2) */
+.countdown-container.live-active::after {
+  content: "";
+  position: absolute;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  width: 5px;
+  background: var(--team2-color, var(--primary-gold));
+  border-radius: 0 4px 4px 0;
+  box-shadow: 0 0 12px var(--team2-color, rgba(212, 175, 55, 0.5));
+  z-index: 3;
+  transition: background 0.5s ease, box-shadow 0.5s ease;
 }
 
 
