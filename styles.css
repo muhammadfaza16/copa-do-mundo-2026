@@ -859,9 +859,17 @@ body.light-theme .match-week {
 }
 
 .badge-big-match {
-  background: var(--primary-gold);
-  color: #12141a;
-  border: 1px solid var(--primary-gold);
+  background: transparent;
+  border: none;
+  padding: 0;
+  color: var(--primary-gold);
+}
+
+.badge-big-match::before {
+  content: "•";
+  margin-right: 6px;
+  color: var(--text-muted);
+  font-weight: normal;
 }
 
 .star-btn {
