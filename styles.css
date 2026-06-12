@@ -3761,6 +3761,8 @@ body.light-theme .status-badge.gugur {
 /* Hero Panel Live Mode Styling */
 .countdown-container.live-active {
   background: var(--panel-bg-solid);
+  border-top: none;
+  border-bottom: none;
   border-color: rgba(239, 68, 68, 0.3);
   box-shadow: 0 12px 40px rgba(239, 68, 68, 0.12);
   animation: liveCardGlow 4s infinite ease-in-out;
@@ -3769,6 +3771,8 @@ body.light-theme .status-badge.gugur {
 
 body.light-theme .countdown-container.live-active {
   background: #ffffff;
+  border-top: none;
+  border-bottom: none;
   border-color: rgba(239, 68, 68, 0.2);
   box-shadow: 0 12px 40px rgba(239, 68, 68, 0.06);
   animation: liveCardGlowLight 4s infinite ease-in-out;
@@ -3782,7 +3786,7 @@ body.light-theme .countdown-container.live-active {
   top: 0;
   bottom: 0;
   width: 5px;
-  background: linear-gradient(180deg, var(--team1-color, #ef4444) 0%, transparent 100%);
+  background: var(--team1-color, #ef4444);
   border-radius: 4px 0 0 4px;
   box-shadow: 0 0 12px var(--team1-color, rgba(239, 68, 68, 0.4));
   z-index: 3;
@@ -3797,7 +3801,7 @@ body.light-theme .countdown-container.live-active {
   top: 0;
   bottom: 0;
   width: 5px;
-  background: linear-gradient(180deg, var(--team2-color, var(--primary-gold)) 0%, transparent 100%);
+  background: var(--team2-color, var(--primary-gold));
   border-radius: 0 4px 4px 0;
   box-shadow: 0 0 12px var(--team2-color, rgba(212, 175, 55, 0.4));
   z-index: 3;
@@ -3808,22 +3812,22 @@ body.light-theme .countdown-container.live-active {
 @keyframes liveCardGlow {
   0%, 100% {
     border-color: rgba(239, 68, 68, 0.3);
-    box-shadow: 0 12px 40px rgba(239, 68, 68, 0.12);
+    box-shadow: 0 12px 40px rgba(239, 68, 68, 0.12), 0 0 15px rgba(239, 68, 68, 0.05) inset;
   }
   50% {
     border-color: rgba(239, 68, 68, 0.5);
-    box-shadow: 0 12px 45px rgba(239, 68, 68, 0.22);
+    box-shadow: 0 12px 45px rgba(239, 68, 68, 0.22), 0 0 25px rgba(239, 68, 68, 0.15) inset;
   }
 }
 
 @keyframes liveCardGlowLight {
   0%, 100% {
     border-color: rgba(239, 68, 68, 0.15);
-    box-shadow: 0 12px 30px rgba(239, 68, 68, 0.04);
+    box-shadow: 0 12px 30px rgba(239, 68, 68, 0.04), 0 0 10px rgba(239, 68, 68, 0.02) inset;
   }
   50% {
     border-color: rgba(239, 68, 68, 0.35);
-    box-shadow: 0 12px 35px rgba(239, 68, 68, 0.09);
+    box-shadow: 0 12px 35px rgba(239, 68, 68, 0.09), 0 0 15px rgba(239, 68, 68, 0.08) inset;
   }
 }
 
