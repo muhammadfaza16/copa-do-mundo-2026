@@ -709,6 +709,7 @@ body.light-theme .countdown-teams-row {
 
 
 .match-header {
+  position: relative;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -923,17 +924,24 @@ body.light-theme .match-redcards-row.no-scorers {
 }
 
 .badge-big-match {
-  background: transparent;
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 0.52rem;
+  padding: 2px 7px;
+  border-radius: 4px;
   border: none;
-  padding: 0;
-  color: var(--primary-gold);
+  background-color: var(--primary-gold);
+  color: #000000;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  pointer-events: none;
 }
 
-.badge-big-match::before {
-  content: "•";
-  margin-right: 6px;
-  color: var(--text-muted);
-  font-weight: normal;
+body.light-theme .badge-big-match {
+  background-color: var(--primary-gold);
+  color: #ffffff;
 }
 
 .star-btn {

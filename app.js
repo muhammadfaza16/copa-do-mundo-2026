@@ -905,7 +905,6 @@ function createMatchCardHtml(match, index, isKnockout = false) {
   const stageHeaderHtml = `
     <div class="match-stage-container">
       <span class="match-stage">${match.group}</span>
-      ${getMatchBadgeHtml(match.team1, match.team2)}
     </div>
   `;
 
@@ -927,6 +926,7 @@ function createMatchCardHtml(match, index, isKnockout = false) {
       <div class="match-card" data-key="${matchKey}" title="${labelVenue}">
         <div class="match-header">
           ${stageHeaderHtml}
+          ${getMatchBadgeHtml(match.team1, match.team2)}
           <span class="match-date-label">${timeInfo.date} · ${timeInfo.time} ${timeInfo.tzLabel}</span>
         </div>
         <div class="match-body">
@@ -975,6 +975,7 @@ function createMatchCardHtml(match, index, isKnockout = false) {
       <div class="match-card match-fixture-card" data-key="${matchKey}" title="${labelVenue}">
         <div class="match-header">
           ${stageHeaderHtml}
+          ${getMatchBadgeHtml(match.team1, match.team2)}
           <span class="match-date-label">${timeInfo.date}</span>
         </div>
         <div class="match-body">
