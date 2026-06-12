@@ -994,29 +994,48 @@ function renderFavorites() {
 
 let resultsSliderInterval = null;
 let currentResultsSlide = 0;
+let resultsSliderTransitioning = false;
 
 function startResultsAutoplay(count) {
   if (resultsSliderInterval) clearInterval(resultsSliderInterval);
   resultsSliderInterval = setInterval(() => {
-    currentResultsSlide = (currentResultsSlide + 1) % count;
-    goToResultsSlide(currentResultsSlide);
+    if (resultsSliderTransitioning) return;
+    goToResultsSlide(currentResultsSlide + 1);
   }, 4000);
 }
 
-function goToResultsSlide(index) {
-  currentResultsSlide = index;
+function goToResultsSlide(targetRealIndex, animate = true) {
   const track = document.querySelector('.results-slider-track');
-  if (!track) {
+  const containerEl = document.querySelector('.results-slider-container');
+  if (!track || !containerEl) {
     if (resultsSliderInterval) {
       clearInterval(resultsSliderInterval);
       resultsSliderInterval = null;
     }
     return;
   }
-  track.style.transform = `translateX(-${index * 100}%)`;
+
+  const slides = track.querySelectorAll('.results-slide');
+  const count = slides.length - 2;
+  if (count <= 0) return;
+
+  if (animate && resultsSliderTransitioning) return;
+
+  if (animate) {
+    resultsSliderTransitioning = true;
+    track.style.transition = 'transform 0.8s cubic-bezier(0.16, 1, 0.3, 1)';
+  } else {
+    track.style.transition = 'none';
+  }
+
+  track.style.transform = `translateX(-${(targetRealIndex + 1) * 100}%)`;
+  currentResultsSlide = targetRealIndex;
+
+  // Update dots
+  const activeDotIndex = (targetRealIndex + count) % count;
   const dots = document.querySelectorAll('.results-dot');
   dots.forEach((dot, idx) => {
-    if (idx === index) {
+    if (idx === activeDotIndex) {
       dot.classList.add('active');
     } else {
       dot.classList.remove('active');
@@ -1025,11 +1044,15 @@ function goToResultsSlide(index) {
 }
 
 window.handleResultDotClick = function(index) {
+  if (resultsSliderTransitioning) return;
   goToResultsSlide(index);
   const containerEl = document.querySelector('.results-slider-container');
   if (containerEl) {
-    const slides = containerEl.querySelectorAll('.results-slide');
-    startResultsAutoplay(slides.length);
+    const track = containerEl.querySelector('.results-slider-track');
+    if (track) {
+      const count = track.querySelectorAll('.results-slide').length - 2;
+      startResultsAutoplay(count);
+    }
   }
 };
 
@@ -1053,6 +1076,10 @@ function renderLatestResults() {
   });
 
   if (matchesWithScores.length === 0) {
+    if (resultsSliderInterval) {
+      clearInterval(resultsSliderInterval);
+      resultsSliderInterval = null;
+    }
     container.innerHTML = `
       <div class="empty-placeholder">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
@@ -1063,6 +1090,7 @@ function renderLatestResults() {
         <p>Belum ada hasil pertandingan terbaru.</p>
       </div>
     `;
+    container.removeAttribute('data-matches-hash');
     return;
   }
 
@@ -1071,6 +1099,19 @@ function renderLatestResults() {
 
   // Take top 3 latest matches
   const latestMatches = matchesWithScores.slice(0, 3);
+
+  // Generate hash of current scores to prevent unnecessary DOM recreation on background polling
+  const matchesContentHash = latestMatches.map(m => {
+    const key = m.isKO ? `ko_${m.match_id}` : `gs_${m.date}_${m.team1}_${m.team2}`;
+    const score = getMatchScore(key);
+    const scoreStr = score ? `${score.score1}_${score.score2}_${score.status}` : 'no_score';
+    return `${key}_${scoreStr}`;
+  }).join('|');
+
+  if (container.getAttribute('data-matches-hash') === matchesContentHash) {
+    return;
+  }
+  container.setAttribute('data-matches-hash', matchesContentHash);
 
   if (latestMatches.length <= 1) {
     let listHtml = '';
@@ -1083,14 +1124,31 @@ function renderLatestResults() {
       resultsSliderInterval = null;
     }
   } else {
-    let listHtml = '';
-    latestMatches.forEach(match => {
-      listHtml += `
-        <div class="results-slide">
+    const n = latestMatches.length;
+
+    // Clone of last match
+    const cloneLastHtml = `
+      <div class="results-slide cloned" data-index="${n - 1}">
+        ${createMatchCardHtml(latestMatches[n - 1], latestMatches[n - 1].match_id || 0, latestMatches[n - 1].isKO)}
+      </div>
+    `;
+
+    // Real matches
+    let realSlidesHtml = '';
+    latestMatches.forEach((match, idx) => {
+      realSlidesHtml += `
+        <div class="results-slide" data-index="${idx}">
           ${createMatchCardHtml(match, match.match_id || 0, match.isKO)}
         </div>
       `;
     });
+
+    // Clone of first match
+    const cloneFirstHtml = `
+      <div class="results-slide cloned" data-index="0">
+        ${createMatchCardHtml(latestMatches[0], latestMatches[0].match_id || 0, latestMatches[0].isKO)}
+      </div>
+    `;
 
     let dotsHtml = '';
     latestMatches.forEach((_, idx) => {
@@ -1099,8 +1157,10 @@ function renderLatestResults() {
 
     container.innerHTML = `
       <div class="results-slider-container">
-        <div class="results-slider-track">
-          ${listHtml}
+        <div class="results-slider-track" style="transform: translateX(-100%); transition: none;">
+          ${cloneLastHtml}
+          ${realSlidesHtml}
+          ${cloneFirstHtml}
         </div>
       </div>
       <div class="results-slider-dots">
@@ -1109,17 +1169,44 @@ function renderLatestResults() {
     `;
 
     currentResultsSlide = 0;
-    startResultsAutoplay(latestMatches.length);
+    resultsSliderTransitioning = false;
 
-    // Pause on hover
+    const track = container.querySelector('.results-slider-track');
     const containerEl = container.querySelector('.results-slider-container');
-    if (containerEl) {
+
+    if (track && containerEl) {
+      // Handle infinite jump when transition ends
+      track.addEventListener('transitionend', () => {
+        resultsSliderTransitioning = false;
+        
+        if (currentResultsSlide === n) {
+          track.style.transition = 'none';
+          track.style.transform = 'translateX(-100%)';
+          currentResultsSlide = 0;
+          track.offsetHeight; // Force reflow
+        }
+        
+        if (currentResultsSlide === -1) {
+          track.style.transition = 'none';
+          track.style.transform = `translateX(-${n * 100}%)`;
+          currentResultsSlide = n - 1;
+          track.offsetHeight; // Force reflow
+        }
+      });
+
+      // Pause on hover
       containerEl.addEventListener('mouseenter', () => {
-        if (resultsSliderInterval) clearInterval(resultsSliderInterval);
+        if (resultsSliderInterval) {
+          clearInterval(resultsSliderInterval);
+          resultsSliderInterval = null;
+        }
       });
       containerEl.addEventListener('mouseleave', () => {
-        startResultsAutoplay(latestMatches.length);
+        startResultsAutoplay(n);
       });
+
+      // Start autoplay
+      startResultsAutoplay(n);
     }
   }
 }
