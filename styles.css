@@ -1940,8 +1940,8 @@ body.light-theme .flag-crest {
   stroke-width: 2;
   stroke-linecap: round;
   stroke-linejoin: round;
-  display: inline-block;
-  vertical-align: middle;
+  display: block;
+  align-self: center;
   flex-shrink: 0;
   opacity: 0.65;
 }
