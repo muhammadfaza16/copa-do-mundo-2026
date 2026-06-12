@@ -1197,7 +1197,7 @@ function goToResultsSlide(targetRealIndex, animate = true) {
 
   if (animate) {
     resultsSliderTransitioning = true;
-    track.style.transition = 'transform 1.0s cubic-bezier(0.16, 1, 0.3, 1)';
+    track.style.transition = 'transform 1.4s cubic-bezier(0.22, 1, 0.25, 1)';
   } else {
     track.style.transition = 'none';
   }
