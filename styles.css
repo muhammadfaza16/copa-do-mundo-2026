@@ -702,6 +702,10 @@ body.light-theme .countdown-teams-row {
   transition: var(--transition-smooth);
 }
 
+.match-fixture-card {
+  padding-bottom: 20px;
+}
+
 
 
 .match-header {
@@ -2420,6 +2424,10 @@ body.light-theme .welcome-mascot-side {
     padding: 14px;
     gap: 12px;
     border-radius: 12px;
+  }
+  
+  .match-fixture-card {
+    padding-bottom: 18px;
   }
   
   .match-body {

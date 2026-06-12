@@ -556,6 +556,8 @@ function updateHeroPanel() {
 
     const cleanScorers1 = parseScorers(scoreData.home_scorers);
     const cleanScorers2 = parseScorers(scoreData.away_scorers);
+    const cleanRedCards1 = parseScorers(scoreData.home_red_cards);
+    const cleanRedCards2 = parseScorers(scoreData.away_red_cards);
 
     titleEl.innerHTML = `<span class="live-pulse-dot"></span>Pertandingan Berlangsung`;
     
@@ -590,6 +592,13 @@ function updateHeroPanel() {
             <div class="live-home-scorers" style="text-align: right; word-break: break-word; line-height: 1.4;" title="${cleanScorers1.replace(/<br>/g, ', ')}">${cleanScorers1 || ''}</div>
             <div style="text-align: center; font-size: 0.8rem; line-height: 1.4; opacity: 0.85;">⚽</div>
             <div class="live-away-scorers" style="text-align: left; word-break: break-word; line-height: 1.4;" title="${cleanScorers2.replace(/<br>/g, ', ')}">${cleanScorers2 || ''}</div>
+          </div>
+        ` : ''}
+        ${(cleanRedCards1 || cleanRedCards2) ? `
+          <div class="live-redcards-box" style="display: grid; grid-template-columns: minmax(0, 1fr) 30px minmax(0, 1fr); gap: 12px; font-size: 0.65rem; color: var(--accent-red); padding: 8px 12px 0; ${!(cleanScorers1 || cleanScorers2) ? 'border-top: 1px dashed rgba(255,255,255,0.12); margin-top: 8px;' : 'margin-top: -4px;'} width: 100%;">
+            <div class="live-home-redcards" style="text-align: right; word-break: break-word; line-height: 1.4; font-weight: 500;" title="${cleanRedCards1.replace(/<br>/g, ', ')}">${cleanRedCards1 || ''}</div>
+            <div style="text-align: center; font-size: 0.8rem; line-height: 1.4; display: flex; align-items: center; justify-content: center;"><span style="display: inline-block; width: 7px; height: 10px; background-color: var(--accent-red); border-radius: 1px; box-shadow: 0 0 4px rgba(239, 68, 68, 0.6);"></span></div>
+            <div class="live-away-redcards" style="text-align: left; word-break: break-word; line-height: 1.4; font-weight: 500;" title="${cleanRedCards2.replace(/<br>/g, ', ')}">${cleanRedCards2 || ''}</div>
           </div>
         ` : ''}
       </div>
@@ -754,6 +763,8 @@ function createMatchCardHtml(match, index, isKnockout = false) {
 
     const cleanScorers1 = parseScorers(scoreData.home_scorers);
     const cleanScorers2 = parseScorers(scoreData.away_scorers);
+    const cleanRedCards1 = parseScorers(scoreData.home_red_cards);
+    const cleanRedCards2 = parseScorers(scoreData.away_red_cards);
 
     return `
       <div class="match-card" data-key="${matchKey}" title="${labelVenue}">
@@ -787,11 +798,22 @@ function createMatchCardHtml(match, index, isKnockout = false) {
             </div>
           </div>
         ` : ''}
+        ${(cleanRedCards1 || cleanRedCards2) ? `
+          <div class="match-redcards-row" style="display: grid; grid-template-columns: minmax(0, 1fr) 50px minmax(0, 1fr); gap: 16px; margin: -4px 0 10px; padding: 6px 12px 0; font-size: 0.65rem; color: var(--text-secondary); opacity: 0.8; ${!(cleanScorers1 || cleanScorers2) ? 'border-top: 1px dashed rgba(128, 128, 128, 0.15); margin-top: 4px;' : ''}">
+            <div class="redcards-left" style="text-align: right; word-break: break-word; line-height: 1.4; color: var(--accent-red); font-weight: 500;">
+              ${cleanRedCards1 || ''}
+            </div>
+            <div style="text-align: center; font-size: 0.65rem; line-height: 1.4; display: flex; align-items: center; justify-content: center;"><span style="display: inline-block; width: 7px; height: 10px; background-color: var(--accent-red); border-radius: 1px; box-shadow: 0 0 4px rgba(239, 68, 68, 0.5);"></span></div>
+            <div class="redcards-right" style="text-align: left; word-break: break-word; line-height: 1.4; color: var(--accent-red); font-weight: 500;">
+              ${cleanRedCards2 || ''}
+            </div>
+          </div>
+        ` : ''}
       </div>
     `;
   } else {
     return `
-      <div class="match-card" data-key="${matchKey}" title="${labelVenue}">
+      <div class="match-card match-fixture-card" data-key="${matchKey}" title="${labelVenue}">
         <div class="match-header">
           ${stageHeaderHtml}
           <span class="match-date-label">${timeInfo.date}</span>
@@ -3215,7 +3237,9 @@ async function fetchRealTimeScores(isManual = false) {
           stadium_id: apiMatch.stadium_id,
           matchday: apiMatch.matchday,
           home_scorers: apiMatch.home_scorers,
-          away_scorers: apiMatch.away_scorers
+          away_scorers: apiMatch.away_scorers,
+          home_red_cards: apiMatch.home_red_cards || apiMatch.home_redcards || null,
+          away_red_cards: apiMatch.away_red_cards || apiMatch.away_redcards || null
         };
         updatedCount++;
 
