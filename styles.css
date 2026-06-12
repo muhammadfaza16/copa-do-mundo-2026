@@ -552,12 +552,17 @@ body.light-theme .hero-banner {
 }
 
 .countdown-sub {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
   font-size: 0.62rem;
   color: var(--text-secondary);
   font-weight: 500;
   letter-spacing: var(--tracking-wide);
   opacity: 0.6;
   margin-top: 2px;
+  line-height: 1;
 }
 
 body.light-theme .countdown-teams-row {
@@ -1928,17 +1933,16 @@ body.light-theme .flag-crest {
 }
 
 .venue-icon {
-  width: 12px;
-  height: 12px;
+  width: 11px;
+  height: 11px;
   fill: none;
   stroke: currentColor;
   stroke-width: 2;
   stroke-linecap: round;
   stroke-linejoin: round;
-  display: inline-block;
-  vertical-align: middle;
-  margin-right: 4px;
-  opacity: 0.7;
+  display: block;
+  flex-shrink: 0;
+  opacity: 0.65;
 }
 
 .match-venue-subtle {
@@ -1946,17 +1950,43 @@ body.light-theme .flag-crest {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 4px;
+  gap: 3px;
   font-size: 0.62rem;
   color: var(--text-secondary);
   opacity: 0.6;
   font-weight: 500;
   margin-top: 6px;
   letter-spacing: 0.2px;
-  text-transform: none; /* Keep natural case for venue names */
+  text-transform: none;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  line-height: 1;
+}
+
+/* Card footer — bottom-right star */
+.match-card-footer {
+  display: flex;
+  justify-content: flex-end;
+  padding: 0 4px 4px;
+  margin-top: -2px;
+}
+
+.star-btn-bottom {
+  padding: 5px 6px;
+  border-radius: 8px;
+  opacity: 0.45;
+  transition: opacity 0.2s, color 0.2s;
+}
+
+.star-btn-bottom svg {
+  width: 13px;
+  height: 13px;
+}
+
+.star-btn-bottom:hover,
+.star-btn-bottom.active {
+  opacity: 1;
 }
 
 .match-date-label {

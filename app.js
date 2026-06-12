@@ -654,7 +654,8 @@ function updateHeroPanel() {
     </div>
   `;
 
-  subEl.innerText = venue;
+  const venueIconSvgCd = `<svg class="venue-icon" viewBox="0 0 24 24"><path d="M2 10c0-3.9 4.5-7 10-7s10 3.1 10 7-4.5 7-10 7S2 13.9 2 10z"></path><path d="M4 11v5a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-5"></path><path d="M7 10c0-1.7 2.2-3 5-3s5 1.3 5 3-2.2 3-5 3-5-1.3-5-3z"></path></svg>`;
+  subEl.innerHTML = `${venueIconSvgCd}${venue}`;
 
   const days = Math.floor(diff / (1000 * 60 * 60 * 24));
   const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
@@ -697,7 +698,14 @@ function createMatchCardHtml(match, index, isKnockout = false) {
   const stageHeaderHtml = `
     <div class="match-stage-container">
       <span class="match-stage">${match.group}</span>
-      ${matchday ? `<span class="match-week">Pekan ${matchday}</span>` : ''}
+    </div>
+  `;
+
+  const starBtnHtml = `
+    <div class="match-card-footer">
+      <button class="star-btn star-btn-bottom ${starredClass}" onclick="toggleMatchStar('${matchKey}', this)" aria-label="Simpan Pertandingan">
+        <svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+      </button>
     </div>
   `;
 
@@ -750,14 +758,7 @@ function createMatchCardHtml(match, index, isKnockout = false) {
       <div class="match-card" data-key="${matchKey}" title="${labelVenue}">
         <div class="match-header">
           ${stageHeaderHtml}
-          <div class="match-header-right">
-            <span class="match-date-label">${timeInfo.date}</span>
-            <button class="star-btn ${starredClass}" onclick="toggleMatchStar('${matchKey}', this)" aria-label="Simpan Pertandingan">
-              <svg viewBox="0 0 24 24">
-                <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
-              </svg>
-            </button>
-          </div>
+          <span class="match-date-label">${timeInfo.date}</span>
         </div>
         <div class="match-body">
           <div class="team-display left">
@@ -774,6 +775,7 @@ function createMatchCardHtml(match, index, isKnockout = false) {
           </div>
           <div class="match-venue-subtle">${venueIconSvg}${labelVenue}</div>
         </div>
+        ${starBtnHtml}
       </div>
     `;
   }
