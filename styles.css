@@ -328,9 +328,9 @@ main {
   font-weight: 800;
   letter-spacing: 0.15em;
   text-transform: uppercase;
-  color: var(--primary-gold);
-  background: rgba(212, 175, 55, 0.12);
-  border: 1px solid rgba(212, 175, 55, 0.3);
+  color: #12141a;
+  background: var(--primary-gold);
+  border: 1px solid var(--primary-gold);
   border-radius: 20px;
   padding: 2px 8px;
 }
