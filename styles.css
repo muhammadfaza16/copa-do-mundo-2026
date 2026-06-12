@@ -555,7 +555,7 @@ body.light-theme .hero-banner {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 5px;
+  gap: 3px;
   font-size: 0.62rem;
   color: var(--text-secondary);
   font-weight: 500;
