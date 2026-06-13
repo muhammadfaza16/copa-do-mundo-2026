@@ -592,10 +592,9 @@ function isMatchLive(match, scoreData) {
   // 3. Time-based fallback: if kickoff has passed but within 130 min window, treat as live
   if (match && match.date && match.time) {
     const now = Date.now();
-    const DELAY_OFFSET_MS = 2 * 60 * 1000;
     const kickoff = getMatchDate(match.date, match.time).getTime();
-    const elapsed = now - kickoff - DELAY_OFFSET_MS;
-    if (elapsed > 0 && elapsed < 130 * 60 * 1000) {
+    const elapsed = now - kickoff;
+    if (elapsed >= 0 && elapsed < 130 * 60 * 1000) {
       return true;
     }
   }
@@ -3738,8 +3737,8 @@ async function fetchRealTimeScores(isManual = false) {
         // Time-based fallback: if API says notstarted but kickoff has passed, treat as live
         if (!isFinished && !isLive && match && match.date && match.time) {
           const kickoff = getMatchDate(match.date, match.time).getTime();
-          const elapsed = Date.now() - kickoff - (2 * 60 * 1000);
-          if (elapsed > 0 && elapsed < 130 * 60 * 1000) {
+          const elapsed = Date.now() - kickoff;
+          if (elapsed >= 0 && elapsed < 130 * 60 * 1000) {
             isLive = true;
           }
         }
