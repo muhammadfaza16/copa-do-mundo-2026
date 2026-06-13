@@ -1293,8 +1293,19 @@ function renderLatestResults() {
   // Sort by match date/time descending (most recent matches first)
   matchesWithScores.sort((a, b) => getMatchDate(b.date, b.time) - getMatchDate(a.date, a.time));
 
-  // Take top 3 latest matches
-  const latestMatches = matchesWithScores.slice(0, 3);
+  // Extract the last 2 distinct match dates (newest first)
+  const uniqueDates = [];
+  for (const m of matchesWithScores) {
+    if (!uniqueDates.includes(m.date)) {
+      uniqueDates.push(m.date);
+    }
+    if (uniqueDates.length === 2) {
+      break;
+    }
+  }
+
+  // Filter matches belonging to these 2 most recent match days
+  const latestMatches = matchesWithScores.filter(m => uniqueDates.includes(m.date));
 
   // Generate hash of current scores to prevent unnecessary DOM recreation on background polling
   const matchesContentHash = latestMatches.map(m => {
