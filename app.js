@@ -164,7 +164,7 @@ function parseScorers(scorersStr) {
   return cleaned.split(',')
     .map(s => {
       let item = s.trim().replace(/^['"]|['"]$/g, '');
-      return item.replace(/(\d+)(?!')/g, "$1'");
+      return item.replace(/(\d+)(?!['\d])/g, "$1'");
     })
     .filter(Boolean)
     .join('<br>');
@@ -1467,6 +1467,11 @@ function renderStatistics() {
         cleaned.split(',').forEach(s => {
           const item = s.trim().replace(/^['"]|['"]$/g, '');
           if (!item) return;
+
+          // Skip own goals in top scorers list
+          if (/\(og\)/i.test(item) || /own\s+goal/i.test(item) || /bunuh\s+diri/i.test(item)) {
+            return;
+          }
 
           const minutesMatch = item.match(/\d+'/g);
           const goalCount = minutesMatch ? minutesMatch.length : 1;
