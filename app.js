@@ -2271,7 +2271,10 @@ function getTeamCode(teamName) {
     return "2" + clean.replace("Runner-up Grup ", "");
   }
   if (clean.startsWith("3rd Grup ")) {
-    return "3RD";
+    return "3RD " + clean.replace("3rd Grup ", "");
+  }
+  if (clean.startsWith("3rd Group ")) {
+    return "3RD " + clean.replace("3rd Group ", "");
   }
   if (clean.startsWith("Winner Match ")) {
     return "W" + clean.replace("Winner Match ", "");
