@@ -3659,8 +3659,10 @@ async function fetchRealTimeScores(isManual = false) {
 
   // Helper to determine the winner of a knockout match from the API
   const getApiKnockoutWinner = (apiMatch, allApiMatches) => {
-    const score1 = parseInt(apiMatch.home_score);
-    const score2 = parseInt(apiMatch.away_score);
+    let score1 = parseInt(apiMatch.home_score);
+    let score2 = parseInt(apiMatch.away_score);
+    if (isNaN(score1) || score1 < 0 || score1 > 15) score1 = 0;
+    if (isNaN(score2) || score2 < 0 || score2 > 15) score2 = 0;
     const team1 = apiMatch.home_team_name_en;
     const team2 = apiMatch.away_team_name_en;
     
@@ -3754,8 +3756,12 @@ async function fetchRealTimeScores(isManual = false) {
         const rawAwayRed = apiMatch.away_red_cards || apiMatch.away_redcards || null;
 
         if (isFinished || isLive) {
-          const rawScore1 = parseInt(apiMatch.home_score) || 0;
-          const rawScore2 = parseInt(apiMatch.away_score) || 0;
+          let rawScore1 = parseInt(apiMatch.home_score);
+          let rawScore2 = parseInt(apiMatch.away_score);
+          
+          // Secure against corrupted API scores (e.g. leaking Persian year 1405 or kickoff hour 12/23)
+          if (isNaN(rawScore1) || rawScore1 < 0 || rawScore1 > 15) rawScore1 = 0;
+          if (isNaN(rawScore2) || rawScore2 < 0 || rawScore2 > 15) rawScore2 = 0;
           
           if (match) {
             if (match.team1 === team1Indo) {
