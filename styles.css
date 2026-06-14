@@ -4503,37 +4503,38 @@ body.light-theme .stats-rank-other {
   width: 28px;
   height: 28px;
   border-radius: 50%;
-  background-color: var(--primary-gold);
-  border: none;
+  background-color: #252830;
+  border: 1px solid rgba(255, 255, 255, 0.06);
   transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-  box-shadow: 0 2px 6px rgba(212, 175, 55, 0.25);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
 }
 
 .hero-stream-link:hover {
-  background-color: #f3e5ab;
+  background-color: #2e313b;
   transform: scale(1.08);
-  box-shadow: 0 4px 12px rgba(212, 175, 55, 0.45);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.25);
 }
 
 .hero-stream-link svg {
   width: 13px;
   height: 13px;
-  stroke: #12141a; /* Dark charcoal for premium contrast */
-  stroke-width: 2.5;
+  stroke: var(--primary-gold);
+  stroke-width: 2.2;
   display: block;
 }
 
 body.light-theme .hero-stream-link {
-  background-color: #c5a028;
-  box-shadow: 0 2px 6px rgba(197, 160, 40, 0.25);
+  background-color: #e4e6eb;
+  border: 1px solid rgba(0, 0, 0, 0.05);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
 }
 
 body.light-theme .hero-stream-link:hover {
-  background-color: var(--primary-gold);
+  background-color: #dadde1;
 }
 
 body.light-theme .hero-stream-link svg {
-  stroke: #ffffff;
+  stroke: #c5a028;
 }
 
 /* Inline Live Stream Icon Link inside Match Card Header */
