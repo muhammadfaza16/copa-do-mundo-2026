@@ -1848,9 +1848,6 @@ function renderGroups() {
             ${rowsHtml}
           </tbody>
         </table>
-        <div class="group-card-footer">
-          <span class="view-schedule-btn" onclick="window.showGroupMatches('Grup ${groupLetter}')">Lihat Jadwal</span>
-        </div>
       </div>
     `;
   }
@@ -3365,44 +3362,7 @@ window.closeSlotModal = function() {
 window.scrollToBracketColumn = function(colIdx) {};
 window.syncBracketRoundTabs = function() {};
 
-window.showGroupMatches = function(groupName) {
-  const modal = document.getElementById('group-matches-modal');
-  const titleEl = document.getElementById('group-matches-modal-title');
-  const bodyEl = document.getElementById('group-matches-modal-body');
-  if (!modal || !bodyEl || !titleEl) return;
 
-  titleEl.innerText = `Jadwal & Hasil - ${groupName}`;
-
-  // Filter group matches
-  const matches = WORLD_CUP_DATA.group_stage.filter(m => m.group === groupName);
-  
-  // Sort group matches chronologically
-  function dateToVal(dStr) {
-    const [d, m] = dStr.split('/').map(Number);
-    return m * 100 + d;
-  }
-  matches.sort((a, b) => {
-    const dateDiff = dateToVal(a.date) - dateToVal(b.date);
-    if (dateDiff !== 0) return dateDiff;
-    return a.time.localeCompare(b.time);
-  });
-
-  let html = '<div class="matches-wrapper group-matches-mobile-clean" style="padding-top: 10px; display: flex; flex-direction: column; gap: 12px;">';
-  matches.forEach(m => {
-    html += createMatchCardHtml(m, 0, false);
-  });
-  html += '</div>';
-
-  bodyEl.innerHTML = html;
-  modal.classList.add('active');
-};
-
-window.closeGroupMatchesModal = function() {
-  const modal = document.getElementById('group-matches-modal');
-  if (modal) {
-    modal.classList.remove('active');
-  }
-};
 
 // ----------------------------------------------------
 // FAVORITES BRIDGE WINDOW BINDINGS
