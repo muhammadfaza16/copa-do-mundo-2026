@@ -658,7 +658,16 @@ function updateHeroPanel() {
       lastHeroMatchKey = liveKey;
 
       const isBigMatch = getMatchBadgeHtml(m.team1, m.team2) !== '';
-      titleEl.innerHTML = isBigMatch ? `<span class="badge-big-match">BIG MATCH</span>` : `LIVE MATCH`;
+      if (isBigMatch) {
+        titleEl.innerHTML = `
+          <div style="display: flex; flex-direction: column; align-items: center; gap: 6px; width: 100%;">
+            <span class="badge-big-match" style="position: static; transform: none; display: inline-block;">BIG MATCH</span>
+            <span class="score-status status-live" style="font-size: 0.65rem; letter-spacing: 0.8px; text-transform: uppercase;">${minuteLabel}</span>
+          </div>
+        `;
+      } else {
+        titleEl.innerHTML = `<span class="score-status status-live" style="font-size: 0.72rem; letter-spacing: 0.8px; text-transform: uppercase;">${minuteLabel}</span>`;
+      }
       
       const venue = getMatchVenue(m);
       const stageName = m.isKO ? m.group : `Grup ${m.group.replace('Grup ', '')}`;
@@ -693,10 +702,7 @@ function updateHeroPanel() {
               </div>
             </div>
             
-            <!-- Row 2: Live status -->
-            <span class="score-status status-live" style="font-size: 0.65rem; letter-spacing: 0.8px; text-transform: uppercase;">${minuteLabel}</span>
-            
-            <!-- Row 3: Group & Venue (styled exactly like the counter card) -->
+            <!-- Row 2: Group & Venue (styled exactly like the counter card) -->
             <div class="live-venue-row-styled" style="text-align: center; margin-top: 4px; margin-bottom: 2px;">
               <div style="font-size: 0.72rem; font-weight: 700; color: var(--primary-gold); margin-bottom: 2px; letter-spacing: 0.5px; text-transform: uppercase;">
                 ${stageName}
