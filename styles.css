@@ -4503,36 +4503,49 @@ body.light-theme .stats-rank-other {
   width: 28px;
   height: 28px;
   border-radius: 50%;
-  background: rgba(212, 175, 55, 0.08);
-  border: 1px solid rgba(212, 175, 55, 0.18);
-  color: var(--primary-gold);
+  background: linear-gradient(
+    120deg,
+    #d4af37 30%,
+    #f3e5ab 45%,
+    #fff8dc 50%,
+    #f3e5ab 55%,
+    #d4af37 70%
+  );
+  background-size: 200% auto;
+  animation: goldShimmer 4s infinite linear;
+  border: none;
   transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 2px 6px rgba(212, 175, 55, 0.3);
 }
 
 .hero-stream-link:hover {
-  background: rgba(212, 175, 55, 0.15);
-  border-color: rgba(212, 175, 55, 0.35);
   transform: scale(1.08);
-  box-shadow: 0 4px 10px rgba(212, 175, 55, 0.15);
+  box-shadow: 0 4px 12px rgba(212, 175, 55, 0.5);
 }
 
 .hero-stream-link svg {
   width: 13px;
   height: 13px;
-  stroke: var(--primary-gold);
+  stroke: #12141a; /* Dark charcoal for premium contrast */
+  stroke-width: 2.5;
   display: block;
 }
 
 body.light-theme .hero-stream-link {
-  background: rgba(212, 175, 55, 0.05);
-  border-color: rgba(212, 175, 55, 0.2);
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+  background: linear-gradient(
+    120deg,
+    #c5a028 30%,
+    #e5c130 45%,
+    #fff8dc 50%,
+    #e5c130 55%,
+    #c5a028 70%
+  );
+  background-size: 200% auto;
+  box-shadow: 0 2px 6px rgba(197, 160, 40, 0.3);
 }
 
-body.light-theme .hero-stream-link:hover {
-  background: rgba(212, 175, 55, 0.1);
-  border-color: rgba(212, 175, 55, 0.4);
+body.light-theme .hero-stream-link svg {
+  stroke: #ffffff;
 }
 
 /* Inline Live Stream Icon Link inside Match Card Header */
@@ -4543,35 +4556,45 @@ body.light-theme .hero-stream-link:hover {
   width: 22px;
   height: 22px;
   border-radius: 50%;
-  background: rgba(239, 68, 68, 0.08);
-  border: 1px solid rgba(239, 68, 68, 0.18);
-  color: var(--accent-red);
+  background: linear-gradient(
+    120deg,
+    #ef4444 30%,
+    #ff6b6b 45%,
+    #ff9b9b 50%,
+    #ff6b6b 55%,
+    #ef4444 70%
+  );
+  background-size: 200% auto;
+  animation: goldShimmer 3s infinite linear;
+  border: none;
   transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   cursor: pointer;
+  box-shadow: 0 2px 6px rgba(239, 68, 68, 0.3);
 }
 
 .card-stream-link:hover {
-  background: rgba(239, 68, 68, 0.15);
-  border-color: rgba(239, 68, 68, 0.35);
   transform: scale(1.08);
-  box-shadow: 0 2px 6px rgba(239, 68, 68, 0.15);
+  box-shadow: 0 2px 8px rgba(239, 68, 68, 0.5);
 }
 
 .card-stream-link svg {
   width: 11px;
   height: 11px;
-  stroke: var(--accent-red);
+  stroke: #ffffff;
+  stroke-width: 2.5;
   display: block;
 }
 
 body.light-theme .card-stream-link {
-  background: rgba(239, 68, 68, 0.04);
-  border-color: rgba(239, 68, 68, 0.15);
-}
-
-body.light-theme .card-stream-link:hover {
-  background: rgba(239, 68, 68, 0.08);
-  border-color: rgba(239, 68, 68, 0.3);
+  background: linear-gradient(
+    120deg,
+    #dc2626 30%,
+    #ef4444 45%,
+    #fca5a5 50%,
+    #ef4444 55%,
+    #dc2626 70%
+  );
+  background-size: 200% auto;
 }
 
 /* Score section alignment & live badge styling in Hero Panel */
