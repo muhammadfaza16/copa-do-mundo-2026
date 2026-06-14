@@ -665,45 +665,45 @@ function updateHeroPanel() {
 
       cdDisplay.innerHTML = `
         <div class="live-scoreboard">
-          <div class="live-main-row">
-            <!-- Team 1 -->
-            <div class="live-team left-team">
-              <div class="live-team-info">
-                <span class="live-team-code highlighted-code">${team1Code}</span>
-                <span class="subtle-fullname">${team1Name}</span>
+          <div class="live-info-wrapper" style="display: flex; flex-direction: column; align-items: center; gap: 4px; width: 100%;">
+            <div class="live-main-row" style="margin-bottom: 2px;">
+              <!-- Team 1 -->
+              <div class="live-team left-team">
+                <div class="live-team-info">
+                  <span class="live-team-code highlighted-code">${team1Code}</span>
+                  <span class="subtle-fullname">${team1Name}</span>
+                </div>
+                ${flag1}
               </div>
-              ${flag1}
+              
+              <!-- Center Block (Score) -->
+              <div class="live-center-block">
+                <span class="live-score">${scoreData.score1 !== null && scoreData.score1 !== undefined ? scoreData.score1 : 0}</span>
+                <span class="live-score-separator">:</span>
+                <span class="live-score">${scoreData.score2 !== null && scoreData.score2 !== undefined ? scoreData.score2 : 0}</span>
+              </div>
+              
+              <!-- Team 2 -->
+              <div class="live-team right-team">
+                ${flag2}
+                <div class="live-team-info">
+                  <span class="live-team-code highlighted-code">${team2Code}</span>
+                  <span class="subtle-fullname">${team2Name}</span>
+                </div>
+              </div>
             </div>
             
-            <!-- Center Block (Score) -->
-            <div class="live-center-block">
-              <span class="live-score">${scoreData.score1 !== null && scoreData.score1 !== undefined ? scoreData.score1 : 0}</span>
-              <span class="live-score-separator">:</span>
-              <span class="live-score">${scoreData.score2 !== null && scoreData.score2 !== undefined ? scoreData.score2 : 0}</span>
-            </div>
-            
-            <!-- Team 2 -->
-            <div class="live-team right-team">
-              ${flag2}
-              <div class="live-team-info">
-                <span class="live-team-code highlighted-code">${team2Code}</span>
-                <span class="subtle-fullname">${team2Name}</span>
-              </div>
-            </div>
-          </div>
-          
-          <!-- Row 2: Live status in its own row -->
-          <div class="live-status-row" style="display: flex; justify-content: center; align-items: center; width: 100%; margin: 4px 0;">
+            <!-- Row 2: Live status -->
             <span class="score-status status-live" style="font-size: 0.65rem; letter-spacing: 0.8px; text-transform: uppercase;">${minuteLabel}</span>
-          </div>
-          
-          <!-- Row 3: Group & Venue (styled exactly like the counter card) -->
-          <div class="live-venue-row-styled" style="text-align: center; margin-top: 6px; margin-bottom: 4px;">
-            <div style="font-size: 0.72rem; font-weight: 700; color: var(--primary-gold); margin-bottom: 3px; letter-spacing: 0.5px; text-transform: uppercase;">
-              ${stageName}
-            </div>
-            <div style="font-size: 0.6rem; color: var(--text-secondary); opacity: 0.6; font-weight: 500;">
-              ${venue}
+            
+            <!-- Row 3: Group & Venue (styled exactly like the counter card) -->
+            <div class="live-venue-row-styled" style="text-align: center; margin-top: 4px; margin-bottom: 2px;">
+              <div style="font-size: 0.72rem; font-weight: 700; color: var(--primary-gold); margin-bottom: 2px; letter-spacing: 0.5px; text-transform: uppercase;">
+                ${stageName}
+              </div>
+              <div style="font-size: 0.6rem; color: var(--text-secondary); opacity: 0.6; font-weight: 500;">
+                ${venue}
+              </div>
             </div>
           </div>
 
