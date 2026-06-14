@@ -657,7 +657,8 @@ function updateHeroPanel() {
     if (lastHeroMatchKey !== liveKey) {
       lastHeroMatchKey = liveKey;
 
-      titleEl.innerHTML = `<span class="live-badge-header">${minuteLabel}</span>`;
+      const isBigMatch = getMatchBadgeHtml(m.team1, m.team2) !== '';
+      titleEl.innerHTML = isBigMatch ? `<span class="badge-big-match">BIG MATCH</span>` : `LIVE MATCH`;
       
       const venue = getMatchVenue(m);
       const stageName = m.isKO ? m.group : `Grup ${m.group.replace('Grup ', '')}`;
@@ -675,10 +676,13 @@ function updateHeroPanel() {
             </div>
             
             <!-- Center Block (Score) -->
-            <div class="live-center-block">
-              <span class="live-score">${scoreData.score1 !== null && scoreData.score1 !== undefined ? scoreData.score1 : 0}</span>
-              <span class="live-score-separator">:</span>
-              <span class="live-score">${scoreData.score2 !== null && scoreData.score2 !== undefined ? scoreData.score2 : 0}</span>
+            <div class="live-score-wrapper">
+              <div class="live-center-block">
+                <span class="live-score">${scoreData.score1 !== null && scoreData.score1 !== undefined ? scoreData.score1 : 0}</span>
+                <span class="live-score-separator">:</span>
+                <span class="live-score">${scoreData.score2 !== null && scoreData.score2 !== undefined ? scoreData.score2 : 0}</span>
+              </div>
+              <div class="score-status status-live">${minuteLabel}</div>
             </div>
             
             <!-- Team 2 -->
@@ -691,8 +695,14 @@ function updateHeroPanel() {
             </div>
           </div>
           
-          <div class="live-venue-row">
-            <span class="live-venue-label">${stageName} · ${venue}</span>
+          <div class="live-stream-row">
+            <a href="https://world-cup-2026-streaming.blogspot.com/live-tv-4228-worldcup-tv.html" target="_blank" rel="noopener noreferrer" class="live-stream-link">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="stream-icon">
+                <rect width="20" height="15" x="2" y="7" rx="2" ry="2"/>
+                <polyline points="17 2 12 7 7 2"/>
+              </svg>
+              <span>Nonton Live Streaming</span>
+            </a>
           </div>
 
           ${(cleanScorers1 || cleanScorers2) ? `
@@ -712,8 +722,17 @@ function updateHeroPanel() {
         </div>
       `;
       
-      subEl.innerHTML = `<span class="live-venue-label">${stageName} · ${venue}</span>`;
-      subEl.style.display = 'none';
+      subEl.style.opacity = '1';
+      subEl.style.display = 'block';
+      subEl.innerHTML = `
+        <div style="font-size: 0.72rem; font-weight: 700; color: var(--primary-gold); margin-top: 8px; margin-bottom: 3px; letter-spacing: 0.5px;">
+          ${stageName}
+        </div>
+        <div style="font-size: 0.6rem; color: var(--text-secondary); opacity: 0.6;">
+          ${venue}
+        </div>
+      `;
+      
       cdDisplay.style.display = 'block';
       container.classList.add('live-active');
       
@@ -787,7 +806,8 @@ function updateHeroPanel() {
       lastHeroMatchKey = cdKey;
 
       const isOpening = targetMatch.date === "12/6" && targetMatch.time === "02:00" && targetMatch.team1 === "Meksiko";
-      titleEl.innerText = isOpening ? `Kick-Off Match Pertama` : `Kick-Off Match Berikutnya`;
+      const isBigMatch = getMatchBadgeHtml(targetMatch.team1, targetMatch.team2) !== '';
+      titleEl.innerHTML = isBigMatch ? `<span class="badge-big-match">BIG MATCH</span>` : (isOpening ? `Kick-Off Match Pertama` : `Kick-Off Match Berikutnya`);
 
       const venue = getMatchVenue(targetMatch);
       const flag1Cd = getFlagHtml(targetMatch.team1);
@@ -825,8 +845,17 @@ function updateHeroPanel() {
         <div style="font-size: 0.65rem; color: var(--text-primary); font-weight: 600; margin-bottom: 2px; opacity: 0.9;">
           ${dateStr}
         </div>
-        <div style="font-size: 0.6rem; color: var(--text-secondary); opacity: 0.6;">
+        <div style="font-size: 0.6rem; color: var(--text-secondary); opacity: 0.6; margin-bottom: 4px;">
           ${venue}
+        </div>
+        <div class="live-stream-row" style="margin-top: 10px;">
+          <a href="https://world-cup-2026-streaming.blogspot.com/live-tv-4228-worldcup-tv.html" target="_blank" rel="noopener noreferrer" class="live-stream-link">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="stream-icon">
+              <rect width="20" height="15" x="2" y="7" rx="2" ry="2"/>
+              <polyline points="17 2 12 7 7 2"/>
+            </svg>
+            <span>Nonton Live Streaming</span>
+          </a>
         </div>
       `;
     }
@@ -846,7 +875,8 @@ function updateHeroPanel() {
   if (lastHeroMatchKey !== cdKey) {
     lastHeroMatchKey = cdKey;
 
-    titleEl.innerText = isOpening ? `Kick-Off Match Pertama` : `Kick-Off Match Berikutnya`;
+    const isBigMatch = getMatchBadgeHtml(targetMatch.team1, targetMatch.team2) !== '';
+    titleEl.innerHTML = isBigMatch ? `<span class="badge-big-match">BIG MATCH</span>` : (isOpening ? `Kick-Off Match Pertama` : `Kick-Off Match Berikutnya`);
 
     const venue = getMatchVenue(targetMatch);
     const flag1Cd = getFlagHtml(targetMatch.team1);
@@ -885,8 +915,17 @@ function updateHeroPanel() {
       <div style="font-size: 0.65rem; color: var(--text-primary); font-weight: 600; margin-bottom: 2px; opacity: 0.9;">
         ${dateStr}
       </div>
-      <div style="font-size: 0.6rem; color: var(--text-secondary); opacity: 0.6;">
+      <div style="font-size: 0.6rem; color: var(--text-secondary); opacity: 0.6; margin-bottom: 4px;">
         ${venue}
+      </div>
+      <div class="live-stream-row" style="margin-top: 10px;">
+        <a href="https://world-cup-2026-streaming.blogspot.com/live-tv-4228-worldcup-tv.html" target="_blank" rel="noopener noreferrer" class="live-stream-link">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="stream-icon">
+            <rect width="20" height="15" x="2" y="7" rx="2" ry="2"/>
+            <polyline points="17 2 12 7 7 2"/>
+          </svg>
+          <span>Nonton Live Streaming</span>
+        </a>
       </div>
     `;
   }
@@ -991,6 +1030,17 @@ function createMatchCardHtml(match, index, isKnockout = false) {
             <div class="redcards-right">
               ${cleanRedCards2 || ''}
             </div>
+          </div>
+        ` : ''}
+        ${isLive ? `
+          <div class="match-stream-row">
+            <a href="https://world-cup-2026-streaming.blogspot.com/live-tv-4228-worldcup-tv.html" target="_blank" rel="noopener noreferrer" class="match-stream-link">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="stream-icon">
+                <rect width="20" height="15" x="2" y="7" rx="2" ry="2"/>
+                <polyline points="17 2 12 7 7 2"/>
+              </svg>
+              <span>Nonton Live</span>
+            </a>
           </div>
         ` : ''}
       </div>
