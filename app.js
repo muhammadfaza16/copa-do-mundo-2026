@@ -164,7 +164,14 @@ function parseScorers(scorersStr) {
   return cleaned.split(',')
     .map(s => {
       let item = s.trim().replace(/^['"]|['"]$/g, '');
-      return item.replace(/(\d+)(?!['\d])/g, "$1'");
+      if (!item) return '';
+      // 1. Bersihkan semua tanda petik tunggal dari angka terlebih dahulu
+      item = item.replace(/(\d+)'/g, '$1');
+      // 2. Format menit tambahan (misal 45+2 menjadi 45+2')
+      item = item.replace(/(\d+)\+(\d+)/g, "$1+$2'");
+      // 3. Format menit biasa (misal 90 menjadi 90')
+      item = item.replace(/(?<!\+)\b(\d+)\b(?!\+)/g, "$1'");
+      return item;
     })
     .filter(Boolean)
     .join('<br>');
@@ -1504,11 +1511,16 @@ function renderStatistics() {
             return;
           }
 
-          const minutesMatch = item.match(/\d+'/g);
+          // Normalisasi format menit gol agar hitungan gol akurat
+          let cleanedItem = item.replace(/(\d+)'/g, '$1');
+          cleanedItem = cleanedItem.replace(/(\d+)\+(\d+)/g, "$1+$2'");
+          cleanedItem = cleanedItem.replace(/(?<!\+)\b(\d+)\b(?!\+)/g, "$1'");
+
+          const minutesMatch = cleanedItem.match(/\d+'/g);
           const goalCount = minutesMatch ? minutesMatch.length : 1;
 
-          let playerName = item.split(/\d/)[0].trim();
-          if (!playerName) playerName = item.trim();
+          let playerName = cleanedItem.split(/\d/)[0].trim();
+          if (!playerName) playerName = cleanedItem.trim();
 
           if (playerName) {
             if (!scorersMap[playerName]) {
@@ -1817,7 +1829,7 @@ function renderGroups() {
     });
 
     gridHtml += `
-      <div class="group-card" onclick="window.showGroupMatches('Grup ${groupLetter}')">
+      <div class="group-card">
         <div class="group-title" style="display: flex; justify-content: space-between; align-items: center;">
           <span>Grup ${groupLetter}</span>
           ${isGroupLive ? '<span style="font-size: 0.55rem; color: var(--accent-red); border: 1px solid rgba(239, 68, 68, 0.3); padding: 2px 6px; border-radius: 4px; font-weight: bold; letter-spacing: 0.5px; animation: pulse-blink 1.5s infinite;">LIVE</span>' : ''}
@@ -1836,6 +1848,9 @@ function renderGroups() {
             ${rowsHtml}
           </tbody>
         </table>
+        <div class="group-card-footer">
+          <span class="view-schedule-btn" onclick="window.showGroupMatches('Grup ${groupLetter}')">Lihat Jadwal</span>
+        </div>
       </div>
     `;
   }
@@ -3372,7 +3387,7 @@ window.showGroupMatches = function(groupName) {
     return a.time.localeCompare(b.time);
   });
 
-  let html = '<div class="matches-wrapper" style="padding-top: 10px; display: flex; flex-direction: column; gap: 12px;">';
+  let html = '<div class="matches-wrapper group-matches-mobile-clean" style="padding-top: 10px; display: flex; flex-direction: column; gap: 12px;">';
   matches.forEach(m => {
     html += createMatchCardHtml(m, 0, false);
   });

@@ -1208,16 +1208,46 @@ body.light-theme .search-input:focus {
   background: var(--panel-bg);
   border: 1px solid var(--glass-border);
   border-radius: var(--border-radius-lg);
-  padding: 24px;
+  padding: 20px 20px 16px;
   box-shadow: var(--shadow-premium);
-  cursor: pointer;
   transition: transform 0.2s cubic-bezier(0.25, 0.8, 0.25, 1), border-color 0.2s, box-shadow 0.2s;
 }
 
 .group-card:hover {
-  transform: translateY(-2px);
   border-color: var(--glass-border-focus);
-  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+}
+
+.group-card-footer {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 14px;
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+  padding-top: 10px;
+}
+
+.view-schedule-btn {
+  font-family: var(--font-sans);
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--primary-gold);
+  opacity: 0.65;
+  cursor: pointer;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+  letter-spacing: 0.3px;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.view-schedule-btn:hover {
+  opacity: 1;
+  transform: translateX(2px);
+}
+
+.view-schedule-btn::after {
+  content: " →";
+  font-size: 0.75rem;
+  transition: transform 0.2s ease;
 }
 
 .group-title {
@@ -2595,7 +2625,7 @@ body.light-theme .welcome-mascot-side {
 
   /* Group cards & tables premium compact look */
   .group-card {
-    padding: 14px;
+    padding: 14px 14px 10px;
     border-radius: 16px;
   }
   
@@ -2668,6 +2698,63 @@ body.light-theme .welcome-mascot-side {
   
   .welcome-desc {
     font-size: 0.78rem;
+  }
+
+  /* Clean and minimal group matches list in mobile modal */
+  .group-matches-mobile-clean .match-card {
+    padding: 10px 12px;
+    gap: 6px;
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.02);
+  }
+  
+  .group-matches-mobile-clean .match-stage-container {
+    display: none;
+  }
+  
+  .group-matches-mobile-clean .match-venue-subtle {
+    display: none;
+  }
+
+  .group-matches-mobile-clean .match-header {
+    margin-bottom: 2px;
+  }
+
+  .group-matches-mobile-clean .match-body {
+    grid-template-columns: 1fr auto 1fr;
+    align-items: center;
+    gap: 4px;
+  }
+
+  .group-matches-mobile-clean .team-display {
+    gap: 4px;
+  }
+
+  .group-matches-mobile-clean .team-name {
+    font-size: 0.75rem;
+  }
+
+  .group-matches-mobile-clean .flag-crest {
+    width: 18px;
+    height: 18px;
+  }
+
+  .group-matches-mobile-clean .match-time-box {
+    padding: 6px 8px;
+    min-width: 50px;
+    font-size: 0.65rem;
+  }
+
+  .group-matches-mobile-clean .score-display {
+    font-size: 0.85rem;
+  }
+
+  .group-matches-mobile-clean .match-scorers-row,
+  .group-matches-mobile-clean .match-redcards-row {
+    margin-top: 2px;
+    padding: 4px 4px 0;
+    font-size: 0.58rem;
+    gap: 4px;
   }
 }
 
