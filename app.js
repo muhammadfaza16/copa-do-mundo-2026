@@ -694,6 +694,10 @@ function updateHeroPanel() {
               </div>
             </div>
           </div>
+          
+          <div class="live-venue-row">
+            <span class="live-venue-label">${stageName} · ${venue}</span>
+          </div>
 
           ${(cleanScorers1 || cleanScorers2) ? `
             <div class="live-events-row">
@@ -712,16 +716,8 @@ function updateHeroPanel() {
         </div>
       `;
       
-      subEl.style.opacity = '1';
-      subEl.style.display = 'block';
-      subEl.innerHTML = `
-        <div style="font-size: 0.72rem; font-weight: 700; color: var(--primary-gold); margin-top: 8px; margin-bottom: 3px; letter-spacing: 0.5px;">
-          ${stageName}
-        </div>
-        <div style="font-size: 0.6rem; color: var(--text-secondary); opacity: 0.6;">
-          ${venue}
-        </div>
-      `;
+      subEl.innerHTML = `<span class="live-venue-label">${stageName} · ${venue}</span>`;
+      subEl.style.display = 'none';
       
       cdDisplay.style.display = 'block';
       container.classList.add('live-active');
