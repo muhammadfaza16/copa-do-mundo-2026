@@ -658,16 +658,10 @@ function updateHeroPanel() {
       lastHeroMatchKey = liveKey;
 
       const isBigMatch = getMatchBadgeHtml(m.team1, m.team2) !== '';
-      if (isBigMatch) {
-        titleEl.innerHTML = `
-          <div style="display: flex; flex-direction: column; align-items: center; gap: 6px; width: 100%;">
-            <span class="badge-big-match" style="position: static; transform: none; display: inline-block;">BIG MATCH</span>
-            <span class="score-status status-live" style="font-size: 0.65rem; letter-spacing: 0.8px; text-transform: uppercase;">${minuteLabel}</span>
-          </div>
-        `;
-      } else {
-        titleEl.innerHTML = `<span class="score-status status-live" style="font-size: 0.72rem; letter-spacing: 0.8px; text-transform: uppercase;">${minuteLabel}</span>`;
-      }
+      titleEl.innerHTML = `
+        ${isBigMatch ? `<span class="badge-big-match" style="position: absolute; left: 16px; top: 14px; transform: none; margin: 0;">BIG MATCH</span>` : ''}
+        <span class="score-status status-live" style="font-size: 0.72rem; letter-spacing: 0.8px; text-transform: uppercase;">${minuteLabel}</span>
+      `;
       
       const venue = getMatchVenue(m);
       const stageName = m.isKO ? m.group : `Grup ${m.group.replace('Grup ', '')}`;
@@ -805,9 +799,12 @@ function updateHeroPanel() {
     if (lastHeroMatchKey !== cdKey) {
       lastHeroMatchKey = cdKey;
 
-      const isOpening = targetMatch.date === "12/6" && targetMatch.time === "02:00" && targetMatch.team1 === "Meksiko";
       const isBigMatch = getMatchBadgeHtml(targetMatch.team1, targetMatch.team2) !== '';
-      titleEl.innerHTML = isBigMatch ? `<span class="badge-big-match">BIG MATCH</span>` : (isOpening ? `Kick-Off Match Pertama` : `Kick-Off Match Berikutnya`);
+      const textTitle = isOpening ? `Kick-Off Match Pertama` : `Kick-Off Match Berikutnya`;
+      titleEl.innerHTML = `
+        ${isBigMatch ? `<span class="badge-big-match" style="position: absolute; left: 16px; top: 14px; transform: none; margin: 0;">BIG MATCH</span>` : ''}
+        <span>${textTitle}</span>
+      `;
 
       const venue = getMatchVenue(targetMatch);
       const flag1Cd = getFlagHtml(targetMatch.team1);
@@ -867,7 +864,11 @@ function updateHeroPanel() {
     lastHeroMatchKey = cdKey;
 
     const isBigMatch = getMatchBadgeHtml(targetMatch.team1, targetMatch.team2) !== '';
-    titleEl.innerHTML = isBigMatch ? `<span class="badge-big-match">BIG MATCH</span>` : (isOpening ? `Kick-Off Match Pertama` : `Kick-Off Match Berikutnya`);
+    const textTitle = isOpening ? `Kick-Off Match Pertama` : `Kick-Off Match Berikutnya`;
+    titleEl.innerHTML = `
+      ${isBigMatch ? `<span class="badge-big-match" style="position: absolute; left: 16px; top: 14px; transform: none; margin: 0;">BIG MATCH</span>` : ''}
+      <span>${textTitle}</span>
+    `;
 
     const venue = getMatchVenue(targetMatch);
     const flag1Cd = getFlagHtml(targetMatch.team1);

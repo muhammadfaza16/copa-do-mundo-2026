@@ -4503,24 +4503,16 @@ body.light-theme .stats-rank-other {
   width: 28px;
   height: 28px;
   border-radius: 50%;
-  background: linear-gradient(
-    120deg,
-    #d4af37 30%,
-    #f3e5ab 45%,
-    #fff8dc 50%,
-    #f3e5ab 55%,
-    #d4af37 70%
-  );
-  background-size: 200% auto;
-  animation: goldShimmer 4s infinite linear;
+  background-color: var(--primary-gold);
   border: none;
   transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-  box-shadow: 0 2px 6px rgba(212, 175, 55, 0.3);
+  box-shadow: 0 2px 6px rgba(212, 175, 55, 0.25);
 }
 
 .hero-stream-link:hover {
+  background-color: #f3e5ab;
   transform: scale(1.08);
-  box-shadow: 0 4px 12px rgba(212, 175, 55, 0.5);
+  box-shadow: 0 4px 12px rgba(212, 175, 55, 0.45);
 }
 
 .hero-stream-link svg {
@@ -4532,16 +4524,12 @@ body.light-theme .stats-rank-other {
 }
 
 body.light-theme .hero-stream-link {
-  background: linear-gradient(
-    120deg,
-    #c5a028 30%,
-    #e5c130 45%,
-    #fff8dc 50%,
-    #e5c130 55%,
-    #c5a028 70%
-  );
-  background-size: 200% auto;
-  box-shadow: 0 2px 6px rgba(197, 160, 40, 0.3);
+  background-color: #c5a028;
+  box-shadow: 0 2px 6px rgba(197, 160, 40, 0.25);
+}
+
+body.light-theme .hero-stream-link:hover {
+  background-color: var(--primary-gold);
 }
 
 body.light-theme .hero-stream-link svg {
@@ -4556,25 +4544,17 @@ body.light-theme .hero-stream-link svg {
   width: 22px;
   height: 22px;
   border-radius: 50%;
-  background: linear-gradient(
-    120deg,
-    #ef4444 30%,
-    #ff6b6b 45%,
-    #ff9b9b 50%,
-    #ff6b6b 55%,
-    #ef4444 70%
-  );
-  background-size: 200% auto;
-  animation: goldShimmer 3s infinite linear;
+  background-color: var(--accent-red);
   border: none;
   transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   cursor: pointer;
-  box-shadow: 0 2px 6px rgba(239, 68, 68, 0.3);
+  box-shadow: 0 2px 6px rgba(239, 68, 68, 0.25);
 }
 
 .card-stream-link:hover {
+  background-color: #ff5a5a;
   transform: scale(1.08);
-  box-shadow: 0 2px 8px rgba(239, 68, 68, 0.5);
+  box-shadow: 0 2px 8px rgba(239, 68, 68, 0.45);
 }
 
 .card-stream-link svg {
@@ -4586,15 +4566,11 @@ body.light-theme .hero-stream-link svg {
 }
 
 body.light-theme .card-stream-link {
-  background: linear-gradient(
-    120deg,
-    #dc2626 30%,
-    #ef4444 45%,
-    #fca5a5 50%,
-    #ef4444 55%,
-    #dc2626 70%
-  );
-  background-size: 200% auto;
+  background-color: var(--accent-red);
+}
+
+body.light-theme .card-stream-link:hover {
+  background-color: #ff5a5a;
 }
 
 /* Score section alignment & live badge styling in Hero Panel */
