@@ -676,13 +676,10 @@ function updateHeroPanel() {
             </div>
             
             <!-- Center Block (Score) -->
-            <div class="live-score-wrapper">
-              <div class="live-center-block">
-                <span class="live-score">${scoreData.score1 !== null && scoreData.score1 !== undefined ? scoreData.score1 : 0}</span>
-                <span class="live-score-separator">:</span>
-                <span class="live-score">${scoreData.score2 !== null && scoreData.score2 !== undefined ? scoreData.score2 : 0}</span>
-              </div>
-              <div class="score-status status-live">${minuteLabel}</div>
+            <div class="live-center-block">
+              <span class="live-score">${scoreData.score1 !== null && scoreData.score1 !== undefined ? scoreData.score1 : 0}</span>
+              <span class="live-score-separator">:</span>
+              <span class="live-score">${scoreData.score2 !== null && scoreData.score2 !== undefined ? scoreData.score2 : 0}</span>
             </div>
             
             <!-- Team 2 -->
@@ -695,8 +692,19 @@ function updateHeroPanel() {
             </div>
           </div>
           
-          <div class="live-venue-row">
-            <span class="live-venue-label">${stageName} · ${venue}</span>
+          <!-- Row 2: Live status in its own row -->
+          <div class="live-status-row" style="display: flex; justify-content: center; align-items: center; width: 100%; margin: 4px 0;">
+            <span class="score-status status-live" style="font-size: 0.65rem; letter-spacing: 0.8px; text-transform: uppercase;">${minuteLabel}</span>
+          </div>
+          
+          <!-- Row 3: Group & Venue (styled exactly like the counter card) -->
+          <div class="live-venue-row-styled" style="text-align: center; margin-top: 6px; margin-bottom: 4px;">
+            <div style="font-size: 0.72rem; font-weight: 700; color: var(--primary-gold); margin-bottom: 3px; letter-spacing: 0.5px; text-transform: uppercase;">
+              ${stageName}
+            </div>
+            <div style="font-size: 0.6rem; color: var(--text-secondary); opacity: 0.6; font-weight: 500;">
+              ${venue}
+            </div>
           </div>
 
           ${(cleanScorers1 || cleanScorers2) ? `
@@ -924,7 +932,7 @@ function initCountdown() {
 // ----------------------------------------------------
 
 // Render Match Card
-function createMatchCardHtml(match, index, isKnockout = false) {
+function createMatchCardHtml(match, index, isKnockout = false, showBigMatchBadge = true) {
   const matchKey = isKnockout ? `ko_${match.match_id}` : `gs_${match.date}_${match.team1}_${match.team2}`;
   const timeInfo = getFormattedTime(match.date, match.time);
   const starredClass = isStarred(matchKey) ? 'active' : '';
@@ -958,7 +966,7 @@ function createMatchCardHtml(match, index, isKnockout = false) {
       <div class="match-card" data-key="${matchKey}" title="${labelVenue}">
         <div class="match-header">
           ${stageHeaderHtml}
-          ${getMatchBadgeHtml(match.team1, match.team2)}
+          ${showBigMatchBadge ? getMatchBadgeHtml(match.team1, match.team2) : ''}
           <div class="match-header-right" style="display: flex; align-items: center; gap: 8px;">
             <span class="match-date-label">${timeInfo.date} · ${timeInfo.time} ${timeInfo.tzLabel}</span>
             ${isLive ? `
@@ -1017,7 +1025,7 @@ function createMatchCardHtml(match, index, isKnockout = false) {
       <div class="match-card match-fixture-card" data-key="${matchKey}" title="${labelVenue}">
         <div class="match-header">
           ${stageHeaderHtml}
-          ${getMatchBadgeHtml(match.team1, match.team2)}
+          ${showBigMatchBadge ? getMatchBadgeHtml(match.team1, match.team2) : ''}
           <span class="match-date-label">${timeInfo.date}</span>
         </div>
         <div class="match-body">
@@ -1349,7 +1357,7 @@ function renderLatestResults() {
   if (latestMatches.length <= 1) {
     let listHtml = '';
     latestMatches.forEach(match => {
-      listHtml += createMatchCardHtml(match, match.match_id || 0, match.isKO);
+      listHtml += createMatchCardHtml(match, match.match_id || 0, match.isKO, false);
     });
     container.innerHTML = listHtml;
     if (resultsSliderInterval) {
@@ -1362,7 +1370,7 @@ function renderLatestResults() {
     // Clone of last match
     const cloneLastHtml = `
       <div class="results-slide cloned" data-index="${n - 1}">
-        ${createMatchCardHtml(latestMatches[n - 1], latestMatches[n - 1].match_id || 0, latestMatches[n - 1].isKO)}
+        ${createMatchCardHtml(latestMatches[n - 1], latestMatches[n - 1].match_id || 0, latestMatches[n - 1].isKO, false)}
       </div>
     `;
 
@@ -1371,7 +1379,7 @@ function renderLatestResults() {
     latestMatches.forEach((match, idx) => {
       realSlidesHtml += `
         <div class="results-slide" data-index="${idx}">
-          ${createMatchCardHtml(match, match.match_id || 0, match.isKO)}
+          ${createMatchCardHtml(match, match.match_id || 0, match.isKO, false)}
         </div>
       `;
     });
@@ -1379,7 +1387,7 @@ function renderLatestResults() {
     // Clone of first match
     const cloneFirstHtml = `
       <div class="results-slide cloned" data-index="0">
-        ${createMatchCardHtml(latestMatches[0], latestMatches[0].match_id || 0, latestMatches[0].isKO)}
+        ${createMatchCardHtml(latestMatches[0], latestMatches[0].match_id || 0, latestMatches[0].isKO, false)}
       </div>
     `;
 
