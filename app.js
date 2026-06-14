@@ -694,16 +694,6 @@ function updateHeroPanel() {
               </div>
             </div>
           </div>
-          
-          <div class="live-stream-row">
-            <a href="https://world-cup-2026-streaming.blogspot.com/live-tv-4228-worldcup-tv.html" target="_blank" rel="noopener noreferrer" class="live-stream-link">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="stream-icon">
-                <rect width="20" height="15" x="2" y="7" rx="2" ry="2"/>
-                <polyline points="17 2 12 7 7 2"/>
-              </svg>
-              <span>Live Stream</span>
-            </a>
-          </div>
 
           ${(cleanScorers1 || cleanScorers2) ? `
             <div class="live-events-row">
@@ -848,15 +838,6 @@ function updateHeroPanel() {
         <div style="font-size: 0.6rem; color: var(--text-secondary); opacity: 0.6; margin-bottom: 4px;">
           ${venue}
         </div>
-        <div class="live-stream-row" style="margin-top: 10px;">
-          <a href="https://world-cup-2026-streaming.blogspot.com/live-tv-4228-worldcup-tv.html" target="_blank" rel="noopener noreferrer" class="live-stream-link">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="stream-icon">
-              <rect width="20" height="15" x="2" y="7" rx="2" ry="2"/>
-              <polyline points="17 2 12 7 7 2"/>
-            </svg>
-            <span>Live Stream</span>
-          </a>
-        </div>
       `;
     }
 
@@ -917,15 +898,6 @@ function updateHeroPanel() {
       </div>
       <div style="font-size: 0.6rem; color: var(--text-secondary); opacity: 0.6; margin-bottom: 4px;">
         ${venue}
-      </div>
-      <div class="live-stream-row" style="margin-top: 10px;">
-        <a href="https://world-cup-2026-streaming.blogspot.com/live-tv-4228-worldcup-tv.html" target="_blank" rel="noopener noreferrer" class="live-stream-link">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="stream-icon">
-            <rect width="20" height="15" x="2" y="7" rx="2" ry="2"/>
-            <polyline points="17 2 12 7 7 2"/>
-          </svg>
-          <span>Live Stream</span>
-        </a>
       </div>
     `;
   }
@@ -991,7 +963,17 @@ function createMatchCardHtml(match, index, isKnockout = false) {
         <div class="match-header">
           ${stageHeaderHtml}
           ${getMatchBadgeHtml(match.team1, match.team2)}
-          <span class="match-date-label">${timeInfo.date} · ${timeInfo.time} ${timeInfo.tzLabel}</span>
+          <div class="match-header-right" style="display: flex; align-items: center; gap: 8px;">
+            <span class="match-date-label">${timeInfo.date} · ${timeInfo.time} ${timeInfo.tzLabel}</span>
+            ${isLive ? `
+              <a href="https://world-cup-2026-streaming.blogspot.com/live-tv-4228-worldcup-tv.html" target="_blank" rel="noopener noreferrer" class="card-stream-link" title="Live Stream">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                  <rect width="20" height="15" x="2" y="7" rx="2" ry="2"/>
+                  <polyline points="17 2 12 7 7 2"/>
+                </svg>
+              </a>
+            ` : ''}
+          </div>
         </div>
         <div class="match-body">
           <div class="team-display left">
@@ -1030,17 +1012,6 @@ function createMatchCardHtml(match, index, isKnockout = false) {
             <div class="redcards-right">
               ${cleanRedCards2 || ''}
             </div>
-          </div>
-        ` : ''}
-        ${isLive ? `
-          <div class="match-stream-row">
-            <a href="https://world-cup-2026-streaming.blogspot.com/live-tv-4228-worldcup-tv.html" target="_blank" rel="noopener noreferrer" class="match-stream-link">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="stream-icon">
-                <rect width="20" height="15" x="2" y="7" rx="2" ry="2"/>
-                <polyline points="17 2 12 7 7 2"/>
-              </svg>
-              <span>Nonton Live</span>
-            </a>
           </div>
         ` : ''}
       </div>

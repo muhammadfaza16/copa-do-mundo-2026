@@ -4491,111 +4491,85 @@ body.light-theme .stats-rank-other {
   text-transform: uppercase;
 }
 
-/* Subtle Live Stream Link / Button Styles */
-.live-stream-row {
+/* Corner Live Stream Icon Link inside Hero Panel Countdown Container */
+.hero-stream-link {
+  position: absolute;
+  top: 14px;
+  right: 16px;
+  z-index: 10;
   display: flex;
+  align-items: center;
   justify-content: center;
-  align-items: center;
-  width: 100%;
-  margin-top: 4px;
-  margin-bottom: 2px;
-}
-
-.live-stream-link {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  font-family: var(--font-display);
-  font-size: 0.72rem;
-  font-weight: 600;
-  color: var(--primary-gold);
-  text-decoration: none;
-  padding: 5px 14px;
-  border-radius: 20px;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
   background: rgba(212, 175, 55, 0.08);
   border: 1px solid rgba(212, 175, 55, 0.18);
+  color: var(--primary-gold);
   transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
-.live-stream-link:hover {
+.hero-stream-link:hover {
   background: rgba(212, 175, 55, 0.15);
   border-color: rgba(212, 175, 55, 0.35);
-  transform: translateY(-1px);
-  box-shadow: 0 4px 10px rgba(212, 175, 55, 0.15), 0 2px 4px rgba(0, 0, 0, 0.1);
+  transform: scale(1.08);
+  box-shadow: 0 4px 10px rgba(212, 175, 55, 0.15);
 }
 
-.live-stream-link svg {
+.hero-stream-link svg {
   width: 13px;
   height: 13px;
   stroke: var(--primary-gold);
   display: block;
 }
 
-body.light-theme .live-stream-link {
+body.light-theme .hero-stream-link {
   background: rgba(212, 175, 55, 0.05);
   border-color: rgba(212, 175, 55, 0.2);
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
 }
 
-body.light-theme .live-stream-link:hover {
+body.light-theme .hero-stream-link:hover {
   background: rgba(212, 175, 55, 0.1);
   border-color: rgba(212, 175, 55, 0.4);
-  box-shadow: 0 3px 6px rgba(212, 175, 55, 0.1), 0 1px 2px rgba(0, 0, 0, 0.05);
 }
 
-.match-stream-row {
+/* Inline Live Stream Icon Link inside Match Card Header */
+.card-stream-link {
   display: flex;
+  align-items: center;
   justify-content: center;
-  align-items: center;
-  width: 100%;
-  border-top: 1px dashed rgba(255, 255, 255, 0.06);
-  padding-top: 10px;
-  margin-top: 4px;
-}
-
-body.light-theme .match-stream-row {
-  border-top-color: rgba(0, 0, 0, 0.06);
-}
-
-.match-stream-link {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  font-family: var(--font-display);
-  font-size: 0.65rem;
-  font-weight: 700;
-  color: var(--accent-red);
-  text-decoration: none;
-  padding: 4px 10px;
-  border-radius: 8px;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
   background: rgba(239, 68, 68, 0.08);
-  border: 1px solid rgba(239, 68, 68, 0.15);
+  border: 1px solid rgba(239, 68, 68, 0.18);
+  color: var(--accent-red);
   transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
+  cursor: pointer;
 }
 
-.match-stream-link:hover {
+.card-stream-link:hover {
   background: rgba(239, 68, 68, 0.15);
-  border-color: rgba(239, 68, 68, 0.3);
-  transform: translateY(-1px);
-  box-shadow: 0 2px 8px rgba(239, 68, 68, 0.15);
+  border-color: rgba(239, 68, 68, 0.35);
+  transform: scale(1.08);
+  box-shadow: 0 2px 6px rgba(239, 68, 68, 0.15);
 }
 
-.match-stream-link svg {
+.card-stream-link svg {
   width: 11px;
   height: 11px;
   stroke: var(--accent-red);
   display: block;
 }
 
-body.light-theme .match-stream-link {
+body.light-theme .card-stream-link {
   background: rgba(239, 68, 68, 0.04);
   border-color: rgba(239, 68, 68, 0.15);
 }
 
-body.light-theme .match-stream-link:hover {
+body.light-theme .card-stream-link:hover {
   background: rgba(239, 68, 68, 0.08);
   border-color: rgba(239, 68, 68, 0.3);
 }
