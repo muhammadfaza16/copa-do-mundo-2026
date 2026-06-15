@@ -3702,14 +3702,21 @@ async function fetchRealTimeScores(isManual = false) {
       throw new Error(errorMsg || "Gagal mengambil data dari API utama maupun proxy.");
     }
 
-    if (!data.games || !Array.isArray(data.games)) {
+    let gamesArray = null;
+    if (Array.isArray(data)) {
+      gamesArray = data;
+    } else if (data && Array.isArray(data.games)) {
+      gamesArray = data.games;
+    }
+
+    if (!gamesArray) {
       throw new Error("Struktur data API tidak dikenal.");
     }
 
     let updatedCount = 0;
     let winnerAdvancedCount = 0;
 
-    data.games.forEach(apiMatch => {
+    gamesArray.forEach(apiMatch => {
       let isFinished = apiMatch.finished === 'TRUE' || apiMatch.time_elapsed === 'finished';
       let isLive = !isFinished && apiMatch.time_elapsed !== 'notstarted';
 
@@ -3838,7 +3845,7 @@ async function fetchRealTimeScores(isManual = false) {
 
         // Advance real-life winners to the simulator bracket
         if (matchId >= 73 && isFinished) {
-          const apiWinner = getApiKnockoutWinner(apiMatch, data.games);
+          const apiWinner = getApiKnockoutWinner(apiMatch, gamesArray);
           const winnerTeam = TEAM_TRANSLATIONS[apiWinner] || apiWinner;
           if (winnerTeam && simulatedWinners[matchId] !== winnerTeam) {
             simulatedWinners[matchId] = winnerTeam;
