@@ -4061,13 +4061,12 @@ body.light-theme .countdown-container.live-active {
   left: 0;
   top: 0;
   bottom: 0;
-  width: 80px;
+  width: 5px;
   background: var(--team1-color, transparent);
   border-radius: 4px 0 0 4px;
-  mask-image: linear-gradient(to right, black 0%, black 4px, rgba(0,0,0,0.3) 4px, rgba(0,0,0,0.08) 16px, transparent 100%);
-  -webkit-mask-image: linear-gradient(to right, black 0%, black 4px, rgba(0,0,0,0.3) 4px, rgba(0,0,0,0.08) 16px, transparent 100%);
+  box-shadow: 0 0 12px var(--team1-glow, transparent);
   z-index: 3;
-  transition: background 0.5s ease;
+  transition: background 0.5s ease, box-shadow 0.5s ease;
 }
 
 /* Dynamic Right Accent Bar (Team 2) */
@@ -4077,13 +4076,12 @@ body.light-theme .countdown-container.live-active {
   right: 0;
   top: 0;
   bottom: 0;
-  width: 80px;
+  width: 5px;
   background: var(--team2-color, transparent);
   border-radius: 0 4px 4px 0;
-  mask-image: linear-gradient(to left, black 0%, black 4px, rgba(0,0,0,0.3) 4px, rgba(0,0,0,0.08) 16px, transparent 100%);
-  -webkit-mask-image: linear-gradient(to left, black 0%, black 4px, rgba(0,0,0,0.3) 4px, rgba(0,0,0,0.08) 16px, transparent 100%);
+  box-shadow: 0 0 12px var(--team2-glow, transparent);
   z-index: 3;
-  transition: background 0.5s ease;
+  transition: background 0.5s ease, box-shadow 0.5s ease;
 }
 
 
