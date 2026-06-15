@@ -1919,74 +1919,129 @@ function solveThirdsAssignment(matchesNeed3rd, qualifyingThirds) {
 
 // Function to dynamically calculate group standings from realScores
 function calculateGroupStandings() {
-  // Initialize stats for all teams in groups
-  teamStats = {};
-  for (const [groupName, teamList] of Object.entries(groups)) {
-    teamList.forEach(team => {
-      teamStats[team] = { played: 0, won: 0, drawn: 0, lost: 0, gf: 0, ga: 0, gd: 0, pts: 0 };
-    });
+  const apiGroupsStr = localStorage.getItem('wc2026_api_groups_data');
+  let loadedFromApi = false;
+
+  const API_TEAM_ID_MAPPING = {
+    "1": "Mexico", "2": "South Africa", "3": "South Korea", "4": "Czech Republic",
+    "5": "Canada", "6": "Bosnia and Herzegovina", "7": "Qatar", "8": "Switzerland",
+    "9": "Brazil", "10": "Morocco", "11": "Haiti", "12": "Scotland",
+    "13": "United States", "14": "Paraguay", "15": "Australia", "16": "Turkey",
+    "17": "Germany", "18": "Curaçao", "19": "Ivory Coast", "20": "Ecuador",
+    "21": "Netherlands", "22": "Japan", "23": "Sweden", "24": "Tunisia",
+    "25": "Belgium", "26": "Egypt", "27": "Iran", "28": "New Zealand",
+    "29": "Spain", "30": "Cape Verde", "31": "Saudi Arabia", "32": "Uruguay",
+    "33": "France", "34": "Senegal", "35": "Iraq", "36": "Norway",
+    "37": "Argentina", "38": "Algeria", "39": "Austria", "40": "Jordan",
+    "41": "Portugal", "42": "Democratic Republic of the Congo", "43": "Uzbekistan",
+    "44": "Colombia", "45": "England", "46": "Croatia", "47": "Ghana", "48": "Panama"
+  };
+
+  if (apiGroupsStr) {
+    try {
+      const parsed = JSON.parse(apiGroupsStr);
+      const apiGroups = parsed.groups || parsed;
+      if (apiGroups && Array.isArray(apiGroups)) {
+        teamStats = {};
+        apiGroups.forEach(group => {
+          const groupName = `Grup ${group.name}`;
+          const sortedTeams = [];
+          group.teams.forEach(t => {
+            const teamEn = API_TEAM_ID_MAPPING[t.team_id];
+            const teamIndo = TEAM_TRANSLATIONS[teamEn] || teamEn;
+            if (teamIndo) {
+              teamStats[teamIndo] = {
+                played: parseInt(t.mp) || 0,
+                won: parseInt(t.w) || 0,
+                drawn: parseInt(t.d) || 0,
+                lost: parseInt(t.l) || 0,
+                gf: parseInt(t.gf) || 0,
+                ga: parseInt(t.ga) || 0,
+                gd: parseInt(t.gd) || 0,
+                pts: parseInt(t.pts) || 0
+              };
+              sortedTeams.push(teamIndo);
+            }
+          });
+          groupRankings[groupName] = sortedTeams;
+        });
+        loadedFromApi = true;
+      }
+    } catch (e) {
+      console.error("Error parsing API group standings, falling back to local calculation:", e);
+    }
   }
 
-  // Calculate from real scores
-  WORLD_CUP_DATA.group_stage.forEach(m => {
-    const matchKey = `gs_${m.date}_${m.team1}_${m.team2}`;
-    const score = getMatchScore(matchKey);
-    if (score && (score.status === 'FINISHED' || score.status === 'IN_PLAY')) {
-      const s1 = score.score1;
-      const s2 = score.score2;
-      
-      if (s1 !== null && s2 !== null && s1 !== undefined && s2 !== undefined) {
-        teamStats[m.team1].played++;
-        teamStats[m.team2].played++;
+  if (!loadedFromApi) {
+    // Initialize stats for all teams in groups
+    teamStats = {};
+    for (const [groupName, teamList] of Object.entries(groups)) {
+      teamList.forEach(team => {
+        teamStats[team] = { played: 0, won: 0, drawn: 0, lost: 0, gf: 0, ga: 0, gd: 0, pts: 0 };
+      });
+    }
+
+    // Calculate from real scores
+    WORLD_CUP_DATA.group_stage.forEach(m => {
+      const matchKey = `gs_${m.date}_${m.team1}_${m.team2}`;
+      const score = getMatchScore(matchKey);
+      if (score && (score.status === 'FINISHED' || score.status === 'IN_PLAY')) {
+        const s1 = score.score1;
+        const s2 = score.score2;
         
-        teamStats[m.team1].gf += s1;
-        teamStats[m.team1].ga += s2;
-        teamStats[m.team2].gf += s2;
-        teamStats[m.team2].ga += s1;
-        
-        if (s1 > s2) {
-          teamStats[m.team1].won++;
-          teamStats[m.team1].pts += 3;
-          teamStats[m.team2].lost++;
-        } else if (s1 < s2) {
-          teamStats[m.team2].won++;
-          teamStats[m.team2].pts += 3;
-          teamStats[m.team1].lost++;
-        } else {
-          teamStats[m.team1].drawn++;
-          teamStats[m.team1].pts += 1;
-          teamStats[m.team2].drawn++;
-          teamStats[m.team2].pts += 1;
+        if (s1 !== null && s2 !== null && s1 !== undefined && s2 !== undefined) {
+          teamStats[m.team1].played++;
+          teamStats[m.team2].played++;
+          
+          teamStats[m.team1].gf += s1;
+          teamStats[m.team1].ga += s2;
+          teamStats[m.team2].gf += s2;
+          teamStats[m.team2].ga += s1;
+          
+          if (s1 > s2) {
+            teamStats[m.team1].won++;
+            teamStats[m.team1].pts += 3;
+            teamStats[m.team2].lost++;
+          } else if (s1 < s2) {
+            teamStats[m.team2].won++;
+            teamStats[m.team2].pts += 3;
+            teamStats[m.team1].lost++;
+          } else {
+            teamStats[m.team1].drawn++;
+            teamStats[m.team1].pts += 1;
+            teamStats[m.team2].drawn++;
+            teamStats[m.team2].pts += 1;
+          }
         }
       }
-    }
-  });
-
-  // Calculate Goal Difference and sort groupRankings
-  for (const [groupName, teamList] of Object.entries(groups)) {
-    let groupMatchesPlayed = 0;
-    teamList.forEach(team => {
-      teamStats[team].gd = teamStats[team].gf - teamStats[team].ga;
-      groupMatchesPlayed += teamStats[team].played;
     });
 
-    if (groupMatchesPlayed > 0) {
-      // Sort automatically based on stats (FIFA World Cup Rules: Points -> GD -> GF -> Fallback to alphabetical)
-      const sorted = [...teamList].sort((a, b) => {
-        const statsA = teamStats[a];
-        const statsB = teamStats[b];
-        
-        if (statsB.pts !== statsA.pts) return statsB.pts - statsA.pts;
-        if (statsB.gd !== statsA.gd) return statsB.gd - statsA.gd;
-        if (statsB.gf !== statsA.gf) return statsB.gf - statsA.gf;
-        
-        // Secondary fallback: alphabetical
-        return a.localeCompare(b);
+    // Calculate Goal Difference and sort groupRankings
+    for (const [groupName, teamList] of Object.entries(groups)) {
+      let groupMatchesPlayed = 0;
+      teamList.forEach(team => {
+        teamStats[team].gd = teamStats[team].gf - teamStats[team].ga;
+        groupMatchesPlayed += teamStats[team].played;
       });
-      groupRankings[groupName] = sorted;
-    } else {
-      // If no matches have been played yet in this group, sort alphabetically by team name
-      groupRankings[groupName] = [...teamList].sort((a, b) => a.localeCompare(b));
+
+      if (groupMatchesPlayed > 0) {
+        // Sort automatically based on stats (FIFA World Cup Rules: Points -> GD -> GF -> Fallback to alphabetical)
+        const sorted = [...teamList].sort((a, b) => {
+          const statsA = teamStats[a];
+          const statsB = teamStats[b];
+          
+          if (statsB.pts !== statsA.pts) return statsB.pts - statsA.pts;
+          if (statsB.gd !== statsA.gd) return statsB.gd - statsA.gd;
+          if (statsB.gf !== statsA.gf) return statsB.gf - statsA.gf;
+          
+          // Secondary fallback: alphabetical
+          return a.localeCompare(b);
+        });
+        groupRankings[groupName] = sorted;
+      } else {
+        // If no matches have been played yet in this group, sort alphabetically by team name
+        groupRankings[groupName] = [...teamList].sort((a, b) => a.localeCompare(b));
+      }
     }
   }
 
@@ -3627,23 +3682,56 @@ async function fetchRealTimeScores(isManual = false) {
 
   const directFetch = async () => {
     console.log("Trying direct API fetch from worldcup26.ir...");
-    const response = await fetch('https://worldcup26.ir/get/games');
-    if (!response.ok) throw new Error(`Direct API returned status ${response.status}`);
-    return await response.json();
+    const [resGames, resGroups] = await Promise.all([
+      fetch('https://worldcup26.ir/get/games'),
+      fetch('https://worldcup26.ir/get/groups').catch(err => {
+        console.error("Direct groups fetch failed:", err);
+        return null;
+      })
+    ]);
+    if (!resGames.ok) throw new Error(`Direct API returned status ${resGames.status}`);
+    const gamesData = await resGames.json();
+    let groupsData = null;
+    if (resGroups && resGroups.ok) {
+      groupsData = await resGroups.json();
+    }
+    return { games: gamesData, groups: groupsData };
   };
 
   const proxyFetch = async () => {
     console.log("Trying relative Vercel proxy fetch...");
-    const response = await fetch('/api/matches');
-    if (!response.ok) throw new Error(`Vercel proxy returned status ${response.status}`);
-    return await response.json();
+    const [resGames, resGroups] = await Promise.all([
+      fetch('/api/matches'),
+      fetch('/api/groups').catch(err => {
+        console.error("Proxy groups fetch failed:", err);
+        return null;
+      })
+    ]);
+    if (!resGames.ok) throw new Error(`Vercel proxy returned status ${resGames.status}`);
+    const gamesData = await resGames.json();
+    let groupsData = null;
+    if (resGroups && resGroups.ok) {
+      groupsData = await resGroups.json();
+    }
+    return { games: gamesData, groups: groupsData };
   };
 
   const corsFetch = async () => {
     console.log("Trying CORS proxy fallback fetch from worldcup26.ir...");
-    const response = await fetch('https://corsproxy.io/?url=https://worldcup26.ir/get/games');
-    if (!response.ok) throw new Error(`CORS proxy returned status ${response.status}`);
-    return await response.json();
+    const [resGames, resGroups] = await Promise.all([
+      fetch('https://corsproxy.io/?url=https://worldcup26.ir/get/games'),
+      fetch('https://corsproxy.io/?url=https://worldcup26.ir/get/groups').catch(err => {
+        console.error("CORS proxy groups fetch failed:", err);
+        return null;
+      })
+    ]);
+    if (!resGames.ok) throw new Error(`CORS proxy returned status ${resGames.status}`);
+    const gamesData = await resGames.json();
+    let groupsData = null;
+    if (resGroups && resGroups.ok) {
+      groupsData = await resGroups.json();
+    }
+    return { games: gamesData, groups: groupsData };
   };
 
   // Always prioritize Direct API first to allow browser-level mock interceptors (e.g. Cypress, MSW) to capture the call.
@@ -3700,14 +3788,25 @@ async function fetchRealTimeScores(isManual = false) {
     }
 
     let gamesArray = null;
-    if (Array.isArray(data)) {
-      gamesArray = data;
-    } else if (data && Array.isArray(data.games)) {
-      gamesArray = data.games;
+    let groupsDataObj = null;
+
+    if (data.games) {
+      gamesArray = Array.isArray(data.games) ? data.games : (data.games.games || null);
+      groupsDataObj = data.groups;
+    } else {
+      if (Array.isArray(data)) {
+        gamesArray = data;
+      } else if (data && Array.isArray(data.games)) {
+        gamesArray = data.games;
+      }
     }
 
     if (!gamesArray) {
       throw new Error("Struktur data API tidak dikenal.");
+    }
+
+    if (groupsDataObj) {
+      localStorage.setItem('wc2026_api_groups_data', JSON.stringify(groupsDataObj));
     }
 
     let updatedCount = 0;
