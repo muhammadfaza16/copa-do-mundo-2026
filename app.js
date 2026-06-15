@@ -1963,6 +1963,15 @@ function calculateGroupStandings() {
               sortedTeams.push(teamIndo);
             }
           });
+          // Sort teams using the stats fetched from the API (Points -> GD -> GF -> Alphabetical)
+          sortedTeams.sort((a, b) => {
+            const statsA = teamStats[a];
+            const statsB = teamStats[b];
+            if (statsB.pts !== statsA.pts) return statsB.pts - statsA.pts;
+            if (statsB.gd !== statsA.gd) return statsB.gd - statsA.gd;
+            if (statsB.gf !== statsA.gf) return statsB.gf - statsA.gf;
+            return a.localeCompare(b);
+          });
           groupRankings[groupName] = sortedTeams;
         });
         loadedFromApi = true;
