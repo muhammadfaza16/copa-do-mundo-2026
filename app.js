@@ -755,6 +755,7 @@ function updateHeroPanel() {
 
   // MODE 2: Countdown Active (No live matches)
   container.classList.remove('live-active');
+  cdDisplay.style.display = ''; // Reset display style to allow CSS 'display: flex'
   const hasLiveStructure = cdDisplay.querySelector('.live-scoreboard') || cdDisplay.innerHTML.includes('live-scoreboard');
   if (hasLiveStructure || cdDisplay.innerHTML.trim() === "" || !document.getElementById('cd-days')) {
     cdDisplay.innerHTML = `
