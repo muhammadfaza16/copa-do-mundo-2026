@@ -127,6 +127,14 @@ function getMatchBadgeHtml(team1, team2) {
 
   if (!team1 || !team2) return '';
 
+  // Exclude Norwegia vs Senegal matchup
+  const name1 = team1.trim().toLowerCase();
+  const name2 = team2.trim().toLowerCase();
+  if ((name1.includes("norwegia") && name2.includes("senegal")) || 
+      (name1.includes("senegal") && name2.includes("norwegia"))) {
+    return '';
+  }
+
   const isBigTeam = (team) => {
     const clean = team.trim().toLowerCase();
     for (const bigTeam of bigMatchTeams) {
