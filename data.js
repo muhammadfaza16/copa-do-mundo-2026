@@ -235,12 +235,12 @@ window.WORLD_CUP_DATA = {
       { "match": 88, "home": "Runner-up Grup D", "away": "Runner-up Grup G" }
     ],
     "round_of_16": [
-      { "match": 89, "home": "Winner Match 73", "away": "Winner Match 74" },
-      { "match": 90, "home": "Winner Match 75", "away": "Winner Match 76" },
-      { "match": 91, "home": "Winner Match 77", "away": "Winner Match 78" },
+      { "match": 89, "home": "Winner Match 74", "away": "Winner Match 77" },
+      { "match": 90, "home": "Winner Match 73", "away": "Winner Match 75" },
+      { "match": 91, "home": "Winner Match 76", "away": "Winner Match 78" },
       { "match": 92, "home": "Winner Match 79", "away": "Winner Match 80" },
-      { "match": 93, "home": "Winner Match 81", "away": "Winner Match 82" },
-      { "match": 94, "home": "Winner Match 83", "away": "Winner Match 84" },
+      { "match": 93, "home": "Winner Match 83", "away": "Winner Match 84" },
+      { "match": 94, "home": "Winner Match 81", "away": "Winner Match 82" },
       { "match": 95, "home": "Winner Match 85", "away": "Winner Match 86" },
       { "match": 96, "home": "Winner Match 87", "away": "Winner Match 88" }
     ],
