@@ -4496,7 +4496,7 @@ body.light-theme .stats-rank-other {
   top: 14px;
   right: 16px;
   z-index: 10;
-  display: flex;
+  display: none; /* Hidden by default in countdown mode */
   align-items: center;
   justify-content: center;
   width: 28px;
@@ -4506,6 +4506,10 @@ body.light-theme .stats-rank-other {
   border: 1px solid rgba(212, 175, 55, 0.15);
   transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
+}
+
+.countdown-container.live-active .hero-stream-link {
+  display: flex; /* Display only when live matches are active */
 }
 
 .hero-stream-link:hover {
