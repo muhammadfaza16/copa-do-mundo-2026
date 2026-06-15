@@ -2131,6 +2131,7 @@ function renderBestThirds() {
       : '<span class="status-badge gugur">GUGUR</span>';
     
     const gdSign = t.gd > 0 ? `+${t.gd}` : t.gd;
+    const goalsRatio = `${t.gf}:${t.ga}`;
 
     rowsHtml += `
       <tr style="background: ${isQualified ? 'rgba(16, 185, 129, 0.01)' : 'rgba(239, 68, 68, 0.01)'}">
@@ -2143,6 +2144,8 @@ function renderBestThirds() {
           </div>
         </td>
         <td style="text-align: center; font-weight: 600; opacity: 0.85;">${t.played}</td>
+        <td style="text-align: center; font-weight: 600; opacity: 0.85;">${t.won}</td>
+        <td style="text-align: center; font-weight: 600; opacity: 0.85; white-space: nowrap;">${goalsRatio}</td>
         <td style="text-align: center; font-weight: 600; opacity: 0.85;">${gdSign}</td>
         <td style="text-align: center; font-weight: 700; color: ${isQualified ? 'var(--primary-gold)' : 'inherit'};">${t.pts}</td>
         <td style="text-align: center;">${statusBadge}</td>
@@ -2154,13 +2157,15 @@ function renderBestThirds() {
     <table class="group-table">
       <thead>
         <tr>
-          <th style="width: 8%; text-align: center;">Pos</th>
-          <th style="width: 12%; text-align: center;">Grup</th>
-          <th style="text-align: left; width: 38%;">Tim</th>
-          <th style="width: 10%; text-align: center;">M</th>
-          <th style="width: 10%; text-align: center;">SG</th>
+          <th style="width: 6%; text-align: center;">Pos</th>
+          <th style="width: 8%; text-align: center;">Grup</th>
+          <th style="text-align: left; width: 26%;">Tim</th>
+          <th style="width: 8%; text-align: center;">Mn</th>
+          <th style="width: 8%; text-align: center;">M</th>
+          <th style="width: 12%; text-align: center;">Gol</th>
+          <th style="width: 8%; text-align: center;">SG</th>
           <th style="width: 12%; text-align: center;">P</th>
-          <th style="width: 10%; text-align: center;">Status</th>
+          <th style="width: 12%; text-align: center;">Status</th>
         </tr>
       </thead>
       <tbody>
@@ -3241,6 +3246,7 @@ window.openSlotModal = function(teamName, matchId) {
             ? '<span class="status-badge lolos">LOLOS</span>'
             : '<span class="status-badge gugur">GUGUR</span>';
           
+          const gdSign = t.gd > 0 ? `+${t.gd}` : t.gd;
           rowsHtml += `
             <tr style="background: ${isQualified ? 'rgba(16, 185, 129, 0.01)' : 'rgba(239, 68, 68, 0.01)'}">
               <td class="group-rank-badge ${rankClass}" style="text-align: center; font-weight: 800;">${idx + 1}</td>
@@ -3251,7 +3257,8 @@ window.openSlotModal = function(teamName, matchId) {
                   <span class="team-name ${isQualified ? 'team-bold' : ''}">${t.team}</span>
                 </div>
               </td>
-              <td style="text-align: center; font-weight: 600;">${t.pts}</td>
+              <td style="text-align: center; font-weight: 600;">${gdSign}</td>
+              <td style="text-align: center; font-weight: 700; color: ${isQualified ? 'var(--primary-gold)' : 'inherit'};">${t.pts}</td>
               <td style="text-align: center;">${statusBadge}</td>
             </tr>
           `;
@@ -3265,9 +3272,10 @@ window.openSlotModal = function(teamName, matchId) {
         <table class="group-table">
           <thead>
             <tr>
-              <th style="width: 10%; text-align: center;">Pos</th>
-              <th style="width: 15%; text-align: center;">Grup</th>
-              <th style="text-align: left; width: 45%;">Tim</th>
+              <th style="width: 8%; text-align: center;">Pos</th>
+              <th style="width: 12%; text-align: center;">Grup</th>
+              <th style="text-align: left; width: 38%;">Tim</th>
+              <th style="width: 12%; text-align: center;">SG</th>
               <th style="width: 15%; text-align: center;">Poin</th>
               <th style="width: 15%; text-align: center;">Status</th>
             </tr>
