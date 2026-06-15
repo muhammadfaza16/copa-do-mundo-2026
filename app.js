@@ -827,7 +827,6 @@ function updateHeroPanel() {
       const isBigMatch = getMatchBadgeHtml(targetMatch.team1, targetMatch.team2) !== '';
       const textTitle = isOpening ? `Kick-Off Match Pertama` : `Kick-Off Match Berikutnya`;
       titleEl.innerHTML = `
-        ${isBigMatch ? `<span class="badge-big-match" style="position: absolute; left: 16px; top: 14px; transform: none; margin: 0;">BIG MATCH</span>` : ''}
         <span>${textTitle}</span>
       `;
 
@@ -854,6 +853,24 @@ function updateHeroPanel() {
           <span class="cd-team-name">${targetMatch.team2}</span>
         </div>
       `;
+
+      // Render/update Big Match badge centered above team names/logos
+      const badgeRowId = 'cd-badge-row';
+      let badgeRow = document.getElementById(badgeRowId);
+      if (isBigMatch) {
+        if (!badgeRow) {
+          badgeRow = document.createElement('div');
+          badgeRow.id = badgeRowId;
+          badgeRow.className = 'countdown-badge-row';
+          badgeRow.style.cssText = 'display: flex; justify-content: center; margin-top: 10px; margin-bottom: 2px;';
+          cdDisplay.parentNode.insertBefore(badgeRow, cdTeamRow);
+        }
+        badgeRow.innerHTML = `<span class="match-badge badge-big-match" style="transform: none; margin: 0;">BIG MATCH</span>`;
+      } else {
+        if (badgeRow) {
+          badgeRow.remove();
+        }
+      }
 
       const timeInfo = getFormattedTime(targetMatch.date, targetMatch.time);
       const dateStr = `${timeInfo.date} · ${timeInfo.time} ${timeInfo.tzLabel}`;
@@ -891,7 +908,6 @@ function updateHeroPanel() {
     const isBigMatch = getMatchBadgeHtml(targetMatch.team1, targetMatch.team2) !== '';
     const textTitle = isOpening ? `Kick-Off Match Pertama` : `Kick-Off Match Berikutnya`;
     titleEl.innerHTML = `
-      ${isBigMatch ? `<span class="badge-big-match" style="position: absolute; left: 16px; top: 14px; transform: none; margin: 0;">BIG MATCH</span>` : ''}
       <span>${textTitle}</span>
     `;
 
@@ -919,6 +935,24 @@ function updateHeroPanel() {
         <span class="cd-team-name">${targetMatch.team2}</span>
       </div>
     `;
+
+    // Render/update Big Match badge centered above team names/logos
+    const badgeRowId = 'cd-badge-row';
+    let badgeRow = document.getElementById(badgeRowId);
+    if (isBigMatch) {
+      if (!badgeRow) {
+        badgeRow = document.createElement('div');
+        badgeRow.id = badgeRowId;
+        badgeRow.className = 'countdown-badge-row';
+        badgeRow.style.cssText = 'display: flex; justify-content: center; margin-top: 10px; margin-bottom: 2px;';
+        cdDisplay.parentNode.insertBefore(badgeRow, cdTeamRow);
+      }
+      badgeRow.innerHTML = `<span class="match-badge badge-big-match" style="transform: none; margin: 0;">BIG MATCH</span>`;
+    } else {
+      if (badgeRow) {
+        badgeRow.remove();
+      }
+    }
 
     const timeInfo = getFormattedTime(targetMatch.date, targetMatch.time);
     const dateStr = `${timeInfo.date} · ${timeInfo.time} ${timeInfo.tzLabel}`;
