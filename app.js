@@ -105,9 +105,18 @@ const FIFA_RANKINGS = {
   "Austria": 25,
   "Yordania": 68,
   "Panama": 41,
-  "Uzbekistan": 64,
-  "Afrika Selatan": 60
+  "Afrika Selatan": 60,
+  "Ghana": 64,
+  "Uzbekistan": 64
 };
+
+function getTeamRankLabel(teamName) {
+  const rank = FIFA_RANKINGS[teamName];
+  if (rank !== undefined) {
+    return `<span class="team-rank-label" style="font-size: 0.65rem; color: var(--text-secondary); opacity: 0.75; font-weight: 500; margin-top: 1px;">FIFA #${rank}</span>`;
+  }
+  return '';
+}
 
 function getMatchBadgeHtml(team1, team2) {
   const bigMatchTeams = new Set([
@@ -679,9 +688,10 @@ function updateHeroPanel() {
             <div class="live-main-row" style="margin-bottom: 2px;">
               <!-- Team 1 -->
               <div class="live-team left-team">
-                <div class="live-team-info">
+                <div class="live-team-info" style="display: flex; flex-direction: column; align-items: flex-end; text-align: right;">
                   <span class="live-team-code highlighted-code">${team1Code}</span>
                   <span class="subtle-fullname">${team1Name}</span>
+                  ${getTeamRankLabel(team1Name)}
                 </div>
                 ${flag1}
               </div>
@@ -696,9 +706,10 @@ function updateHeroPanel() {
               <!-- Team 2 -->
               <div class="live-team right-team">
                 ${flag2}
-                <div class="live-team-info">
+                <div class="live-team-info" style="display: flex; flex-direction: column; align-items: flex-start; text-align: left;">
                   <span class="live-team-code highlighted-code">${team2Code}</span>
                   <span class="subtle-fullname">${team2Name}</span>
+                  ${getTeamRankLabel(team2Name)}
                 </div>
               </div>
             </div>
@@ -828,13 +839,19 @@ function updateHeroPanel() {
       }
       cdTeamRow.innerHTML = `
         <div class="cd-team cd-team-left">
-          <span class="cd-team-name">${targetMatch.team1}</span>
+          <div style="display: flex; flex-direction: column; align-items: flex-end; text-align: right;">
+            <span class="cd-team-name" style="margin: 0;">${targetMatch.team1}</span>
+            ${getTeamRankLabel(targetMatch.team1)}
+          </div>
           ${flag1Cd}
         </div>
         <span class="cd-vs">VS</span>
         <div class="cd-team cd-team-right">
           ${flag2Cd}
-          <span class="cd-team-name">${targetMatch.team2}</span>
+          <div style="display: flex; flex-direction: column; align-items: flex-start; text-align: left;">
+            <span class="cd-team-name" style="margin: 0;">${targetMatch.team2}</span>
+            ${getTeamRankLabel(targetMatch.team2)}
+          </div>
         </div>
       `;
 
@@ -893,13 +910,19 @@ function updateHeroPanel() {
     }
     cdTeamRow.innerHTML = `
       <div class="cd-team cd-team-left">
-        <span class="cd-team-name">${targetMatch.team1}</span>
+        <div style="display: flex; flex-direction: column; align-items: flex-end; text-align: right;">
+          <span class="cd-team-name" style="margin: 0;">${targetMatch.team1}</span>
+          ${getTeamRankLabel(targetMatch.team1)}
+        </div>
         ${flag1Cd}
       </div>
       <span class="cd-vs">VS</span>
       <div class="cd-team cd-team-right">
         ${flag2Cd}
-        <span class="cd-team-name">${targetMatch.team2}</span>
+        <div style="display: flex; flex-direction: column; align-items: flex-start; text-align: left;">
+          <span class="cd-team-name" style="margin: 0;">${targetMatch.team2}</span>
+          ${getTeamRankLabel(targetMatch.team2)}
+        </div>
       </div>
     `;
 
@@ -996,7 +1019,10 @@ function createMatchCardHtml(match, index, isKnockout = false, showBigMatchBadge
         </div>
         <div class="match-body">
           <div class="team-display left">
-            <span class="team-name">${match.team1}</span>
+            <div style="display: flex; flex-direction: column; align-items: flex-end; text-align: right; overflow: hidden; max-width: 100%;">
+              <span class="team-name" style="margin: 0;">${match.team1}</span>
+              ${getTeamRankLabel(match.team1)}
+            </div>
             ${getFlagHtml(match.team1)}
           </div>
           <div class="match-time-box score-box">
@@ -1005,7 +1031,10 @@ function createMatchCardHtml(match, index, isKnockout = false, showBigMatchBadge
           </div>
           <div class="team-display right">
             ${getFlagHtml(match.team2)}
-            <span class="team-name">${match.team2}</span>
+            <div style="display: flex; flex-direction: column; align-items: flex-start; text-align: left; overflow: hidden; max-width: 100%;">
+              <span class="team-name" style="margin: 0;">${match.team2}</span>
+              ${getTeamRankLabel(match.team2)}
+            </div>
           </div>
           <div class="match-venue-subtle">${labelVenue}</div>
         </div>
@@ -1045,7 +1074,10 @@ function createMatchCardHtml(match, index, isKnockout = false, showBigMatchBadge
         </div>
         <div class="match-body">
           <div class="team-display left">
-            <span class="team-name">${match.team1}</span>
+            <div style="display: flex; flex-direction: column; align-items: flex-end; text-align: right; overflow: hidden; max-width: 100%;">
+              <span class="team-name" style="margin: 0;">${match.team1}</span>
+              ${getTeamRankLabel(match.team1)}
+            </div>
             ${getFlagHtml(match.team1)}
           </div>
           <div class="match-time-box time-box">
@@ -1054,7 +1086,10 @@ function createMatchCardHtml(match, index, isKnockout = false, showBigMatchBadge
           </div>
           <div class="team-display right">
             ${getFlagHtml(match.team2)}
-            <span class="team-name">${match.team2}</span>
+            <div style="display: flex; flex-direction: column; align-items: flex-start; text-align: left; overflow: hidden; max-width: 100%;">
+              <span class="team-name" style="margin: 0;">${match.team2}</span>
+              ${getTeamRankLabel(match.team2)}
+            </div>
           </div>
           <div class="match-venue-subtle match-venue-with-star"><span class="venue-name-text">${labelVenue}</span>${starBtnHtml}</div>
         </div>
@@ -1555,20 +1590,32 @@ function renderStatistics() {
         <p>Belum ada gol yang dicetak.</p>
       </div>
     `;
+    scorersListContainer.innerHTML = scorersHtml;
   } else {
-    // Only display top 10 scorers on Home page
-    const topScorers = sortedScorers.slice(0, 10);
-    topScorers.forEach((s, index) => {
-      const rank = index + 1;
+    let currentRank = 1;
+    let prevGoals = -1;
+    let rankToDisplay = 1;
+
+    sortedScorers.forEach((s, index) => {
+      if (s.goals !== prevGoals) {
+        currentRank = index + 1;
+        prevGoals = s.goals;
+        rankToDisplay = currentRank;
+      }
+
       let rankClass = 'stats-rank-other';
-      if (rank === 1) rankClass = 'stats-rank-1st';
-      else if (rank === 2) rankClass = 'stats-rank-2nd';
-      else if (rank === 3) rankClass = 'stats-rank-3rd';
+      if (rankToDisplay === 1) rankClass = 'stats-rank-1st';
+      else if (rankToDisplay === 2) rankClass = 'stats-rank-2nd';
+      else if (rankToDisplay === 3) rankClass = 'stats-rank-3rd';
+
+      const isHidden = index >= 10;
+      const rowClass = isHidden ? 'stats-row scorer-row-hidden' : 'stats-row';
+      const rowStyle = isHidden ? 'display: none !important;' : '';
 
       scorersHtml += `
-        <div class="stats-row">
+        <div class="${rowClass}" style="${rowStyle}">
           <div class="stats-row-left">
-            <span class="stats-rank ${rankClass}">${rank}</span>
+            <span class="stats-rank ${rankClass}">${rankToDisplay}</span>
             <div class="stats-player-info">
               <span class="stats-player-name">${s.name}</span>
               <div class="stats-player-team">
@@ -1584,9 +1631,30 @@ function renderStatistics() {
         </div>
       `;
     });
-  }
 
-  scorersListContainer.innerHTML = scorersHtml;
+    scorersListContainer.innerHTML = scorersHtml;
+
+    // Dynamically add or toggle the Load More button
+    if (sortedScorers.length > 10) {
+      let btn = document.getElementById('btn-load-more-scorers');
+      if (!btn) {
+        btn = document.createElement('button');
+        btn.id = 'btn-load-more-scorers';
+        btn.className = 'btn-subtle-load-more';
+        btn.setAttribute('style', 'width: 100%; padding: 10px; margin-top: 14px; background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(255, 255, 255, 0.06); border-radius: 8px; color: var(--text-secondary); font-size: 0.75rem; font-weight: 700; cursor: pointer; transition: all 0.2s; letter-spacing: 0.5px;');
+        btn.innerHTML = 'LIHAT LEBIH BANYAK';
+        btn.onclick = window.expandScorersList;
+        scorersListContainer.parentNode.appendChild(btn);
+      } else {
+        btn.style.display = 'block';
+        btn.innerHTML = 'LIHAT LEBIH BANYAK';
+        btn.setAttribute('data-expanded', 'false');
+      }
+    } else {
+      const btn = document.getElementById('btn-load-more-scorers');
+      if (btn) btn.style.display = 'none';
+    }
+  }
 
   const matchesPlayedEl = document.getElementById('stats-matches-played');
   const totalGoalsEl = document.getElementById('stats-total-goals');
@@ -1609,6 +1677,28 @@ function renderStatistics() {
     }
   }
 }
+
+window.expandScorersList = function() {
+  const hiddenRows = document.querySelectorAll('.scorer-row-hidden');
+  const btn = document.getElementById('btn-load-more-scorers');
+  if (!btn) return;
+  
+  const isExpanded = btn.getAttribute('data-expanded') === 'true';
+  
+  if (isExpanded) {
+    hiddenRows.forEach(row => {
+      row.style.setProperty('display', 'none', 'important');
+    });
+    btn.innerHTML = 'LIHAT LEBIH BANYAK';
+    btn.setAttribute('data-expanded', 'false');
+  } else {
+    hiddenRows.forEach(row => {
+      row.style.setProperty('display', 'flex', 'important');
+    });
+    btn.innerHTML = 'LIHAT LEBIH SEDIKIT';
+    btn.setAttribute('data-expanded', 'true');
+  }
+};
 
 // Render Dashboard/Home tab nearest matches (2 Days from the first upcoming match day)
 function getHeroMatch() {
@@ -1917,6 +2007,98 @@ function solveThirdsAssignment(matchesNeed3rd, qualifyingThirds) {
   return fallbackAssignment;
 }
 
+// Helper to calculate head-to-head stats (points, GD, GF) for a subset of tied teams
+function getH2HStats(teams) {
+  const stats = {};
+  teams.forEach(t => {
+    stats[t] = { pts: 0, gd: 0, gf: 0 };
+  });
+  WORLD_CUP_DATA.group_stage.forEach(m => {
+    if (teams.includes(m.team1) && teams.includes(m.team2)) {
+      const matchKey = `gs_${m.date}_${m.team1}_${m.team2}`;
+      const score = getMatchScore(matchKey);
+      if (score && (score.status === 'FINISHED' || score.status === 'IN_PLAY')) {
+        const s1 = parseInt(score.score1);
+        const s2 = parseInt(score.score2);
+        if (!isNaN(s1) && !isNaN(s2)) {
+          stats[m.team1].gf += s1;
+          stats[m.team1].gd += (s1 - s2);
+          stats[m.team2].gf += s2;
+          stats[m.team2].gd += (s2 - s1);
+          if (s1 > s2) {
+            stats[m.team1].pts += 3;
+          } else if (s2 > s1) {
+            stats[m.team2].pts += 3;
+          } else {
+            stats[m.team1].pts += 1;
+            stats[m.team2].pts += 1;
+          }
+        }
+      }
+    }
+  });
+  return stats;
+}
+
+// Helper to sort group teams based on overall standings and resolve ties with H2H/FIFA rankings
+function sortGroupTeams(teamList, overallStats) {
+  // First sort by overall stats (Points -> GD -> GF)
+  const sorted = [...teamList].sort((a, b) => {
+    const statsA = overallStats[a] || { pts: 0, gd: 0, gf: 0 };
+    const statsB = overallStats[b] || { pts: 0, gd: 0, gf: 0 };
+    if (statsB.pts !== statsA.pts) return statsB.pts - statsA.pts;
+    if (statsB.gd !== statsA.gd) return statsB.gd - statsA.gd;
+    if (statsB.gf !== statsA.gf) return statsB.gf - statsA.gf;
+    return 0; // Maintain tie for head-to-head resolution
+  });
+
+  // Resolve tied blocks using H2H stats
+  let i = 0;
+  while (i < sorted.length) {
+    let j = i + 1;
+    while (j < sorted.length) {
+      const a = sorted[i];
+      const b = sorted[j];
+      const statsA = overallStats[a] || { pts: 0, gd: 0, gf: 0 };
+      const statsB = overallStats[b] || { pts: 0, gd: 0, gf: 0 };
+      if (statsA.pts === statsB.pts && statsA.gd === statsB.gd && statsA.gf === statsB.gf) {
+        j++;
+      } else {
+        break;
+      }
+    }
+
+    const tiedCount = j - i;
+    if (tiedCount > 1) {
+      const tiedTeams = sorted.slice(i, j);
+      const h2h = getH2HStats(tiedTeams);
+      
+      tiedTeams.sort((a, b) => {
+        const h2hA = h2h[a] || { pts: 0, gd: 0, gf: 0 };
+        const h2hB = h2h[b] || { pts: 0, gd: 0, gf: 0 };
+        if (h2hB.pts !== h2hA.pts) return h2hB.pts - h2hA.pts;
+        if (h2hB.gd !== h2hA.gd) return h2hB.gd - h2hA.gd;
+        if (h2hB.gf !== h2hA.gf) return h2hB.gf - h2hA.gf;
+
+        // Fallback to FIFA Rankings (lower rank number is better)
+        const rankA = FIFA_RANKINGS[a] !== undefined ? FIFA_RANKINGS[a] : 999;
+        const rankB = FIFA_RANKINGS[b] !== undefined ? FIFA_RANKINGS[b] : 999;
+        if (rankA !== rankB) return rankA - rankB;
+
+        // Final alphabetical fallback
+        return a.localeCompare(b);
+      });
+
+      // Put sorted tied teams back into the array
+      for (let k = 0; k < tiedCount; k++) {
+        sorted[i + k] = tiedTeams[k];
+      }
+    }
+    i = j;
+  }
+  return sorted;
+}
+
 // Function to dynamically calculate group standings from realScores
 function calculateGroupStandings() {
   const apiGroupsStr = localStorage.getItem('wc2026_api_groups_data');
@@ -1963,16 +2145,8 @@ function calculateGroupStandings() {
               sortedTeams.push(teamIndo);
             }
           });
-          // Sort teams using the stats fetched from the API (Points -> GD -> GF -> Alphabetical)
-          sortedTeams.sort((a, b) => {
-            const statsA = teamStats[a];
-            const statsB = teamStats[b];
-            if (statsB.pts !== statsA.pts) return statsB.pts - statsA.pts;
-            if (statsB.gd !== statsA.gd) return statsB.gd - statsA.gd;
-            if (statsB.gf !== statsA.gf) return statsB.gf - statsA.gf;
-            return a.localeCompare(b);
-          });
-          groupRankings[groupName] = sortedTeams;
+          // Sort teams using the stats fetched from the API with H2H/FIFA rankings tie-breakers
+          groupRankings[groupName] = sortGroupTeams(sortedTeams, teamStats);
         });
         loadedFromApi = true;
       }
@@ -2025,32 +2199,12 @@ function calculateGroupStandings() {
       }
     });
 
-    // Calculate Goal Difference and sort groupRankings
+    // Calculate Goal Difference and sort groupRankings using H2H / FIFA rankings tie-breakers
     for (const [groupName, teamList] of Object.entries(groups)) {
-      let groupMatchesPlayed = 0;
       teamList.forEach(team => {
         teamStats[team].gd = teamStats[team].gf - teamStats[team].ga;
-        groupMatchesPlayed += teamStats[team].played;
       });
-
-      if (groupMatchesPlayed > 0) {
-        // Sort automatically based on stats (FIFA World Cup Rules: Points -> GD -> GF -> Fallback to alphabetical)
-        const sorted = [...teamList].sort((a, b) => {
-          const statsA = teamStats[a];
-          const statsB = teamStats[b];
-          
-          if (statsB.pts !== statsA.pts) return statsB.pts - statsA.pts;
-          if (statsB.gd !== statsA.gd) return statsB.gd - statsA.gd;
-          if (statsB.gf !== statsA.gf) return statsB.gf - statsA.gf;
-          
-          // Secondary fallback: alphabetical
-          return a.localeCompare(b);
-        });
-        groupRankings[groupName] = sorted;
-      } else {
-        // If no matches have been played yet in this group, sort alphabetically by team name
-        groupRankings[groupName] = [...teamList].sort((a, b) => a.localeCompare(b));
-      }
+      groupRankings[groupName] = sortGroupTeams(teamList, teamStats);
     }
   }
 
@@ -2131,7 +2285,6 @@ function renderBestThirds() {
       : '<span class="status-badge gugur">GUGUR</span>';
     
     const gdSign = t.gd > 0 ? `+${t.gd}` : t.gd;
-    const goalsRatio = `${t.gf}:${t.ga}`;
 
     rowsHtml += `
       <tr style="background: ${isQualified ? 'rgba(16, 185, 129, 0.01)' : 'rgba(239, 68, 68, 0.01)'}">
@@ -2144,8 +2297,7 @@ function renderBestThirds() {
           </div>
         </td>
         <td style="text-align: center; font-weight: 600; opacity: 0.85;">${t.played}</td>
-        <td style="text-align: center; font-weight: 600; opacity: 0.85;">${t.won}</td>
-        <td style="text-align: center; font-weight: 600; opacity: 0.85; white-space: nowrap;">${goalsRatio}</td>
+        <td style="text-align: center; font-weight: 600; opacity: 0.85;">${t.gf}</td>
         <td style="text-align: center; font-weight: 600; opacity: 0.85;">${gdSign}</td>
         <td style="text-align: center; font-weight: 700; color: ${isQualified ? 'var(--primary-gold)' : 'inherit'};">${t.pts}</td>
         <td style="text-align: center;">${statusBadge}</td>
@@ -2157,15 +2309,14 @@ function renderBestThirds() {
     <table class="group-table">
       <thead>
         <tr>
-          <th style="width: 6%; text-align: center;">Pos</th>
-          <th style="width: 8%; text-align: center;">Grup</th>
-          <th style="text-align: left; width: 26%;">Tim</th>
-          <th style="width: 8%; text-align: center;">Mn</th>
-          <th style="width: 8%; text-align: center;">M</th>
-          <th style="width: 12%; text-align: center;">Gol</th>
-          <th style="width: 8%; text-align: center;">SG</th>
-          <th style="width: 12%; text-align: center;">P</th>
-          <th style="width: 12%; text-align: center;">Status</th>
+          <th style="width: 8%; text-align: center;">Pos</th>
+          <th style="width: 10%; text-align: center;">Grup</th>
+          <th style="text-align: left; width: 32%;">Tim</th>
+          <th style="width: 10%; text-align: center;">Mn</th>
+          <th style="width: 10%; text-align: center;">Gol</th>
+          <th style="width: 10%; text-align: center;">SG</th>
+          <th style="width: 10%; text-align: center;">P</th>
+          <th style="width: 10%; text-align: center;">Status</th>
         </tr>
       </thead>
       <tbody>
@@ -2183,69 +2334,62 @@ function recalculateKnockoutTree() {
   // Clear working copy matches
   knockoutMatches = JSON.parse(JSON.stringify(WORLD_CUP_DATA.knockout_stage));
 
-  const groupStageFinished = isGroupStageComplete();
+  // STEP 1: Evaluate Round of 32 starting participants based on group rankings and 3rd place selections (Always evaluate dynamically)
+  knockoutMatches.forEach(m => {
+    if (m.group !== "Round of 32") return;
 
-  if (!groupStageFinished) {
-    // Reset all simulated winners if group stage is not finished
-    simulatedWinners = {};
-  } else {
-    // STEP 1: Evaluate Round of 32 starting participants based on group rankings and 3rd place selections
-    knockoutMatches.forEach(m => {
-      if (m.group !== "Round of 32") return;
-
-      // Check seed 1 (Home/team1)
-      if (m.team1_seed && (
-          m.team1_seed.endsWith('A') || m.team1_seed.endsWith('B') || m.team1_seed.endsWith('C') || m.team1_seed.endsWith('D') || 
-          m.team1_seed.endsWith('E') || m.team1_seed.endsWith('F') || m.team1_seed.endsWith('G') || m.team1_seed.endsWith('H') || 
-          m.team1_seed.endsWith('I') || m.team1_seed.endsWith('J') || m.team1_seed.endsWith('K') || m.team1_seed.endsWith('L')
-      )) {
-        const rank = m.team1_seed.charAt(0); // '1' or '2'
-        const groupLetter = m.team1_seed.charAt(1); // 'A' to 'L'
-        const groupName = `Grup ${groupLetter}`;
-        const idx = rank === '1' ? 0 : 1;
-        
-        if (groupRankings[groupName] && groupRankings[groupName][idx]) {
-          m.team1 = groupRankings[groupName][idx];
-        } else {
-          m.team1 = `${rank === '1' ? 'Juara' : 'Runner-up'} ${groupName}`;
-        }
-      } else if (m.team1_seed === '3rd') {
-        // 3rd placed team choice
-        const selectedGroup = selected3rdPlaces[m.match_id];
-        if (selectedGroup && groupRankings[selectedGroup] && groupRankings[selectedGroup][2]) {
-          m.team1 = groupRankings[selectedGroup][2]; // 3rd placed team is at index 2
-        } else {
-          m.team1 = `3rd Grup ${m.team1 ? m.team1.replace("3rd Grup ", "") : ""}`;
-        }
+    // Check seed 1 (Home/team1)
+    if (m.team1_seed && (
+        m.team1_seed.endsWith('A') || m.team1_seed.endsWith('B') || m.team1_seed.endsWith('C') || m.team1_seed.endsWith('D') || 
+        m.team1_seed.endsWith('E') || m.team1_seed.endsWith('F') || m.team1_seed.endsWith('G') || m.team1_seed.endsWith('H') || 
+        m.team1_seed.endsWith('I') || m.team1_seed.endsWith('J') || m.team1_seed.endsWith('K') || m.team1_seed.endsWith('L')
+    )) {
+      const rank = m.team1_seed.charAt(0); // '1' or '2'
+      const groupLetter = m.team1_seed.charAt(1); // 'A' to 'L'
+      const groupName = `Grup ${groupLetter}`;
+      const idx = rank === '1' ? 0 : 1;
+      
+      if (groupRankings[groupName] && groupRankings[groupName][idx]) {
+        m.team1 = groupRankings[groupName][idx];
+      } else {
+        m.team1 = `${rank === '1' ? 'Juara' : 'Runner-up'} ${groupName}`;
       }
-
-      // Check seed 2 (Away/team2)
-      if (m.team2_seed && (
-          m.team2_seed.endsWith('A') || m.team2_seed.endsWith('B') || m.team2_seed.endsWith('C') || m.team2_seed.endsWith('D') || 
-          m.team2_seed.endsWith('E') || m.team2_seed.endsWith('F') || m.team2_seed.endsWith('G') || m.team2_seed.endsWith('H') || 
-          m.team2_seed.endsWith('I') || m.team2_seed.endsWith('J') || m.team2_seed.endsWith('K') || m.team2_seed.endsWith('L')
-      )) {
-        const rank = m.team2_seed.charAt(0); // '1' or '2'
-        const groupLetter = m.team2_seed.charAt(1); // 'A' to 'L'
-        const groupName = `Grup ${groupLetter}`;
-        const idx = rank === '1' ? 0 : 1;
-        
-        if (groupRankings[groupName] && groupRankings[groupName][idx]) {
-          m.team2 = groupRankings[groupName][idx];
-        } else {
-          m.team2 = `${rank === '1' ? 'Juara' : 'Runner-up'} ${groupName}`;
-        }
-      } else if (m.team2_seed === '3rd') {
-        // 3rd placed team choice
-        const selectedGroup = selected3rdPlaces[m.match_id];
-        if (selectedGroup && groupRankings[selectedGroup] && groupRankings[selectedGroup][2]) {
-          m.team2 = groupRankings[selectedGroup][2]; // 3rd placed team
-        } else {
-          m.team2 = `3rd Grup ${m.team2 ? m.team2.replace("3rd Grup ", "") : ""}`;
-        }
+    } else if (m.team1_seed === '3rd') {
+      // 3rd placed team choice
+      const selectedGroup = selected3rdPlaces[m.match_id];
+      if (selectedGroup && groupRankings[selectedGroup] && groupRankings[selectedGroup][2]) {
+        m.team1 = groupRankings[selectedGroup][2]; // 3rd placed team is at index 2
+      } else {
+        m.team1 = `3rd Grup ${m.team1 ? m.team1.replace("3rd Grup ", "") : ""}`;
       }
-    });
-  }
+    }
+
+    // Check seed 2 (Away/team2)
+    if (m.team2_seed && (
+        m.team2_seed.endsWith('A') || m.team2_seed.endsWith('B') || m.team2_seed.endsWith('C') || m.team2_seed.endsWith('D') || 
+        m.team2_seed.endsWith('E') || m.team2_seed.endsWith('F') || m.team2_seed.endsWith('G') || m.team2_seed.endsWith('H') || 
+        m.team2_seed.endsWith('I') || m.team2_seed.endsWith('J') || m.team2_seed.endsWith('K') || m.team2_seed.endsWith('L')
+    )) {
+      const rank = m.team2_seed.charAt(0); // '1' or '2'
+      const groupLetter = m.team2_seed.charAt(1); // 'A' to 'L'
+      const groupName = `Grup ${groupLetter}`;
+      const idx = rank === '1' ? 0 : 1;
+      
+      if (groupRankings[groupName] && groupRankings[groupName][idx]) {
+        m.team2 = groupRankings[groupName][idx];
+      } else {
+        m.team2 = `${rank === '1' ? 'Juara' : 'Runner-up'} ${groupName}`;
+      }
+    } else if (m.team2_seed === '3rd') {
+      // 3rd placed team choice
+      const selectedGroup = selected3rdPlaces[m.match_id];
+      if (selectedGroup && groupRankings[selectedGroup] && groupRankings[selectedGroup][2]) {
+        m.team2 = groupRankings[selectedGroup][2]; // 3rd placed team
+      } else {
+        m.team2 = `3rd Grup ${m.team2 ? m.team2.replace("3rd Grup ", "") : ""}`;
+      }
+    }
+  });
 
   // STEP 2: Propagate decisions sequentially (Match 73 up to Match 104)
   const sortedKO = [...knockoutMatches].sort((a, b) => a.match_id - b.match_id);
