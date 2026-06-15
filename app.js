@@ -688,10 +688,9 @@ function updateHeroPanel() {
             <div class="live-main-row" style="margin-bottom: 2px;">
               <!-- Team 1 -->
               <div class="live-team left-team">
-                <div class="live-team-info" style="display: flex; flex-direction: column; align-items: flex-end; text-align: right;">
+                <div class="live-team-info">
                   <span class="live-team-code highlighted-code">${team1Code}</span>
                   <span class="subtle-fullname">${team1Name}</span>
-                  ${getTeamRankLabel(team1Name)}
                 </div>
                 ${flag1}
               </div>
@@ -706,10 +705,9 @@ function updateHeroPanel() {
               <!-- Team 2 -->
               <div class="live-team right-team">
                 ${flag2}
-                <div class="live-team-info" style="display: flex; flex-direction: column; align-items: flex-start; text-align: left;">
+                <div class="live-team-info">
                   <span class="live-team-code highlighted-code">${team2Code}</span>
                   <span class="subtle-fullname">${team2Name}</span>
-                  ${getTeamRankLabel(team2Name)}
                 </div>
               </div>
             </div>
@@ -839,19 +837,13 @@ function updateHeroPanel() {
       }
       cdTeamRow.innerHTML = `
         <div class="cd-team cd-team-left">
-          <div style="display: flex; flex-direction: column; align-items: flex-end; text-align: right;">
-            <span class="cd-team-name" style="margin: 0;">${targetMatch.team1}</span>
-            ${getTeamRankLabel(targetMatch.team1)}
-          </div>
+          <span class="cd-team-name">${targetMatch.team1}</span>
           ${flag1Cd}
         </div>
         <span class="cd-vs">VS</span>
         <div class="cd-team cd-team-right">
           ${flag2Cd}
-          <div style="display: flex; flex-direction: column; align-items: flex-start; text-align: left;">
-            <span class="cd-team-name" style="margin: 0;">${targetMatch.team2}</span>
-            ${getTeamRankLabel(targetMatch.team2)}
-          </div>
+          <span class="cd-team-name">${targetMatch.team2}</span>
         </div>
       `;
 
@@ -910,19 +902,13 @@ function updateHeroPanel() {
     }
     cdTeamRow.innerHTML = `
       <div class="cd-team cd-team-left">
-        <div style="display: flex; flex-direction: column; align-items: flex-end; text-align: right;">
-          <span class="cd-team-name" style="margin: 0;">${targetMatch.team1}</span>
-          ${getTeamRankLabel(targetMatch.team1)}
-        </div>
+        <span class="cd-team-name">${targetMatch.team1}</span>
         ${flag1Cd}
       </div>
       <span class="cd-vs">VS</span>
       <div class="cd-team cd-team-right">
         ${flag2Cd}
-        <div style="display: flex; flex-direction: column; align-items: flex-start; text-align: left;">
-          <span class="cd-team-name" style="margin: 0;">${targetMatch.team2}</span>
-          ${getTeamRankLabel(targetMatch.team2)}
-        </div>
+        <span class="cd-team-name">${targetMatch.team2}</span>
       </div>
     `;
 
@@ -1019,10 +1005,7 @@ function createMatchCardHtml(match, index, isKnockout = false, showBigMatchBadge
         </div>
         <div class="match-body">
           <div class="team-display left">
-            <div style="display: flex; flex-direction: column; align-items: flex-end; text-align: right; overflow: hidden; max-width: 100%;">
-              <span class="team-name" style="margin: 0;">${match.team1}</span>
-              ${getTeamRankLabel(match.team1)}
-            </div>
+            <span class="team-name">${match.team1}</span>
             ${getFlagHtml(match.team1)}
           </div>
           <div class="match-time-box score-box">
@@ -1031,10 +1014,7 @@ function createMatchCardHtml(match, index, isKnockout = false, showBigMatchBadge
           </div>
           <div class="team-display right">
             ${getFlagHtml(match.team2)}
-            <div style="display: flex; flex-direction: column; align-items: flex-start; text-align: left; overflow: hidden; max-width: 100%;">
-              <span class="team-name" style="margin: 0;">${match.team2}</span>
-              ${getTeamRankLabel(match.team2)}
-            </div>
+            <span class="team-name">${match.team2}</span>
           </div>
           <div class="match-venue-subtle">${labelVenue}</div>
         </div>
@@ -1074,10 +1054,7 @@ function createMatchCardHtml(match, index, isKnockout = false, showBigMatchBadge
         </div>
         <div class="match-body">
           <div class="team-display left">
-            <div style="display: flex; flex-direction: column; align-items: flex-end; text-align: right; overflow: hidden; max-width: 100%;">
-              <span class="team-name" style="margin: 0;">${match.team1}</span>
-              ${getTeamRankLabel(match.team1)}
-            </div>
+            <span class="team-name">${match.team1}</span>
             ${getFlagHtml(match.team1)}
           </div>
           <div class="match-time-box time-box">
@@ -1086,10 +1063,7 @@ function createMatchCardHtml(match, index, isKnockout = false, showBigMatchBadge
           </div>
           <div class="team-display right">
             ${getFlagHtml(match.team2)}
-            <div style="display: flex; flex-direction: column; align-items: flex-start; text-align: left; overflow: hidden; max-width: 100%;">
-              <span class="team-name" style="margin: 0;">${match.team2}</span>
-              ${getTeamRankLabel(match.team2)}
-            </div>
+            <span class="team-name">${match.team2}</span>
           </div>
           <div class="match-venue-subtle match-venue-with-star"><span class="venue-name-text">${labelVenue}</span>${starBtnHtml}</div>
         </div>
