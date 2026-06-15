@@ -998,7 +998,6 @@ function createMatchCardHtml(match, index, isKnockout = false, showBigMatchBadge
       <div class="match-card" data-key="${matchKey}" title="${labelVenue}">
         <div class="match-header">
           ${stageHeaderHtml}
-          ${showBigMatchBadge ? getMatchBadgeHtml(match.team1, match.team2) : ''}
           <div class="match-header-right" style="display: flex; align-items: center; gap: 8px;">
             <span class="match-date-label">${timeInfo.date} · ${timeInfo.time} ${timeInfo.tzLabel}</span>
             ${isLive ? `
