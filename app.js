@@ -1624,12 +1624,12 @@ function renderStatistics() {
         btn.id = 'btn-load-more-scorers';
         btn.className = 'btn-subtle-load-more';
         btn.setAttribute('style', 'width: 100%; padding: 10px; margin-top: 14px; background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(255, 255, 255, 0.06); border-radius: 8px; color: var(--text-secondary); font-size: 0.75rem; font-weight: 700; cursor: pointer; transition: all 0.2s; letter-spacing: 0.5px;');
-        btn.innerHTML = 'LIHAT LEBIH BANYAK';
+        btn.innerHTML = 'Lihat Lebih Banyak';
         btn.onclick = window.expandScorersList;
         scorersListContainer.parentNode.appendChild(btn);
       } else {
         btn.style.display = 'block';
-        btn.innerHTML = 'LIHAT LEBIH BANYAK';
+        btn.innerHTML = 'Lihat Lebih Banyak';
         btn.setAttribute('data-expanded', 'false');
       }
     } else {
@@ -1671,13 +1671,13 @@ window.expandScorersList = function() {
     hiddenRows.forEach(row => {
       row.style.setProperty('display', 'none', 'important');
     });
-    btn.innerHTML = 'LIHAT LEBIH BANYAK';
+    btn.innerHTML = 'Lihat Lebih Banyak';
     btn.setAttribute('data-expanded', 'false');
   } else {
     hiddenRows.forEach(row => {
       row.style.setProperty('display', 'flex', 'important');
     });
-    btn.innerHTML = 'LIHAT LEBIH SEDIKIT';
+    btn.innerHTML = 'Lihat Lebih Sedikit';
     btn.setAttribute('data-expanded', 'true');
   }
 };
