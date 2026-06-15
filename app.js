@@ -2356,23 +2356,19 @@ function getTeamGradientCss(teamColorsOrColor) {
     if (teamColorsOrColor.length === 1) {
       return teamColorsOrColor[0];
     }
-    const n = teamColorsOrColor.length;
-    const w = 0.50; // Width proportion of solid segment (50% solid, 50% transition)
-    const stops = teamColorsOrColor.map((color, i) => {
-      let start, end;
-      if (i === 0) {
-        start = 0;
-        end = ((0.5 + w / 2) / n) * 100;
-      } else if (i === n - 1) {
-        start = ((i + 0.5 - w / 2) / n) * 100;
-        end = 100;
-      } else {
-        start = ((i + 0.5 - w / 2) / n) * 100;
-        end = ((i + 0.5 + w / 2) / n) * 100;
-      }
-      return `${color} ${start.toFixed(2)}%, ${color} ${end.toFixed(2)}%`;
-    });
-    return `linear-gradient(180deg, ${stops.join(', ')})`;
+    if (teamColorsOrColor.length === 2) {
+      // 70% first color, 30% second color (proportional with transition)
+      const color1 = teamColorsOrColor[0];
+      const color2 = teamColorsOrColor[1];
+      return `linear-gradient(180deg, ${color1} 0%, ${color1} 60%, ${color2} 80%, ${color2} 100%)`;
+    }
+    if (teamColorsOrColor.length === 3) {
+      // 60% first color, 25% second color, 15% third color (proportional with transitions)
+      const color1 = teamColorsOrColor[0];
+      const color2 = teamColorsOrColor[1];
+      const color3 = teamColorsOrColor[2];
+      return `linear-gradient(180deg, ${color1} 0%, ${color1} 50%, ${color2} 65%, ${color2} 75%, ${color3} 85%, ${color3} 100%)`;
+    }
   }
   return teamColorsOrColor;
 }
