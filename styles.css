@@ -2260,14 +2260,57 @@ body.light-theme .flag-crest {
 }
 
 .score-status.status-live {
-  animation: pulse-blink 1s infinite;
   color: var(--accent-red);
   font-weight: 800;
 }
 
 .status-live {
-  animation: pulse-blink 1s infinite;
   color: var(--accent-red) !important;
+}
+
+/* Score change flash animation */
+@keyframes score-flash-animation {
+  0% {
+    transform: scale(1);
+    color: inherit;
+    text-shadow: none;
+  }
+  15% {
+    transform: scale(1.35);
+    color: var(--accent-red);
+    text-shadow: 0 0 12px rgba(239, 68, 68, 0.8);
+  }
+  30% {
+    transform: scale(1.1);
+    color: inherit;
+    text-shadow: none;
+  }
+  45% {
+    transform: scale(1.35);
+    color: var(--accent-red);
+    text-shadow: 0 0 12px rgba(239, 68, 68, 0.8);
+  }
+  60% {
+    transform: scale(1.1);
+    color: inherit;
+    text-shadow: none;
+  }
+  75% {
+    transform: scale(1.35);
+    color: var(--accent-red);
+    text-shadow: 0 0 12px rgba(239, 68, 68, 0.8);
+  }
+  100% {
+    transform: scale(1);
+    color: inherit;
+    text-shadow: none;
+  }
+}
+
+.flash-score {
+  display: inline-block;
+  animation: score-flash-animation 4.5s ease-in-out;
+  transform-origin: center;
 }
 
 .score-status.status-ft {

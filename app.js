@@ -752,6 +752,9 @@ function updateHeroPanel() {
 
       const timeLabel = liveParts.clock || liveParts.periodName;
 
+      const shouldFlashHero1 = scoreData.score1_updated_at && (Date.now() - scoreData.score1_updated_at < 10000);
+      const shouldFlashHero2 = scoreData.score2_updated_at && (Date.now() - scoreData.score2_updated_at < 10000);
+
       cdDisplay.innerHTML = `
         <div class="live-scoreboard">
           <div class="live-info-wrapper" style="display: flex; flex-direction: column; align-items: center; gap: 4px; width: 100%;">
@@ -773,11 +776,11 @@ function updateHeroPanel() {
               <!-- Center Block (Score + Minute) -->
               <div class="live-center-block" style="display: flex; align-items: center; justify-content: center; position: relative;">
                 <div style="display: flex; align-items: center; gap: 6px;">
-                  <span class="live-score">${scoreData.score1 !== null && scoreData.score1 !== undefined ? scoreData.score1 : 0}</span>
+                  <span class="live-score ${shouldFlashHero1 ? 'flash-score' : ''}">${scoreData.score1 !== null && scoreData.score1 !== undefined ? scoreData.score1 : 0}</span>
                   <span class="live-score-separator" style="line-height: 1;">:</span>
-                  <span class="live-score">${scoreData.score2 !== null && scoreData.score2 !== undefined ? scoreData.score2 : 0}</span>
+                  <span class="live-score ${shouldFlashHero2 ? 'flash-score' : ''}">${scoreData.score2 !== null && scoreData.score2 !== undefined ? scoreData.score2 : 0}</span>
                 </div>
-                <span class="status-live" style="color: var(--accent-red) !important; font-size: 0.65rem; font-weight: 800; animation: pulse-blink 1.5s infinite; letter-spacing: 0.5px; position: absolute; top: calc(100% + 2px); white-space: nowrap;">
+                <span class="status-live" style="color: var(--accent-red) !important; font-size: 0.65rem; font-weight: 800; letter-spacing: 0.5px; position: absolute; top: calc(100% + 2px); white-space: nowrap;">
                   ${timeLabel}
                 </span>
               </div>
@@ -1096,8 +1099,11 @@ function createMatchCardHtml(match, index, isKnockout = false, showBigMatchBadge
         <div class="score-status status-live" style="font-size: 0.65rem; font-weight: 800;">${clockLabel}</div>
       `;
     } else {
-      scoreStatusHtml = `<div class="score-status status-ft" style="font-size: 0.65rem; font-weight: 800;">FT</div>`;
+      scoreStatusHtml = '';
     }
+
+    const shouldFlash1 = scoreData.score1_updated_at && (Date.now() - scoreData.score1_updated_at < 10000);
+    const shouldFlash2 = scoreData.score2_updated_at && (Date.now() - scoreData.score2_updated_at < 10000);
 
     return `
       <div class="match-card" data-key="${matchKey}" title="${labelVenue}" onclick="window.openMatchDetailModal('${matchKey}')" style="cursor: pointer;">
@@ -1122,7 +1128,11 @@ function createMatchCardHtml(match, index, isKnockout = false, showBigMatchBadge
           </div>
           <div class="match-time-box score-box">
             ${isLive && liveParts && liveParts.clock && liveParts.clock !== 'LIVE' ? `<div class="match-period-label" style="font-size: 0.62rem; font-weight: 600; color: var(--text-secondary); margin-bottom: 2px;">${liveParts.periodName}</div>` : ''}
-            <div class="score-display" style="white-space: nowrap;">${scoreData.score1} - ${scoreData.score2}</div>
+            <div class="score-display" style="white-space: nowrap;">
+              <span class="${shouldFlash1 ? 'flash-score' : ''}">${scoreData.score1}</span>
+              <span> - </span>
+              <span class="${shouldFlash2 ? 'flash-score' : ''}">${scoreData.score2}</span>
+            </div>
             ${scoreStatusHtml}
           </div>
           <div class="team-display right">
@@ -4297,6 +4307,19 @@ async function fetchRealTimeScores(isManual = false) {
           }
         }
 
+        const existing = realScores[localKey];
+        let score1_updated_at = existing ? (existing.score1_updated_at || 0) : 0;
+        let score2_updated_at = existing ? (existing.score2_updated_at || 0) : 0;
+
+        if (existing && isLive) {
+          if (score1 !== null && score1 !== undefined && existing.score1 !== null && existing.score1 !== undefined && score1 > existing.score1) {
+            score1_updated_at = Date.now();
+          }
+          if (score2 !== null && score2 !== undefined && existing.score2 !== null && existing.score2 !== undefined && score2 > existing.score2) {
+            score2_updated_at = Date.now();
+          }
+        }
+
         realScores[localKey] = {
           score1: score1,
           score2: score2,
@@ -4312,6 +4335,8 @@ async function fetchRealTimeScores(isManual = false) {
           display_clock: apiMatch.display_clock || null,
           period: apiMatch.period || null,
           period_desc: apiMatch.period_desc || null,
+          score1_updated_at: score1_updated_at,
+          score2_updated_at: score2_updated_at,
           fetched_at: Date.now()
         };
         updatedCount++;
@@ -4397,6 +4422,8 @@ function createModalHeaderHtml(match, scoreData, summaryData) {
   const t2 = match.team2;
   const score1 = scoreData.score1 !== null && scoreData.score1 !== undefined ? scoreData.score1 : '-';
   const score2 = scoreData.score2 !== null && scoreData.score2 !== undefined ? scoreData.score2 : '-';
+  const shouldFlash1 = scoreData && scoreData.score1_updated_at && (Date.now() - scoreData.score1_updated_at < 10000);
+  const shouldFlash2 = scoreData && scoreData.score2_updated_at && (Date.now() - scoreData.score2_updated_at < 10000);
   const minuteLabel = isMatchLive(match, scoreData) ? getMatchMinuteLabel(match, scoreData) : (scoreData.status === 'FINISHED' ? 'FT' : 'Belum Mulai');
   
   let modalLiveStatusHtml = '';
@@ -4483,7 +4510,11 @@ function createModalHeaderHtml(match, scoreData, summaryData) {
           <span class="modal-team-name">${t1}</span>
         </div>
         <div class="modal-score-box">
-          <span class="modal-score-text">${score1} - ${score2}</span>
+          <div class="modal-score-text">
+            <span class="${shouldFlash1 ? 'flash-score' : ''}">${score1}</span>
+            <span> - </span>
+            <span class="${shouldFlash2 ? 'flash-score' : ''}">${score2}</span>
+          </div>
           <div class="modal-status-box">${modalLiveStatusHtml}</div>
         </div>
         <div class="modal-team-col">
