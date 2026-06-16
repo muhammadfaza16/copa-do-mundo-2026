@@ -1033,7 +1033,7 @@ body.light-theme .match-week {
 
 .team-name {
   font-family: var(--font-display);
-  font-size: 0.92rem;
+  font-size: 1rem;
   font-weight: 700;
   color: var(--text-primary);
   white-space: nowrap;
@@ -1108,8 +1108,8 @@ body.light-theme .match-redcards-row.no-scorers {
 
 /* Circular Premium Flag Styling */
 .flag-crest {
-  width: 28px;
-  height: 28px;
+  width: 34px;
+  height: 34px;
   border-radius: 50%;
   object-fit: cover;
   border: 1.5px solid var(--glass-border);
@@ -2785,12 +2785,12 @@ body.light-theme .welcome-mascot-side {
   }
   
   .team-name {
-    font-size: 0.8rem;
+    font-size: 0.88rem;
   }
   
   .flag-crest {
-    width: 22px;
-    height: 22px;
+    width: 26px;
+    height: 26px;
   }
 
   .match-time-box.score-box {
