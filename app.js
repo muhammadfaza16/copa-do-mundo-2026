@@ -2255,7 +2255,6 @@ function renderBestThirds() {
           </div>
         </td>
         <td style="text-align: center; font-weight: 600; opacity: 0.85;">${t.played}</td>
-        <td style="text-align: center; font-weight: 600; opacity: 0.85;">${t.gf}</td>
         <td style="text-align: center; font-weight: 600; opacity: 0.85;">${gdSign}</td>
         <td style="text-align: center; font-weight: 700; color: ${isQualified ? 'var(--primary-gold)' : 'inherit'};">${t.pts}</td>
         <td style="text-align: center;">${statusBadge}</td>
@@ -2269,9 +2268,8 @@ function renderBestThirds() {
         <tr>
           <th style="width: 8%; text-align: center;">Pos</th>
           <th style="width: 10%; text-align: center;">Grup</th>
-          <th style="text-align: left; width: 32%;">Tim</th>
-          <th style="width: 10%; text-align: center;">Mn</th>
-          <th style="width: 10%; text-align: center;">Gol</th>
+          <th style="text-align: left; width: 42%;">Tim</th>
+          <th style="width: 10%; text-align: center;">M</th>
           <th style="width: 10%; text-align: center;">SG</th>
           <th style="width: 10%; text-align: center;">P</th>
           <th style="width: 10%; text-align: center;">Status</th>

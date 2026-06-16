@@ -162,10 +162,10 @@ header {
 
 .brand h1 {
   font-family: var(--font-display);
-  font-size: 1.3rem;
-  font-weight: 700;
-  text-transform: none;
-  letter-spacing: var(--tracking-tight);
+  font-size: 1.25rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
   background: var(--brand-gradient);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
