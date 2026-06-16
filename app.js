@@ -946,7 +946,7 @@ function updateHeroPanel() {
 
       subEl.style.opacity = '1';
       subEl.innerHTML = `
-        <div style="font-size: 0.72rem; font-weight: 700; color: var(--primary-gold); margin-top: 8px; margin-bottom: 3px; letter-spacing: 0.5px;">
+        <div style="font-size: 0.72rem; font-weight: 700; color: var(--primary-gold); margin-top: 4px; margin-bottom: 3px; letter-spacing: 0.5px;">
           ${stageName}
         </div>
         <div style="font-size: 0.65rem; color: var(--text-primary); font-weight: 600; margin-bottom: 2px; opacity: 0.9;">
@@ -1024,7 +1024,7 @@ function updateHeroPanel() {
     
     subEl.style.opacity = '1';
     subEl.innerHTML = `
-      <div style="font-size: 0.72rem; font-weight: 700; color: var(--primary-gold); margin-top: 8px; margin-bottom: 3px; letter-spacing: 0.5px;">
+      <div style="font-size: 0.72rem; font-weight: 700; color: var(--primary-gold); margin-top: 4px; margin-bottom: 3px; letter-spacing: 0.5px;">
         ${stageName}
       </div>
       <div style="font-size: 0.65rem; color: var(--text-primary); font-weight: 600; margin-bottom: 2px; opacity: 0.9;">
