@@ -1142,6 +1142,7 @@ body.light-theme .match-redcards-row.no-scorers {
 
 .match-time-box.score-box {
   display: flex;
+  flex-direction: column;
   justify-content: center;
   align-items: center;
   padding: 14px 14px 14px 14px;
@@ -2806,6 +2807,7 @@ body.light-theme .welcome-mascot-side {
     min-width: 64px;
     text-align: center;
     display: flex;
+    flex-direction: column;
     justify-content: center;
     align-items: center;
   }

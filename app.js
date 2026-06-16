@@ -1121,7 +1121,7 @@ function createMatchCardHtml(match, index, isKnockout = false, showBigMatchBadge
             ${getFlagHtml(match.team1)}
           </div>
           <div class="match-time-box score-box">
-            ${isLive && liveParts && liveParts.clock ? `<div class="match-period-label" style="font-size: 0.62rem; font-weight: 600; color: var(--text-secondary); margin-bottom: 2px;">${liveParts.periodName}</div>` : ''}
+            ${isLive && liveParts && liveParts.clock && liveParts.clock !== 'LIVE' ? `<div class="match-period-label" style="font-size: 0.62rem; font-weight: 600; color: var(--text-secondary); margin-bottom: 2px;">${liveParts.periodName}</div>` : ''}
             <div class="score-display" style="white-space: nowrap;">${scoreData.score1} - ${scoreData.score2}</div>
             ${scoreStatusHtml}
           </div>
@@ -2160,8 +2160,6 @@ function renderGroups() {
           const rankSuffix = idx === 0 ? '1' : (idx === 1 ? '2' : (idx === 2 ? '3' : '4'));
           const teamWeightClass = idx < 2 ? 'team-bold' : '';
           
-          const liveIndicator = teamObj.isLiveAdjusted ? '<span class="virtual-live-badge" style="font-size: 0.52rem; font-weight: 800; color: var(--accent-red); background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.2); padding: 1px 4px; border-radius: 3px; margin-left: 6px; letter-spacing: 0.5px; animation: pulse-blink 1.5s infinite;">LIVE</span>' : '';
-          
           rowsHtml += `
             <tr>
               <td class="group-rank-badge ${rankClass}" style="text-align: center; font-weight: 800;">${rankSuffix}</td>
@@ -2169,7 +2167,6 @@ function renderGroups() {
                 <div class="team-cell">
                   ${getFlagHtml(teamName)}
                   <span class="team-name ${teamWeightClass}">${teamName}</span>
-                  ${liveIndicator}
                 </div>
               </td>
               <td style="text-align: center; font-weight: 600; opacity: 0.85;">${played}</td>
