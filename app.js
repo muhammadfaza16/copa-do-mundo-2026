@@ -1091,11 +1091,12 @@ function createMatchCardHtml(match, index, isKnockout = false, showBigMatchBadge
     let liveParts = null;
     if (isLive) {
       liveParts = getMatchLiveStatusParts(scoreData);
+      const clockLabel = liveParts.clock || liveParts.periodName || 'LIVE';
       scoreStatusHtml = `
-        <div class="match-minute-label status-live" style="font-size: 0.58rem; font-weight: 800; color: var(--accent-red) !important; animation: pulse-blink 1.5s infinite; margin-top: 1px;">${liveParts.clock}</div>
+        <div class="score-status status-live" style="font-size: 0.65rem; font-weight: 800;">${clockLabel}</div>
       `;
     } else {
-      scoreStatusHtml = `<div class="score-status status-ft">FT</div>`;
+      scoreStatusHtml = `<div class="score-status status-ft" style="font-size: 0.65rem; font-weight: 800;">FT</div>`;
     }
 
     return `
@@ -1120,7 +1121,7 @@ function createMatchCardHtml(match, index, isKnockout = false, showBigMatchBadge
             ${getFlagHtml(match.team1)}
           </div>
           <div class="match-time-box score-box">
-            ${isLive && liveParts ? `<div class="match-period-label" style="font-size: 0.62rem; font-weight: 600; color: var(--text-secondary); margin-bottom: 2px;">${liveParts.periodName}</div>` : ''}
+            ${isLive && liveParts && liveParts.clock ? `<div class="match-period-label" style="font-size: 0.62rem; font-weight: 600; color: var(--text-secondary); margin-bottom: 2px;">${liveParts.periodName}</div>` : ''}
             <div class="score-display" style="white-space: nowrap;">${scoreData.score1} - ${scoreData.score2}</div>
             ${scoreStatusHtml}
           </div>
@@ -4383,13 +4384,19 @@ function createModalHeaderHtml(match, scoreData, summaryData) {
   let modalLiveStatusHtml = '';
   if (isMatchLive(match, scoreData)) {
     const liveParts = getMatchLiveStatusParts(scoreData);
-    modalLiveStatusHtml = `
-      <span style="font-size: 0.62rem; font-weight: 700; color: var(--text-secondary); text-transform: uppercase;">${liveParts.periodName}</span>
-      <span class="status-live" style="font-size: 0.62rem; font-weight: 800; color: var(--accent-red); margin-top: 1px;">${liveParts.clock}</span>
-    `;
+    if (liveParts.clock) {
+      modalLiveStatusHtml = `
+        <span style="font-size: 0.68rem; font-weight: 700; color: var(--text-secondary); text-transform: uppercase;">${liveParts.periodName}</span>
+        <span class="status-live" style="font-size: 0.68rem; font-weight: 800; color: var(--accent-red); margin-top: 1px;">${liveParts.clock}</span>
+      `;
+    } else {
+      modalLiveStatusHtml = `
+        <span class="status-live" style="font-size: 0.68rem; font-weight: 800; color: var(--accent-red); margin-top: 1px;">${liveParts.periodName}</span>
+      `;
+    }
   } else {
     modalLiveStatusHtml = `
-      <span class="score-status ${scoreData.status === 'FINISHED' ? 'status-ft' : ''}" style="font-size: 0.62rem; font-weight: 700; text-transform: uppercase; color: var(--text-secondary);">${minuteLabel}</span>
+      <span class="score-status ${scoreData.status === 'FINISHED' ? 'status-ft' : ''}" style="font-size: 0.68rem; font-weight: 800; text-transform: uppercase; color: var(--text-secondary);">${minuteLabel}</span>
     `;
   }
   
