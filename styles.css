@@ -1110,6 +1110,11 @@ body.light-theme .match-redcards-row.no-scorers {
 .flag-crest {
   width: 34px;
   height: 34px;
+  min-width: 34px;
+  min-height: 34px;
+  aspect-ratio: 1 / 1;
+  flex-shrink: 0;
+  box-sizing: border-box;
   border-radius: 50%;
   object-fit: cover;
   border: 1.5px solid var(--glass-border);
@@ -2791,6 +2796,8 @@ body.light-theme .welcome-mascot-side {
   .flag-crest {
     width: 26px;
     height: 26px;
+    min-width: 26px;
+    min-height: 26px;
   }
 
   .match-time-box.score-box {
