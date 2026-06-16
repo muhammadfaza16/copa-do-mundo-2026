@@ -2114,113 +2114,56 @@ function sortGroupTeams(teamList, overallStats) {
   return sorted;
 }
 
-// Function to dynamically calculate group standings from realScores
 function calculateGroupStandings() {
-  const apiGroupsStr = localStorage.getItem('wc2026_api_groups_data');
-  let loadedFromApi = false;
-
-  const API_TEAM_ID_MAPPING = {
-    "1": "Mexico", "2": "South Africa", "3": "South Korea", "4": "Czech Republic",
-    "5": "Canada", "6": "Bosnia and Herzegovina", "7": "Qatar", "8": "Switzerland",
-    "9": "Brazil", "10": "Morocco", "11": "Haiti", "12": "Scotland",
-    "13": "United States", "14": "Paraguay", "15": "Australia", "16": "Turkey",
-    "17": "Germany", "18": "Curaçao", "19": "Ivory Coast", "20": "Ecuador",
-    "21": "Netherlands", "22": "Japan", "23": "Sweden", "24": "Tunisia",
-    "25": "Belgium", "26": "Egypt", "27": "Iran", "28": "New Zealand",
-    "29": "Spain", "30": "Cape Verde", "31": "Saudi Arabia", "32": "Uruguay",
-    "33": "France", "34": "Senegal", "35": "Iraq", "36": "Norway",
-    "37": "Argentina", "38": "Algeria", "39": "Austria", "40": "Jordan",
-    "41": "Portugal", "42": "Democratic Republic of the Congo", "43": "Uzbekistan",
-    "44": "Colombia", "45": "England", "46": "Croatia", "47": "Ghana", "48": "Panama"
-  };
-
-  if (apiGroupsStr) {
-    try {
-      const parsed = JSON.parse(apiGroupsStr);
-      const apiGroups = parsed.groups || parsed;
-      if (apiGroups && Array.isArray(apiGroups)) {
-        teamStats = {};
-        apiGroups.forEach(group => {
-          const groupName = `Grup ${group.name}`;
-          const sortedTeams = [];
-          group.teams.forEach(t => {
-            const teamEn = API_TEAM_ID_MAPPING[t.team_id];
-            const teamIndo = TEAM_TRANSLATIONS[teamEn] || teamEn;
-            if (teamIndo) {
-              teamStats[teamIndo] = {
-                played: parseInt(t.mp) || 0,
-                won: parseInt(t.w) || 0,
-                drawn: parseInt(t.d) || 0,
-                lost: parseInt(t.l) || 0,
-                gf: parseInt(t.gf) || 0,
-                ga: parseInt(t.ga) || 0,
-                gd: parseInt(t.gd) || 0,
-                pts: parseInt(t.pts) || 0
-              };
-              sortedTeams.push(teamIndo);
-            }
-          });
-          // Sort teams using the stats fetched from the API with H2H/FIFA rankings tie-breakers
-          groupRankings[groupName] = sortGroupTeams(sortedTeams, teamStats);
-        });
-        loadedFromApi = true;
-      }
-    } catch (e) {
-      console.error("Error parsing API group standings, falling back to local calculation:", e);
-    }
+  // Initialize stats for all teams in groups
+  teamStats = {};
+  for (const [groupName, teamList] of Object.entries(groups)) {
+    teamList.forEach(team => {
+      teamStats[team] = { played: 0, won: 0, drawn: 0, lost: 0, gf: 0, ga: 0, gd: 0, pts: 0 };
+    });
   }
 
-  if (!loadedFromApi) {
-    // Initialize stats for all teams in groups
-    teamStats = {};
-    for (const [groupName, teamList] of Object.entries(groups)) {
-      teamList.forEach(team => {
-        teamStats[team] = { played: 0, won: 0, drawn: 0, lost: 0, gf: 0, ga: 0, gd: 0, pts: 0 };
-      });
-    }
-
-    // Calculate from real scores
-    WORLD_CUP_DATA.group_stage.forEach(m => {
-      const matchKey = `gs_${m.date}_${m.team1}_${m.team2}`;
-      const score = getMatchScore(matchKey);
-      if (score && (score.status === 'FINISHED' || score.status === 'IN_PLAY')) {
-        const s1 = score.score1;
-        const s2 = score.score2;
+  // Calculate from real scores
+  WORLD_CUP_DATA.group_stage.forEach(m => {
+    const matchKey = `gs_${m.date}_${m.team1}_${m.team2}`;
+    const score = getMatchScore(matchKey);
+    if (score && (score.status === 'FINISHED' || score.status === 'IN_PLAY')) {
+      const s1 = score.score1;
+      const s2 = score.score2;
+      
+      if (s1 !== null && s2 !== null && s1 !== undefined && s2 !== undefined) {
+        teamStats[m.team1].played++;
+        teamStats[m.team2].played++;
         
-        if (s1 !== null && s2 !== null && s1 !== undefined && s2 !== undefined) {
-          teamStats[m.team1].played++;
-          teamStats[m.team2].played++;
-          
-          teamStats[m.team1].gf += s1;
-          teamStats[m.team1].ga += s2;
-          teamStats[m.team2].gf += s2;
-          teamStats[m.team2].ga += s1;
-          
-          if (s1 > s2) {
-            teamStats[m.team1].won++;
-            teamStats[m.team1].pts += 3;
-            teamStats[m.team2].lost++;
-          } else if (s1 < s2) {
-            teamStats[m.team2].won++;
-            teamStats[m.team2].pts += 3;
-            teamStats[m.team1].lost++;
-          } else {
-            teamStats[m.team1].drawn++;
-            teamStats[m.team1].pts += 1;
-            teamStats[m.team2].drawn++;
-            teamStats[m.team2].pts += 1;
-          }
+        teamStats[m.team1].gf += s1;
+        teamStats[m.team1].ga += s2;
+        teamStats[m.team2].gf += s2;
+        teamStats[m.team2].ga += s1;
+        
+        if (s1 > s2) {
+          teamStats[m.team1].won++;
+          teamStats[m.team1].pts += 3;
+          teamStats[m.team2].lost++;
+        } else if (s1 < s2) {
+          teamStats[m.team2].won++;
+          teamStats[m.team2].pts += 3;
+          teamStats[m.team1].lost++;
+        } else {
+          teamStats[m.team1].drawn++;
+          teamStats[m.team1].pts += 1;
+          teamStats[m.team2].drawn++;
+          teamStats[m.team2].pts += 1;
         }
       }
-    });
-
-    // Calculate Goal Difference and sort groupRankings using H2H / FIFA rankings tie-breakers
-    for (const [groupName, teamList] of Object.entries(groups)) {
-      teamList.forEach(team => {
-        teamStats[team].gd = teamStats[team].gf - teamStats[team].ga;
-      });
-      groupRankings[groupName] = sortGroupTeams(teamList, teamStats);
     }
+  });
+
+  // Calculate Goal Difference and sort groupRankings using H2H / FIFA rankings tie-breakers
+  for (const [groupName, teamList] of Object.entries(groups)) {
+    teamList.forEach(team => {
+      teamStats[team].gd = teamStats[team].gf - teamStats[team].ga;
+    });
+    groupRankings[groupName] = sortGroupTeams(teamList, teamStats);
   }
 
   // Calculate best 3rd placed teams and match them to Round of 32 slots automatically
@@ -2585,17 +2528,17 @@ function getTeamGradientCss(teamColorsOrColor) {
       return teamColorsOrColor[0];
     }
     if (teamColorsOrColor.length === 2) {
-      // 70% first color, 30% second color (proportional with transition)
+      // Balanced 50-50 split with a soft 10% transition area
       const color1 = teamColorsOrColor[0];
       const color2 = teamColorsOrColor[1];
-      return `linear-gradient(180deg, ${color1} 0%, ${color1} 60%, ${color2} 80%, ${color2} 100%)`;
+      return `linear-gradient(180deg, ${color1} 0%, ${color1} 45%, ${color2} 55%, ${color2} 100%)`;
     }
-    if (teamColorsOrColor.length === 3) {
-      // 60% first color, 25% second color, 15% third color (proportional with transitions)
+    if (teamColorsOrColor.length >= 3) {
+      // Balanced 33-33-33 split with soft 6% transition areas
       const color1 = teamColorsOrColor[0];
       const color2 = teamColorsOrColor[1];
       const color3 = teamColorsOrColor[2];
-      return `linear-gradient(180deg, ${color1} 0%, ${color1} 50%, ${color2} 65%, ${color2} 75%, ${color3} 85%, ${color3} 100%)`;
+      return `linear-gradient(180deg, ${color1} 0%, ${color1} 30%, ${color2} 36%, ${color2} 63%, ${color3} 70%, ${color3} 100%)`;
     }
   }
   return teamColorsOrColor;
