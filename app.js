@@ -1599,6 +1599,11 @@ function renderStatistics() {
   let totalGoals = 0;
   let matchesPlayed = 0;
   const teamGoalsMap = {};
+  let totalRedCards = 0;
+  let totalOwnGoals = 0;
+  let biggestWin = { diff: 0, matchStr: '-', team: '-' };
+  let highestScoringMatch = { total: 0, matchStr: '-' };
+  const teamCleanSheetsMap = {};
 
   const allMatches = [
     ...WORLD_CUP_DATA.group_stage.map(m => ({ ...m, isKO: false })),
@@ -1619,6 +1624,38 @@ function renderStatistics() {
       teamGoalsMap[m.team1] = (teamGoalsMap[m.team1] || 0) + s1;
       teamGoalsMap[m.team2] = (teamGoalsMap[m.team2] || 0) + s2;
 
+      // Calculate clean sheets
+      if (s2 === 0) {
+        teamCleanSheetsMap[m.team1] = (teamCleanSheetsMap[m.team1] || 0) + 1;
+      }
+      if (s1 === 0) {
+        teamCleanSheetsMap[m.team2] = (teamCleanSheetsMap[m.team2] || 0) + 1;
+      }
+
+      // Calculate red cards
+      const countRedCards = (cardsStr) => {
+        if (!cardsStr || cardsStr === 'null' || cardsStr === '""' || cardsStr === '[]') return 0;
+        const cleaned = cardsStr.replace(/[{}""\[\]]/g, '').trim();
+        if (!cleaned) return 0;
+        return cleaned.split(',').length;
+      };
+      totalRedCards += (countRedCards(score.home_red_cards) + countRedCards(score.away_red_cards));
+
+      // Calculate biggest win
+      const diff = Math.abs(s1 - s2);
+      if (diff > biggestWin.diff) {
+        biggestWin.diff = diff;
+        biggestWin.matchStr = `${m.team1} ${s1} - ${s2} ${m.team2}`;
+        biggestWin.team = s1 > s2 ? m.team1 : m.team2;
+      }
+
+      // Calculate highest scoring match
+      const total = s1 + s2;
+      if (total > highestScoringMatch.total) {
+        highestScoringMatch.total = total;
+        highestScoringMatch.matchStr = `${m.team1} ${s1} - ${s2} ${m.team2}`;
+      }
+
       const addScorers = (scorersStr, teamName) => {
         if (!scorersStr || scorersStr === 'null' || scorersStr === '""' || scorersStr === '[]') return;
         const cleaned = scorersStr.replace(/[{}""\[\]]/g, '').replace(/[“”]/g, '').trim();
@@ -1628,8 +1665,9 @@ function renderStatistics() {
           const item = s.trim().replace(/^['"]|['"]$/g, '');
           if (!item) return;
 
-          // Skip own goals in top scorers list
+          // Count own goals
           if (/\(og\)/i.test(item) || /own\s+goal/i.test(item) || /bunuh\s+diri/i.test(item)) {
+            totalOwnGoals++;
             return;
           }
 
@@ -1746,6 +1784,13 @@ function renderStatistics() {
   const totalGoalsEl = document.getElementById('stats-total-goals');
   const avgGoalsEl = document.getElementById('stats-avg-goals');
   const topTeamEl = document.getElementById('stats-top-team');
+  const totalRedCardsEl = document.getElementById('stats-total-red-cards');
+  const totalOwnGoalsEl = document.getElementById('stats-total-own-goals');
+  const biggestWinEl = document.getElementById('stats-biggest-win');
+  const biggestWinSubEl = document.getElementById('stats-biggest-win-sub');
+  const highestScoringEl = document.getElementById('stats-highest-scoring');
+  const bestDefenseEl = document.getElementById('stats-best-defense');
+  const bestDefenseSubEl = document.getElementById('stats-best-defense-sub');
 
   if (matchesPlayedEl) matchesPlayedEl.textContent = matchesPlayed;
   if (totalGoalsEl) totalGoalsEl.textContent = totalGoals;
@@ -1761,6 +1806,43 @@ function renderStatistics() {
     } else {
       topTeamEl.textContent = "-";
     }
+  }
+
+  if (totalRedCardsEl) totalRedCardsEl.textContent = totalRedCards;
+  if (totalOwnGoalsEl) totalOwnGoalsEl.textContent = totalOwnGoals;
+  if (biggestWinEl) {
+    biggestWinEl.textContent = biggestWin.diff > 0 ? biggestWin.matchStr : '-';
+  }
+  if (biggestWinSubEl) {
+    biggestWinSubEl.textContent = biggestWin.diff > 0 ? `Selisih +${biggestWin.diff} gol (${biggestWin.team})` : 'Selisih gol terbanyak';
+  }
+  if (highestScoringEl) {
+    highestScoringEl.textContent = highestScoringMatch.total > 0 ? `${highestScoringMatch.matchStr} (${highestScoringMatch.total} Gol)` : '-';
+  }
+
+  // Best defense (most clean sheets)
+  let topCleanSheetsTeam = "-";
+  let topCleanSheetsCount = 0;
+  Object.entries(teamCleanSheetsMap).forEach(([team, count]) => {
+    if (count > topCleanSheetsCount) {
+      topCleanSheetsTeam = team;
+      topCleanSheetsCount = count;
+    }
+  });
+  if (bestDefenseEl) {
+    if (topCleanSheetsCount > 0) {
+      bestDefenseEl.innerHTML = `
+        <div style="display: flex; align-items: center; gap: 6px; margin-top: 2px;">
+          ${getFlagHtml(topCleanSheetsTeam)}
+          <span style="font-size: 0.8rem; font-weight: 800; color: var(--text-primary);">${topCleanSheetsTeam}</span>
+        </div>
+      `;
+    } else {
+      bestDefenseEl.textContent = "-";
+    }
+  }
+  if (bestDefenseSubEl) {
+    bestDefenseSubEl.textContent = topCleanSheetsCount > 0 ? `${topCleanSheetsCount} clean sheets` : 'Clean sheets terbanyak';
   }
 }
 
