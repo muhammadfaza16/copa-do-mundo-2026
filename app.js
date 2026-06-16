@@ -597,7 +597,7 @@ function getMatchLiveStatusParts(scoreData) {
   if (scoreData.status === 'FINISHED') return { periodName: 'FT', clock: '' };
   if (scoreData.status === 'EXTRA_TIME') return { periodName: 'ET', clock: '' };
   if (scoreData.status === 'PENALTY_SHOOTOUT') return { periodName: 'PEN', clock: '' };
-  if (scoreData.status === 'PAUSED') return { periodName: 'HT', clock: '' };
+  if (scoreData.status === 'PAUSED' || scoreData.time_elapsed === 'HT' || scoreData.display_clock === 'HT') return { periodName: 'HT', clock: '' };
   
   const clock = scoreData.display_clock || scoreData.time_elapsed || '';
   let periodName = 'LIVE';
@@ -641,7 +641,7 @@ function getMatchMinuteLabel(match, scoreData) {
   if (scoreData.status === 'FINISHED') return "FT";
   if (scoreData.status === 'EXTRA_TIME') return "ET";
   if (scoreData.status === 'PENALTY_SHOOTOUT') return "PEN";
-  if (scoreData.status === 'PAUSED') return "HT";
+  if (scoreData.status === 'PAUSED' || scoreData.time_elapsed === 'HT' || scoreData.display_clock === 'HT') return "HT";
   
   const parts = getMatchLiveStatusParts(scoreData);
   if (parts.clock && parts.clock !== 'LIVE') {
@@ -4274,7 +4274,28 @@ async function fetchRealTimeScores(isManual = false) {
           }
         }
 
-        const status = isFinished ? 'FINISHED' : (isLive ? 'IN_PLAY' : 'TIMED');
+        let status = 'TIMED';
+        if (isFinished) {
+          status = 'FINISHED';
+        } else if (isLive) {
+          const isHt = apiMatch.time_elapsed === 'HT' || 
+                       (apiMatch.period_desc && apiMatch.period_desc.toLowerCase().includes('halftime')) ||
+                       (apiMatch.display_clock && apiMatch.display_clock.toLowerCase() === 'ht');
+          const isEt = apiMatch.time_elapsed === 'ET' || 
+                       (apiMatch.period_desc && apiMatch.period_desc.toLowerCase().includes('extra'));
+          const isPen = apiMatch.time_elapsed === 'PEN' || 
+                        (apiMatch.period_desc && (apiMatch.period_desc.toLowerCase().includes('shootout') || apiMatch.period_desc.toLowerCase().includes('penalty')));
+          
+          if (isHt) {
+            status = 'PAUSED';
+          } else if (isEt) {
+            status = 'EXTRA_TIME';
+          } else if (isPen) {
+            status = 'PENALTY_SHOOTOUT';
+          } else {
+            status = 'IN_PLAY';
+          }
+        }
 
         realScores[localKey] = {
           score1: score1,
