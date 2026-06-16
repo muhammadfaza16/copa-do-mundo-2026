@@ -9,10 +9,15 @@ export default async function handler(req, res) {
   }
 
   try {
-    const response = await fetch('https://worldcup26.ir/get/groups');
+    const response = await fetch('https://site.api.espn.com/apis/v2/sports/soccer/fifa.world/standings', {
+      headers: {
+        'Accept': 'application/json',
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
+      }
+    });
 
     if (!response.ok) {
-      return res.status(response.status).json({ error: `API error (Status: ${response.status})` });
+      return res.status(response.status).json({ error: `ESPN API error (Status: ${response.status})` });
     }
 
     const data = await response.json();
