@@ -2082,7 +2082,7 @@ function renderGroups() {
         };
         
         // Map baseline entries into local objects
-        let teamsList = espnGroup.standings.entries.map(entry => {
+        let teamsList = espnGroup.standings.entries.map((entry, idx) => {
           const rawName = entry.team.displayName;
           const teamName = TEAM_TRANSLATIONS[rawName] || rawName;
           
@@ -2096,7 +2096,8 @@ function renderGroups() {
             ga: getStat(entry, 'pointsAgainst'),
             gd: getStat(entry, 'pointDifferential'),
             pts: getStat(entry, 'points'),
-            isLiveAdjusted: false
+            isLiveAdjusted: false,
+            originalIndex: idx
           };
         });
 
@@ -2410,56 +2411,194 @@ function sortGroupTeams(teamList, overallStats) {
   return sorted;
 }
 
-function calculateGroupStandings() {
-  // Initialize stats for all teams in groups
-  teamStats = {};
-  for (const [groupName, teamList] of Object.entries(groups)) {
-    teamList.forEach(team => {
-      teamStats[team] = { played: 0, won: 0, drawn: 0, lost: 0, gf: 0, ga: 0, gd: 0, pts: 0 };
-    });
+function calculateOfficialGroupStandings() {
+  let officialGroupsData = null;
+  try {
+    officialGroupsData = JSON.parse(localStorage.getItem('wc2026_api_groups_data'));
+  } catch (e) {
+    console.error("Failed to parse official standings in calculateOfficialGroupStandings:", e);
   }
 
-  // Calculate from real scores
-  WORLD_CUP_DATA.group_stage.forEach(m => {
-    const matchKey = `gs_${m.date}_${m.team1}_${m.team2}`;
-    const score = getMatchScore(matchKey);
-    if (score && (score.status === 'FINISHED' || score.status === 'IN_PLAY')) {
-      const s1 = score.score1;
-      const s2 = score.score2;
-      
-      if (s1 !== null && s2 !== null && s1 !== undefined && s2 !== undefined) {
-        teamStats[m.team1].played++;
-        teamStats[m.team2].played++;
+  if (!officialGroupsData || !officialGroupsData.children) {
+    return false; // Fall back to local simulator
+  }
+
+  const getStat = (entry, statName) => {
+    if (!entry.stats) return 0;
+    const s = entry.stats.find(st => st.name === statName);
+    return s ? s.value : 0;
+  };
+
+  // Reset teamStats
+  teamStats = {};
+
+  for (const groupLetter of "ABCDEFGHIJKL".split("")) {
+    const groupName = `Grup ${groupLetter}`;
+    
+    const espnGroup = officialGroupsData.children.find(g => 
+      g.name && g.name.toLowerCase().replace('group ', '').trim() === groupLetter.toLowerCase()
+    );
+
+    if (espnGroup && espnGroup.standings && espnGroup.standings.entries) {
+      let teamsList = espnGroup.standings.entries.map((entry, idx) => {
+        const rawName = entry.team.displayName;
+        const teamName = TEAM_TRANSLATIONS[rawName] || rawName;
         
-        teamStats[m.team1].gf += s1;
-        teamStats[m.team1].ga += s2;
-        teamStats[m.team2].gf += s2;
-        teamStats[m.team2].ga += s1;
+        return {
+          teamName,
+          played: getStat(entry, 'gamesPlayed'),
+          wins: getStat(entry, 'wins'),
+          draws: getStat(entry, 'ties'),
+          losses: getStat(entry, 'losses'),
+          gf: getStat(entry, 'pointsFor'),
+          ga: getStat(entry, 'pointsAgainst'),
+          gd: getStat(entry, 'pointDifferential'),
+          pts: getStat(entry, 'points'),
+          isLiveAdjusted: false,
+          originalIndex: idx
+        };
+      });
+
+      // Apply virtual standings updates for matches that are live or finished but not yet reflected in ESPN standings
+      teamsList.forEach(teamObj => {
+        const tName = teamObj.teamName;
         
-        if (s1 > s2) {
-          teamStats[m.team1].won++;
-          teamStats[m.team1].pts += 3;
-          teamStats[m.team2].lost++;
-        } else if (s1 < s2) {
-          teamStats[m.team2].won++;
-          teamStats[m.team2].pts += 3;
-          teamStats[m.team1].lost++;
-        } else {
-          teamStats[m.team1].drawn++;
-          teamStats[m.team1].pts += 1;
-          teamStats[m.team2].drawn++;
-          teamStats[m.team2].pts += 1;
+        const playedMatchesForTeam = WORLD_CUP_DATA.group_stage.filter(m => {
+          const matchGroup = m.group.replace('Grup ', '').trim();
+          if (matchGroup !== groupLetter) return false;
+          if (m.team1 !== tName && m.team2 !== tName) return false;
+          
+          const matchKey = `gs_${m.date}_${m.team1}_${m.team2}`;
+          const scoreData = getMatchScore(matchKey);
+          return scoreData !== null && scoreData !== undefined;
+        });
+
+        playedMatchesForTeam.sort((a, b) => {
+          return getMatchDate(a.date, a.time).getTime() - getMatchDate(b.date, b.time).getTime();
+        });
+
+        const Y = playedMatchesForTeam.length;
+        const X = teamObj.played;
+
+        if (Y > X) {
+          const unreflectedMatches = playedMatchesForTeam.slice(X);
+          unreflectedMatches.forEach(m => {
+            const matchKey = `gs_${m.date}_${m.team1}_${m.team2}`;
+            const scoreData = getMatchScore(matchKey);
+            if (!scoreData) return;
+
+            const isLive = isMatchLive(m, scoreData);
+            if (isLive) {
+              teamObj.isLiveAdjusted = true;
+            }
+
+            const isHome = m.team1 === tName;
+            const s1 = parseInt(isHome ? scoreData.score1 : scoreData.score2) || 0;
+            const s2 = parseInt(isHome ? scoreData.score2 : scoreData.score1) || 0;
+
+            teamObj.played += 1;
+            teamObj.gf += s1;
+            teamObj.ga += s2;
+            teamObj.gd += (s1 - s2);
+
+            if (s1 > s2) {
+              teamObj.wins += 1;
+              teamObj.pts += 3;
+            } else if (s1 < s2) {
+              teamObj.losses += 1;
+            } else {
+              teamObj.draws += 1;
+              teamObj.pts += 1;
+            }
+          });
+        }
+      });
+
+      // Sort virtual standings
+      teamsList.sort((a, b) => {
+        if (b.pts !== a.pts) return b.pts - a.pts;
+        if (b.gd !== a.gd) return b.gd - a.gd;
+        if (b.gf !== a.gf) return b.gf - a.gf;
+        return a.originalIndex - b.originalIndex;
+      });
+
+      // Save to groupRankings and teamStats
+      groupRankings[groupName] = teamsList.map(t => t.teamName);
+      teamsList.forEach(t => {
+        teamStats[t.teamName] = {
+          played: t.played,
+          won: t.wins,
+          drawn: t.draws,
+          lost: t.losses,
+          gf: t.gf,
+          ga: t.ga,
+          gd: t.gd,
+          pts: t.pts
+        };
+      });
+    }
+  }
+
+  return true;
+}
+
+function calculateGroupStandings() {
+  let success = false;
+  if (standingsSource === 'official') {
+    success = calculateOfficialGroupStandings();
+  }
+
+  if (!success) {
+    // Initialize stats for all teams in groups
+    teamStats = {};
+    for (const [groupName, teamList] of Object.entries(groups)) {
+      teamList.forEach(team => {
+        teamStats[team] = { played: 0, won: 0, drawn: 0, lost: 0, gf: 0, ga: 0, gd: 0, pts: 0 };
+      });
+    }
+
+    // Calculate from real scores
+    WORLD_CUP_DATA.group_stage.forEach(m => {
+      const matchKey = `gs_${m.date}_${m.team1}_${m.team2}`;
+      const score = getMatchScore(matchKey);
+      if (score && (score.status === 'FINISHED' || score.status === 'IN_PLAY')) {
+        const s1 = score.score1;
+        const s2 = score.score2;
+        
+        if (s1 !== null && s2 !== null && s1 !== undefined && s2 !== undefined) {
+          teamStats[m.team1].played++;
+          teamStats[m.team2].played++;
+          
+          teamStats[m.team1].gf += s1;
+          teamStats[m.team1].ga += s2;
+          teamStats[m.team2].gf += s2;
+          teamStats[m.team2].ga += s1;
+          
+          if (s1 > s2) {
+            teamStats[m.team1].won++;
+            teamStats[m.team1].pts += 3;
+            teamStats[m.team2].lost++;
+          } else if (s1 < s2) {
+            teamStats[m.team2].won++;
+            teamStats[m.team2].pts += 3;
+            teamStats[m.team1].lost++;
+          } else {
+            teamStats[m.team1].drawn++;
+            teamStats[m.team1].pts += 1;
+            teamStats[m.team2].drawn++;
+            teamStats[m.team2].pts += 1;
+          }
         }
       }
-    }
-  });
-
-  // Calculate Goal Difference and sort groupRankings using H2H / FIFA rankings tie-breakers
-  for (const [groupName, teamList] of Object.entries(groups)) {
-    teamList.forEach(team => {
-      teamStats[team].gd = teamStats[team].gf - teamStats[team].ga;
     });
-    groupRankings[groupName] = sortGroupTeams(teamList, teamStats);
+
+    // Calculate Goal Difference and sort groupRankings using H2H / FIFA rankings tie-breakers
+    for (const [groupName, teamList] of Object.entries(groups)) {
+      teamList.forEach(team => {
+        teamStats[team].gd = teamStats[team].gf - teamStats[team].ga;
+      });
+      groupRankings[groupName] = sortGroupTeams(teamList, teamStats);
+    }
   }
 
   // Calculate best 3rd placed teams and match them to Round of 32 slots automatically
