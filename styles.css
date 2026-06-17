@@ -4841,12 +4841,19 @@ body.light-theme .stats-rank-other {
   text-transform: uppercase;
 }
 
-/* Corner Live Stream Icon Link inside Hero Panel Countdown Container */
-.hero-stream-link {
+/* Corner actions container inside Hero Panel Countdown Container */
+.hero-actions {
   position: absolute;
   top: 14px;
   right: 16px;
   z-index: 10;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.hero-stream-link {
+  position: static !important;
   display: none; /* Hidden by default in countdown mode */
   align-items: center;
   justify-content: center;
@@ -4860,7 +4867,7 @@ body.light-theme .stats-rank-other {
 }
 
 .countdown-container.live-active .hero-stream-link {
-  display: flex; /* Display only when live matches are active */
+  display: flex !important; /* Display only when live matches are active */
 }
 
 .hero-stream-link:hover {
@@ -4873,6 +4880,36 @@ body.light-theme .stats-rank-other {
   width: 11px;
   height: 11px;
   stroke: #ffffff;
+  stroke-width: 2.5;
+  display: block;
+}
+
+.hero-detail-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background-color: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  color: var(--text-secondary);
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  cursor: pointer;
+}
+
+.hero-detail-btn:hover {
+  background-color: var(--glass-bg-hover);
+  color: var(--text-primary);
+  transform: scale(1.08);
+  border-color: var(--primary-gold-rgba);
+  box-shadow: 0 0 8px rgba(212, 175, 55, 0.25);
+}
+
+.hero-detail-btn svg {
+  width: 11px;
+  height: 11px;
+  stroke: currentColor;
   stroke-width: 2.5;
   display: block;
 }
@@ -5547,6 +5584,10 @@ body.light-theme .lineup-team-btn.active {
 .lineup-team-badge.lf-right {
   justify-content: flex-end;
   flex-direction: row;
+}
+
+.lineup-team-badge.lf-right .lf-team-name {
+  text-align: right;
 }
 
 .lf-team-name {

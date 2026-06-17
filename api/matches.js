@@ -124,6 +124,9 @@ export default async function handler(req, res) {
 
     // 6. Construct legacy match objects
     const STADIUM_MAP = {
+      "1": { "city": "Mexico City" },
+      "2": { "city": "Zapopan" },
+      "3": { "city": "Monterrey" },
       "4": { "city": "Arlington" },
       "5": { "city": "Houston" },
       "6": { "city": "Kansas City" },

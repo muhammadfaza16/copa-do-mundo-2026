@@ -160,21 +160,21 @@ function getMatchBadgeHtml(team1, team2) {
 
 const STADIUM_MAP = {
   "1": { "name": "Estadio Azteca", "city": "Mexico City", "country": "Meksiko", "capacity": 83000 },
-  "2": { "name": "Estadio Guadalajara", "city": "Zapopan", "country": "Meksiko", "capacity": 48000 },
-  "3": { "name": "Estadio Monterrey", "city": "Monterrey", "country": "Meksiko", "capacity": 53500 },
-  "4": { "name": "Dallas Stadium", "city": "Arlington", "country": "Amerika Serikat", "capacity": 94000 },
-  "5": { "name": "Houston Stadium", "city": "Houston", "country": "Amerika Serikat", "capacity": 72000 },
-  "6": { "name": "Kansas City Stadium", "city": "Kansas City", "country": "Amerika Serikat", "capacity": 73000 },
-  "7": { "name": "Atlanta Stadium", "city": "Atlanta", "country": "Amerika Serikat", "capacity": 75000 },
-  "8": { "name": "Miami Stadium", "city": "Miami", "country": "Amerika Serikat", "capacity": 65000 },
-  "9": { "name": "Boston Stadium", "city": "Foxborough", "country": "Amerika Serikat", "capacity": 65000 },
-  "10": { "name": "Philadelphia Stadium", "city": "Philadelphia", "country": "Amerika Serikat", "capacity": 69000 },
-  "11": { "name": "NYNJ Stadium", "city": "East Rutherford", "country": "Amerika Serikat", "capacity": 82500 },
-  "12": { "name": "Toronto Stadium", "city": "Toronto", "country": "Kanada", "capacity": 45000 },
-  "13": { "name": "Vancouver Stadium", "city": "Vancouver", "country": "Kanada", "capacity": 54000 },
-  "14": { "name": "Seattle Stadium", "city": "Seattle", "country": "Amerika Serikat", "capacity": 69000 },
-  "15": { "name": "San Francisco Stadium", "city": "Santa Clara", "country": "Amerika Serikat", "capacity": 71000 },
-  "16": { "name": "Los Angeles Stadium", "city": "Inglewood", "country": "Amerika Serikat", "capacity": 70000 }
+  "2": { "name": "Estadio Akron", "city": "Zapopan", "country": "Meksiko", "capacity": 48000 },
+  "3": { "name": "Estadio BBVA", "city": "Monterrey", "country": "Meksiko", "capacity": 53500 },
+  "4": { "name": "AT&T Stadium", "city": "Arlington", "country": "Amerika Serikat", "capacity": 94000 },
+  "5": { "name": "NRG Stadium", "city": "Houston", "country": "Amerika Serikat", "capacity": 72000 },
+  "6": { "name": "Arrowhead Stadium", "city": "Kansas City", "country": "Amerika Serikat", "capacity": 73000 },
+  "7": { "name": "Mercedes-Benz Stadium", "city": "Atlanta", "country": "Amerika Serikat", "capacity": 75000 },
+  "8": { "name": "Hard Rock Stadium", "city": "Miami", "country": "Amerika Serikat", "capacity": 65000 },
+  "9": { "name": "Gillette Stadium", "city": "Foxborough", "country": "Amerika Serikat", "capacity": 65000 },
+  "10": { "name": "Lincoln Financial Field", "city": "Philadelphia", "country": "Amerika Serikat", "capacity": 69000 },
+  "11": { "name": "MetLife Stadium", "city": "East Rutherford", "country": "Amerika Serikat", "capacity": 82500 },
+  "12": { "name": "BMO Field", "city": "Toronto", "country": "Kanada", "capacity": 45000 },
+  "13": { "name": "BC Place", "city": "Vancouver", "country": "Kanada", "capacity": 54000 },
+  "14": { "name": "Lumen Field", "city": "Seattle", "country": "Amerika Serikat", "capacity": 69000 },
+  "15": { "name": "Levi's Stadium", "city": "Santa Clara", "country": "Amerika Serikat", "capacity": 71000 },
+  "16": { "name": "SoFi Stadium", "city": "Inglewood", "country": "Amerika Serikat", "capacity": 70000 }
 };
 
 function parseScorers(scorersStr) {
@@ -293,18 +293,18 @@ migrateLocalStorageToIndonesian();
 
 // STADIUM INFO & GROUP STAGE VENUE MAPPINGS
 const GROUP_VENUES = {
-  "Grup A": ["Estadio Azteca, Mexico City", "Estadio Guadalajara, Zapopan"],
-  "Grup B": ["Toronto Stadium, Toronto", "Vancouver Stadium, Vancouver"],
-  "Grup C": ["Los Angeles Stadium, Inglewood", "San Francisco Stadium, Santa Clara"],
-  "Grup D": ["Seattle Stadium, Seattle", "Houston Stadium, Houston"],
-  "Grup E": ["Dallas Stadium, Arlington", "Kansas City Stadium, Kansas City"],
-  "Grup F": ["Atlanta Stadium, Atlanta", "Boston Stadium, Foxborough"],
-  "Grup G": ["Miami Stadium, Miami", "Philadelphia Stadium, Philadelphia"],
-  "Grup H": ["NYNJ Stadium, East Rutherford", "Estadio Monterrey, Monterrey"],
-  "Grup I": ["Vancouver Stadium, Vancouver", "Seattle Stadium, Seattle"],
-  "Grup J": ["Estadio Azteca, Mexico City", "Estadio Guadalajara, Zapopan"],
-  "Grup K": ["Toronto Stadium, Toronto", "Boston Stadium, Foxborough"],
-  "Grup L": ["NYNJ Stadium, East Rutherford", "Philadelphia Stadium, Philadelphia"]
+  "Grup A": ["Estadio Azteca, Mexico City", "Estadio Akron, Zapopan"],
+  "Grup B": ["BMO Field, Toronto", "BC Place, Vancouver"],
+  "Grup C": ["SoFi Stadium, Inglewood", "Levi's Stadium, Santa Clara"],
+  "Grup D": ["Lumen Field, Seattle", "NRG Stadium, Houston"],
+  "Grup E": ["AT&T Stadium, Arlington", "Arrowhead Stadium, Kansas City"],
+  "Grup F": ["Mercedes-Benz Stadium, Atlanta", "Gillette Stadium, Foxborough"],
+  "Grup G": ["Hard Rock Stadium, Miami", "Lincoln Financial Field, Philadelphia"],
+  "Grup H": ["MetLife Stadium, East Rutherford", "Estadio BBVA, Monterrey"],
+  "Grup I": ["BC Place, Vancouver", "Lumen Field, Seattle"],
+  "Grup J": ["Estadio Azteca, Mexico City", "Estadio Akron, Zapopan"],
+  "Grup K": ["BMO Field, Toronto", "Gillette Stadium, Foxborough"],
+  "Grup L": ["MetLife Stadium, East Rutherford", "Lincoln Financial Field, Philadelphia"]
 };
 
 function getMatchVenue(match) {
@@ -466,10 +466,12 @@ function getMatchFromKey(matchKey) {
 
 // Get score of a match dynamically
 function getMatchScore(matchKey) {
-  // Check if there is an API score that is FINISHED, IN_PLAY, or PAUSED
   const apiScore = realScores[matchKey];
-  if (apiScore && apiScore.score1 !== null && apiScore.score2 !== null && apiScore.status !== 'TIMED') {
-    return apiScore;
+  if (apiScore && apiScore.score1 !== null && apiScore.score2 !== null) {
+    const status = apiScore.status;
+    if (status === 'FINISHED' || status === 'IN_PLAY' || status === 'PAUSED' || status === 'EXTRA_TIME' || status === 'PENALTY_SHOOTOUT') {
+      return apiScore;
+    }
   }
   return null;
 }
@@ -717,6 +719,13 @@ function updateHeroPanel() {
     const m = liveMatches[0];
     const matchKey = m.isKO ? `ko_${m.match_id}` : `gs_${m.date}_${m.team1}_${m.team2}`;
     container.onclick = () => window.openMatchDetailModal(matchKey);
+    const heroDetailBtn = document.querySelector('.hero-detail-btn');
+    if (heroDetailBtn) {
+      heroDetailBtn.onclick = (e) => {
+        e.stopPropagation();
+        window.openMatchDetailModal(matchKey);
+      };
+    }
     const scoreData = getMatchScore(matchKey) || { score1: 0, score2: 0, status: 'IN_PLAY' };
 
     const team1Name = m.team1;
@@ -886,6 +895,13 @@ function updateHeroPanel() {
 
   const targetMatchKey = targetMatch.isKO ? `ko_${targetMatch.match_id}` : `gs_${targetMatch.date}_${targetMatch.team1}_${targetMatch.team2}`;
   container.onclick = () => window.openMatchDetailModal(targetMatchKey);
+  const heroDetailBtn = document.querySelector('.hero-detail-btn');
+  if (heroDetailBtn) {
+    heroDetailBtn.onclick = (e) => {
+      e.stopPropagation();
+      window.openMatchDetailModal(targetMatchKey);
+    };
+  }
 
   const isOpening = targetMatch.date === "12/6" && targetMatch.time === "02:00" && targetMatch.team1 === "Meksiko";
   
@@ -1130,13 +1146,6 @@ function createMatchCardHtml(match, index, isKnockout = false, showBigMatchBadge
                 </svg>
               </a>
             ` : ''}
-            <button class="card-detail-btn" title="Detail Pertandingan" onclick="event.stopPropagation(); window.openMatchDetailModal('${matchKey}')">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                <circle cx="12" cy="12" r="10"/>
-                <path d="M12 16v-4"/>
-                <path d="M12 8h.01"/>
-              </svg>
-            </button>
           </div>
         </div>
         <div class="match-body">
@@ -1191,16 +1200,7 @@ function createMatchCardHtml(match, index, isKnockout = false, showBigMatchBadge
         <div class="match-header">
           ${stageHeaderHtml}
           ${showBigMatchBadge ? getMatchBadgeHtml(match.team1, match.team2) : ''}
-          <div class="match-header-right" style="display: flex; align-items: center; gap: 8px;">
-            <span class="match-date-label">${timeInfo.date}</span>
-            <button class="card-detail-btn" title="Detail Pertandingan" onclick="event.stopPropagation(); window.openMatchDetailModal('${matchKey}')">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                <circle cx="12" cy="12" r="10"/>
-                <path d="M12 16v-4"/>
-                <path d="M12 8h.01"/>
-              </svg>
-            </button>
-          </div>
+          <span class="match-date-label">${timeInfo.date}</span>
         </div>
         <div class="match-body">
           <div class="team-display left">
@@ -4640,15 +4640,7 @@ function createModalHeaderHtml(match, scoreData, summaryData) {
   const timeInfo = getFormattedTime(match.date, match.time);
   const kickoffText = `${timeInfo.date} · ${timeInfo.time} ${timeInfo.tzLabel}`;
 
-  let stadiumText = '';
-  if (summaryData && summaryData.info && summaryData.info.venueName) {
-    stadiumText = summaryData.info.venueName;
-    if (summaryData.info.venueCity) {
-      stadiumText += `, ${summaryData.info.venueCity}`;
-    }
-  } else {
-    stadiumText = getMatchVenue(match);
-  }
+  const stadiumText = getMatchVenue(match);
 
   let refereeText = '-';
   if (summaryData) {
@@ -4672,6 +4664,16 @@ function createModalHeaderHtml(match, scoreData, summaryData) {
     attendanceText = 'Memuat...';
   }
 
+  const isStarted = scoreData && scoreData.status && scoreData.status !== 'TIMED' && scoreData.status !== 'PRE_MATCH' && scoreData.status !== 'SCHEDULED';
+  
+  const scoreTextHtml = isStarted ? `
+    <span class="${shouldFlash1 ? 'flash-score' : ''}">${score1}</span>
+    <span> - </span>
+    <span class="${shouldFlash2 ? 'flash-score' : ''}">${score2}</span>
+  ` : `
+    <span style="font-size: 1.15rem; color: var(--text-secondary); font-weight: 700; letter-spacing: 1.5px;">VS</span>
+  `;
+
   return `
     <div class="modal-match-header-summary">
       <div style="font-size: 0.65rem; color: var(--primary-gold) !important; font-weight: 700; text-transform: uppercase; letter-spacing: 0.6px; margin-bottom: 2px;">
@@ -4684,9 +4686,7 @@ function createModalHeaderHtml(match, scoreData, summaryData) {
         </div>
         <div class="modal-score-box">
           <div class="modal-score-text">
-            <span class="${shouldFlash1 ? 'flash-score' : ''}">${score1}</span>
-            <span> - </span>
-            <span class="${shouldFlash2 ? 'flash-score' : ''}">${score2}</span>
+            ${scoreTextHtml}
           </div>
           <div class="modal-status-box">${modalLiveStatusHtml}</div>
         </div>
@@ -5185,6 +5185,50 @@ function playerMatchesEvent(playerName, eventNames) {
   });
 }
 
+function countPlayerGoals(playerName, scorerNames) {
+  if (!playerName || !scorerNames || scorerNames.length === 0) return 0;
+  const nameParts = playerName.toLowerCase().split(/\s+/).filter(p => p.length > 2);
+  let count = 0;
+  scorerNames.forEach(ev => {
+    const evLower = ev.toLowerCase();
+    const matches = nameParts.some(part => evLower.includes(part));
+    if (matches) {
+      count++;
+    }
+  });
+  return count;
+}
+
+function formatPitchPlayerName(fullName) {
+  if (!fullName) return '';
+  const parts = fullName.trim().split(/\s+/);
+  if (parts.length <= 1) return fullName;
+
+  const surnamePrefixes = ['de', 'van', 'den', 'der', 'von', 'di', 'da', 'le', 'la', 'du', 'el', 'al', 'ter', 'ten'];
+  
+  let surnameStart = parts.length - 1;
+  while (surnameStart > 0 && surnamePrefixes.includes(parts[surnameStart - 1].toLowerCase())) {
+    surnameStart--;
+  }
+  
+  const surname = parts.slice(surnameStart).join(' ');
+  const given = parts.slice(0, surnameStart).join(' ');
+
+  if (fullName.length <= 10) {
+    return fullName;
+  }
+  
+  if (given) {
+    const initial = given[0].toUpperCase();
+    const formatted = `${initial}. ${surname}`;
+    if (formatted.length <= 12) {
+      return formatted;
+    }
+  }
+  
+  return surname;
+}
+
 function renderLineupsTab(lineups) {
   const home = lineups.home;
   const away = lineups.away;
@@ -5237,10 +5281,12 @@ function renderLineupsTab(lineups) {
 
   // Event icon HTML (overlaid on jersey)
   const eventIcons = (playerName, scorerNames, redNames, isSubbedOut) => {
-    const hasGoal = playerMatchesEvent(playerName, scorerNames);
+    const goalCount = countPlayerGoals(playerName, scorerNames);
     const hasRed  = playerMatchesEvent(playerName, redNames);
     let html = '';
-    if (hasGoal) html += `<span class="jersey-event goal-badge">⚽</span>`;
+    if (goalCount > 0) {
+      html += `<span class="jersey-event goal-badge">${'⚽'.repeat(goalCount)}</span>`;
+    }
     if (hasRed)  html += `<span class="jersey-event red-badge"></span>`;
     if (isSubbedOut) html += `<span class="jersey-event subout-badge">↓</span>`;
     return html;
@@ -5254,7 +5300,7 @@ function renderLineupsTab(lineups) {
     const y = 92 - (i / Math.max(L_home - 1, 1)) * 37;
     line.forEach((p, j) => {
       const x = getX(j, line.length);
-      const displayName = p.name ? p.name.split(' ').pop() : '';
+      const displayName = formatPitchPlayerName(p.name);
       const isGK = isGoalkeeper(p.position);
       const bg = isGK ? gkBg : homeBg;
       const color = isGK ? gkText : homeText;
@@ -5276,7 +5322,7 @@ function renderLineupsTab(lineups) {
     const y = 8 + (i / Math.max(L_away - 1, 1)) * 37;
     line.forEach((p, j) => {
       const x = getX(j, line.length);
-      const displayName = p.name ? p.name.split(' ').pop() : '';
+      const displayName = formatPitchPlayerName(p.name);
       const isGK = isGoalkeeper(p.position);
       const bg = isGK ? gkBg : awayBg;
       const color = isGK ? gkText : awayText;
@@ -5298,24 +5344,29 @@ function renderLineupsTab(lineups) {
       return `<div style="color:var(--text-muted);font-size:0.65rem;padding:6px 0;text-align:center;">—</div>`;
     }
     return benchPlayers.map(p => {
-      const hasGoal = playerMatchesEvent(p.name, scorerNames);
+      const goalCount = countPlayerGoals(p.name, scorerNames);
       const hasRed  = playerMatchesEvent(p.name, redNames);
       const shortName = p.name
         ? (p.name.split(' ').length > 1
             ? p.name.split(' ')[0][0] + '. ' + p.name.split(' ').slice(1).join(' ')
             : p.name)
         : '';
-      const minuteTag = p.subbedMinute ? `<span class="bench-minute">${p.subbedMinute}'</span>` : '';
+      let cleanMin = p.subbedMinute ? p.subbedMinute.replace(/[a-zA-Z\s\(\)]/g, '') : '';
+      if (cleanMin && !cleanMin.endsWith("'")) {
+        cleanMin += "'";
+      }
+      const minuteTag = cleanMin ? `<span class="bench-minute">${cleanMin}</span>` : '';
       const subIcon = p.subbedIn
         ? `<span class="bench-sub-icon sub-in" title="Masuk">↑${minuteTag}</span>`
         : '';
-      const goalIcon = hasGoal ? `<span style="font-size:0.55rem;">⚽</span>` : '';
+      const goalIcon = goalCount > 0 ? `<span style="font-size:0.55rem;">${'⚽'.repeat(goalCount)}</span>` : '';
       const redIcon  = hasRed  ? `<span class="bench-red-dot" title="Kartu Merah"></span>` : '';
+      const posLabel = (p.position === 'Sub' || p.position === 'SUB' || p.position === 'Res') ? '' : (p.position || '');
       return `
         <div class="bench-player-row">
           <span class="bench-jersey">${p.jersey || '—'}</span>
           <span class="bench-name">${shortName}</span>
-          <span class="bench-pos">${p.position || ''}</span>
+          <span class="bench-pos">${posLabel}</span>
           <span class="bench-events">${goalIcon}${redIcon}${subIcon}</span>
         </div>`;
     }).join('');
