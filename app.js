@@ -2100,53 +2100,60 @@ function renderGroups() {
           };
         });
 
-        // Scan and apply live virtual standings updates for running matches
-        WORLD_CUP_DATA.group_stage.forEach(m => {
-          const matchGroup = m.group.replace('Grup ', '').trim();
-          if (matchGroup !== groupLetter) return;
+        // Apply virtual standings updates for matches that are live or finished but not yet reflected in ESPN standings
+        teamsList.forEach(teamObj => {
+          const tName = teamObj.teamName;
           
-          const matchKey = `gs_${m.date}_${m.team1}_${m.team2}`;
-          const scoreData = getMatchScore(matchKey);
-          
-          if (scoreData && isMatchLive(m, scoreData)) {
-            const t1 = m.team1;
-            const t2 = m.team2;
-            const s1 = parseInt(scoreData.score1) || 0;
-            const s2 = parseInt(scoreData.score2) || 0;
+          // Get all played matches (live or finished) for this team in the group stage
+          const playedMatchesForTeam = WORLD_CUP_DATA.group_stage.filter(m => {
+            const matchGroup = m.group.replace('Grup ', '').trim();
+            if (matchGroup !== groupLetter) return false;
+            if (m.team1 !== tName && m.team2 !== tName) return false;
             
-            const team1Obj = teamsList.find(t => t.teamName === t1);
-            const team2Obj = teamsList.find(t => t.teamName === t2);
-            
-            if (team1Obj && team2Obj) {
-              team1Obj.isLiveAdjusted = true;
-              team2Obj.isLiveAdjusted = true;
-              
-              team1Obj.played += 1;
-              team2Obj.played += 1;
-              
-              team1Obj.gf += s1;
-              team1Obj.ga += s2;
-              team1Obj.gd += (s1 - s2);
-              
-              team2Obj.gf += s2;
-              team2Obj.ga += s1;
-              team2Obj.gd += (s2 - s1);
-              
-              if (s1 > s2) {
-                team1Obj.wins += 1;
-                team1Obj.pts += 3;
-                team2Obj.losses += 1;
-              } else if (s1 < s2) {
-                team2Obj.wins += 1;
-                team2Obj.pts += 3;
-                team1Obj.losses += 1;
-              } else {
-                team1Obj.draws += 1;
-                team1Obj.pts += 1;
-                team2Obj.draws += 1;
-                team2Obj.pts += 1;
+            const matchKey = `gs_${m.date}_${m.team1}_${m.team2}`;
+            const scoreData = getMatchScore(matchKey);
+            return scoreData !== null && scoreData !== undefined;
+          });
+
+          // Sort chronologically
+          playedMatchesForTeam.sort((a, b) => {
+            return getMatchDate(a.date, a.time).getTime() - getMatchDate(b.date, b.time).getTime();
+          });
+
+          const Y = playedMatchesForTeam.length;
+          const X = teamObj.played;
+
+          if (Y > X) {
+            const unreflectedMatches = playedMatchesForTeam.slice(X);
+            unreflectedMatches.forEach(m => {
+              const matchKey = `gs_${m.date}_${m.team1}_${m.team2}`;
+              const scoreData = getMatchScore(matchKey);
+              if (!scoreData) return;
+
+              const isLive = isMatchLive(m, scoreData);
+              if (isLive) {
+                teamObj.isLiveAdjusted = true;
               }
-            }
+
+              const isHome = m.team1 === tName;
+              const s1 = parseInt(isHome ? scoreData.score1 : scoreData.score2) || 0;
+              const s2 = parseInt(isHome ? scoreData.score2 : scoreData.score1) || 0;
+
+              teamObj.played += 1;
+              teamObj.gf += s1;
+              teamObj.ga += s2;
+              teamObj.gd += (s1 - s2);
+
+              if (s1 > s2) {
+                teamObj.wins += 1;
+                teamObj.pts += 3;
+              } else if (s1 < s2) {
+                teamObj.losses += 1;
+              } else {
+                teamObj.draws += 1;
+                teamObj.pts += 1;
+              }
+            });
           }
         });
 
