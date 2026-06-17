@@ -5547,6 +5547,15 @@ body.light-theme .lineup-team-btn.active {
   100% { opacity: 1; }
 }
 
+@keyframes pulse-minute-blink {
+  0% { opacity: 1; }
+  50% { opacity: 0.5; color: #ef4444; filter: drop-shadow(0 0 2px rgba(239, 68, 68, 0.4)); }
+  100% { opacity: 1; }
+}
+.pulse-minute {
+  animation: pulse-minute-blink 1s infinite ease-in-out !important;
+}
+
 /* ─── Lineup Tab Root ─────────────────────────── */
 .lineup-tab-root {
   display: flex;

@@ -636,6 +636,132 @@ function getMatchLiveStatusParts(scoreData) {
   return { periodName, clock: 'LIVE' };
 }
 
+function getLiveClockInfo(matchKey) {
+  const scoreData = realScores[matchKey];
+  if (!scoreData) return { clock: 'LIVE', isPulsing: false };
+  
+  const baseClock = scoreData.display_clock || scoreData.time_elapsed || '';
+  if (!baseClock || baseClock === 'notstarted' || baseClock === 'finished' || baseClock === 'HT' || scoreData.status === 'PAUSED' || scoreData.status === 'FINISHED') {
+    return { clock: baseClock === 'HT' ? 'HT' : (scoreData.status === 'FINISHED' ? 'FT' : baseClock), isPulsing: false };
+  }
+  
+  const minMatch = baseClock.match(/^(\d+)/);
+  if (!minMatch) return { clock: baseClock, isPulsing: false };
+  
+  const baseMin = parseInt(minMatch[1]);
+  const extraMatch = baseClock.match(/\+(\d+)/);
+  const extraMin = extraMatch ? parseInt(extraMatch[1]) : 0;
+  
+  const clockUpdatedAt = scoreData.clock_updated_at || scoreData.fetched_at || Date.now();
+  const elapsedMs = Date.now() - clockUpdatedAt;
+  const elapsedSec = Math.floor(elapsedMs / 1000);
+  
+  const currentSec = elapsedSec % 60;
+  const additionalMins = Math.floor(elapsedSec / 60);
+  let displayMin = baseMin;
+  let displayExtra = extraMin;
+  
+  if (extraMin > 0) {
+    displayExtra += additionalMins;
+  } else {
+    displayMin += additionalMins;
+  }
+  
+  let clockStr = '';
+  if (displayExtra > 0) {
+    clockStr = `${displayMin}'+${displayExtra}'`;
+  } else {
+    clockStr = `${displayMin}'`;
+  }
+  
+  const isPulsing = currentSec >= 50;
+  
+  return { clock: clockStr, isPulsing };
+}
+
+function updateLiveMatchClocks() {
+  // 1. Update live cards on the dashboard / schedule
+  const liveCards = document.querySelectorAll('.match-card');
+  liveCards.forEach(card => {
+    const key = card.getAttribute('data-key');
+    if (!key) return;
+    const scoreData = realScores[key];
+    const match = getMatchFromKey(key);
+    if (match && scoreData && isMatchLive(match, scoreData)) {
+      const clockInfo = getLiveClockInfo(key);
+      const scoreStatusEl = card.querySelector('.score-status.status-live');
+      if (scoreStatusEl) {
+        if (clockInfo.isPulsing) {
+          scoreStatusEl.classList.add('pulse-minute');
+        } else {
+          scoreStatusEl.classList.remove('pulse-minute');
+        }
+        const labelSpan = scoreStatusEl.querySelector('span:last-child');
+        if (labelSpan) {
+          labelSpan.textContent = `· ${clockInfo.clock}`;
+        }
+      }
+    }
+  });
+
+  // 2. Update Hero scoreboard live clock
+  const heroStatusLiveEl = document.querySelector('.live-center-block .status-live');
+  if (heroStatusLiveEl) {
+    const allMatches = [
+      ...WORLD_CUP_DATA.group_stage.map(m => ({ ...m, isKO: false })),
+      ...knockoutMatches.map(m => ({ ...m, isKO: true }))
+    ];
+    const liveMatches = allMatches.filter(m => {
+      const matchKey = m.isKO ? `ko_${m.match_id}` : `gs_${m.date}_${m.team1}_${m.team2}`;
+      const scoreData = getMatchScore(matchKey);
+      return isMatchLive(m, scoreData);
+    });
+    if (liveMatches.length > 0) {
+      const m = liveMatches[0];
+      const matchKey = m.isKO ? `ko_${m.match_id}` : `gs_${m.date}_${m.team1}_${m.team2}`;
+      const clockInfo = getLiveClockInfo(matchKey);
+      
+      const parts = getMatchLiveStatusParts(realScores[matchKey]);
+      const clockText = clockInfo.clock || parts.clock || parts.periodName || 'LIVE';
+      
+      if (heroStatusLiveEl.textContent !== clockText) {
+        heroStatusLiveEl.textContent = clockText;
+      }
+      
+      if (clockInfo.isPulsing) {
+        heroStatusLiveEl.classList.add('pulse-minute');
+      } else {
+        heroStatusLiveEl.classList.remove('pulse-minute');
+      }
+    }
+  }
+
+  // 3. Update Detail modal if active
+  const modal = document.getElementById('match-detail-modal');
+  if (modal && modal.classList.contains('active') && currentModalData) {
+    const key = currentModalData.match.isKO ? `ko_${currentModalData.match.match_id}` : `gs_${currentModalData.match.date}_${currentModalData.match.team1}_${currentModalData.match.team2}`;
+    const scoreData = realScores[key];
+    if (scoreData && isMatchLive(currentModalData.match, scoreData)) {
+      const clockInfo = getLiveClockInfo(key);
+      const modalScoreBox = modal.querySelector('.modal-score-box');
+      if (modalScoreBox) {
+        const modalStatusBox = modalScoreBox.querySelector('.modal-status-box');
+        if (modalStatusBox) {
+          const liveSpan = modalStatusBox.querySelector('.status-live');
+          if (liveSpan) {
+            if (clockInfo.isPulsing) {
+              liveSpan.classList.add('pulse-minute');
+            } else {
+              liveSpan.classList.remove('pulse-minute');
+            }
+            liveSpan.textContent = clockInfo.clock;
+          }
+        }
+      }
+    }
+  }
+}
+
 // Helper to calculate match minute dynamically based on score status and time_elapsed
 function getMatchMinuteLabel(match, scoreData) {
   if (!scoreData) return "LIVE";
@@ -744,7 +870,7 @@ function updateHeroPanel() {
     const cleanRedCards2 = parseScorers(scoreData.away_red_cards);
 
     // Cache key for current live match state
-    const liveKey = `live_${matchKey}_${scoreData.score1}_${scoreData.score2}_${scoreData.status}_${cleanScorers1}_${cleanScorers2}_${cleanRedCards1}_${cleanRedCards2}_${minuteLabel}`;
+    const liveKey = `live_${matchKey}_${scoreData.score1}_${scoreData.score2}_${scoreData.status}_${cleanScorers1}_${cleanScorers2}_${cleanRedCards1}_${cleanRedCards2}`;
 
     if (lastHeroMatchKey !== liveKey) {
       lastHeroMatchKey = liveKey;
@@ -1078,7 +1204,11 @@ function updateHeroPanel() {
 
 function initCountdown() {
   updateHeroPanel();
-  setInterval(updateHeroPanel, 1000);
+  updateLiveMatchClocks();
+  setInterval(() => {
+    updateHeroPanel();
+    updateLiveMatchClocks();
+  }, 1000);
 }
 
 // ----------------------------------------------------
@@ -1121,9 +1251,15 @@ function createMatchCardHtml(match, index, isKnockout = false, showBigMatchBadge
     let liveParts = null;
     if (isLive) {
       liveParts = getMatchLiveStatusParts(scoreData);
-      const clockLabel = liveParts.clock || liveParts.periodName || 'LIVE';
+      const clockInfo = getLiveClockInfo(matchKey);
+      const clockLabel = clockInfo.clock || 'LIVE';
+      const pulseClass = clockInfo.isPulsing ? 'pulse-minute' : '';
       scoreStatusHtml = `
-        <div class="score-status status-live" style="font-size: 0.78rem; font-weight: 800;">${clockLabel}</div>
+        <div class="score-status status-live ${pulseClass}" style="font-size: 0.78rem; font-weight: 800; display: inline-flex; align-items: center; justify-content: center; gap: 4px; margin-top: 2px;">
+          <span class="live-pulse-dot" style="margin: 0; width: 6px; height: 6px;"></span>
+          <span class="live-text-clean">LIVE</span>
+          <span style="color: var(--text-secondary); font-weight: 700;">· ${clockLabel}</span>
+        </div>
       `;
     } else {
       scoreStatusHtml = '';
@@ -1138,14 +1274,6 @@ function createMatchCardHtml(match, index, isKnockout = false, showBigMatchBadge
           ${stageHeaderHtml}
           <div class="match-header-right" style="display: flex; align-items: center; gap: 8px;">
             <span class="match-date-label">${timeInfo.date} · ${timeInfo.time} ${timeInfo.tzLabel}</span>
-            ${isLive ? `
-              <a href="https://world-cup-2026-streaming.blogspot.com/live-tv-4228-worldcup-tv.html" target="_blank" rel="noopener noreferrer" class="card-stream-link" title="Live Stream" onclick="event.stopPropagation()">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                  <rect width="20" height="15" x="2" y="7" rx="2" ry="2"/>
-                  <polyline points="17 2 12 7 7 2"/>
-                </svg>
-              </a>
-            ` : ''}
           </div>
         </div>
         <div class="match-body">
@@ -4213,15 +4341,15 @@ function startScorePolling() {
   // Fetch immediately
   fetchRealTimeScores(false);
   
-  // Adaptive interval: 30s when live, 60s otherwise
-  const targetInterval = hasLiveMatches() ? 30000 : 60000;
+  // Adaptive interval: 10s when live, 60s otherwise
+  const targetInterval = hasLiveMatches() ? 10000 : 60000;
   currentPollInterval = targetInterval;
   
   scorePollInterval = setInterval(() => {
     fetchRealTimeScores(false);
     
     // Re-evaluate poll speed after each fetch
-    const newInterval = hasLiveMatches() ? 30000 : 60000;
+    const newInterval = hasLiveMatches() ? 10000 : 60000;
     if (newInterval !== currentPollInterval) {
       currentPollInterval = newInterval;
       clearInterval(scorePollInterval);
@@ -4483,6 +4611,7 @@ async function fetchRealTimeScores(isManual = false) {
         const existing = realScores[localKey];
         let score1_updated_at = existing ? (existing.score1_updated_at || 0) : 0;
         let score2_updated_at = existing ? (existing.score2_updated_at || 0) : 0;
+        let clock_updated_at = existing ? (existing.clock_updated_at || Date.now()) : Date.now();
 
         if (existing && isLive) {
           if (score1 !== null && score1 !== undefined && existing.score1 !== null && existing.score1 !== undefined && score1 > existing.score1) {
@@ -4490,6 +4619,9 @@ async function fetchRealTimeScores(isManual = false) {
           }
           if (score2 !== null && score2 !== undefined && existing.score2 !== null && existing.score2 !== undefined && score2 > existing.score2) {
             score2_updated_at = Date.now();
+          }
+          if (existing.display_clock !== apiMatch.display_clock || existing.time_elapsed !== apiMatch.time_elapsed) {
+            clock_updated_at = Date.now();
           }
         }
 
@@ -4510,6 +4642,7 @@ async function fetchRealTimeScores(isManual = false) {
           period_desc: apiMatch.period_desc || null,
           score1_updated_at: score1_updated_at,
           score2_updated_at: score2_updated_at,
+          clock_updated_at: clock_updated_at,
           fetched_at: Date.now()
         };
         updatedCount++;
