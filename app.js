@@ -641,8 +641,23 @@ function getLiveClockInfo(matchKey) {
   if (!scoreData) return { clock: 'LIVE', isPulsing: false };
   
   const baseClock = scoreData.display_clock || scoreData.time_elapsed || '';
-  if (!baseClock || baseClock === 'notstarted' || baseClock === 'finished' || baseClock === 'HT' || scoreData.status === 'PAUSED' || scoreData.status === 'FINISHED') {
-    return { clock: baseClock === 'HT' ? 'HT' : (scoreData.status === 'FINISHED' ? 'FT' : baseClock), isPulsing: false };
+  
+  // Halftime / Pause / Extra Time / Penalty states
+  if (scoreData.status === 'PAUSED' || baseClock === 'HT' || scoreData.time_elapsed === 'HT') {
+    return { clock: 'HT', isPulsing: false };
+  }
+  if (scoreData.status === 'PENALTY_SHOOTOUT' || baseClock === 'PEN' || scoreData.time_elapsed === 'PEN') {
+    return { clock: 'PEN', isPulsing: false };
+  }
+  if (scoreData.status === 'FINISHED' || baseClock === 'finished') {
+    return { clock: 'FT', isPulsing: false };
+  }
+  if (scoreData.status === 'EXTRA_TIME' && (!baseClock || baseClock === 'ET')) {
+    return { clock: 'ET', isPulsing: false };
+  }
+  
+  if (!baseClock || baseClock === 'notstarted') {
+    return { clock: 'LIVE', isPulsing: false };
   }
   
   const minMatch = baseClock.match(/^(\d+)/);
@@ -696,9 +711,9 @@ function updateLiveMatchClocks() {
         } else {
           scoreStatusEl.classList.remove('pulse-minute');
         }
-        const labelSpan = scoreStatusEl.querySelector('span:last-child');
-        if (labelSpan) {
-          labelSpan.textContent = `· ${clockInfo.clock}`;
+        const displayClock = clockInfo.clock === 'LIVE' ? '' : clockInfo.clock;
+        if (scoreStatusEl.textContent !== displayClock) {
+          scoreStatusEl.textContent = displayClock;
         }
       }
     }
@@ -1252,14 +1267,11 @@ function createMatchCardHtml(match, index, isKnockout = false, showBigMatchBadge
     if (isLive) {
       liveParts = getMatchLiveStatusParts(scoreData);
       const clockInfo = getLiveClockInfo(matchKey);
-      const clockLabel = clockInfo.clock || 'LIVE';
+      const clockLabel = clockInfo.clock;
       const pulseClass = clockInfo.isPulsing ? 'pulse-minute' : '';
+      const displayClock = clockLabel === 'LIVE' ? '' : clockLabel;
       scoreStatusHtml = `
-        <div class="score-status status-live ${pulseClass}" style="font-size: 0.78rem; font-weight: 800; display: inline-flex; align-items: center; justify-content: center; gap: 4px; margin-top: 2px;">
-          <span class="live-pulse-dot" style="margin: 0; width: 6px; height: 6px;"></span>
-          <span class="live-text-clean">LIVE</span>
-          <span style="color: var(--text-secondary); font-weight: 700;">· ${clockLabel}</span>
-        </div>
+        <div class="score-status status-live ${pulseClass}" style="font-size: 0.78rem; font-weight: 800;">${displayClock}</div>
       `;
     } else {
       scoreStatusHtml = '';
@@ -1407,7 +1419,7 @@ function renderSchedule() {
   const allFiltered = combined.filter(m => {
     const matchKey = m.isKO ? `ko_${m.match_id}` : `gs_${m.date}_${m.team1}_${m.team2}`;
     const score = getMatchScore(matchKey);
-    const hasScore = score && (score.status === 'FINISHED' || score.status === 'IN_PLAY');
+    const hasScore = score && (score.status === 'FINISHED' || score.status === 'IN_PLAY' || score.status === 'PAUSED' || score.status === 'EXTRA_TIME' || score.status === 'PENALTY_SHOOTOUT');
     return scheduleSubTab === 'results' ? hasScore : !hasScore;
   });
 
@@ -1780,7 +1792,7 @@ function renderStatistics() {
     const matchKey = m.isKO ? `ko_${m.match_id}` : `gs_${m.date}_${m.team1}_${m.team2}`;
     const score = getMatchScore(matchKey);
 
-    if (score && (score.status === 'FINISHED' || score.status === 'IN_PLAY')) {
+    if (score && (score.status === 'FINISHED' || score.status === 'IN_PLAY' || score.status === 'PAUSED' || score.status === 'EXTRA_TIME' || score.status === 'PENALTY_SHOOTOUT')) {
       const s1 = parseInt(score.score1) || 0;
       const s2 = parseInt(score.score2) || 0;
       
@@ -2088,7 +2100,7 @@ function renderNearestMatches() {
     const matchKey = m.isKO ? `ko_${m.match_id}` : `gs_${m.date}_${m.team1}_${m.team2}`;
     const score = getMatchScore(matchKey);
     if (score && score.status === 'FINISHED') return false;
-    const isLive = score && (score.status === 'IN_PLAY' || score.status === 'PAUSED');
+    const isLive = score && (score.status === 'IN_PLAY' || score.status === 'PAUSED' || score.status === 'EXTRA_TIME' || score.status === 'PENALTY_SHOOTOUT');
     return isLive || getMatchDate(m.date, m.time) >= now;
   });
 
@@ -2484,7 +2496,7 @@ function getH2HStats(teams) {
     if (teams.includes(m.team1) && teams.includes(m.team2)) {
       const matchKey = `gs_${m.date}_${m.team1}_${m.team2}`;
       const score = getMatchScore(matchKey);
-      if (score && (score.status === 'FINISHED' || score.status === 'IN_PLAY')) {
+      if (score && (score.status === 'FINISHED' || score.status === 'IN_PLAY' || score.status === 'PAUSED' || score.status === 'EXTRA_TIME' || score.status === 'PENALTY_SHOOTOUT')) {
         const s1 = parseInt(score.score1);
         const s2 = parseInt(score.score2);
         if (!isNaN(s1) && !isNaN(s2)) {
@@ -2716,7 +2728,7 @@ function calculateGroupStandings() {
     WORLD_CUP_DATA.group_stage.forEach(m => {
       const matchKey = `gs_${m.date}_${m.team1}_${m.team2}`;
       const score = getMatchScore(matchKey);
-      if (score && (score.status === 'FINISHED' || score.status === 'IN_PLAY')) {
+      if (score && (score.status === 'FINISHED' || score.status === 'IN_PLAY' || score.status === 'PAUSED' || score.status === 'EXTRA_TIME' || score.status === 'PENALTY_SHOOTOUT')) {
         const s1 = score.score1;
         const s2 = score.score2;
         
