@@ -1442,6 +1442,25 @@ body.light-theme .search-input:focus {
   }
 }
 
+.countdown-container {
+  background: var(--panel-bg);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--border-radius-lg);
+  padding: 24px;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+  box-shadow: var(--shadow-lg);
+  transition: var(--transition-smooth);
+  cursor: pointer;
+}
+
+.countdown-container:hover {
+  transform: translateY(-2px);
+  border-color: var(--primary-gold-rgba);
+  box-shadow: 0 10px 25px rgba(212, 175, 55, 0.1);
+}
+
 .group-card {
   background: var(--panel-bg);
   border: 1px solid var(--glass-border);
@@ -4868,6 +4887,35 @@ body.light-theme .hero-stream-link:hover {
 
 body.light-theme .hero-stream-link svg {
   stroke: #ffffff;
+}
+
+/* Subtle Match Detail button inside Card Header */
+.card-detail-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background-color: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  color: var(--text-secondary);
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  cursor: pointer;
+}
+
+.card-detail-btn:hover {
+  background-color: var(--glass-bg-hover);
+  color: var(--text-primary);
+  transform: scale(1.08);
+}
+
+.card-detail-btn svg {
+  width: 11px;
+  height: 11px;
+  stroke: currentColor;
+  stroke-width: 2.5;
+  display: block;
 }
 
 /* Inline Live Stream Icon Link inside Match Card Header */

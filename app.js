@@ -716,6 +716,7 @@ function updateHeroPanel() {
     // MODE 1: LIVE Matches Active (Show premium scoreboard)
     const m = liveMatches[0];
     const matchKey = m.isKO ? `ko_${m.match_id}` : `gs_${m.date}_${m.team1}_${m.team2}`;
+    container.onclick = () => window.openMatchDetailModal(matchKey);
     const scoreData = getMatchScore(matchKey) || { score1: 0, score2: 0, status: 'IN_PLAY' };
 
     const team1Name = m.team1;
@@ -780,7 +781,7 @@ function updateHeroPanel() {
                   <span class="live-score-separator" style="line-height: 1;">:</span>
                   <span class="live-score ${shouldFlashHero2 ? 'flash-score' : ''}">${scoreData.score2 !== null && scoreData.score2 !== undefined ? scoreData.score2 : 0}</span>
                 </div>
-                <span class="status-live" style="color: var(--accent-red) !important; font-size: 0.65rem; font-weight: 800; letter-spacing: 0.5px; position: absolute; top: calc(100% + 2px); white-space: nowrap;">
+                <span class="status-live" style="color: var(--accent-red) !important; font-size: 0.78rem; font-weight: 800; letter-spacing: 0.5px; position: absolute; top: calc(100% + 2px); white-space: nowrap;">
                   ${timeLabel}
                 </span>
               </div>
@@ -882,6 +883,11 @@ function updateHeroPanel() {
   }
 
   container.style.display = 'block';
+
+  const targetMatchKey = targetMatch.isKO ? `ko_${targetMatch.match_id}` : `gs_${targetMatch.date}_${targetMatch.team1}_${targetMatch.team2}`;
+  container.onclick = () => window.openMatchDetailModal(targetMatchKey);
+
+  const isOpening = targetMatch.date === "12/6" && targetMatch.time === "02:00" && targetMatch.team1 === "Meksiko";
   
   // Set team colors for countdown card edge stripes
   const colors1 = getTeamColor(targetMatch.team1, false);
@@ -970,7 +976,6 @@ function updateHeroPanel() {
     return;
   }
 
-  const isOpening = targetMatch.date === "12/6" && targetMatch.time === "02:00" && targetMatch.team1 === "Meksiko";
   const cdKey = `cd_${targetMatch.date}_${targetMatch.time}_${targetMatch.team1}_${targetMatch.team2}`;
 
   if (lastHeroMatchKey !== cdKey) {
@@ -1078,6 +1083,12 @@ function createMatchCardHtml(match, index, isKnockout = false, showBigMatchBadge
 
   const stageHeaderHtml = `
     <div class="match-stage-container" style="display: flex; align-items: center; gap: 6px;">
+      ${isLive ? `
+        <span class="live-badge-top-left" style="font-size: 0.58rem; font-weight: 800; color: #ef4444; letter-spacing: 0.5px; display: inline-flex; align-items: center; gap: 4px; padding: 1px 5px; border-radius: 4px; background: rgba(239, 68, 68, 0.12); border: 1px solid rgba(239, 68, 68, 0.25); animation: pulse-blink 1.5s infinite ease-in-out; text-transform: uppercase;">
+          <span style="width: 5px; height: 5px; background-color: #ef4444; border-radius: 50%; display: inline-block;"></span>
+          LIVE
+        </span>
+      ` : ''}
       <span class="match-stage">${match.group}</span>
     </div>
   `;
@@ -1096,7 +1107,7 @@ function createMatchCardHtml(match, index, isKnockout = false, showBigMatchBadge
       liveParts = getMatchLiveStatusParts(scoreData);
       const clockLabel = liveParts.clock || liveParts.periodName || 'LIVE';
       scoreStatusHtml = `
-        <div class="score-status status-live" style="font-size: 0.65rem; font-weight: 800;">${clockLabel}</div>
+        <div class="score-status status-live" style="font-size: 0.78rem; font-weight: 800;">${clockLabel}</div>
       `;
     } else {
       scoreStatusHtml = '';
@@ -1119,6 +1130,13 @@ function createMatchCardHtml(match, index, isKnockout = false, showBigMatchBadge
                 </svg>
               </a>
             ` : ''}
+            <button class="card-detail-btn" title="Detail Pertandingan" onclick="event.stopPropagation(); window.openMatchDetailModal('${matchKey}')">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10"/>
+                <path d="M12 16v-4"/>
+                <path d="M12 8h.01"/>
+              </svg>
+            </button>
           </div>
         </div>
         <div class="match-body">
@@ -1173,7 +1191,16 @@ function createMatchCardHtml(match, index, isKnockout = false, showBigMatchBadge
         <div class="match-header">
           ${stageHeaderHtml}
           ${showBigMatchBadge ? getMatchBadgeHtml(match.team1, match.team2) : ''}
-          <span class="match-date-label">${timeInfo.date}</span>
+          <div class="match-header-right" style="display: flex; align-items: center; gap: 8px;">
+            <span class="match-date-label">${timeInfo.date}</span>
+            <button class="card-detail-btn" title="Detail Pertandingan" onclick="event.stopPropagation(); window.openMatchDetailModal('${matchKey}')">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10"/>
+                <path d="M12 16v-4"/>
+                <path d="M12 8h.01"/>
+              </svg>
+            </button>
+          </div>
         </div>
         <div class="match-body">
           <div class="team-display left">
