@@ -2292,7 +2292,7 @@ body.light-theme .flag-crest {
 }
 
 .status-live {
-  color: var(--accent-red) !important;
+  color: var(--accent-red);
 }
 
 /* Score change flash animation */
