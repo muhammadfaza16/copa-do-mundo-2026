@@ -2295,6 +2295,21 @@ body.light-theme .flag-crest {
   color: var(--accent-red);
 }
 
+.hero-status-live {
+  font-size: 0.78rem;
+  font-weight: 800;
+  letter-spacing: 0.5px;
+  position: absolute;
+  top: calc(100% + 2px);
+  white-space: nowrap;
+}
+
+.modal-status-live {
+  font-size: 0.68rem;
+  font-weight: 800;
+  margin-top: 1px;
+}
+
 /* Score change flash animation */
 @keyframes score-flash-animation {
   0% {

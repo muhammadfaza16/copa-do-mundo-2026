@@ -655,7 +655,7 @@ function getMatchLiveStatusParts(scoreData) {
 
 function getLiveClockInfo(matchKey) {
   const scoreData = realScores[matchKey];
-  if (!scoreData) return { clock: 'LIVE', isPulsing: false };
+  if (!scoreData) return { clock: 'LIVE', isPulsing: true };
   
   const baseClock = scoreData.display_clock || scoreData.time_elapsed || '';
   
@@ -664,21 +664,21 @@ function getLiveClockInfo(matchKey) {
     return { clock: 'HT', isPulsing: false };
   }
   if (scoreData.status === 'PENALTY_SHOOTOUT' || baseClock === 'PEN' || scoreData.time_elapsed === 'PEN') {
-    return { clock: 'PEN', isPulsing: false };
+    return { clock: 'PEN', isPulsing: true };
   }
   if (scoreData.status === 'FINISHED' || baseClock === 'finished') {
     return { clock: 'FT', isPulsing: false };
   }
   if (scoreData.status === 'EXTRA_TIME' && (!baseClock || baseClock === 'ET')) {
-    return { clock: 'ET', isPulsing: false };
+    return { clock: 'ET', isPulsing: true };
   }
   
   if (!baseClock || baseClock === 'notstarted') {
-    return { clock: 'LIVE', isPulsing: false };
+    return { clock: 'LIVE', isPulsing: true };
   }
   
   const minMatch = baseClock.match(/^(\d+)/);
-  if (!minMatch) return { clock: baseClock, isPulsing: false };
+  if (!minMatch) return { clock: baseClock, isPulsing: true };
   
   const baseMin = parseInt(minMatch[1]);
   const extraMatch = baseClock.match(/\+(\d+)/);
@@ -706,7 +706,7 @@ function getLiveClockInfo(matchKey) {
     clockStr = `${displayMin}'`;
   }
   
-  const isPulsing = currentSec >= 50;
+  const isPulsing = true;
   
   return { clock: clockStr, isPulsing };
 }
@@ -943,7 +943,7 @@ function updateHeroPanel() {
                   <span class="live-score-separator" style="line-height: 1;">:</span>
                   <span class="live-score ${shouldFlashHero2 ? 'flash-score' : ''}">${scoreData.score2 !== null && scoreData.score2 !== undefined ? scoreData.score2 : 0}</span>
                 </div>
-                <span class="status-live" style="color: var(--accent-red); font-size: 0.78rem; font-weight: 800; letter-spacing: 0.5px; position: absolute; top: calc(100% + 2px); white-space: nowrap;">
+                <span class="status-live hero-status-live">
                   ${timeLabel}
                 </span>
               </div>
@@ -4603,11 +4603,11 @@ function createModalHeaderHtml(match, scoreData, summaryData) {
     if (liveParts.clock) {
       modalLiveStatusHtml = `
         <span style="font-size: 0.68rem; font-weight: 700; color: var(--text-secondary); text-transform: uppercase;">${liveParts.periodName}</span>
-        <span class="status-live" style="font-size: 0.68rem; font-weight: 800; color: var(--accent-red); margin-top: 1px;">${liveParts.clock}</span>
+        <span class="status-live modal-status-live">${liveParts.clock}</span>
       `;
     } else {
       modalLiveStatusHtml = `
-        <span class="status-live" style="font-size: 0.68rem; font-weight: 800; color: var(--accent-red); margin-top: 1px;">${liveParts.periodName}</span>
+        <span class="status-live modal-status-live">${liveParts.periodName}</span>
       `;
     }
   } else {
