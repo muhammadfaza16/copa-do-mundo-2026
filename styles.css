@@ -2265,20 +2265,20 @@ body.light-theme .flag-crest {
   line-height: 1.2;
 }
 
-.score-box .score-status {
-  position: absolute;
-  bottom: 4px;
-  left: 0;
-  right: 0;
-  text-align: center;
+.score-box .match-period-label {
+  font-size: 0.65rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  line-height: 1;
+  margin-bottom: 8px;
 }
 
-.score-box .match-period-label {
-  position: absolute;
-  top: 4px;
-  left: 0;
-  right: 0;
-  text-align: center;
+.score-box .score-status {
+  font-size: 0.65rem;
+  font-weight: 800;
+  color: var(--accent-red);
+  line-height: 1;
+  margin-top: 8px;
 }
 
 .score-status {

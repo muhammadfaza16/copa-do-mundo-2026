@@ -932,7 +932,7 @@ function updateHeroPanel() {
                   <span class="live-score-separator" style="line-height: 1;">:</span>
                   <span class="live-score ${shouldFlashHero2 ? 'flash-score' : ''}">${scoreData.score2 !== null && scoreData.score2 !== undefined ? scoreData.score2 : 0}</span>
                 </div>
-                <span class="status-live" style="color: var(--accent-red) !important; font-size: 0.78rem; font-weight: 800; letter-spacing: 0.5px; position: absolute; top: calc(100% + 2px); white-space: nowrap;">
+                <span class="status-live" style="color: var(--accent-red); font-size: 0.78rem; font-weight: 800; letter-spacing: 0.5px; position: absolute; top: calc(100% + 2px); white-space: nowrap;">
                   ${timeLabel}
                 </span>
               </div>
@@ -1266,7 +1266,7 @@ function createMatchCardHtml(match, index, isKnockout = false, showBigMatchBadge
       const pulseClass = clockInfo.isPulsing ? 'pulse-minute' : '';
       const displayClock = clockLabel === 'LIVE' ? '' : clockLabel;
       scoreStatusHtml = `
-        <div class="score-status status-live ${pulseClass}" style="font-size: 0.78rem; font-weight: 800;">${displayClock}</div>
+        <div class="score-status status-live ${pulseClass}">${displayClock}</div>
       `;
     } else {
       scoreStatusHtml = '';
@@ -1289,7 +1289,7 @@ function createMatchCardHtml(match, index, isKnockout = false, showBigMatchBadge
             ${getFlagHtml(match.team1)}
           </div>
           <div class="match-time-box score-box">
-            ${isLive && liveParts && liveParts.clock && liveParts.clock !== 'LIVE' ? `<div class="match-period-label" style="font-size: 0.62rem; font-weight: 600; color: var(--text-secondary);">${liveParts.periodName}</div>` : ''}
+            ${isLive && liveParts && liveParts.clock && liveParts.clock !== 'LIVE' ? `<div class="match-period-label">${liveParts.periodName}</div>` : ''}
             <div class="score-display" style="white-space: nowrap;">
               <span class="${shouldFlash1 ? 'flash-score' : ''}">${scoreData.score1}</span>
               <span> - </span>
