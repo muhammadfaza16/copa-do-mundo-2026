@@ -348,13 +348,25 @@
       <!-- Standings Summary Panel -->
       <div id="bracket-standings-summary" class="bracket-standings-summary"></div>
 
-      <!-- Zoom Switch Toggle -->
-      <div class="switch-container" id="bracket-view-switch" style="margin: 10px auto 16px 12px; display: flex; align-items: center; gap: 8px;">
-        <label class="switch">
-          <input type="checkbox" id="bracket-zoom-toggle" onchange="window.toggleBracketZoom(this.checked)">
-          <span class="slider"></span>
-        </label>
-        <span style="font-size: 0.72rem; font-weight: 600; color: var(--text-secondary); text-transform: none;">Perbesar Bagan</span>
+      <!-- Controls Container -->
+      <div style="display: flex; gap: 24px; align-items: center; margin: 10px auto 16px 12px; flex-wrap: wrap;">
+        <!-- Zoom Switch Toggle -->
+        <div class="switch-container" id="bracket-view-switch" style="margin: 0; display: flex; align-items: center; gap: 8px;">
+          <label class="switch">
+            <input type="checkbox" id="bracket-zoom-toggle" onchange="window.toggleBracketZoom(this.checked)">
+            <span class="slider"></span>
+          </label>
+          <span style="font-size: 0.72rem; font-weight: 600; color: var(--text-secondary); text-transform: none;">Perbesar Bagan</span>
+        </div>
+
+        <!-- Potential Draw Switch Toggle -->
+        <div class="switch-container" id="bracket-potential-draw-switch" style="margin: 0; display: flex; align-items: center; gap: 8px;">
+          <label class="switch">
+            <input type="checkbox" id="bracket-potential-toggle" onchange="window.togglePotentialDraw(this.checked)">
+            <span class="slider"></span>
+          </label>
+          <span style="font-size: 0.72rem; font-weight: 600; color: var(--text-secondary); text-transform: none;">Potential Draw (Tim Sementara)</span>
+        </div>
       </div>
  
       <div class="compact-bracket-wrapper">

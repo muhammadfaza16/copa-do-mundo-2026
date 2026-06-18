@@ -332,6 +332,7 @@ let useLocalTimezone = localStorage.getItem('wc2026_local_tz') !== 'false';
 let apiKey = '12aad17c1bf941f68c2318631dfcea1b';
 let lastRenderedDate = new Date().toDateString();
 let isDataDirty = true;
+let showPotentialDraw = false;
 let cdElementsCache = null;
 let lastFetchTime = 0;
 let scorePollInterval = null;
@@ -2882,18 +2883,30 @@ function recalculateKnockoutTree() {
       const groupName = `Grup ${groupLetter}`;
       const idx = rank === '1' ? 0 : 1;
       
-      if (groupRankings[groupName] && groupRankings[groupName][idx]) {
-        m.team1 = groupRankings[groupName][idx];
+      const hasRealScore = getMatchScore(`ko_${m.match_id}`);
+      if (showPotentialDraw || hasRealScore) {
+        if (groupRankings[groupName] && groupRankings[groupName][idx]) {
+          m.team1 = groupRankings[groupName][idx];
+        } else {
+          m.team1 = `${rank === '1' ? 'Juara' : 'Runner-up'} ${groupName}`;
+        }
       } else {
         m.team1 = `${rank === '1' ? 'Juara' : 'Runner-up'} ${groupName}`;
       }
     } else if (m.team1_seed === '3rd') {
       // 3rd placed team choice
       const selectedGroup = selected3rdPlaces[m.match_id];
-      if (selectedGroup && groupRankings[selectedGroup] && groupRankings[selectedGroup][2]) {
-        m.team1 = groupRankings[selectedGroup][2]; // 3rd placed team is at index 2
+      const hasRealScore = getMatchScore(`ko_${m.match_id}`);
+      if (showPotentialDraw || hasRealScore) {
+        if (selectedGroup && groupRankings[selectedGroup] && groupRankings[selectedGroup][2]) {
+          m.team1 = groupRankings[selectedGroup][2]; // 3rd placed team is at index 2
+        } else {
+          const orig = WORLD_CUP_DATA.knockout_stage.find(ok => ok.match_id === m.match_id);
+          m.team1 = orig ? orig.team1 : "3rd Grup";
+        }
       } else {
-        m.team1 = `3rd Grup ${m.team1 ? m.team1.replace("3rd Grup ", "") : ""}`;
+        const orig = WORLD_CUP_DATA.knockout_stage.find(ok => ok.match_id === m.match_id);
+        m.team1 = orig ? orig.team1 : "3rd Grup";
       }
     }
 
@@ -2908,18 +2921,30 @@ function recalculateKnockoutTree() {
       const groupName = `Grup ${groupLetter}`;
       const idx = rank === '1' ? 0 : 1;
       
-      if (groupRankings[groupName] && groupRankings[groupName][idx]) {
-        m.team2 = groupRankings[groupName][idx];
+      const hasRealScore = getMatchScore(`ko_${m.match_id}`);
+      if (showPotentialDraw || hasRealScore) {
+        if (groupRankings[groupName] && groupRankings[groupName][idx]) {
+          m.team2 = groupRankings[groupName][idx];
+        } else {
+          m.team2 = `${rank === '1' ? 'Juara' : 'Runner-up'} ${groupName}`;
+        }
       } else {
         m.team2 = `${rank === '1' ? 'Juara' : 'Runner-up'} ${groupName}`;
       }
     } else if (m.team2_seed === '3rd') {
       // 3rd placed team choice
       const selectedGroup = selected3rdPlaces[m.match_id];
-      if (selectedGroup && groupRankings[selectedGroup] && groupRankings[selectedGroup][2]) {
-        m.team2 = groupRankings[selectedGroup][2]; // 3rd placed team
+      const hasRealScore = getMatchScore(`ko_${m.match_id}`);
+      if (showPotentialDraw || hasRealScore) {
+        if (selectedGroup && groupRankings[selectedGroup] && groupRankings[selectedGroup][2]) {
+          m.team2 = groupRankings[selectedGroup][2]; // 3rd placed team
+        } else {
+          const orig = WORLD_CUP_DATA.knockout_stage.find(ok => ok.match_id === m.match_id);
+          m.team2 = orig ? orig.team2 : "3rd Grup";
+        }
       } else {
-        m.team2 = `3rd Grup ${m.team2 ? m.team2.replace("3rd Grup ", "") : ""}`;
+        const orig = WORLD_CUP_DATA.knockout_stage.find(ok => ok.match_id === m.match_id);
+        m.team2 = orig ? orig.team2 : "3rd Grup";
       }
     }
   });
@@ -3706,6 +3731,12 @@ window.toggleBracketZoom = function(isZoomed) {
     currentScale = baseScale;
   }
   applyScale();
+};
+
+window.togglePotentialDraw = function(checked) {
+  showPotentialDraw = checked;
+  isDataDirty = true;
+  renderBracket();
 };
 
 function initBracketTouchGestures() {
