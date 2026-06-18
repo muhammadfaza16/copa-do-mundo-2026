@@ -331,6 +331,8 @@ let scheduleSubTab = 'upcoming';
 let useLocalTimezone = localStorage.getItem('wc2026_local_tz') !== 'false';
 let apiKey = '12aad17c1bf941f68c2318631dfcea1b';
 let lastRenderedDate = new Date().toDateString();
+let isDataDirty = true;
+let cdElementsCache = null;
 let lastFetchTime = 0;
 let scorePollInterval = null;
 let realScores = {};
@@ -696,25 +698,24 @@ function getLiveClockInfo(matchKey) {
 
 function updateLiveMatchClocks() {
   // 1. Update live cards on the dashboard / schedule
-  const liveCards = document.querySelectorAll('.match-card');
-  liveCards.forEach(card => {
+  const liveClocks = document.querySelectorAll('.match-card[data-key] .score-status.status-live');
+  liveClocks.forEach(scoreStatusEl => {
+    const card = scoreStatusEl.closest('.match-card');
+    if (!card) return;
     const key = card.getAttribute('data-key');
     if (!key) return;
     const scoreData = realScores[key];
     const match = getMatchFromKey(key);
     if (match && scoreData && isMatchLive(match, scoreData)) {
       const clockInfo = getLiveClockInfo(key);
-      const scoreStatusEl = card.querySelector('.score-status.status-live');
-      if (scoreStatusEl) {
-        if (clockInfo.isPulsing) {
-          scoreStatusEl.classList.add('pulse-minute');
-        } else {
-          scoreStatusEl.classList.remove('pulse-minute');
-        }
-        const displayClock = clockInfo.clock === 'LIVE' ? '' : clockInfo.clock;
-        if (scoreStatusEl.textContent !== displayClock) {
-          scoreStatusEl.textContent = displayClock;
-        }
+      if (clockInfo.isPulsing) {
+        scoreStatusEl.classList.add('pulse-minute');
+      } else {
+        scoreStatusEl.classList.remove('pulse-minute');
+      }
+      const displayClock = clockInfo.clock === 'LIVE' ? '' : clockInfo.clock;
+      if (scoreStatusEl.textContent !== displayClock) {
+        scoreStatusEl.textContent = displayClock;
       }
     }
   });
@@ -856,6 +857,7 @@ function updateHeroPanel() {
   });
 
   if (liveMatches.length > 0) {
+    cdElementsCache = null;
     // MODE 1: LIVE Matches Active (Show premium scoreboard)
     const m = liveMatches[0];
     const matchKey = m.isKO ? `ko_${m.match_id}` : `gs_${m.date}_${m.team1}_${m.team2}`;
@@ -1125,6 +1127,7 @@ function updateHeroPanel() {
       `;
     }
 
+    cdElementsCache = null;
     cdDisplay.innerHTML = `
       <div style="font-size: 0.82rem; font-weight: 700; color: var(--primary-gold); padding: 8px 0; display: flex; align-items: center; justify-content: center; gap: 8px; letter-spacing: 0.5px;">
         <span class="waiting-pulse-dot"></span>
@@ -1207,10 +1210,19 @@ function updateHeroPanel() {
   const mins = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
   const secs = Math.floor((diff % (1000 * 60)) / 1000);
 
-  const cdDays = document.getElementById('cd-days');
-  const cdHours = document.getElementById('cd-hours');
-  const cdMins = document.getElementById('cd-mins');
-  const cdSecs = document.getElementById('cd-secs');
+  if (!cdElementsCache) {
+    cdElementsCache = {
+      days: document.getElementById('cd-days'),
+      hours: document.getElementById('cd-hours'),
+      mins: document.getElementById('cd-mins'),
+      secs: document.getElementById('cd-secs')
+    };
+  }
+
+  const cdDays = cdElementsCache.days;
+  const cdHours = cdElementsCache.hours;
+  const cdMins = cdElementsCache.mins;
+  const cdSecs = cdElementsCache.secs;
 
   if (cdDays) cdDays.textContent = String(days).padStart(2, '0');
   if (cdHours) cdHours.textContent = String(hours).padStart(2, '0');
@@ -2217,175 +2229,35 @@ function renderGroups() {
 
   let gridHtml = '';
   
-  const isOfficial = standingsSource === 'official';
-  let officialGroupsData = null;
-  if (isOfficial) {
-    try {
-      officialGroupsData = JSON.parse(localStorage.getItem('wc2026_api_groups_data'));
-    } catch (e) {
-      console.error("Failed to parse official standings:", e);
-    }
-  }
-
   for (const groupLetter of "ABCDEFGHIJKL".split("")) {
     const groupName = `Grup ${groupLetter}`;
     const rankedTeams = groupRankings[groupName];
 
     let rowsHtml = '';
     
-    if (isOfficial && officialGroupsData && officialGroupsData.children) {
-      const espnGroup = officialGroupsData.children.find(g => 
-        g.name && g.name.toLowerCase().replace('group ', '').trim() === groupLetter.toLowerCase()
-      );
+    rankedTeams.forEach((team, idx) => {
+      const stats = teamStats[team] || { played: 0, gd: 0, pts: 0 };
+      const gdSign = stats.gd > 0 ? `+${stats.gd}` : stats.gd;
       
-      if (espnGroup && espnGroup.standings && espnGroup.standings.entries) {
-        const getStat = (entry, statName) => {
-          if (!entry.stats) return 0;
-          const s = entry.stats.find(st => st.name === statName);
-          return s ? s.value : 0;
-        };
-        
-        // Map baseline entries into local objects
-        let teamsList = espnGroup.standings.entries.map((entry, idx) => {
-          const rawName = entry.team.displayName;
-          const teamName = TEAM_TRANSLATIONS[rawName] || rawName;
-          
-          return {
-            teamName,
-            played: getStat(entry, 'gamesPlayed'),
-            wins: getStat(entry, 'wins'),
-            draws: getStat(entry, 'ties'),
-            losses: getStat(entry, 'losses'),
-            gf: getStat(entry, 'pointsFor'),
-            ga: getStat(entry, 'pointsAgainst'),
-            gd: getStat(entry, 'pointDifferential'),
-            pts: getStat(entry, 'points'),
-            isLiveAdjusted: false,
-            originalIndex: idx
-          };
-        });
+      const rankClass = idx === 0 ? 'rank-1st' : (idx === 1 ? 'rank-2nd' : (idx === 2 ? 'rank-3rd' : 'rank-4th'));
+      const rankSuffix = idx === 0 ? '1' : (idx === 1 ? '2' : (idx === 2 ? '3' : '4'));
+      const teamWeightClass = idx < 2 ? 'team-bold' : '';
 
-        // Apply virtual standings updates for matches that are live or finished but not yet reflected in ESPN standings
-        teamsList.forEach(teamObj => {
-          const tName = teamObj.teamName;
-          
-          // Get all played matches (live or finished) for this team in the group stage
-          const playedMatchesForTeam = WORLD_CUP_DATA.group_stage.filter(m => {
-            const matchGroup = m.group.replace('Grup ', '').trim();
-            if (matchGroup !== groupLetter) return false;
-            if (m.team1 !== tName && m.team2 !== tName) return false;
-            
-            const matchKey = `gs_${m.date}_${m.team1}_${m.team2}`;
-            const scoreData = getMatchScore(matchKey);
-            return scoreData !== null && scoreData !== undefined;
-          });
-
-          // Sort chronologically
-          playedMatchesForTeam.sort((a, b) => {
-            return getMatchDate(a.date, a.time).getTime() - getMatchDate(b.date, b.time).getTime();
-          });
-
-          const Y = playedMatchesForTeam.length;
-          const X = teamObj.played;
-
-          if (Y > X) {
-            const unreflectedMatches = playedMatchesForTeam.slice(X);
-            unreflectedMatches.forEach(m => {
-              const matchKey = `gs_${m.date}_${m.team1}_${m.team2}`;
-              const scoreData = getMatchScore(matchKey);
-              if (!scoreData) return;
-
-              const isLive = isMatchLive(m, scoreData);
-              if (isLive) {
-                teamObj.isLiveAdjusted = true;
-              }
-
-              const isHome = m.team1 === tName;
-              const s1 = parseInt(isHome ? scoreData.score1 : scoreData.score2) || 0;
-              const s2 = parseInt(isHome ? scoreData.score2 : scoreData.score1) || 0;
-
-              teamObj.played += 1;
-              teamObj.gf += s1;
-              teamObj.ga += s2;
-              teamObj.gd += (s1 - s2);
-
-              if (s1 > s2) {
-                teamObj.wins += 1;
-                teamObj.pts += 3;
-              } else if (s1 < s2) {
-                teamObj.losses += 1;
-              } else {
-                teamObj.draws += 1;
-                teamObj.pts += 1;
-              }
-            });
-          }
-        });
-
-        // Sort virtual standings
-        teamsList.sort((a, b) => {
-          if (b.pts !== a.pts) return b.pts - a.pts;
-          if (b.gd !== a.gd) return b.gd - a.gd;
-          if (b.gf !== a.gf) return b.gf - a.gf;
-          return a.teamName.localeCompare(b.teamName);
-        });
-
-        // Render
-        teamsList.forEach((teamObj, idx) => {
-          const teamName = teamObj.teamName;
-          const played = teamObj.played;
-          const gdVal = teamObj.gd;
-          const gd = gdVal > 0 ? `+${gdVal}` : gdVal;
-          const pts = teamObj.pts;
-          
-          const rankClass = idx === 0 ? 'rank-1st' : (idx === 1 ? 'rank-2nd' : (idx === 2 ? 'rank-3rd' : 'rank-4th'));
-          const rankSuffix = idx === 0 ? '1' : (idx === 1 ? '2' : (idx === 2 ? '3' : '4'));
-          const teamWeightClass = idx < 2 ? 'team-bold' : '';
-          
-          rowsHtml += `
-            <tr>
-              <td class="group-rank-badge ${rankClass}" style="text-align: center; font-weight: 800;">${rankSuffix}</td>
-              <td>
-                <div class="team-cell">
-                  ${getFlagHtml(teamName)}
-                  <span class="team-name ${teamWeightClass}">${teamName}</span>
-                </div>
-              </td>
-              <td style="text-align: center; font-weight: 600; opacity: 0.85;">${played}</td>
-              <td style="text-align: center; font-weight: 600; opacity: 0.85;">${gd}</td>
-              <td style="text-align: center; font-weight: 700; color: ${idx < 2 ? 'var(--primary-gold)' : 'inherit'};">${pts}</td>
-            </tr>
-          `;
-        });
-      }
-    }
-    
-    // Fallback: If not official or official data is missing, render local simulator rankings
-    if (!rowsHtml) {
-      rankedTeams.forEach((team, idx) => {
-        const stats = teamStats[team] || { played: 0, gd: 0, pts: 0 };
-        const gdSign = stats.gd > 0 ? `+${stats.gd}` : stats.gd;
-        
-        const rankClass = idx === 0 ? 'rank-1st' : (idx === 1 ? 'rank-2nd' : (idx === 2 ? 'rank-3rd' : 'rank-4th'));
-        const rankSuffix = idx === 0 ? '1' : (idx === 1 ? '2' : (idx === 2 ? '3' : '4'));
-        const teamWeightClass = idx < 2 ? 'team-bold' : '';
-
-        rowsHtml += `
-          <tr>
-            <td class="group-rank-badge ${rankClass}" style="text-align: center; font-weight: 800;">${rankSuffix}</td>
-            <td>
-              <div class="team-cell">
-                ${getFlagHtml(team)}
-                <span class="team-name ${teamWeightClass}">${team}</span>
-              </div>
-            </td>
-            <td style="text-align: center; font-weight: 600; opacity: 0.85;">${stats.played}</td>
-            <td style="text-align: center; font-weight: 600; opacity: 0.85;">${gdSign}</td>
-            <td style="text-align: center; font-weight: 700; color: ${idx < 2 ? 'var(--primary-gold)' : 'inherit'};">${stats.pts}</td>
-          </tr>
-        `;
-      });
-    }
+      rowsHtml += `
+        <tr>
+          <td class="group-rank-badge ${rankClass}" style="text-align: center; font-weight: 800;">${rankSuffix}</td>
+          <td>
+            <div class="team-cell">
+              ${getFlagHtml(team)}
+              <span class="team-name ${teamWeightClass}">${team}</span>
+            </div>
+          </td>
+          <td style="text-align: center; font-weight: 600; opacity: 0.85;">${stats.played}</td>
+          <td style="text-align: center; font-weight: 600; opacity: 0.85;">${gdSign}</td>
+          <td style="text-align: center; font-weight: 700; color: ${idx < 2 ? 'var(--primary-gold)' : 'inherit'};">${stats.pts}</td>
+        </tr>
+      `;
+    });
 
     const isGroupLive = WORLD_CUP_DATA.group_stage.some(m => {
       const matchGroup = m.group.replace('Grup ', '').trim();
@@ -2883,6 +2755,7 @@ function renderBestThirds() {
 
 // Main function to dynamically trace standing ranks and calculate bracket teams
 function recalculateKnockoutTree() {
+  if (!isDataDirty) return;
   // Calculate standings from scores first
   calculateGroupStandings();
 
@@ -3002,6 +2875,7 @@ function recalculateKnockoutTree() {
   // Keep simulated winners & 3rd places synced with localStorage
   localStorage.setItem('wc2026_simulated_winners', JSON.stringify(simulatedWinners));
   localStorage.setItem('wc2026_selected_3rd_places', JSON.stringify(selected3rdPlaces));
+  isDataDirty = false;
 }
 
 // ----------------------------------------------------
@@ -3886,6 +3760,7 @@ window.handleBracketTap = function(matchId, teamName, isSelectable) {
     simulatedWinners[matchId] = teamName;
   }
 
+  isDataDirty = true;
   recalculateKnockoutTree();
   renderBracket();
   renderFavorites(); // In case favorited cards are affected
@@ -4673,6 +4548,7 @@ async function fetchRealTimeScores(isManual = false) {
       localStorage.setItem('wc2026_simulated_winners', JSON.stringify(simulatedWinners));
     }
     // Always recalculate standings & bracket on new scores fetch
+    isDataDirty = true;
     recalculateKnockoutTree();
 
     const timeString = new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
