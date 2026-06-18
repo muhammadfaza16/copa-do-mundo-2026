@@ -2273,6 +2273,14 @@ body.light-theme .flag-crest {
   text-align: center;
 }
 
+.score-box .match-period-label {
+  position: absolute;
+  top: 4px;
+  left: 0;
+  right: 0;
+  text-align: center;
+}
+
 .score-status {
   font-size: 0.55rem;
   font-weight: 700;
@@ -5553,7 +5561,7 @@ body.light-theme .lineup-team-btn.active {
   100% { opacity: 1; }
 }
 .pulse-minute {
-  animation: pulse-minute-blink 1s infinite ease-in-out !important;
+  animation: pulse-minute-blink 2s infinite ease-in-out !important;
 }
 
 /* ─── Lineup Tab Root ─────────────────────────── */

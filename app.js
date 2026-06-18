@@ -860,15 +860,6 @@ function updateHeroPanel() {
     const m = liveMatches[0];
     const matchKey = m.isKO ? `ko_${m.match_id}` : `gs_${m.date}_${m.team1}_${m.team2}`;
     
-    const liveBadgeContainer = document.getElementById('hero-live-badge-container');
-    if (liveBadgeContainer && !liveBadgeContainer.innerHTML) {
-      liveBadgeContainer.innerHTML = `
-        <span class="live-badge-top-left" style="position: absolute; top: 14px; left: 16px; font-size: 0.62rem; font-weight: 800; color: #ef4444; letter-spacing: 0.8px; display: inline-flex; align-items: center; animation: live-text-pulse 1.8s infinite ease-in-out; text-transform: uppercase; z-index: 10;">
-          LIVE
-        </span>
-      `;
-    }
-    
     container.onclick = () => window.openMatchDetailModal(matchKey);
     const heroDetailBtn = document.querySelector('.hero-detail-btn');
     if (heroDetailBtn) {
@@ -1007,10 +998,6 @@ function updateHeroPanel() {
   }
 
   // MODE 2: Countdown Active (No live matches)
-  const liveBadgeContainer = document.getElementById('hero-live-badge-container');
-  if (liveBadgeContainer) {
-    liveBadgeContainer.innerHTML = '';
-  }
   container.classList.remove('live-active');
   cdDisplay.style.display = ''; // Reset display style to allow CSS 'display: flex'
   const hasLiveStructure = cdDisplay.querySelector('.live-scoreboard') || cdDisplay.innerHTML.includes('live-scoreboard');
@@ -1302,7 +1289,7 @@ function createMatchCardHtml(match, index, isKnockout = false, showBigMatchBadge
             ${getFlagHtml(match.team1)}
           </div>
           <div class="match-time-box score-box">
-            ${isLive && liveParts && liveParts.clock && liveParts.clock !== 'LIVE' ? `<div class="match-period-label" style="font-size: 0.62rem; font-weight: 600; color: var(--text-secondary); margin-bottom: 2px;">${liveParts.periodName}</div>` : ''}
+            ${isLive && liveParts && liveParts.clock && liveParts.clock !== 'LIVE' ? `<div class="match-period-label" style="font-size: 0.62rem; font-weight: 600; color: var(--text-secondary);">${liveParts.periodName}</div>` : ''}
             <div class="score-display" style="white-space: nowrap;">
               <span class="${shouldFlash1 ? 'flash-score' : ''}">${scoreData.score1}</span>
               <span> - </span>
@@ -1437,13 +1424,15 @@ function renderSchedule() {
     return m * 100 + d;
   }
 
-  // Sort: always ascending (oldest matches first)
+  // Sort: ascending for fixtures, descending for results (latest first)
   allFiltered.sort((a, b) => {
+    const isResults = scheduleSubTab === 'results';
     const dateDiff = dateToVal(a.date) - dateToVal(b.date);
     if (dateDiff !== 0) {
-      return dateDiff;
+      return isResults ? -dateDiff : dateDiff;
     }
-    return a.time.localeCompare(b.time);
+    const timeCompare = a.time.localeCompare(b.time);
+    return isResults ? -timeCompare : timeCompare;
   });
 
   if (allFiltered.length === 0) {
