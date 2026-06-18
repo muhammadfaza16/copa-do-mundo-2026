@@ -4332,8 +4332,14 @@ async function fetchRealTimeScores(isManual = false) {
       throw new Error("Struktur data API tidak dikenal.");
     }
 
+    let anyDataChanged = false;
     if (groupsDataObj) {
-      localStorage.setItem('wc2026_api_groups_data', JSON.stringify(groupsDataObj));
+      const prevGroupsJson = localStorage.getItem('wc2026_api_groups_data');
+      const newGroupsJson = JSON.stringify(groupsDataObj);
+      if (prevGroupsJson !== newGroupsJson) {
+        localStorage.setItem('wc2026_api_groups_data', newGroupsJson);
+        anyDataChanged = true;
+      }
     }
 
     let updatedCount = 0;
@@ -4489,27 +4495,51 @@ async function fetchRealTimeScores(isManual = false) {
           }
         }
 
-        realScores[localKey] = {
-          score1: score1,
-          score2: score2,
-          status: status,
-          stadium_id: apiMatch.stadium_id,
-          matchday: apiMatch.matchday,
-          home_scorers: scorers1,
-          away_scorers: scorers2,
-          home_red_cards: redCards1,
-          away_red_cards: redCards2,
-          time_elapsed: apiMatch.time_elapsed || null,
-          espn_event_id: apiMatch.espn_event_id || null,
-          display_clock: apiMatch.display_clock || null,
-          period: apiMatch.period || null,
-          period_desc: apiMatch.period_desc || null,
-          score1_updated_at: score1_updated_at,
-          score2_updated_at: score2_updated_at,
-          clock_updated_at: clock_updated_at,
-          fetched_at: Date.now()
-        };
-        updatedCount++;
+        let hasMatchChanged = false;
+        if (!existing) {
+          hasMatchChanged = true;
+        } else {
+          if (existing.score1 !== score1 ||
+              existing.score2 !== score2 ||
+              existing.status !== status ||
+              existing.time_elapsed !== (apiMatch.time_elapsed || null) ||
+              existing.display_clock !== (apiMatch.display_clock || null) ||
+              existing.period !== (apiMatch.period || null) ||
+              existing.period_desc !== (apiMatch.period_desc || null) ||
+              existing.home_scorers !== scorers1 ||
+              existing.away_scorers !== scorers2 ||
+              existing.home_red_cards !== redCards1 ||
+              existing.away_red_cards !== redCards2 ||
+              String(existing.stadium_id) !== String(apiMatch.stadium_id) ||
+              String(existing.matchday) !== String(apiMatch.matchday)) {
+            hasMatchChanged = true;
+          }
+        }
+
+        if (hasMatchChanged) {
+          realScores[localKey] = {
+            score1: score1,
+            score2: score2,
+            status: status,
+            stadium_id: apiMatch.stadium_id,
+            matchday: apiMatch.matchday,
+            home_scorers: scorers1,
+            away_scorers: scorers2,
+            home_red_cards: redCards1,
+            away_red_cards: redCards2,
+            time_elapsed: apiMatch.time_elapsed || null,
+            espn_event_id: apiMatch.espn_event_id || null,
+            display_clock: apiMatch.display_clock || null,
+            period: apiMatch.period || null,
+            period_desc: apiMatch.period_desc || null,
+            score1_updated_at: score1_updated_at,
+            score2_updated_at: score2_updated_at,
+            clock_updated_at: clock_updated_at,
+            fetched_at: Date.now()
+          };
+          updatedCount++;
+          anyDataChanged = true;
+        }
 
         // Advance real-life winners to the simulator bracket
         if (matchId >= 73 && isFinished) {
@@ -4518,37 +4548,44 @@ async function fetchRealTimeScores(isManual = false) {
           if (winnerTeam && simulatedWinners[matchId] !== winnerTeam) {
             simulatedWinners[matchId] = winnerTeam;
             winnerAdvancedCount++;
+            anyDataChanged = true;
           }
         }
       }
     });
 
-    localStorage.setItem('wc2026_real_scores', JSON.stringify(realScores));
-    if (winnerAdvancedCount > 0) {
-      localStorage.setItem('wc2026_simulated_winners', JSON.stringify(simulatedWinners));
+    if (anyDataChanged) {
+      localStorage.setItem('wc2026_real_scores', JSON.stringify(realScores));
+      if (winnerAdvancedCount > 0) {
+        localStorage.setItem('wc2026_simulated_winners', JSON.stringify(simulatedWinners));
+      }
+      isDataDirty = true;
+      recalculateKnockoutTree();
     }
-    // Always recalculate standings & bracket on new scores fetch
-    isDataDirty = true;
-    recalculateKnockoutTree();
 
     const timeString = new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
-    statusMsg.innerHTML = `<span class="pulse-dot"></span> Sinkronisasi otomatis aktif. Terakhir diperbarui: ${timeString} (${updatedCount} skor diperbarui).`;
+    const newStatusHtml = `<span class="pulse-dot"></span> Sinkronisasi otomatis aktif. Terakhir diperbarui: ${timeString} (${updatedCount} skor diperbarui).`;
+    if (statusMsg.innerHTML !== newStatusHtml) {
+      statusMsg.innerHTML = newStatusHtml;
+    }
     statusMsg.style.color = "var(--accent-emerald)";
     lastFetchTime = Date.now();
     consecutiveErrors = 0; // Reset error count on success
 
-    // Refresh active views
-    if (activeTab === 'tab-schedule') {
-      renderSchedule();
-    } else if (activeTab === 'tab-bracket') {
-      renderBracket();
-    } else if (activeTab === 'tab-groups') {
-      renderGroups();
-    } else if (activeTab === 'tab-home') {
-      renderFavorites();
-      renderNearestMatches();
-      renderLatestResults();
-      renderLiveMatches();
+    // Refresh active views only if data actually changed
+    if (anyDataChanged) {
+      if (activeTab === 'tab-schedule') {
+        renderSchedule();
+      } else if (activeTab === 'tab-bracket') {
+        renderBracket();
+      } else if (activeTab === 'tab-groups') {
+        renderGroups();
+      } else if (activeTab === 'tab-home') {
+        renderFavorites();
+        renderNearestMatches();
+        renderLatestResults();
+        renderLiveMatches();
+      }
     }
 
   } catch (err) {
