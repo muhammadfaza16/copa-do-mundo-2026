@@ -5504,34 +5504,86 @@ function parseScorerNames(scorersStr) {
     .split(',')
     .map(s => {
       let item = s.trim().replace(/^['"]|['"]$/g, '');
-      // Strip trailing minute like "45'", "90+3'", or bare number
-      item = item.replace(/\s+\d+[\+\d]*'?\s*$/, '').trim();
-      // Strip assist annotation like " (A: Di Maria)" so the assister is not
-      // fuzzy-matched as a goalscorer when checking their name against this list
+      // Strip assist annotation like " (A: Di Maria)"
       item = item.replace(/\s*\(A:.*?\)\s*$/i, '').trim();
+      // Strip own goal annotation like " (OG)"
+      item = item.replace(/\s*\(OG\)\s*$/i, '').trim();
+      // Strip trailing minute like "45'", "90+3'", "45'+3'", or bare number
+      item = item.replace(/\s+\d+.*?$/, '').trim();
       return item;
     })
     .filter(Boolean);
 }
 
-// True if playerName fuzzy-matches any name in eventNames array
+// Check if two player names match, accounting for abbreviations, accents, and suffixes
+function isNameMatch(name1, name2) {
+  if (!name1 || !name2) return false;
+  
+  const SUFFIXES = new Set(["jr", "sr", "ii", "iii", "iv"]);
+  const cleanTokens = (str) => {
+    return str.toLowerCase()
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "") // remove accents
+      .replace(/[^a-z0-9\s]/g, " ")     // replace punctuation with space
+      .split(/\s+/)
+      .filter(t => t.length > 0 && !SUFFIXES.has(t));
+  };
+  
+  const t1 = cleanTokens(name1);
+  const t2 = cleanTokens(name2);
+  
+  if (t1.length === 0 || t2.length === 0) return false;
+  
+  // Exact match of the full string (ignoring spaces/punctuation/accents)
+  if (t1.join(" ") === t2.join(" ")) return true;
+  
+  // Identify last tokens
+  const last1 = t1[t1.length - 1];
+  const last2 = t2[t2.length - 1];
+  
+  // Last name must match!
+  if (last1 !== last2) {
+    return false;
+  }
+  
+  const firsts1 = t1.slice(0, -1);
+  const firsts2 = t2.slice(0, -1);
+  
+  if (firsts1.length === 0 || firsts2.length === 0) {
+    return true; 
+  }
+  
+  const isCompatible = (tok1, tok2) => {
+    if (tok1 === tok2) return true;
+    if (tok1.length === 1 && tok2.startsWith(tok1)) return true;
+    if (tok2.length === 1 && tok1.startsWith(tok2)) return true;
+    return false;
+  };
+  
+  let hasCompatibleFirst = false;
+  for (const f1 of firsts1) {
+    for (const f2 of firsts2) {
+      if (isCompatible(f1, f2)) {
+        hasCompatibleFirst = true;
+        break;
+      }
+    }
+  }
+  
+  return hasCompatibleFirst;
+}
+
+// True if playerName matches any name in eventNames array
 function playerMatchesEvent(playerName, eventNames) {
   if (!playerName || !eventNames || eventNames.length === 0) return false;
-  const nameParts = playerName.toLowerCase().split(/\s+/).filter(p => p.length > 2);
-  return eventNames.some(ev => {
-    const evLower = ev.toLowerCase();
-    return nameParts.some(part => evLower.includes(part));
-  });
+  return eventNames.some(ev => isNameMatch(playerName, ev));
 }
 
 function countPlayerGoals(playerName, scorerNames) {
   if (!playerName || !scorerNames || scorerNames.length === 0) return 0;
-  const nameParts = playerName.toLowerCase().split(/\s+/).filter(p => p.length > 2);
   let count = 0;
   scorerNames.forEach(ev => {
-    const evLower = ev.toLowerCase();
-    const matches = nameParts.some(part => evLower.includes(part));
-    if (matches) {
+    if (isNameMatch(playerName, ev)) {
       count++;
     }
   });
