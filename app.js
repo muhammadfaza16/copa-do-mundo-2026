@@ -333,6 +333,7 @@ let apiKey = '12aad17c1bf941f68c2318631dfcea1b';
 let lastRenderedDate = new Date().toDateString();
 let isDataDirty = true;
 let showPotentialDraw = false;
+let _lastRenderedLineupsFingerprint = null; // tracks last-rendered lineup data to avoid redundant re-renders
 let cdElementsCache = null;
 let lastFetchTime = 0;
 let scorePollInterval = null;
@@ -871,13 +872,16 @@ function updateLiveMatchClocks() {
         }
       }
       
-      // If we are on the lineups tab, re-render and check if lineups HTML changed
+      // Lineup/formation data does not change every second — it is fetched once per match open.
+      // Only event-scorer annotations can change during live play (goals/red cards).
+      // Re-render lineup tab only when scorer/card data actually changed, not every 1s tick.
       if (currentModalTab === 'lineups') {
         const contentContainer = document.getElementById('modal-tab-content-container');
         if (contentContainer) {
-          const newHtml = renderLineupsTab(currentModalData.lineups);
-          if (contentContainer.innerHTML !== newHtml) {
-            contentContainer.innerHTML = newHtml;
+          const fp = getLineupsFingerprint(currentModalData);
+          if (fp !== _lastRenderedLineupsFingerprint) {
+            _lastRenderedLineupsFingerprint = fp;
+            contentContainer.innerHTML = renderLineupsTab(currentModalData.lineups);
           }
         }
       }
@@ -5048,6 +5052,7 @@ window.closeMatchDetailModal = function() {
     modal.classList.remove('active');
   }
   currentModalData = null;
+  _lastRenderedLineupsFingerprint = null; // reset so next open always renders fresh
 };
 
 window.switchModalTab = function(tabId, btn) {
@@ -5059,9 +5064,14 @@ window.switchModalTab = function(tabId, btn) {
   
   const contentEl = document.getElementById('modal-tab-content-container');
   if (contentEl && currentModalData) {
-    const newHtml = tabId === 'stats' ? renderStatsTab(currentModalData.stats) : renderLineupsTab(currentModalData.lineups);
-    if (contentEl.innerHTML !== newHtml) {
-      contentEl.innerHTML = newHtml;
+    if (tabId === 'lineups') {
+      // Reset fingerprint so the tab switch always renders the full lineup once
+      _lastRenderedLineupsFingerprint = null;
+      contentEl.innerHTML = renderLineupsTab(currentModalData.lineups);
+      // Record fingerprint immediately so subsequent 1s ticks don't re-render
+      _lastRenderedLineupsFingerprint = getLineupsFingerprint(currentModalData);
+    } else {
+      contentEl.innerHTML = renderStatsTab(currentModalData.stats);
     }
   }
 };
@@ -5084,6 +5094,10 @@ function renderModalContent() {
   
   if (!headerContainer || !tabsMenu || !hasTabs || !contentContainer) {
     // Rebuild the complete shell if it's not present or incomplete
+    _lastRenderedLineupsFingerprint = null; // ensure stale fingerprint is cleared
+    const initialTabContent = currentModalTab === 'stats'
+      ? renderStatsTab(currentModalData.stats)
+      : renderLineupsTab(currentModalData.lineups);
     body.innerHTML = `
       <div class="modal-header-container">${headerHtml}</div>
       <div class="modal-tabs-menu">
@@ -5091,9 +5105,13 @@ function renderModalContent() {
         <button class="modal-tab-btn ${currentModalTab === 'lineups' ? 'active' : ''}" onclick="window.switchModalTab('lineups', this)">Lineup</button>
       </div>
       <div id="modal-tab-content-container">
-        ${currentModalTab === 'stats' ? renderStatsTab(currentModalData.stats) : renderLineupsTab(currentModalData.lineups)}
+        ${initialTabContent}
       </div>
     `;
+    // Record fingerprint right after the full build so the 1s ticker doesn't immediately re-render
+    if (currentModalTab === 'lineups') {
+      _lastRenderedLineupsFingerprint = getLineupsFingerprint(currentModalData);
+    }
   } else {
     // If the shell is already there, update elements selectively
     if (headerContainer.innerHTML !== headerHtml) {
@@ -5115,10 +5133,20 @@ function renderModalContent() {
       }
     });
     
-    // Update content tab container if content actually changed
-    const contentHtml = currentModalTab === 'stats' ? renderStatsTab(currentModalData.stats) : renderLineupsTab(currentModalData.lineups);
-    if (contentContainer.innerHTML !== contentHtml) {
-      contentContainer.innerHTML = contentHtml;
+    // Update content tab container only when underlying data actually changed.
+    // For lineups: use a lightweight fingerprint instead of innerHTML comparison (which is unreliable
+    // because the browser normalises whitespace/newlines differently than the JS template literal).
+    if (currentModalTab === 'lineups') {
+      const fp = getLineupsFingerprint(currentModalData);
+      if (fp !== _lastRenderedLineupsFingerprint) {
+        _lastRenderedLineupsFingerprint = fp;
+        contentContainer.innerHTML = renderLineupsTab(currentModalData.lineups);
+      }
+    } else {
+      const contentHtml = renderStatsTab(currentModalData.stats);
+      if (contentContainer.innerHTML !== contentHtml) {
+        contentContainer.innerHTML = contentHtml;
+      }
     }
   }
 }
@@ -5475,7 +5503,36 @@ function formatPitchPlayerName(fullName) {
   return fullName.trim();
 }
 
+// Returns a lightweight fingerprint of the lineup + event data that should trigger a re-render.
+// Only includes: player IDs/jersey numbers, formation, and live event annotations (goals/cards/subs).
+// This avoids the expensive innerHTML comparison which is unreliable (browser normalises whitespace).
+function getLineupsFingerprint(modalData) {
+  if (!modalData) return 'null';
+  const sd = modalData.scoreData;
+  const lin = modalData.lineups;
+  const key = [
+    // Match identity
+    modalData.matchKey || '',
+    // Scorer/card events (change during live play)
+    sd ? (sd.home_scorers || '') : '',
+    sd ? (sd.away_scorers || '') : '',
+    sd ? (sd.home_red_cards || '') : '',
+    sd ? (sd.away_red_cards || '') : '',
+    // Lineup structure (changes only when API pushes new lineup data)
+    lin ? JSON.stringify([
+      lin.home && lin.home.formation,
+      lin.home && lin.home.starters && lin.home.starters.map(p => p.jersey + p.name + (p.subbedOut || '') + (p.subbedIn || '')).join('|'),
+      lin.home && lin.home.bench && lin.home.bench.map(p => p.jersey + p.name + (p.subbedIn || '') + (p.subbedMinute || '')).join('|'),
+      lin.away && lin.away.formation,
+      lin.away && lin.away.starters && lin.away.starters.map(p => p.jersey + p.name + (p.subbedOut || '') + (p.subbedIn || '')).join('|'),
+      lin.away && lin.away.bench && lin.away.bench.map(p => p.jersey + p.name + (p.subbedIn || '') + (p.subbedMinute || '')).join('|'),
+    ]) : 'nolineup',
+  ].join('::');
+  return key;
+}
+
 function renderLineupsTab(lineups) {
+
   const home = lineups.home;
   const away = lineups.away;
   
