@@ -4779,6 +4779,7 @@ function mapApiStageToLocal(apiStage) {
 let standingsSource = 'official';
 
 let currentModalTab = 'stats';
+let currentModalData = null;
 let matchSummaryCache = {};
 
 function createModalHeaderHtml(match, scoreData, summaryData) {
@@ -5469,6 +5470,9 @@ function parseScorerNames(scorersStr) {
       let item = s.trim().replace(/^['"]|['"]$/g, '');
       // Strip trailing minute like "45'", "90+3'", or bare number
       item = item.replace(/\s+\d+[\+\d]*'?\s*$/, '').trim();
+      // Strip assist annotation like " (A: Di Maria)" so the assister is not
+      // fuzzy-matched as a goalscorer when checking their name against this list
+      item = item.replace(/\s*\(A:.*?\)\s*$/i, '').trim();
       return item;
     })
     .filter(Boolean);

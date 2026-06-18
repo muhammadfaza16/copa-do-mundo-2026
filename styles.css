@@ -933,6 +933,7 @@ body.light-theme .countdown-teams-row.badge-present {
   gap: 12px;
   position: relative;
   transition: var(--transition-smooth);
+  outline: none; /* suppress browser default black focus ring on click */
 }
 
 .match-fixture-card {
