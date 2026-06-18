@@ -767,22 +767,98 @@ function updateLiveMatchClocks() {
   // 3. Update Detail modal if active
   const modal = document.getElementById('match-detail-modal');
   if (modal && modal.classList.contains('active') && currentModalData) {
-    const key = currentModalData.match.isKO ? `ko_${currentModalData.match.match_id}` : `gs_${currentModalData.match.date}_${currentModalData.match.team1}_${currentModalData.match.team2}`;
+    const key = currentModalData.matchKey || (currentModalData.match.isKO ? `ko_${currentModalData.match.match_id}` : `gs_${currentModalData.match.date}_${currentModalData.match.team1}_${currentModalData.match.team2}`);
     const scoreData = realScores[key];
-    if (scoreData && isMatchLive(currentModalData.match, scoreData)) {
-      const clockInfo = getLiveClockInfo(key);
-      const modalScoreBox = modal.querySelector('.modal-score-box');
-      if (modalScoreBox) {
-        const modalStatusBox = modalScoreBox.querySelector('.modal-status-box');
-        if (modalStatusBox) {
-          const liveSpan = modalStatusBox.querySelector('.status-live');
-          if (liveSpan) {
-            if (clockInfo.isPulsing) {
-              liveSpan.classList.add('pulse-minute');
-            } else {
-              liveSpan.classList.remove('pulse-minute');
-            }
-            liveSpan.textContent = clockInfo.clock;
+    if (scoreData) {
+      // Keep currentModalData.scoreData in sync
+      currentModalData.scoreData = scoreData;
+      
+      const t1 = currentModalData.match.team1;
+      const t2 = currentModalData.match.team2;
+      const score1 = scoreData.score1 !== null && scoreData.score1 !== undefined ? scoreData.score1 : '-';
+      const score2 = scoreData.score2 !== null && scoreData.score2 !== undefined ? scoreData.score2 : '-';
+      const shouldFlash1 = scoreData && scoreData.score1_updated_at && (Date.now() - scoreData.score1_updated_at < 10000);
+      const shouldFlash2 = scoreData && scoreData.score2_updated_at && (Date.now() - scoreData.score2_updated_at < 10000);
+      const isStarted = scoreData && scoreData.status && scoreData.status !== 'TIMED' && scoreData.status !== 'PRE_MATCH' && scoreData.status !== 'SCHEDULED';
+      
+      // Update score text in-place
+      const modalScoreTextVal = modal.querySelector('#modal-score-text-val');
+      if (modalScoreTextVal) {
+        const newScoreHtml = isStarted ? `
+          <span class="${shouldFlash1 ? 'flash-score' : ''}">${score1}</span>
+          <span> - </span>
+          <span class="${shouldFlash2 ? 'flash-score' : ''}">${score2}</span>
+        ` : `
+          <span style="font-size: 1.15rem; color: var(--text-secondary); font-weight: 700; letter-spacing: 1.5px;">VS</span>
+        `;
+        if (modalScoreTextVal.innerHTML !== newScoreHtml) {
+          modalScoreTextVal.innerHTML = newScoreHtml;
+        }
+      }
+      
+      // Update live status text / clock
+      const modalStatusBoxVal = modal.querySelector('#modal-status-box-val');
+      if (modalStatusBoxVal) {
+        let modalLiveStatusHtml = '';
+        if (isMatchLive(currentModalData.match, scoreData)) {
+          const liveParts = getMatchLiveStatusParts(scoreData);
+          const clockInfo = getLiveClockInfo(key);
+          const displayClock = clockInfo.clock || liveParts.clock || 'LIVE';
+          if (liveParts.clock || clockInfo.clock) {
+            const isPulsing = clockInfo.isPulsing;
+            modalLiveStatusHtml = `
+              <span style="font-size: 0.68rem; font-weight: 700; color: var(--text-secondary); text-transform: uppercase;">${liveParts.periodName}</span>
+              <span class="status-live modal-status-live ${isPulsing ? 'pulse-minute' : ''}">${displayClock}</span>
+            `;
+          } else {
+            modalLiveStatusHtml = `
+              <span class="status-live modal-status-live">${liveParts.periodName}</span>
+            `;
+          }
+        } else {
+          const minuteLabel = scoreData.status === 'FINISHED' ? 'FT' : 'Belum Mulai';
+          modalLiveStatusHtml = `
+            <span class="score-status ${scoreData.status === 'FINISHED' ? 'status-ft' : ''}" style="font-size: 0.68rem; font-weight: 800; text-transform: uppercase; color: var(--text-secondary);">${minuteLabel}</span>
+          `;
+        }
+        if (modalStatusBoxVal.innerHTML !== modalLiveStatusHtml) {
+          modalStatusBoxVal.innerHTML = modalLiveStatusHtml;
+        }
+      }
+      
+      // Update scorers list in-place
+      const modalScorersContainerVal = modal.querySelector('#modal-scorers-container-val');
+      if (modalScorersContainerVal) {
+        const cleanScorers1 = parseScorers(scoreData.home_scorers);
+        const cleanScorers2 = parseScorers(scoreData.away_scorers);
+        const newScorersInner = (cleanScorers1 || cleanScorers2) ? `
+          <div class="home-scorers" style="flex: 1; text-align: right; padding-right: 12px; line-height: 1.4;">
+            ${cleanScorers1 || ''}
+          </div>
+          <div style="flex: 0 0 16px; text-align: center; color: var(--text-muted); font-size: 0.65rem; padding-top: 2px;">⚽</div>
+          <div class="away-scorers" style="flex: 1; text-align: left; padding-left: 12px; line-height: 1.4;">
+            ${cleanScorers2 || ''}
+          </div>
+        ` : '';
+        
+        if (cleanScorers1 || cleanScorers2) {
+          modalScorersContainerVal.style.display = 'flex';
+          if (modalScorersContainerVal.innerHTML !== newScorersInner) {
+            modalScorersContainerVal.innerHTML = newScorersInner;
+          }
+        } else {
+          modalScorersContainerVal.style.display = 'none';
+          modalScorersContainerVal.innerHTML = '';
+        }
+      }
+      
+      // If we are on the lineups tab, re-render and check if lineups HTML changed
+      if (currentModalTab === 'lineups') {
+        const contentContainer = document.getElementById('modal-tab-content-container');
+        if (contentContainer) {
+          const newHtml = renderLineupsTab(currentModalData.lineups);
+          if (contentContainer.innerHTML !== newHtml) {
+            contentContainer.innerHTML = newHtml;
           }
         }
       }
@@ -4624,6 +4700,7 @@ function mapApiStageToLocal(apiStage) {
 let standingsSource = 'official';
 
 let currentModalTab = 'stats';
+let matchSummaryCache = {};
 
 function createModalHeaderHtml(match, scoreData, summaryData) {
   const t1 = match.team1;
@@ -4660,7 +4737,7 @@ function createModalHeaderHtml(match, scoreData, summaryData) {
   const cleanScorers2 = parseScorers(scoreData.away_scorers);
   if (cleanScorers1 || cleanScorers2) {
     scorersHtml = `
-      <div class="modal-scorers-container" style="display: flex; justify-content: space-between; width: 100%; font-size: 0.68rem; color: var(--text-secondary) !important; margin-top: 6px; padding: 0 8px; box-sizing: border-box; font-weight: 500;">
+      <div class="modal-scorers-container" id="modal-scorers-container-val" style="display: flex; justify-content: space-between; width: 100%; font-size: 0.68rem; color: var(--text-secondary) !important; margin-top: 6px; padding: 0 8px; box-sizing: border-box; font-weight: 500;">
         <div class="home-scorers" style="flex: 1; text-align: right; padding-right: 12px; line-height: 1.4;">
           ${cleanScorers1 || ''}
         </div>
@@ -4668,6 +4745,11 @@ function createModalHeaderHtml(match, scoreData, summaryData) {
         <div class="away-scorers" style="flex: 1; text-align: left; padding-left: 12px; line-height: 1.4;">
           ${cleanScorers2 || ''}
         </div>
+      </div>
+    `;
+  } else {
+    scorersHtml = `
+      <div class="modal-scorers-container" id="modal-scorers-container-val" style="display: none; justify-content: space-between; width: 100%; font-size: 0.68rem; color: var(--text-secondary) !important; margin-top: 6px; padding: 0 8px; box-sizing: border-box; font-weight: 500;">
       </div>
     `;
   }
@@ -4720,10 +4802,10 @@ function createModalHeaderHtml(match, scoreData, summaryData) {
           <span class="modal-team-name">${t1}</span>
         </div>
         <div class="modal-score-box">
-          <div class="modal-score-text">
+          <div class="modal-score-text" id="modal-score-text-val">
             ${scoreTextHtml}
           </div>
-          <div class="modal-status-box">${modalLiveStatusHtml}</div>
+          <div class="modal-status-box" id="modal-status-box-val">${modalLiveStatusHtml}</div>
         </div>
         <div class="modal-team-col">
           <div class="modal-team-flag-wrapper">${getFlagHtml(t2)}</div>
@@ -4751,14 +4833,14 @@ function createModalHeaderHtml(match, scoreData, summaryData) {
             <svg class="meta-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
             <span class="meta-label">Wasit</span>
           </div>
-          <span class="meta-value">${refereeText}</span>
+          <span class="meta-value" id="modal-referee-val">${refereeText}</span>
         </div>
         <div class="meta-item">
           <div class="meta-item-header">
             <svg class="meta-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
             <span class="meta-label">Penonton</span>
           </div>
-          <span class="meta-value">${attendanceText}</span>
+          <span class="meta-value" id="modal-attendance-val">${attendanceText}</span>
         </div>
       </div>
     </div>
@@ -4793,44 +4875,80 @@ window.openMatchDetailModal = async function(matchKey) {
   if (!espnEventId) {
     const staticHeaderHtml = createModalHeaderHtml(match, scoreData, { info: { referee: '-', attendance: '-' } });
     body.innerHTML = `
-      ${staticHeaderHtml}
-      <div style="text-align: center; color: var(--text-secondary) !important; font-size: 0.78rem; padding: 20px; line-height: 1.5; background: rgba(255,255,255,0.02); border-radius: var(--border-radius-sm); border: 1px dashed var(--glass-border);">
+      <div class="modal-header-container">${staticHeaderHtml}</div>
+      <div style="text-align: center; color: var(--text-secondary) !important; font-size: 0.78rem; padding: 20px; line-height: 1.5; background: rgba(255,255,255,0.02); border-radius: var(--border-radius-sm); border: 1px dashed var(--glass-border); margin-top: 16px;">
         Statistik, lineup, dan komentar resmi hanya tersedia untuk pertandingan yang disinkronkan dari ESPN API.
       </div>
     `;
     return;
   }
   
-  const loadingHeaderHtml = createModalHeaderHtml(match, scoreData, null);
-  body.innerHTML = `
-    ${loadingHeaderHtml}
-    <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; padding: 40px 0;">
-      <span class="pulse-dot loading" style="width: 12px; height: 12px; background-color: var(--primary-gold) !important;"></span>
-      <span style="font-size: 0.72rem; color: var(--text-secondary) !important;">Memuat detail pertandingan...</span>
-    </div>
-  `;
+  const cached = matchSummaryCache[espnEventId];
+  if (cached) {
+    currentModalData = { ...cached };
+    currentModalData.homeTeam = t1;
+    currentModalData.awayTeam = t2;
+    currentModalData.scoreData = scoreData;
+    currentModalData.match = match;
+    currentModalData.matchKey = matchKey;
+    currentModalTab = 'stats';
+    
+    renderModalContent();
+    
+    if (scoreData.status === 'FINISHED') {
+      return;
+    }
+  } else {
+    // Only show loading spinner if we don't have cached data to show immediately
+    const loadingHeaderHtml = createModalHeaderHtml(match, scoreData, null);
+    body.innerHTML = `
+      <div class="modal-header-container">${loadingHeaderHtml}</div>
+      <div class="modal-tabs-menu" style="display: none;"></div>
+      <div id="modal-tab-content-container" style="display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; padding: 40px 0;">
+        <span class="pulse-dot loading" style="width: 12px; height: 12px; background-color: var(--primary-gold) !important;"></span>
+        <span style="font-size: 0.72rem; color: var(--text-secondary) !important;">Memuat detail pertandingan...</span>
+      </div>
+    `;
+  }
   
   try {
     const res = await fetch(`/api/match-summary?event=${espnEventId}`);
     if (!res.ok) throw new Error('Gagal mengambil data dari API');
     
-    currentModalData = await res.json();
-    currentModalData.homeTeam = t1;
-    currentModalData.awayTeam = t2;
-    currentModalData.scoreData = scoreData;
-    currentModalData.match = match;
-    currentModalTab = 'stats';
+    const summaryData = await res.json();
+    matchSummaryCache[espnEventId] = summaryData;
     
-    renderModalContent();
+    // Check if the modal is still open for the same match
+    const modalActive = modal.classList.contains('active');
+    const matchesCurrent = currentModalData && currentModalData.matchKey === matchKey;
+    const isInitialLoadNoCache = !cached; // If we didn't show cache, we must render
+    
+    if (modalActive && (matchesCurrent || isInitialLoadNoCache)) {
+      currentModalData = { ...summaryData };
+      currentModalData.homeTeam = t1;
+      currentModalData.awayTeam = t2;
+      currentModalData.scoreData = scoreData;
+      currentModalData.match = match;
+      currentModalData.matchKey = matchKey;
+      
+      // If we didn't have cache, set tab to stats
+      if (isInitialLoadNoCache) {
+        currentModalTab = 'stats';
+      }
+      
+      renderModalContent();
+    }
   } catch (err) {
     console.error(err);
-    const errorHeaderHtml = createModalHeaderHtml(match, scoreData, { info: { referee: '-', attendance: '-' } });
-    body.innerHTML = `
-      ${errorHeaderHtml}
-      <div style="text-align: center; color: var(--accent-red); font-size: 0.78rem; padding: 20px; line-height: 1.5; background: rgba(255, 255, 255, 0.02); border-radius: var(--border-radius-sm); border: 1px solid rgba(239, 68, 68, 0.25);">
-        Gagal memuat detail: ${err.message || 'Koneksi error'}.
-      </div>
-    `;
+    if (!cached) {
+      const errorHeaderHtml = createModalHeaderHtml(match, scoreData, { info: { referee: '-', attendance: '-' } });
+      body.innerHTML = `
+        <div class="modal-header-container">${errorHeaderHtml}</div>
+        <div style="text-align: center; color: var(--accent-red); font-size: 0.78rem; padding: 20px; line-height: 1.5; background: rgba(255, 255, 255, 0.02); border-radius: var(--border-radius-sm); border: 1px solid rgba(239, 68, 68, 0.25); margin-top: 16px;">
+          Gagal memuat detail: ${err.message || 'Koneksi error'}.
+        </div>
+      `;
+    }
   }
 };
 
@@ -4851,10 +4969,9 @@ window.switchModalTab = function(tabId, btn) {
   
   const contentEl = document.getElementById('modal-tab-content-container');
   if (contentEl && currentModalData) {
-    if (tabId === 'stats') {
-      contentEl.innerHTML = renderStatsTab(currentModalData.stats);
-    } else if (tabId === 'lineups') {
-      contentEl.innerHTML = renderLineupsTab(currentModalData.lineups);
+    const newHtml = tabId === 'stats' ? renderStatsTab(currentModalData.stats) : renderLineupsTab(currentModalData.lineups);
+    if (contentEl.innerHTML !== newHtml) {
+      contentEl.innerHTML = newHtml;
     }
   }
 };
@@ -4863,25 +4980,57 @@ function renderModalContent() {
   const body = document.getElementById('match-detail-modal-body');
   if (!body || !currentModalData) return;
   
+  let headerContainer = body.querySelector('.modal-header-container');
+  let tabsMenu = body.querySelector('.modal-tabs-menu');
+  let contentContainer = document.getElementById('modal-tab-content-container');
+  
   const headerHtml = createModalHeaderHtml(
     currentModalData.match,
     currentModalData.scoreData,
     currentModalData
   );
   
-  body.innerHTML = `
-    ${headerHtml}
+  const hasTabs = tabsMenu && tabsMenu.querySelectorAll('.modal-tab-btn').length > 0;
+  
+  if (!headerContainer || !tabsMenu || !hasTabs || !contentContainer) {
+    // Rebuild the complete shell if it's not present or incomplete
+    body.innerHTML = `
+      <div class="modal-header-container">${headerHtml}</div>
+      <div class="modal-tabs-menu">
+        <button class="modal-tab-btn ${currentModalTab === 'stats' ? 'active' : ''}" onclick="window.switchModalTab('stats', this)">Statistik</button>
+        <button class="modal-tab-btn ${currentModalTab === 'lineups' ? 'active' : ''}" onclick="window.switchModalTab('lineups', this)">Lineup</button>
+      </div>
+      <div id="modal-tab-content-container">
+        ${currentModalTab === 'stats' ? renderStatsTab(currentModalData.stats) : renderLineupsTab(currentModalData.lineups)}
+      </div>
+    `;
+  } else {
+    // If the shell is already there, update elements selectively
+    if (headerContainer.innerHTML !== headerHtml) {
+      headerContainer.innerHTML = headerHtml;
+    }
     
-    <div class="modal-tabs-menu">
-      <button class="modal-tab-btn ${currentModalTab === 'stats' ? 'active' : ''}" onclick="window.switchModalTab('stats', this)">Statistik</button>
-      <button class="modal-tab-btn ${currentModalTab === 'lineups' ? 'active' : ''}" onclick="window.switchModalTab('lineups', this)">Lineup</button>
-    </div>
+    // Update tabs active state
+    const tabBtns = tabsMenu.querySelectorAll('.modal-tab-btn');
+    tabBtns.forEach(btn => {
+      const onclickAttr = btn.getAttribute('onclick') || '';
+      const isStatsBtn = onclickAttr.includes('stats');
+      const isLineupsBtn = onclickAttr.includes('lineups');
+      if (currentModalTab === 'stats' && isStatsBtn) {
+        btn.classList.add('active');
+      } else if (currentModalTab === 'lineups' && isLineupsBtn) {
+        btn.classList.add('active');
+      } else {
+        btn.classList.remove('active');
+      }
+    });
     
-    <div id="modal-tab-content-container">
-      ${currentModalTab === 'stats' ? renderStatsTab(currentModalData.stats) : ''}
-      ${currentModalTab === 'lineups' ? renderLineupsTab(currentModalData.lineups) : ''}
-    </div>
-  `;
+    // Update content tab container if content actually changed
+    const contentHtml = currentModalTab === 'stats' ? renderStatsTab(currentModalData.stats) : renderLineupsTab(currentModalData.lineups);
+    if (contentContainer.innerHTML !== contentHtml) {
+      contentContainer.innerHTML = contentHtml;
+    }
+  }
 }
 
 function renderStatsTab(stats) {
