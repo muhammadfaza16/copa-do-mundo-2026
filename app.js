@@ -5196,32 +5196,7 @@ function countPlayerGoals(playerName, scorerNames) {
 
 function formatPitchPlayerName(fullName) {
   if (!fullName) return '';
-  const parts = fullName.trim().split(/\s+/);
-  if (parts.length <= 1) return fullName;
-
-  const surnamePrefixes = ['de', 'van', 'den', 'der', 'von', 'di', 'da', 'le', 'la', 'du', 'el', 'al', 'ter', 'ten'];
-  
-  let surnameStart = parts.length - 1;
-  while (surnameStart > 0 && surnamePrefixes.includes(parts[surnameStart - 1].toLowerCase())) {
-    surnameStart--;
-  }
-  
-  const surname = parts.slice(surnameStart).join(' ');
-  const given = parts.slice(0, surnameStart).join(' ');
-
-  if (fullName.length <= 10) {
-    return fullName;
-  }
-  
-  if (given) {
-    const initial = given[0].toUpperCase();
-    const formatted = `${initial}. ${surname}`;
-    if (formatted.length <= 12) {
-      return formatted;
-    }
-  }
-  
-  return surname;
+  return fullName.trim();
 }
 
 function renderLineupsTab(lineups) {
