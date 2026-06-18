@@ -859,6 +859,16 @@ function updateHeroPanel() {
     // MODE 1: LIVE Matches Active (Show premium scoreboard)
     const m = liveMatches[0];
     const matchKey = m.isKO ? `ko_${m.match_id}` : `gs_${m.date}_${m.team1}_${m.team2}`;
+    
+    const liveBadgeContainer = document.getElementById('hero-live-badge-container');
+    if (liveBadgeContainer && !liveBadgeContainer.innerHTML) {
+      liveBadgeContainer.innerHTML = `
+        <span class="live-badge-top-left" style="position: absolute; top: 14px; left: 16px; font-size: 0.62rem; font-weight: 800; color: #ef4444; letter-spacing: 0.8px; display: inline-flex; align-items: center; animation: live-text-pulse 1.8s infinite ease-in-out; text-transform: uppercase; z-index: 10;">
+          LIVE
+        </span>
+      `;
+    }
+    
     container.onclick = () => window.openMatchDetailModal(matchKey);
     const heroDetailBtn = document.querySelector('.hero-detail-btn');
     if (heroDetailBtn) {
@@ -997,6 +1007,10 @@ function updateHeroPanel() {
   }
 
   // MODE 2: Countdown Active (No live matches)
+  const liveBadgeContainer = document.getElementById('hero-live-badge-container');
+  if (liveBadgeContainer) {
+    liveBadgeContainer.innerHTML = '';
+  }
   container.classList.remove('live-active');
   cdDisplay.style.display = ''; // Reset display style to allow CSS 'display: flex'
   const hasLiveStructure = cdDisplay.querySelector('.live-scoreboard') || cdDisplay.innerHTML.includes('live-scoreboard');
@@ -1244,12 +1258,6 @@ function createMatchCardHtml(match, index, isKnockout = false, showBigMatchBadge
 
   const stageHeaderHtml = `
     <div class="match-stage-container" style="display: flex; align-items: center; gap: 6px;">
-      ${isLive ? `
-        <span class="live-badge-top-left" style="font-size: 0.62rem; font-weight: 800; color: #ef4444; letter-spacing: 0.8px; display: inline-flex; align-items: center; gap: 4px; animation: live-text-pulse 1.8s infinite ease-in-out; text-transform: uppercase;">
-          <span style="width: 5px; height: 5px; background-color: #ef4444; border-radius: 50%; display: inline-block;"></span>
-          LIVE
-        </span>
-      ` : ''}
       <span class="match-stage">${match.group}</span>
     </div>
   `;
