@@ -1240,12 +1240,12 @@ function createMatchCardHtml(match, index, isKnockout = false, showBigMatchBadge
   const rawScore = realScores[matchKey];
   const matchday = (rawScore && rawScore.matchday) ? rawScore.matchday : null;
   const labelVenue = getMatchVenue(match);
-  const isLive = scoreData ? isMatchLive(match, scoreData) : false;
+  const isLive = isMatchLive(match, scoreData);
 
   const stageHeaderHtml = `
     <div class="match-stage-container" style="display: flex; align-items: center; gap: 6px;">
       ${isLive ? `
-        <span class="live-badge-top-left" style="font-size: 0.58rem; font-weight: 800; color: #ef4444; letter-spacing: 0.5px; display: inline-flex; align-items: center; gap: 4px; padding: 1px 5px; border-radius: 4px; background: rgba(239, 68, 68, 0.12); border: 1px solid rgba(239, 68, 68, 0.25); animation: pulse-blink 1.5s infinite ease-in-out; text-transform: uppercase;">
+        <span class="live-badge-top-left" style="font-size: 0.62rem; font-weight: 800; color: #ef4444; letter-spacing: 0.8px; display: inline-flex; align-items: center; gap: 4px; animation: live-text-pulse 1.8s infinite ease-in-out; text-transform: uppercase;">
           <span style="width: 5px; height: 5px; background-color: #ef4444; border-radius: 50%; display: inline-block;"></span>
           LIVE
         </span>
