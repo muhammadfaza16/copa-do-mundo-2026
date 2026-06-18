@@ -354,6 +354,17 @@ try {
         clearedStale = true;
       }
     }
+    // Also wipe clock_updated_at from any TIMED/pre-match entry.
+    // If this entry later transitions to live, the stale timestamp would cause
+    // elapsedMs to be huge, making the displayed minute explode (e.g. 1556').
+    // The score-update logic will set a fresh clock_updated_at on first live poll.
+    const score = realScores[key];
+    if (score && (score.status === 'TIMED' || score.status === 'PRE_MATCH' || score.status === 'SCHEDULED' || !score.status)) {
+      if (score.clock_updated_at) {
+        delete score.clock_updated_at;
+        clearedStale = true;
+      }
+    }
   });
   if (clearedStale) {
     localStorage.setItem('wc2026_real_scores', JSON.stringify(realScores));
@@ -718,7 +729,18 @@ function getLiveClockInfo(matchKey) {
   } else {
     displayMin += additionalMins;
   }
-  
+
+  // Safety cap: football minutes should never exceed ~105 (90+15) in normal play,
+  // or ~135 (120+15) in extra time. If we somehow exceed 150, the timestamp is
+  // stale/corrupt — fall back to showing just the API base clock without drift.
+  const isExtraTime = scoreData.status === 'EXTRA_TIME';
+  const maxPlausibleMin = isExtraTime ? 135 : 105;
+  if (displayMin > maxPlausibleMin) {
+    // Use the raw API value only, without adding drift
+    const rawClockStr = extraMin > 0 ? `${baseMin}'+${extraMin}'` : `${baseMin}'`;
+    return { clock: rawClockStr, isPulsing: true };
+  }
+
   let clockStr = '';
   if (displayExtra > 0) {
     clockStr = `${displayMin}'+${displayExtra}'`;
@@ -4636,7 +4658,20 @@ async function fetchRealTimeScores(isManual = false) {
         const existing = realScores[localKey];
         let score1_updated_at = existing ? (existing.score1_updated_at || 0) : 0;
         let score2_updated_at = existing ? (existing.score2_updated_at || 0) : 0;
-        let clock_updated_at = existing ? (existing.clock_updated_at || Date.now()) : Date.now();
+
+        // When transitioning from a non-live state (TIMED/PRE_MATCH) to live,
+        // the existing clock_updated_at could be hours old (set when match was first fetched
+        // as 'notstarted'). Using that stale timestamp causes elapsedMs to be huge,
+        // making the displayed minute explode (e.g. 1556'). Reset it to now on transition.
+        const wasLive = existing && (
+          existing.status === 'IN_PLAY' ||
+          existing.status === 'PAUSED' ||
+          existing.status === 'EXTRA_TIME' ||
+          existing.status === 'PENALTY_SHOOTOUT'
+        );
+        let clock_updated_at = (!existing || !wasLive)
+          ? Date.now()  // first time seeing this match live — anchor the clock now
+          : (existing.clock_updated_at || Date.now());
 
         if (existing && isLive) {
           if (score1 !== null && score1 !== undefined && existing.score1 !== null && existing.score1 !== undefined && score1 > existing.score1) {
@@ -4645,7 +4680,8 @@ async function fetchRealTimeScores(isManual = false) {
           if (score2 !== null && score2 !== undefined && existing.score2 !== null && existing.score2 !== undefined && score2 > existing.score2) {
             score2_updated_at = Date.now();
           }
-          if (existing.display_clock !== apiMatch.display_clock || existing.time_elapsed !== apiMatch.time_elapsed) {
+          // Only advance clock_updated_at (and reset drift) when ESPN reports a new clock value
+          if (wasLive && (existing.display_clock !== apiMatch.display_clock || existing.time_elapsed !== apiMatch.time_elapsed)) {
             clock_updated_at = Date.now();
           }
         }
