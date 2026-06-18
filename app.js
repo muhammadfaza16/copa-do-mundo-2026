@@ -418,7 +418,22 @@ if (isValidGroupRankings(savedGroupRankings)) {
 
 
 // Keep a working copy of knockout stage list for the simulator state
-let knockoutMatches = JSON.parse(JSON.stringify(WORLD_CUP_DATA.knockout_stage));
+let knockoutMatches = WORLD_CUP_DATA.knockout_stage.map(m => ({...m}));
+
+// Cached allMatches array — avoids rebuilding ~104 spread+map objects on every call
+let _cachedAllMatches = null;
+let _cachedKnockoutRef = null;
+function getAllMatches() {
+  if (_cachedAllMatches && _cachedKnockoutRef === knockoutMatches) {
+    return _cachedAllMatches;
+  }
+  _cachedAllMatches = [
+    ...WORLD_CUP_DATA.group_stage.map(m => ({ ...m, isKO: false })),
+    ...knockoutMatches.map(m => ({ ...m, isKO: true }))
+  ];
+  _cachedKnockoutRef = knockoutMatches;
+  return _cachedAllMatches;
+}
 
 // ----------------------------------------------------
 // UTILITY FUNCTIONS
@@ -723,10 +738,7 @@ function updateLiveMatchClocks() {
   // 2. Update Hero scoreboard live clock
   const heroStatusLiveEl = document.querySelector('.live-center-block .status-live');
   if (heroStatusLiveEl) {
-    const allMatches = [
-      ...WORLD_CUP_DATA.group_stage.map(m => ({ ...m, isKO: false })),
-      ...knockoutMatches.map(m => ({ ...m, isKO: true }))
-    ];
+    const allMatches = getAllMatches();
     const liveMatches = allMatches.filter(m => {
       const matchKey = m.isKO ? `ko_${m.match_id}` : `gs_${m.date}_${m.team1}_${m.team2}`;
       const scoreData = getMatchScore(matchKey);
@@ -801,9 +813,11 @@ function getMatchMinuteLabel(match, scoreData) {
 
 // Centralized live match detection: API status first, then time-based fallback
 function isMatchLive(match, scoreData) {
-  // Guard: if kickoff is in the future, it cannot be live!
+  // Compute kickoff once for all checks
+  let kickoff = -1;
   if (match && match.date && match.time) {
-    const kickoff = getMatchDate(match.date, match.time).getTime();
+    kickoff = getMatchDate(match.date, match.time).getTime();
+    // Guard: if kickoff is in the future, it cannot be live!
     if (Date.now() < kickoff) {
       return false;
     }
@@ -816,10 +830,8 @@ function isMatchLive(match, scoreData) {
   // 2. Already finished
   if (scoreData && scoreData.status === 'FINISHED') return false;
   // 3. Time-based fallback: if kickoff has passed but within 130 min window, treat as live
-  if (match && match.date && match.time) {
-    const now = Date.now();
-    const kickoff = getMatchDate(match.date, match.time).getTime();
-    const elapsed = now - kickoff;
+  if (kickoff >= 0) {
+    const elapsed = Date.now() - kickoff;
     if (elapsed >= 0 && elapsed < 130 * 60 * 1000) {
       return true;
     }
@@ -844,10 +856,7 @@ function updateHeroPanel() {
   if (cdStarBtn) cdStarBtn.remove();
 
   const now = Date.now();
-  const allMatches = [
-    ...WORLD_CUP_DATA.group_stage.map(m => ({ ...m, isKO: false })),
-    ...knockoutMatches.map(m => ({ ...m, isKO: true }))
-  ];
+  const allMatches = getAllMatches();
 
   // 1. Check if there is a LIVE match (API status + time-based fallback)
   const liveMatches = allMatches.filter(m => {
@@ -1002,8 +1011,8 @@ function updateHeroPanel() {
   // MODE 2: Countdown Active (No live matches)
   container.classList.remove('live-active');
   cdDisplay.style.display = ''; // Reset display style to allow CSS 'display: flex'
-  const hasLiveStructure = cdDisplay.querySelector('.live-scoreboard') || cdDisplay.innerHTML.includes('live-scoreboard');
-  if (hasLiveStructure || cdDisplay.innerHTML.trim() === "" || !document.getElementById('cd-days')) {
+  const hasLiveStructure = !!cdDisplay.querySelector('.live-scoreboard');
+  if (hasLiveStructure || !document.getElementById('cd-days')) {
     cdDisplay.innerHTML = `
       <div class="time-segment">
         <span id="cd-days" class="time-num">00</span>
@@ -1606,10 +1615,7 @@ function renderLatestResults() {
   if (!container) return;
 
   // Combine all matches
-  const allMatches = [
-    ...WORLD_CUP_DATA.group_stage.map(m => ({ ...m, isKO: false })),
-    ...knockoutMatches.map(m => ({ ...m, isKO: true }))
-  ];
+  const allMatches = getAllMatches();
 
   // Filter matches that have scores recorded and are finished
   const matchesWithScores = allMatches.filter(m => {
@@ -1792,10 +1798,7 @@ function renderStatistics() {
   let highestScoringMatch = { total: 0, matchStr: '-' };
   const teamCleanSheetsMap = {};
 
-  const allMatches = [
-    ...WORLD_CUP_DATA.group_stage.map(m => ({ ...m, isKO: false })),
-    ...knockoutMatches.map(m => ({ ...m, isKO: true }))
-  ];
+  const allMatches = getAllMatches();
 
   allMatches.forEach(m => {
     const matchKey = m.isKO ? `ko_${m.match_id}` : `gs_${m.date}_${m.team1}_${m.team2}`;
@@ -2058,10 +2061,7 @@ window.expandScorersList = function() {
 // Render Dashboard/Home tab nearest matches (2 Days from the first upcoming match day)
 function getHeroMatch() {
   const now = Date.now();
-  const allMatches = [
-    ...WORLD_CUP_DATA.group_stage.map(m => ({ ...m, isKO: false })),
-    ...knockoutMatches.map(m => ({ ...m, isKO: true }))
-  ];
+  const allMatches = getAllMatches();
 
   const liveMatches = allMatches.filter(m => {
     const matchKey = m.isKO ? `ko_${m.match_id}` : `gs_${m.date}_${m.team1}_${m.team2}`;
@@ -2094,10 +2094,7 @@ function renderNearestMatches() {
   const now = new Date();
   
   // Combine all matches
-  const allMatches = [
-    ...WORLD_CUP_DATA.group_stage.map(m => ({ ...m, isKO: false })),
-    ...knockoutMatches.map(m => ({ ...m, isKO: true }))
-  ];
+  const allMatches = getAllMatches();
 
   // Filter for upcoming/live matches (not finished yet, start time >= now, or currently live)
   const upcomingMatches = allMatches.filter(m => {
@@ -2128,18 +2125,8 @@ function renderNearestMatches() {
     const day1Str = useLocalTimezone ? getLocalDateString(day1Date) : getWibDateString(day1Date);
     const day2Str = useLocalTimezone ? getLocalDateString(day2Date) : getWibDateString(day2Date);
 
-    // Get all matches on these two days that are NOT finished
-    upcoming = allMatches.filter(m => {
-      if (m.isKO) {
-        const isPlaceholder1 = m.team1.startsWith('Winner Match') || m.team1.startsWith('Loser Match') || m.team1.startsWith('3rd Group') || m.team1.startsWith('Runner-up Group') || m.team1.startsWith('Winner Group');
-        const isPlaceholder2 = m.team2.startsWith('Winner Match') || m.team2.startsWith('Loser Match') || m.team2.startsWith('3rd Group') || m.team2.startsWith('Runner-up Group') || m.team2.startsWith('Winner Group');
-        if (isPlaceholder1 || isPlaceholder2) return false;
-      }
-      
-      const matchKey = m.isKO ? `ko_${m.match_id}` : `gs_${m.date}_${m.team1}_${m.team2}`;
-      const score = getMatchScore(matchKey);
-      if (score && score.status === 'FINISHED') return false;
-
+    // Get matches on these two days from the already-filtered set
+    upcoming = upcomingMatches.filter(m => {
       const matchDateStr = getMatchDateString(m);
       return matchDateStr === day1Str || matchDateStr === day2Str;
     });
@@ -2193,10 +2180,7 @@ function renderNearestMatches() {
 
 function getNextMatch() {
   const now = Date.now();
-  const allMatches = [
-    ...WORLD_CUP_DATA.group_stage.map(m => ({ ...m, isKO: false })),
-    ...knockoutMatches.map(m => ({ ...m, isKO: true }))
-  ];
+  const allMatches = getAllMatches();
 
   const upcoming = allMatches.filter(m => {
     const matchKey = m.isKO ? `ko_${m.match_id}` : `gs_${m.date}_${m.team1}_${m.team2}`;
@@ -2759,8 +2743,9 @@ function recalculateKnockoutTree() {
   // Calculate standings from scores first
   calculateGroupStandings();
 
-  // Clear working copy matches
-  knockoutMatches = JSON.parse(JSON.stringify(WORLD_CUP_DATA.knockout_stage));
+  // Clear working copy matches (shallow clone is safe — match objects are flat)
+  knockoutMatches = WORLD_CUP_DATA.knockout_stage.map(m => ({...m}));
+  _cachedAllMatches = null; // Invalidate cached allMatches since knockoutMatches changed
 
   // STEP 1: Evaluate Round of 32 starting participants based on group rankings and 3rd place selections (Always evaluate dynamically)
   knockoutMatches.forEach(m => {
@@ -4182,10 +4167,8 @@ function initSettingsAndFilters() {
       const highlighted = bracketRoot.querySelectorAll('.highlighted-team');
       highlighted.forEach(el => el.classList.remove('highlighted-team'));
 
-      // Highlight all rows in the bracket with the same team name
-      const matches = Array.from(bracketRoot.querySelectorAll('.bracket-team-row')).filter(
-        row => row.getAttribute('data-team') === teamName
-      );
+      // Highlight all rows in the bracket with the same team name (use attribute selector for O(1) query)
+      const matches = bracketRoot.querySelectorAll(`.bracket-team-row[data-team="${CSS.escape(teamName)}"]`);
       matches.forEach(row => row.classList.add('highlighted-team'));
     });
 
@@ -4206,10 +4189,7 @@ let consecutiveErrors = 0;
 const MAX_CONSECUTIVE_ERRORS = 5;
 
 function hasLiveMatches() {
-  const allMatches = [
-    ...WORLD_CUP_DATA.group_stage.map(m => ({ ...m, isKO: false })),
-    ...knockoutMatches.map(m => ({ ...m, isKO: true }))
-  ];
+  const allMatches = getAllMatches();
   return allMatches.some(m => {
     const matchKey = m.isKO ? `ko_${m.match_id}` : `gs_${m.date}_${m.team1}_${m.team2}`;
     const scoreData = getMatchScore(matchKey);
@@ -4755,10 +4735,7 @@ window.openMatchDetailModal = async function(matchKey) {
   
   modal.classList.add('active');
   
-  const allMatches = [
-    ...WORLD_CUP_DATA.group_stage.map(m => ({ ...m, isKO: false })),
-    ...knockoutMatches.map(m => ({ ...m, isKO: true }))
-  ];
+  const allMatches = getAllMatches();
   const match = allMatches.find(m => {
     const key = m.isKO ? `ko_${m.match_id}` : `gs_${m.date}_${m.team1}_${m.team2}`;
     return key === matchKey;
