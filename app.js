@@ -338,6 +338,24 @@ let scorePollInterval = null;
 let realScores = {};
 try {
   realScores = JSON.parse(localStorage.getItem('wc2026_real_scores')) || {};
+  // Stale knockout scores cleanup migration:
+  // In previous versions, buggy mapping assigned completed group stage match scores to knockout match IDs (ko_*).
+  // Since the real-life tournament is still in the group stage, no knockout matches have been played.
+  // We automatically clear any stale ko_* scores on load to prevent matches from disappearing from the schedule fixtures.
+  let clearedStale = false;
+  Object.keys(realScores).forEach(key => {
+    if (key.startsWith('ko_')) {
+      const score = realScores[key];
+      // If there's score data but no real-life knockout matches have started, delete it
+      if (score && score.status !== 'TIMED') {
+        delete realScores[key];
+        clearedStale = true;
+      }
+    }
+  });
+  if (clearedStale) {
+    localStorage.setItem('wc2026_real_scores', JSON.stringify(realScores));
+  }
 } catch (e) {
   console.error("Failed to parse real scores", e);
 }
@@ -1466,7 +1484,21 @@ function renderSchedule() {
   const filterRoundVal = document.getElementById('filter-round').value;
 
   let filteredGroupStage = WORLD_CUP_DATA.group_stage;
-  let filteredKnockout = knockoutMatches;
+  let filteredKnockout = knockoutMatches.map(m => {
+    const matchKey = `ko_${m.match_id}`;
+    const score = getMatchScore(matchKey);
+    if (!score) {
+      const orig = WORLD_CUP_DATA.knockout_stage.find(ok => ok.match_id === m.match_id);
+      if (orig) {
+        return {
+          ...m,
+          team1: orig.team1,
+          team2: orig.team2
+        };
+      }
+    }
+    return m;
+  });
 
   // Filter 1: Main Type (Group Stage vs Knockout)
   if (filterType === 'filter-group-stage') {
@@ -1601,7 +1633,19 @@ function renderFavorites() {
       // Find in working copy of knockout matches
       const match = knockoutMatches.find(m => m.match_id === matchId);
       if (match) {
-        listHtml += createMatchCardHtml(match, match.match_id, true);
+        let displayMatch = match;
+        const score = getMatchScore(key);
+        if (!score) {
+          const orig = WORLD_CUP_DATA.knockout_stage.find(ok => ok.match_id === matchId);
+          if (orig) {
+            displayMatch = {
+              ...match,
+              team1: orig.team1,
+              team2: orig.team2
+            };
+          }
+        }
+        listHtml += createMatchCardHtml(displayMatch, displayMatch.match_id, true);
       }
     }
   });
@@ -4855,7 +4899,7 @@ window.openMatchDetailModal = async function(matchKey) {
   modal.classList.add('active');
   
   const allMatches = getAllMatches();
-  const match = allMatches.find(m => {
+  let match = allMatches.find(m => {
     const key = m.isKO ? `ko_${m.match_id}` : `gs_${m.date}_${m.team1}_${m.team2}`;
     return key === matchKey;
   });
@@ -4863,6 +4907,21 @@ window.openMatchDetailModal = async function(matchKey) {
   if (!match) {
     body.innerHTML = '<div style="text-align: center; color: #718096 !important; font-size: 0.8rem; padding: 20px;">Pertandingan tidak ditemukan.</div>';
     return;
+  }
+
+  // Use potential slot names for upcoming knockout matches with no real score
+  if (match.isKO) {
+    const score = getMatchScore(matchKey);
+    if (!score) {
+      const orig = WORLD_CUP_DATA.knockout_stage.find(ok => ok.match_id === match.match_id);
+      if (orig) {
+        match = {
+          ...match,
+          team1: orig.team1,
+          team2: orig.team2
+        };
+      }
+    }
   }
   
   const rawScore = realScores[matchKey];

@@ -6,6 +6,7 @@ export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+  res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
 
   if (req.method === 'OPTIONS') {
     return res.status(200).end();
@@ -111,15 +112,50 @@ export default async function handler(req, res) {
       }
     });
 
-    // Sort knockout events chronologically
-    knockoutEvents.sort((a, b) => new Date(a.date) - new Date(b.date));
+    // Use static mapping for knockout events to align with data.js match_ids robustly
+    const KNOCKOUT_MAPPING = {
+      "760486": 73,
+      "760487": 76,
+      "760488": 75,
+      "760489": 74,
+      "760490": 78,
+      "760491": 79,
+      "760492": 77,
+      "760495": 80,
+      "760493": 82,
+      "760494": 81,
+      "760497": 84,
+      "760496": 83,
+      "760498": 85,
+      "760499": 88,
+      "760500": 86,
+      "760501": 87,
+      "760502": 92,
+      "760503": 89,
+      "760504": 90,
+      "760505": 96,
+      "760506": 93,
+      "760507": 94,
+      "760508": 91,
+      "760509": 95,
+      "760510": 97,
+      "760511": 98,
+      "760512": 99,
+      "760513": 100,
+      "760514": 101,
+      "760515": 102,
+      "760516": 103,
+      "760517": 104
+    };
 
     const mappings = {};
     groupStageEvents.forEach(item => {
       mappings[item.ev.id] = item.match_id;
     });
-    knockoutEvents.forEach((ev, idx) => {
-      mappings[ev.id] = 73 + idx;
+    knockoutEvents.forEach(ev => {
+      if (KNOCKOUT_MAPPING[ev.id]) {
+        mappings[ev.id] = KNOCKOUT_MAPPING[ev.id];
+      }
     });
 
     // 6. Construct legacy match objects
