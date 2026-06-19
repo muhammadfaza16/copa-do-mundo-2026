@@ -1113,14 +1113,14 @@ function updateHeroPanel() {
       cdDisplay.style.display = 'block';
       container.classList.add('live-active');
       
-      // Dynamic team brand colors for left/right accent bars (Home jersey color)
-      const colors1 = getTeamJerseyStyles(team1Name, true, 'transparent', '#000000').homeBg;
-      const colors2 = getTeamJerseyStyles(team2Name, true, 'transparent', '#000000').homeBg;
+      // Dynamic team brand colors for left/right accent bars
+      const colors1 = getTeamColor(team1Name, false);
+      const colors2 = getTeamColor(team2Name, true);
       
-      container.style.setProperty('--team1-color', colors1);
-      container.style.setProperty('--team2-color', colors2);
-      container.style.setProperty('--team1-glow', colors1);
-      container.style.setProperty('--team2-glow', colors2);
+      container.style.setProperty('--team1-color', getTeamGradientCss(colors1));
+      container.style.setProperty('--team2-color', getTeamGradientCss(colors2));
+      container.style.setProperty('--team1-glow', Array.isArray(colors1) ? colors1[0] : colors1);
+      container.style.setProperty('--team2-glow', Array.isArray(colors2) ? colors2[0] : colors2);
       
       // Remove the team-preview row used in countdown mode
       const existingCdRow = document.getElementById('cd-teams-row');
@@ -1179,13 +1179,13 @@ function updateHeroPanel() {
 
   const isOpening = targetMatch.date === "12/6" && targetMatch.time === "02:00" && targetMatch.team1 === "Meksiko";
   
-  // Set team colors for countdown card edge stripes (Home jersey color)
-  const colors1 = getTeamJerseyStyles(targetMatch.team1, true, 'transparent', '#000000').homeBg;
-  const colors2 = getTeamJerseyStyles(targetMatch.team2, true, 'transparent', '#000000').homeBg;
-  container.style.setProperty('--team1-color', colors1);
-  container.style.setProperty('--team2-color', colors2);
-  container.style.setProperty('--team1-glow', colors1);
-  container.style.setProperty('--team2-glow', colors2);
+  // Set team colors for countdown card edge stripes
+  const colors1 = getTeamColor(targetMatch.team1, false);
+  const colors2 = getTeamColor(targetMatch.team2, true);
+  container.style.setProperty('--team1-color', getTeamGradientCss(colors1));
+  container.style.setProperty('--team2-color', getTeamGradientCss(colors2));
+  container.style.setProperty('--team1-glow', Array.isArray(colors1) ? colors1[0] : colors1);
+  container.style.setProperty('--team2-glow', Array.isArray(colors2) ? colors2[0] : colors2);
 
   const targetTime = getMatchDate(targetMatch.date, targetMatch.time).getTime();
   const diff = targetTime - now;
