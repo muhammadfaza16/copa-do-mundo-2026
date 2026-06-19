@@ -333,6 +333,7 @@ let apiKey = '12aad17c1bf941f68c2318631dfcea1b';
 let lastRenderedDate = new Date().toDateString();
 let isDataDirty = true;
 let showPotentialDraw = false;
+let activeStatsTab = 'goals';
 let _lastRenderedLineupsFingerprint = null; // tracks last-rendered lineup data to avoid redundant re-renders
 let cdElementsCache = null;
 let lastFetchTime = 0;
@@ -1936,6 +1937,8 @@ function renderStatistics() {
   if (!scorersListContainer) return;
 
   const scorersMap = {};
+  const assistsMap = {};
+  const redCardsMap = {};
   let totalGoals = 0;
   let matchesPlayed = 0;
   const teamGoalsMap = {};
@@ -1976,7 +1979,30 @@ function renderStatistics() {
         if (!cleaned) return 0;
         return cleaned.split(',').length;
       };
+      
+      const addRedCards = (cardsStr, teamName) => {
+        if (!cardsStr || cardsStr === 'null' || cardsStr === '""' || cardsStr === '[]') return;
+        const cleaned = cardsStr.replace(/[{}""\[\]]/g, '').replace(/[“”]/g, '').trim();
+        if (!cleaned) return;
+
+        cleaned.split(',').forEach(s => {
+          const item = s.trim().replace(/^['"]|['"]$/g, '');
+          if (!item) return;
+
+          // Strip trailing minute (like "33'")
+          const playerName = item.replace(/\s+\d+.*?$/, '').trim();
+          if (playerName) {
+            if (!redCardsMap[playerName]) {
+              redCardsMap[playerName] = { name: playerName, team: teamName, count: 0 };
+            }
+            redCardsMap[playerName].count++;
+          }
+        });
+      };
+
       totalRedCards += (countRedCards(score.home_red_cards) + countRedCards(score.away_red_cards));
+      addRedCards(score.home_red_cards, m.team1);
+      addRedCards(score.away_red_cards, m.team2);
 
       // Calculate biggest win
       const diff = Math.abs(s1 - s2);
@@ -2002,6 +2028,18 @@ function renderStatistics() {
           const item = s.trim().replace(/^['"]|['"]$/g, '');
           if (!item) return;
 
+          // Parse assist if present
+          const assistMatch = item.match(/\(A:\s*([^\)]+)\)/i);
+          if (assistMatch) {
+            const assisterName = assistMatch[1].trim();
+            if (assisterName) {
+              if (!assistsMap[assisterName]) {
+                assistsMap[assisterName] = { name: assisterName, team: teamName, assists: 0 };
+              }
+              assistsMap[assisterName].assists++;
+            }
+          }
+
           // Count own goals
           if (/\(og\)/i.test(item) || /own\s+goal/i.test(item) || /bunuh\s+diri/i.test(item)) {
             totalOwnGoals++;
@@ -2018,6 +2056,8 @@ function renderStatistics() {
 
           let playerName = cleanedItem.split(/\d/)[0].trim();
           if (!playerName) playerName = cleanedItem.trim();
+          
+          playerName = playerName.replace(/\s*\(A:.*?\)\s*$/i, '').trim();
 
           if (playerName) {
             if (!scorersMap[playerName]) {
@@ -2033,34 +2073,54 @@ function renderStatistics() {
     }
   });
 
-  const sortedScorers = Object.values(scorersMap).sort((a, b) => b.goals - a.goals);
+  // Determine which list to display
+  let currentList = [];
+  let emptyMsg = '';
+  
+  // Update header text based on active tab
+  const titleEl = document.getElementById('stats-leaderboard-title');
+  const iconEl = titleEl ? titleEl.nextElementSibling : null;
+  
+  if (activeStatsTab === 'goals') {
+    currentList = Object.values(scorersMap)
+      .sort((a, b) => b.goals - a.goals)
+      .map(s => ({ name: s.name, team: s.team, value: s.goals, label: 'Gol' }));
+    emptyMsg = 'Belum ada gol yang dicetak.';
+    if (titleEl) titleEl.textContent = 'Top Scorer';
+    if (iconEl) iconEl.textContent = '⚽';
+  } else if (activeStatsTab === 'assists') {
+    currentList = Object.values(assistsMap)
+      .sort((a, b) => b.assists - a.assists)
+      .map(s => ({ name: s.name, team: s.team, value: s.assists, label: 'Assist' }));
+    emptyMsg = 'Belum ada assist yang tercatat.';
+    if (titleEl) titleEl.textContent = 'Top Assist';
+    if (iconEl) iconEl.textContent = '🪄';
+  } else if (activeStatsTab === 'redcards') {
+    currentList = Object.values(redCardsMap)
+      .sort((a, b) => b.count - a.count)
+      .map(s => ({ name: s.name, team: s.team, value: s.count, label: 'Kartu' }));
+    emptyMsg = 'Belum ada kartu merah yang diberikan.';
+    if (titleEl) titleEl.textContent = 'Kartu Merah';
+    if (iconEl) iconEl.textContent = '🟥';
+  }
 
-  let topTeam = "-";
-  let topTeamGoals = 0;
-  Object.entries(teamGoalsMap).forEach(([team, goals]) => {
-    if (goals > topTeamGoals) {
-      topTeam = team;
-      topTeamGoals = goals;
-    }
-  });
-
-  let scorersHtml = '';
-  if (sortedScorers.length === 0) {
-    scorersHtml = `
+  let listHtml = '';
+  if (currentList.length === 0) {
+    listHtml = `
       <div class="empty-placeholder">
-        <p>Belum ada gol yang dicetak.</p>
+        <p>${emptyMsg}</p>
       </div>
     `;
-    scorersListContainer.innerHTML = scorersHtml;
+    scorersListContainer.innerHTML = listHtml;
   } else {
     let currentRank = 1;
-    let prevGoals = -1;
+    let prevValue = -1;
     let rankToDisplay = 1;
 
-    sortedScorers.forEach((s, index) => {
-      if (s.goals !== prevGoals) {
+    currentList.forEach((s, index) => {
+      if (s.value !== prevValue) {
         currentRank = index + 1;
-        prevGoals = s.goals;
+        prevValue = s.value;
         rankToDisplay = currentRank;
       }
 
@@ -2073,7 +2133,7 @@ function renderStatistics() {
       const rowClass = isHidden ? 'stats-row scorer-row-hidden' : 'stats-row';
       const rowStyle = isHidden ? 'display: none !important;' : '';
 
-      scorersHtml += `
+      listHtml += `
         <div class="${rowClass}" style="${rowStyle}">
           <div class="stats-row-left">
             <span class="stats-rank ${rankClass}">${rankToDisplay}</span>
@@ -2086,17 +2146,17 @@ function renderStatistics() {
             </div>
           </div>
           <div class="stats-row-right">
-            <span class="stats-goals-num">${s.goals}</span>
-            <span class="stats-goals-label">Gol</span>
+            <span class="stats-goals-num">${s.value}</span>
+            <span class="stats-goals-label">${s.label}</span>
           </div>
         </div>
       `;
     });
 
-    scorersListContainer.innerHTML = scorersHtml;
+    scorersListContainer.innerHTML = listHtml;
 
     // Dynamically add or toggle the Load More button
-    if (sortedScorers.length > 10) {
+    if (currentList.length > 10) {
       let btn = document.getElementById('btn-load-more-scorers');
       if (!btn) {
         btn = document.createElement('button');
@@ -2132,14 +2192,31 @@ function renderStatistics() {
   if (matchesPlayedEl) matchesPlayedEl.textContent = matchesPlayed;
   if (totalGoalsEl) totalGoalsEl.textContent = totalGoals;
   if (avgGoalsEl) avgGoalsEl.textContent = matchesPlayed > 0 ? (totalGoals / matchesPlayed).toFixed(2) : "0.00";
+  
+  // Calculate top team (most goals) - supports multiple teams if tied
+  let topTeams = [];
+  let topTeamGoals = 0;
+  Object.entries(teamGoalsMap).forEach(([team, goals]) => {
+    if (goals > topTeamGoals) {
+      topTeams = [team];
+      topTeamGoals = goals;
+    } else if (goals === topTeamGoals && goals > 0) {
+      topTeams.push(team);
+    }
+  });
+
   if (topTeamEl) {
-    if (topTeam !== "-") {
-      topTeamEl.innerHTML = `
-        <div style="display: flex; align-items: center; gap: 6px; margin-top: 2px;">
-          ${getFlagHtml(topTeam)}
-          <span style="font-size: 0.8rem; font-weight: 800; color: var(--text-primary);">${topTeam} (${topTeamGoals} Gol)</span>
-        </div>
-      `;
+    if (topTeams.length > 0) {
+      let html = '';
+      topTeams.forEach(team => {
+        html += `
+          <div style="display: flex; align-items: center; gap: 6px; margin-top: 2px;">
+            ${getFlagHtml(team)}
+            <span style="font-size: 0.8rem; font-weight: 800; color: var(--text-primary);">${team} (${topTeamGoals} Gol)</span>
+          </div>
+        `;
+      });
+      topTeamEl.innerHTML = html;
     } else {
       topTeamEl.textContent = "-";
     }
@@ -2157,23 +2234,30 @@ function renderStatistics() {
     highestScoringEl.textContent = highestScoringMatch.total > 0 ? `${highestScoringMatch.matchStr} (${highestScoringMatch.total} Gol)` : '-';
   }
 
-  // Best defense (most clean sheets)
-  let topCleanSheetsTeam = "-";
+  // Best defense (most clean sheets) - supports multiple teams if tied
+  let topCleanSheetsTeams = [];
   let topCleanSheetsCount = 0;
   Object.entries(teamCleanSheetsMap).forEach(([team, count]) => {
     if (count > topCleanSheetsCount) {
-      topCleanSheetsTeam = team;
+      topCleanSheetsTeams = [team];
       topCleanSheetsCount = count;
+    } else if (count === topCleanSheetsCount && count > 0) {
+      topCleanSheetsTeams.push(team);
     }
   });
+
   if (bestDefenseEl) {
     if (topCleanSheetsCount > 0) {
-      bestDefenseEl.innerHTML = `
-        <div style="display: flex; align-items: center; gap: 6px; margin-top: 2px;">
-          ${getFlagHtml(topCleanSheetsTeam)}
-          <span style="font-size: 0.8rem; font-weight: 800; color: var(--text-primary);">${topCleanSheetsTeam}</span>
-        </div>
-      `;
+      let html = '';
+      topCleanSheetsTeams.forEach(team => {
+        html += `
+          <div style="display: flex; align-items: center; gap: 6px; margin-top: 2px;">
+            ${getFlagHtml(team)}
+            <span style="font-size: 0.8rem; font-weight: 800; color: var(--text-primary);">${team}</span>
+          </div>
+        `;
+      });
+      bestDefenseEl.innerHTML = html;
     } else {
       bestDefenseEl.textContent = "-";
     }
@@ -2182,6 +2266,23 @@ function renderStatistics() {
     bestDefenseSubEl.textContent = topCleanSheetsCount > 0 ? `${topCleanSheetsCount} clean sheets` : 'Clean sheets terbanyak';
   }
 }
+
+window.switchStatsTab = function(tabName) {
+  activeStatsTab = tabName;
+  
+  // Update active class on tab buttons
+  const buttons = document.querySelectorAll('.stats-sub-tab-btn');
+  buttons.forEach(btn => {
+    if (btn.getAttribute('data-tab') === tabName) {
+      btn.classList.add('active');
+    } else {
+      btn.classList.remove('active');
+    }
+  });
+
+  // Re-render statistics
+  renderStatistics();
+};
 
 window.expandScorersList = function() {
   const hiddenRows = document.querySelectorAll('.scorer-row-hidden');

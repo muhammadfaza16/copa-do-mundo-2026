@@ -247,8 +247,16 @@
 
         <!-- Top Scorers Card -->
         <div class="stats-card">
-          <div class="stats-card-header">
-            <h3>Top Scorer</h3>
+          <div class="stats-card-header" style="flex-direction: column; align-items: stretch; gap: 12px; margin-bottom: 16px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+              <h3 id="stats-leaderboard-title" style="margin: 0;">Top Scorer</h3>
+              <span class="stats-card-icon">⚽</span>
+            </div>
+            <div class="stats-sub-tabs">
+              <button class="stats-sub-tab-btn active" data-tab="goals" onclick="switchStatsTab('goals')">Gol</button>
+              <button class="stats-sub-tab-btn" data-tab="assists" onclick="switchStatsTab('assists')">Assist</button>
+              <button class="stats-sub-tab-btn" data-tab="redcards" onclick="switchStatsTab('redcards')">Kartu Merah</button>
+            </div>
           </div>
           <div class="stats-list" id="top-scorers-list">
             <!-- Will be populated by JS -->
