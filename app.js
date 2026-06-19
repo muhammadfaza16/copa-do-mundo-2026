@@ -333,7 +333,6 @@ let apiKey = '12aad17c1bf941f68c2318631dfcea1b';
 let lastRenderedDate = new Date().toDateString();
 let isDataDirty = true;
 let showPotentialDraw = false;
-let activeStatsTab = 'goals';
 let _lastRenderedLineupsFingerprint = null; // tracks last-rendered lineup data to avoid redundant re-renders
 let cdElementsCache = null;
 let lastFetchTime = 0;
@@ -1114,14 +1113,14 @@ function updateHeroPanel() {
       cdDisplay.style.display = 'block';
       container.classList.add('live-active');
       
-      // Dynamic team brand colors for left/right accent bars
-      const colors1 = getTeamColor(team1Name, false);
-      const colors2 = getTeamColor(team2Name, true);
+      // Dynamic team brand colors for left/right accent bars (Home jersey color)
+      const colors1 = getTeamJerseyStyles(team1Name, true, 'transparent', '#000000').homeBg;
+      const colors2 = getTeamJerseyStyles(team2Name, true, 'transparent', '#000000').homeBg;
       
-      container.style.setProperty('--team1-color', getTeamGradientCss(colors1));
-      container.style.setProperty('--team2-color', getTeamGradientCss(colors2));
-      container.style.setProperty('--team1-glow', Array.isArray(colors1) ? colors1[0] : colors1);
-      container.style.setProperty('--team2-glow', Array.isArray(colors2) ? colors2[0] : colors2);
+      container.style.setProperty('--team1-color', colors1);
+      container.style.setProperty('--team2-color', colors2);
+      container.style.setProperty('--team1-glow', colors1);
+      container.style.setProperty('--team2-glow', colors2);
       
       // Remove the team-preview row used in countdown mode
       const existingCdRow = document.getElementById('cd-teams-row');
@@ -1180,13 +1179,13 @@ function updateHeroPanel() {
 
   const isOpening = targetMatch.date === "12/6" && targetMatch.time === "02:00" && targetMatch.team1 === "Meksiko";
   
-  // Set team colors for countdown card edge stripes
-  const colors1 = getTeamColor(targetMatch.team1, false);
-  const colors2 = getTeamColor(targetMatch.team2, true);
-  container.style.setProperty('--team1-color', getTeamGradientCss(colors1));
-  container.style.setProperty('--team2-color', getTeamGradientCss(colors2));
-  container.style.setProperty('--team1-glow', Array.isArray(colors1) ? colors1[0] : colors1);
-  container.style.setProperty('--team2-glow', Array.isArray(colors2) ? colors2[0] : colors2);
+  // Set team colors for countdown card edge stripes (Home jersey color)
+  const colors1 = getTeamJerseyStyles(targetMatch.team1, true, 'transparent', '#000000').homeBg;
+  const colors2 = getTeamJerseyStyles(targetMatch.team2, true, 'transparent', '#000000').homeBg;
+  container.style.setProperty('--team1-color', colors1);
+  container.style.setProperty('--team2-color', colors2);
+  container.style.setProperty('--team1-glow', colors1);
+  container.style.setProperty('--team2-glow', colors2);
 
   const targetTime = getMatchDate(targetMatch.date, targetMatch.time).getTime();
   const diff = targetTime - now;
@@ -1937,8 +1936,6 @@ function renderStatistics() {
   if (!scorersListContainer) return;
 
   const scorersMap = {};
-  const assistsMap = {};
-  const redCardsMap = {};
   let totalGoals = 0;
   let matchesPlayed = 0;
   const teamGoalsMap = {};
@@ -1970,30 +1967,8 @@ function renderStatistics() {
         if (!cleaned) return 0;
         return cleaned.split(',').length;
       };
-      
-      const addRedCards = (cardsStr, teamName) => {
-        if (!cardsStr || cardsStr === 'null' || cardsStr === '""' || cardsStr === '[]') return;
-        const cleaned = cardsStr.replace(/[{}""\[\]]/g, '').replace(/[“”]/g, '').trim();
-        if (!cleaned) return;
-
-        cleaned.split(',').forEach(s => {
-          const item = s.trim().replace(/^['"]|['"]$/g, '');
-          if (!item) return;
-
-          // Strip trailing minute (like "33'")
-          const playerName = item.replace(/\s+\d+.*?$/, '').trim();
-          if (playerName) {
-            if (!redCardsMap[playerName]) {
-              redCardsMap[playerName] = { name: playerName, team: teamName, count: 0 };
-            }
-            redCardsMap[playerName].count++;
-          }
-        });
-      };
 
       totalRedCards += (countRedCards(score.home_red_cards) + countRedCards(score.away_red_cards));
-      addRedCards(score.home_red_cards, m.team1);
-      addRedCards(score.away_red_cards, m.team2);
 
       // Calculate biggest win
       const diff = Math.abs(s1 - s2);
@@ -2018,18 +1993,6 @@ function renderStatistics() {
         cleaned.split(',').forEach(s => {
           const item = s.trim().replace(/^['"]|['"]$/g, '');
           if (!item) return;
-
-          // Parse assist if present
-          const assistMatch = item.match(/\(A:\s*([^\)]+)\)/i);
-          if (assistMatch) {
-            const assisterName = assistMatch[1].trim();
-            if (assisterName) {
-              if (!assistsMap[assisterName]) {
-                assistsMap[assisterName] = { name: assisterName, team: teamName, assists: 0 };
-              }
-              assistsMap[assisterName].assists++;
-            }
-          }
 
           // Count own goals
           if (/\(og\)/i.test(item) || /own\s+goal/i.test(item) || /bunuh\s+diri/i.test(item)) {
@@ -2064,36 +2027,16 @@ function renderStatistics() {
     }
   });
 
-  // Determine which list to display
-  let currentList = [];
-  let emptyMsg = '';
-  
-  // Update header text based on active tab
+  // Display top scorers list only
+  const currentList = Object.values(scorersMap)
+    .sort((a, b) => b.goals - a.goals)
+    .map(s => ({ name: s.name, team: s.team, value: s.goals, label: 'Gol' }));
+  const emptyMsg = 'Belum ada gol yang dicetak.';
+
   const titleEl = document.getElementById('stats-leaderboard-title');
   const iconEl = titleEl ? titleEl.nextElementSibling : null;
-  
-  if (activeStatsTab === 'goals') {
-    currentList = Object.values(scorersMap)
-      .sort((a, b) => b.goals - a.goals)
-      .map(s => ({ name: s.name, team: s.team, value: s.goals, label: 'Gol' }));
-    emptyMsg = 'Belum ada gol yang dicetak.';
-    if (titleEl) titleEl.textContent = 'Top Scorer';
-    if (iconEl) iconEl.textContent = '⚽';
-  } else if (activeStatsTab === 'assists') {
-    currentList = Object.values(assistsMap)
-      .sort((a, b) => b.assists - a.assists)
-      .map(s => ({ name: s.name, team: s.team, value: s.assists, label: 'Assist' }));
-    emptyMsg = 'Belum ada assist yang tercatat.';
-    if (titleEl) titleEl.textContent = 'Top Assist';
-    if (iconEl) iconEl.textContent = '🪄';
-  } else if (activeStatsTab === 'redcards') {
-    currentList = Object.values(redCardsMap)
-      .sort((a, b) => b.count - a.count)
-      .map(s => ({ name: s.name, team: s.team, value: s.count, label: 'Kartu' }));
-    emptyMsg = 'Belum ada kartu merah yang diberikan.';
-    if (titleEl) titleEl.textContent = 'Kartu Merah';
-    if (iconEl) iconEl.textContent = '🟥';
-  }
+  if (titleEl) titleEl.textContent = 'Top Scorer';
+  if (iconEl) iconEl.textContent = '⚽';
 
   let listHtml = '';
   if (currentList.length === 0) {
@@ -2223,23 +2166,6 @@ function renderStatistics() {
     highestScoringEl.textContent = highestScoringMatch.total > 0 ? `${highestScoringMatch.matchStr} (${highestScoringMatch.total} Gol)` : '-';
   }
 }
-
-window.switchStatsTab = function(tabName) {
-  activeStatsTab = tabName;
-  
-  // Update active class on tab buttons
-  const buttons = document.querySelectorAll('.stats-sub-tab-btn');
-  buttons.forEach(btn => {
-    if (btn.getAttribute('data-tab') === tabName) {
-      btn.classList.add('active');
-    } else {
-      btn.classList.remove('active');
-    }
-  });
-
-  // Re-render statistics
-  renderStatistics();
-};
 
 window.expandScorersList = function() {
   const hiddenRows = document.querySelectorAll('.scorer-row-hidden');
