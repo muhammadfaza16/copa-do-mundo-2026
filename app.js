@@ -1946,7 +1946,6 @@ function renderStatistics() {
   let totalOwnGoals = 0;
   let biggestWin = { diff: 0, matchStr: '-', team: '-' };
   let highestScoringMatch = { total: 0, matchStr: '-' };
-  const teamCleanSheetsMap = {};
 
   const allMatches = getAllMatches();
 
@@ -1963,14 +1962,6 @@ function renderStatistics() {
 
       teamGoalsMap[m.team1] = (teamGoalsMap[m.team1] || 0) + s1;
       teamGoalsMap[m.team2] = (teamGoalsMap[m.team2] || 0) + s2;
-
-      // Calculate clean sheets
-      if (s2 === 0) {
-        teamCleanSheetsMap[m.team1] = (teamCleanSheetsMap[m.team1] || 0) + 1;
-      }
-      if (s1 === 0) {
-        teamCleanSheetsMap[m.team2] = (teamCleanSheetsMap[m.team2] || 0) + 1;
-      }
 
       // Calculate red cards
       const countRedCards = (cardsStr) => {
@@ -2162,7 +2153,7 @@ function renderStatistics() {
         btn = document.createElement('button');
         btn.id = 'btn-load-more-scorers';
         btn.className = 'btn-subtle-load-more';
-        btn.setAttribute('style', 'width: 100%; padding: 10px; margin-top: 14px; background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(255, 255, 255, 0.06); border-radius: 8px; color: var(--text-secondary); font-size: 0.75rem; font-weight: 700; cursor: pointer; transition: all 0.2s; letter-spacing: 0.5px;');
+        btn.setAttribute('style', 'width: calc(100% - 32px); padding: 10px; margin: 14px 16px 16px 16px; background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(255, 255, 255, 0.06); border-radius: 8px; color: var(--text-secondary); font-size: 0.75rem; font-weight: 700; cursor: pointer; transition: all 0.2s; letter-spacing: 0.5px;');
         btn.innerHTML = 'Lihat Lebih Banyak';
         btn.onclick = window.expandScorersList;
         scorersListContainer.parentNode.appendChild(btn);
@@ -2186,8 +2177,6 @@ function renderStatistics() {
   const biggestWinEl = document.getElementById('stats-biggest-win');
   const biggestWinSubEl = document.getElementById('stats-biggest-win-sub');
   const highestScoringEl = document.getElementById('stats-highest-scoring');
-  const bestDefenseEl = document.getElementById('stats-best-defense');
-  const bestDefenseSubEl = document.getElementById('stats-best-defense-sub');
 
   if (matchesPlayedEl) matchesPlayedEl.textContent = matchesPlayed;
   if (totalGoalsEl) totalGoalsEl.textContent = totalGoals;
@@ -2232,38 +2221,6 @@ function renderStatistics() {
   }
   if (highestScoringEl) {
     highestScoringEl.textContent = highestScoringMatch.total > 0 ? `${highestScoringMatch.matchStr} (${highestScoringMatch.total} Gol)` : '-';
-  }
-
-  // Best defense (most clean sheets) - supports multiple teams if tied
-  let topCleanSheetsTeams = [];
-  let topCleanSheetsCount = 0;
-  Object.entries(teamCleanSheetsMap).forEach(([team, count]) => {
-    if (count > topCleanSheetsCount) {
-      topCleanSheetsTeams = [team];
-      topCleanSheetsCount = count;
-    } else if (count === topCleanSheetsCount && count > 0) {
-      topCleanSheetsTeams.push(team);
-    }
-  });
-
-  if (bestDefenseEl) {
-    if (topCleanSheetsCount > 0) {
-      let html = '';
-      topCleanSheetsTeams.forEach(team => {
-        html += `
-          <div style="display: flex; align-items: center; gap: 6px; margin-top: 2px;">
-            ${getFlagHtml(team)}
-            <span style="font-size: 0.8rem; font-weight: 800; color: var(--text-primary);">${team}</span>
-          </div>
-        `;
-      });
-      bestDefenseEl.innerHTML = html;
-    } else {
-      bestDefenseEl.textContent = "-";
-    }
-  }
-  if (bestDefenseSubEl) {
-    bestDefenseSubEl.textContent = topCleanSheetsCount > 0 ? `${topCleanSheetsCount} clean sheets` : 'Clean sheets terbanyak';
   }
 }
 

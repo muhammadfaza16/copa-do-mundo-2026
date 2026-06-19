@@ -4712,17 +4712,18 @@ body.light-theme .stats-overview-item {
   background: var(--panel-bg);
   border: 1px solid var(--glass-border);
   border-radius: var(--border-radius-md);
-  padding: 20px;
+  padding: 0;
   backdrop-filter: blur(10px);
+  overflow: hidden;
 }
 
 .stats-card-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 16px;
+  margin-bottom: 0 !important;
   border-bottom: 1px dashed rgba(255, 255, 255, 0.1);
-  padding-bottom: 12px;
+  padding: 16px 16px 12px 16px;
 }
 
 body.light-theme .stats-card-header {
@@ -4744,34 +4745,39 @@ body.light-theme .stats-card-header {
 .stats-list {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 0;
 }
 
 .stats-row {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 8px 12px;
-  background: rgba(255, 255, 255, 0.02);
-  border: 1px solid rgba(255, 255, 255, 0.03);
-  border-radius: var(--border-radius-sm);
+  padding: 12px 16px;
+  background: transparent;
+  border-left: none;
+  border-right: none;
+  border-top: none;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+  border-radius: 0;
   transition: var(--transition-smooth);
 }
 
 body.light-theme .stats-row {
-  background: rgba(0, 0, 0, 0.01);
-  border-color: rgba(0, 0, 0, 0.03);
+  background: transparent;
+  border-color: rgba(0, 0, 0, 0.04);
 }
 
 .stats-row:hover {
-  background: rgba(255, 255, 255, 0.04);
-  border-color: rgba(212, 175, 55, 0.15);
-  transform: translateY(-1px);
+  background: rgba(255, 255, 255, 0.03);
+  transform: none;
 }
 
 body.light-theme .stats-row:hover {
-  background: rgba(0, 0, 0, 0.03);
-  border-color: rgba(212, 175, 55, 0.3);
+  background: rgba(0, 0, 0, 0.01);
+}
+
+.stats-row:last-child {
+  border-bottom: none;
 }
 
 .stats-row-left {
@@ -6008,5 +6014,41 @@ body.light-theme .stats-sub-tab-btn.active {
   background: rgba(0, 0, 0, 0.04);
   border-color: rgba(0, 0, 0, 0.12);
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+/* Schedule Tab padding and flush card layout override */
+#tab-schedule {
+  margin-left: -16px;
+  margin-right: -16px;
+}
+
+#tab-schedule .sub-tab-switcher {
+  border-radius: 0;
+  border-left: none;
+  border-right: none;
+  margin-left: 16px;
+  margin-right: 16px;
+}
+
+#tab-schedule .filter-bar {
+  padding: 0 16px;
+  margin-bottom: 16px;
+}
+
+#tab-schedule .matches-wrapper {
+  gap: 0;
+}
+
+#tab-schedule .date-divider {
+  padding: 16px 16px 6px 16px;
+  margin-top: 8px;
+}
+
+#tab-schedule .match-card {
+  border-radius: 0;
+  border-left: none;
+  border-right: none;
+  border-top: none;
+  margin-bottom: 0;
 }
 
