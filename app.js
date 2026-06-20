@@ -860,8 +860,13 @@ function updateLiveMatchClocks() {
           const liveParts = getMatchLiveStatusParts(scoreData);
           const clockInfo = getLiveClockInfo(key);
           const displayClock = clockInfo.clock || liveParts.clock || 'LIVE';
-          if (liveParts.clock || clockInfo.clock) {
-            const isPulsing = clockInfo.isPulsing;
+          const isPulsing = clockInfo.isPulsing;
+          
+          if (displayClock === liveParts.periodName) {
+            modalLiveStatusHtml = `
+              <span class="status-live modal-status-live ${isPulsing ? 'pulse-minute' : ''}">${displayClock}</span>
+            `;
+          } else if (liveParts.clock || clockInfo.clock) {
             modalLiveStatusHtml = `
               <span style="font-size: 0.68rem; font-weight: 700; color: var(--text-secondary); text-transform: uppercase;">${liveParts.periodName}</span>
               <span class="status-live modal-status-live ${isPulsing ? 'pulse-minute' : ''}">${displayClock}</span>
@@ -4868,7 +4873,7 @@ function createModalHeaderHtml(match, scoreData, summaryData) {
   let modalLiveStatusHtml = '';
   if (isMatchLive(match, scoreData)) {
     const liveParts = getMatchLiveStatusParts(scoreData);
-    if (liveParts.clock) {
+    if (liveParts.clock && liveParts.clock !== liveParts.periodName) {
       modalLiveStatusHtml = `
         <span style="font-size: 0.68rem; font-weight: 700; color: var(--text-secondary); text-transform: uppercase;">${liveParts.periodName}</span>
         <span class="status-live modal-status-live">${liveParts.clock}</span>
@@ -5779,11 +5784,7 @@ function renderLineupsTab(lineups) {
     return benchPlayers.map(p => {
       const goalCount = countPlayerGoals(p.name, scorerNames);
       const hasRed  = playerMatchesEvent(p.name, redNames);
-      const shortName = p.name
-        ? (p.name.split(' ').length > 1
-            ? p.name.split(' ')[0][0] + '. ' + p.name.split(' ').slice(1).join(' ')
-            : p.name)
-        : '';
+      const shortName = p.name || '';
       let cleanMin = p.subbedMinute ? p.subbedMinute.replace(/[a-zA-Z\s\(\)]/g, '') : '';
       if (cleanMin && !cleanMin.endsWith("'")) {
         cleanMin += "'";
