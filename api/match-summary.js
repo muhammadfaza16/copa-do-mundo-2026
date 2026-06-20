@@ -47,6 +47,7 @@ export default async function handler(req, res) {
       lineups: {
         home: {
           formation: '4-3-3',
+          coach: 'Jaime Lozano',
           starters: [
             { name: 'G. Ochoa', jersey: '13', position: 'GK' },
             { name: 'J. Sanchez', jersey: '19', position: 'RB' },
@@ -63,6 +64,7 @@ export default async function handler(req, res) {
         },
         away: {
           formation: '4-4-2',
+          coach: 'Hugo Broos',
           starters: [
             { name: 'R. Williams', jersey: '1', position: 'GK' },
             { name: 'K. Mudau', jersey: '2', position: 'RB' },
@@ -117,17 +119,22 @@ export default async function handler(req, res) {
     }
 
     // 2. Process lineups
-    const lineups = { home: { formation: '', starters: [], bench: [] }, away: { formation: '', starters: [], bench: [] } };
+    const lineups = { home: { formation: '', starters: [], bench: [], coach: null }, away: { formation: '', starters: [], bench: [], coach: null } };
     if (data.rosters && Array.isArray(data.rosters)) {
       const homeRoster = data.rosters.find(r => r.homeAway === 'home');
       const awayRoster = data.rosters.find(r => r.homeAway === 'away');
       
       const mapRoster = (teamRoster) => {
-        if (!teamRoster) return { formation: '', starters: [], bench: [] };
+        if (!teamRoster) return { formation: '', starters: [], bench: [], coach: null };
         const formation = teamRoster.formation || '';
         const rosterList = teamRoster.roster || [];
+        const coach = teamRoster.coach?.displayName || 
+                      teamRoster.coach?.name || 
+                      (teamRoster.coaches && teamRoster.coaches[0]?.displayName) || 
+                      (teamRoster.coaches && teamRoster.coaches[0]?.name) || 
+                      null;
         
-      const mapPlayer = (p) => ({
+        const mapPlayer = (p) => ({
           name: p.athlete?.displayName || '',
           jersey: p.jersey || '',
           position: p.position ? (p.position.abbreviation || p.position.name || '') : '',
@@ -139,7 +146,7 @@ export default async function handler(req, res) {
         const starters = rosterList.filter(p => p.starter).map(mapPlayer);
         const bench = rosterList.filter(p => !p.starter).map(mapPlayer);
         
-        return { formation, starters, bench };
+        return { formation, starters, bench, coach };
       };
       
       lineups.home = mapRoster(homeRoster);

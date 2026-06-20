@@ -1057,11 +1057,11 @@ body.light-theme .match-week {
 
 .match-scorers-row {
   margin: 4px 0 8px;
-  border-top: 1px dashed rgba(255, 255, 255, 0.12);
+  border-top: 0.5px solid rgba(255, 255, 255, 0.06);
 }
 
 body.light-theme .match-scorers-row {
-  border-top-color: rgba(0, 0, 0, 0.08);
+  border-top-color: rgba(0, 0, 0, 0.05);
 }
 
 .match-redcards-row {
@@ -1069,12 +1069,12 @@ body.light-theme .match-scorers-row {
 }
 
 .match-redcards-row.no-scorers {
-  border-top: 1px dashed rgba(255, 255, 255, 0.12);
+  border-top: 0.5px solid rgba(255, 255, 255, 0.06);
   margin-top: 4px;
 }
 
 body.light-theme .match-redcards-row.no-scorers {
-  border-top-color: rgba(0, 0, 0, 0.08);
+  border-top-color: rgba(0, 0, 0, 0.05);
 }
 
 .scorers-left,
@@ -1454,6 +1454,11 @@ body.light-theme .search-input:focus {
   box-shadow: var(--shadow-lg);
   transition: var(--transition-smooth);
   cursor: pointer;
+  outline: none;
+}
+
+.countdown-container:focus {
+  outline: none;
 }
 
 .countdown-container:hover {
@@ -6051,4 +6056,17 @@ body.light-theme .stats-sub-tab-btn.active {
   border-top: none;
   margin-bottom: 0;
 }
+
+.lineup-coach-row {
+  margin-top: 12px;
+  padding-top: 8px;
+  border-top: 1px dashed var(--glass-border);
+  font-size: 0.7rem;
+  color: var(--text-secondary);
+}
+
+.lineup-coach-row.align-right {
+  text-align: right;
+}
+
 

@@ -583,6 +583,69 @@ function getLocalTimezoneAbbr() {
   }
 }
 
+// Debounce helper to throttle rapid event firing (resize, search typing)
+function debounce(func, wait) {
+  let timeout;
+  return function(...args) {
+    const context = this;
+    clearTimeout(timeout);
+    timeout = setTimeout(() => func.apply(context, args), wait);
+  };
+}
+
+// ----------------------------------------------------
+// SCORE FLASH ANIMATION — imperative DOM injection
+// Flash is triggered ONCE per score update. Never re-triggered
+// on tab-switch or re-render within the animation window.
+// ----------------------------------------------------
+const _flashedScores = {}; // key: `${matchKey}_1` or `${matchKey}_2`, value: score that was flashed
+
+function triggerScoreFlash(matchKey, side, newScore) {
+  // Guard: only flash if this exact score hasn't been flashed yet
+  const flashKey = `${matchKey}_${side}`;
+  if (_flashedScores[flashKey] === newScore) return;
+  _flashedScores[flashKey] = newScore;
+
+  // Find score span elements in any card and hero panel with this matchKey
+  const FLASH_DURATION_MS = 4600; // slightly longer than animation duration (4.5s)
+
+  const applyFlash = (span) => {
+    if (!span) return;
+    // Remove class first (in case it's lingering), force reflow, then re-add
+    span.classList.remove('flash-score');
+    // eslint-disable-next-line no-unused-expressions
+    void span.offsetWidth; // trigger reflow so animation restarts cleanly
+    span.classList.add('flash-score');
+    setTimeout(() => {
+      span.classList.remove('flash-score');
+    }, FLASH_DURATION_MS);
+  };
+
+  // Use rAF to ensure DOM has been updated first
+  requestAnimationFrame(() => {
+    // 1. Match cards on schedule/home tab — score spans are children of .score-display
+    document.querySelectorAll(`.match-card[data-key="${matchKey}"] .score-display span`).forEach((span, i) => {
+      // spans order: score1, dash, score2 → indices 0 and 2
+      if ((side === 1 && i === 0) || (side === 2 && i === 2)) applyFlash(span);
+    });
+
+    // 2. Hero panel live scoreboard — .live-score spans
+    const heroScores = document.querySelectorAll('.live-center-block .live-score');
+    if (heroScores.length >= 2) {
+      applyFlash(side === 1 ? heroScores[0] : heroScores[1]);
+    }
+
+    // 3. Match detail modal — #modal-score-text-val spans
+    const modalScoreEl = document.getElementById('modal-score-text-val');
+    if (modalScoreEl) {
+      const spans = modalScoreEl.querySelectorAll('span');
+      if (spans.length >= 3) {
+        applyFlash(side === 1 ? spans[0] : spans[2]);
+      }
+    }
+  });
+}
+
 // Convert WIB Date+Time to local/WIB formatted details
 function getFormattedTime(dateStr, timeStr) {
   const matchDate = getMatchDate(dateStr, timeStr);
@@ -833,17 +896,15 @@ function updateLiveMatchClocks() {
       const t2 = currentModalData.match.team2;
       const score1 = scoreData.score1 !== null && scoreData.score1 !== undefined ? scoreData.score1 : '-';
       const score2 = scoreData.score2 !== null && scoreData.score2 !== undefined ? scoreData.score2 : '-';
-      const shouldFlash1 = scoreData && scoreData.score1_updated_at && (Date.now() - scoreData.score1_updated_at < 10000);
-      const shouldFlash2 = scoreData && scoreData.score2_updated_at && (Date.now() - scoreData.score2_updated_at < 10000);
       const isStarted = scoreData && scoreData.status && scoreData.status !== 'TIMED' && scoreData.status !== 'PRE_MATCH' && scoreData.status !== 'SCHEDULED';
       
-      // Update score text in-place
+      // Update score text in-place (no flash-score class here — handled by triggerScoreFlash)
       const modalScoreTextVal = modal.querySelector('#modal-score-text-val');
       if (modalScoreTextVal) {
         const newScoreHtml = isStarted ? `
-          <span class="${shouldFlash1 ? 'flash-score' : ''}">${score1}</span>
+          <span>${score1}</span>
           <span> - </span>
-          <span class="${shouldFlash2 ? 'flash-score' : ''}">${score2}</span>
+          <span>${score2}</span>
         ` : `
           <span style="font-size: 1.15rem; color: var(--text-secondary); font-weight: 700; letter-spacing: 1.5px;">VS</span>
         `;
@@ -1064,8 +1125,7 @@ function updateHeroPanel() {
 
       const timeLabel = liveParts.clock || liveParts.periodName;
 
-      const shouldFlashHero1 = scoreData.score1_updated_at && (Date.now() - scoreData.score1_updated_at < 10000);
-      const shouldFlashHero2 = scoreData.score2_updated_at && (Date.now() - scoreData.score2_updated_at < 10000);
+      // Flash is triggered imperatively by triggerScoreFlash — no inline class needed
 
       cdDisplay.innerHTML = `
         <div class="live-scoreboard">
@@ -1088,9 +1148,9 @@ function updateHeroPanel() {
               <!-- Center Block (Score + Minute) -->
               <div class="live-center-block" style="display: flex; align-items: center; justify-content: center; position: relative;">
                 <div style="display: flex; align-items: center; gap: 6px;">
-                  <span class="live-score ${shouldFlashHero1 ? 'flash-score' : ''}">${scoreData.score1 !== null && scoreData.score1 !== undefined ? scoreData.score1 : 0}</span>
+                  <span class="live-score">${scoreData.score1 !== null && scoreData.score1 !== undefined ? scoreData.score1 : 0}</span>
                   <span class="live-score-separator" style="line-height: 1;">:</span>
-                  <span class="live-score ${shouldFlashHero2 ? 'flash-score' : ''}">${scoreData.score2 !== null && scoreData.score2 !== undefined ? scoreData.score2 : 0}</span>
+                  <span class="live-score">${scoreData.score2 !== null && scoreData.score2 !== undefined ? scoreData.score2 : 0}</span>
                 </div>
                 <span class="status-live hero-status-live">
                   ${timeLabel}
@@ -1442,8 +1502,7 @@ function createMatchCardHtml(match, index, isKnockout = false, showBigMatchBadge
       scoreStatusHtml = '';
     }
 
-    const shouldFlash1 = scoreData.score1_updated_at && (Date.now() - scoreData.score1_updated_at < 10000);
-    const shouldFlash2 = scoreData.score2_updated_at && (Date.now() - scoreData.score2_updated_at < 10000);
+    // Flash handled imperatively by triggerScoreFlash — no inline class evaluation needed
 
     return `
       <div class="match-card" data-key="${matchKey}" title="${labelVenue}" onclick="window.openMatchDetailModal('${matchKey}')" style="cursor: pointer;">
@@ -1461,9 +1520,9 @@ function createMatchCardHtml(match, index, isKnockout = false, showBigMatchBadge
           <div class="match-time-box score-box">
             ${isLive && liveParts && liveParts.clock && liveParts.clock !== 'LIVE' ? `<div class="match-period-label">${liveParts.periodName}</div>` : ''}
             <div class="score-display" style="white-space: nowrap;">
-              <span class="${shouldFlash1 ? 'flash-score' : ''}">${scoreData.score1}</span>
+              <span>${scoreData.score1}</span>
               <span> - </span>
-              <span class="${shouldFlash2 ? 'flash-score' : ''}">${scoreData.score2}</span>
+              <span>${scoreData.score2}</span>
             </div>
             ${scoreStatusHtml}
           </div>
@@ -4312,7 +4371,7 @@ function initSettingsAndFilters() {
   // Schedule filtering listeners
   const searchInput = document.getElementById('schedule-search');
   if (searchInput) {
-    searchInput.addEventListener('input', renderSchedule);
+    searchInput.addEventListener('input', debounce(renderSchedule, 150));
   }
 
   const groupSelect = document.getElementById('filter-group');
@@ -4719,9 +4778,13 @@ async function fetchRealTimeScores(isManual = false) {
         if (existing && isLive) {
           if (score1 !== null && score1 !== undefined && existing.score1 !== null && existing.score1 !== undefined && score1 > existing.score1) {
             score1_updated_at = Date.now();
+            // Trigger flash imperatively — only fires once per score value
+            triggerScoreFlash(localKey, 1, score1);
           }
           if (score2 !== null && score2 !== undefined && existing.score2 !== null && existing.score2 !== undefined && score2 > existing.score2) {
             score2_updated_at = Date.now();
+            // Trigger flash imperatively — only fires once per score value
+            triggerScoreFlash(localKey, 2, score2);
           }
           // Only advance clock_updated_at (and reset drift) when ESPN reports a new clock value
           if (wasLive && (existing.display_clock !== apiMatch.display_clock || existing.time_elapsed !== apiMatch.time_elapsed)) {
@@ -4866,8 +4929,7 @@ function createModalHeaderHtml(match, scoreData, summaryData) {
   const t2 = match.team2;
   const score1 = scoreData.score1 !== null && scoreData.score1 !== undefined ? scoreData.score1 : '-';
   const score2 = scoreData.score2 !== null && scoreData.score2 !== undefined ? scoreData.score2 : '-';
-  const shouldFlash1 = scoreData && scoreData.score1_updated_at && (Date.now() - scoreData.score1_updated_at < 10000);
-  const shouldFlash2 = scoreData && scoreData.score2_updated_at && (Date.now() - scoreData.score2_updated_at < 10000);
+  // Flash is triggered imperatively by triggerScoreFlash — no inline class evaluation here
   const minuteLabel = isMatchLive(match, scoreData) ? getMatchMinuteLabel(match, scoreData) : (scoreData.status === 'FINISHED' ? 'FT' : 'Belum Mulai');
   
   let modalLiveStatusHtml = '';
@@ -4943,9 +5005,9 @@ function createModalHeaderHtml(match, scoreData, summaryData) {
   const isStarted = scoreData && scoreData.status && scoreData.status !== 'TIMED' && scoreData.status !== 'PRE_MATCH' && scoreData.status !== 'SCHEDULED';
   
   const scoreTextHtml = isStarted ? `
-    <span class="${shouldFlash1 ? 'flash-score' : ''}">${score1}</span>
+    <span>${score1}</span>
     <span> - </span>
-    <span class="${shouldFlash2 ? 'flash-score' : ''}">${score2}</span>
+    <span>${score2}</span>
   ` : `
     <span style="font-size: 1.15rem; color: var(--text-secondary); font-weight: 700; letter-spacing: 1.5px;">VS</span>
   `;
@@ -5656,9 +5718,11 @@ function getLineupsFingerprint(modalData) {
     // Lineup structure (changes only when API pushes new lineup data)
     lin ? JSON.stringify([
       lin.home && lin.home.formation,
+      lin.home && lin.home.coach,
       lin.home && lin.home.starters && lin.home.starters.map(p => p.jersey + p.name + (p.subbedOut || '') + (p.subbedIn || '')).join('|'),
       lin.home && lin.home.bench && lin.home.bench.map(p => p.jersey + p.name + (p.subbedIn || '') + (p.subbedMinute || '')).join('|'),
       lin.away && lin.away.formation,
+      lin.away && lin.away.coach,
       lin.away && lin.away.starters && lin.away.starters.map(p => p.jersey + p.name + (p.subbedOut || '') + (p.subbedIn || '')).join('|'),
       lin.away && lin.away.bench && lin.away.bench.map(p => p.jersey + p.name + (p.subbedIn || '') + (p.subbedMinute || '')).join('|'),
     ]) : 'nolineup',
@@ -5869,6 +5933,11 @@ function renderLineupsTab(lineups) {
               ${kitDot(homeBg, homeJerseyBorder)}${t1}
             </div>
             ${homeBench}
+            ${home.coach ? `
+              <div class="lineup-coach-row">
+                <strong>Pelatih:</strong> ${home.coach}
+              </div>
+            ` : ''}
           </div>
           <div class="bench-col-divider"></div>
           <div class="bench-col bench-col-away">
@@ -5876,6 +5945,11 @@ function renderLineupsTab(lineups) {
               ${t2}${kitDot(awayBg, awayJerseyBorder)}
             </div>
             ${awayBench}
+            ${away.coach ? `
+              <div class="lineup-coach-row align-right">
+                <strong>Pelatih:</strong> ${away.coach}
+              </div>
+            ` : ''}
           </div>
         </div>
       </div>
@@ -5896,12 +5970,12 @@ document.addEventListener('DOMContentLoaded', () => {
   initCountdown();
   initNavigation();
   
-  // scale compact bracket on window resize
-  window.addEventListener('resize', () => {
+  // scale compact bracket on window resize (debounced to 100ms)
+  window.addEventListener('resize', debounce(() => {
     if (activeTab === 'tab-bracket') {
       scaleCompactBracket();
     }
-  });
+  }, 10000 / 100)); // 100ms delay
 
   // Initialize pinch-to-zoom gestures
   initBracketTouchGestures();
