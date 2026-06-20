@@ -5715,14 +5715,18 @@ function getLineupsFingerprint(modalData) {
     sd ? (sd.away_scorers || '') : '',
     sd ? (sd.home_red_cards || '') : '',
     sd ? (sd.away_red_cards || '') : '',
-    // Lineup structure (changes only when API pushes new lineup data)
+    // Lineup structure & colors (changes only when API pushes new lineup data)
     lin ? JSON.stringify([
       lin.home && lin.home.formation,
       lin.home && lin.home.coach,
+      lin.home && lin.home.uniformColor,
+      lin.home && lin.home.teamColor,
       lin.home && lin.home.starters && lin.home.starters.map(p => p.jersey + p.name + (p.subbedOut || '') + (p.subbedIn || '')).join('|'),
       lin.home && lin.home.bench && lin.home.bench.map(p => p.jersey + p.name + (p.subbedIn || '') + (p.subbedMinute || '')).join('|'),
       lin.away && lin.away.formation,
       lin.away && lin.away.coach,
+      lin.away && lin.away.uniformColor,
+      lin.away && lin.away.teamColor,
       lin.away && lin.away.starters && lin.away.starters.map(p => p.jersey + p.name + (p.subbedOut || '') + (p.subbedIn || '')).join('|'),
       lin.away && lin.away.bench && lin.away.bench.map(p => p.jersey + p.name + (p.subbedIn || '') + (p.subbedMinute || '')).join('|'),
     ]) : 'nolineup',
@@ -5760,16 +5764,28 @@ function renderLineupsTab(lineups) {
   const homeRedNames     = parseScorerNames(scoreData?.home_red_cards);
   const awayRedNames     = parseScorerNames(scoreData?.away_red_cards);
 
-  // Kit colours
+  // Dynamic Kit colours from API uniformColor or teamColor
+  const apiHomeBg = home.uniformColor || home.teamColor;
+  const apiAwayBg = away.uniformColor || away.teamColor;
+
   const homeKit = getTeamJerseyStyles(t1, true,  'var(--primary-gold)', '#000000');
   const awayKit = getTeamJerseyStyles(t2, false, 'var(--secondary-bronze)', '#ffffff');
-  const homeBg  = homeKit.homeBg;
-  const homeText = homeKit.homeText;
-  const homeJerseyBorder = homeBg === '#ffffff' ? '#cbd5e1' : 'rgba(255,255,255,0.5)';
-  const clash   = colorsClash(homeBg, awayKit.homeBg);
-  const awayBg  = clash ? awayKit.awayBg : awayKit.homeBg;
-  const awayText = clash ? awayKit.awayText : awayKit.homeText;
-  const awayJerseyBorder = awayBg === '#ffffff' ? '#cbd5e1' : 'rgba(255,255,255,0.5)';
+
+  const homeBg = apiHomeBg || homeKit.homeBg;
+  const homeText = apiHomeBg ? getContrastTextColor(homeBg) : homeKit.homeText;
+  const homeJerseyBorder = (homeBg === '#ffffff' || homeBg === 'var(--panel-bg-solid)') ? '#cbd5e1' : 'rgba(255,255,255,0.3)';
+
+  let awayBg = awayKit.homeBg;
+  let awayText = awayKit.homeText;
+  if (apiAwayBg) {
+    awayBg = apiAwayBg;
+    awayText = getContrastTextColor(awayBg);
+  } else {
+    const clash = colorsClash(homeBg, awayKit.homeBg);
+    awayBg = clash ? awayKit.awayBg : awayKit.homeBg;
+    awayText = clash ? awayKit.awayText : awayKit.homeText;
+  }
+  const awayJerseyBorder = (awayBg === '#ffffff' || awayBg === 'var(--panel-bg-solid)') ? '#cbd5e1' : 'rgba(255,255,255,0.3)';
   const gkBg    = getGkJerseyBg(homeBg, awayBg);
   const gkText  = getContrastTextColor(gkBg);
   const gkBorder = gkBg === '#ffffff' ? '#cbd5e1' : 'rgba(255,255,255,0.5)';

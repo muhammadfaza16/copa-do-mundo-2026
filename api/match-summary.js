@@ -48,6 +48,10 @@ export default async function handler(req, res) {
         home: {
           formation: '4-3-3',
           coach: 'Jaime Lozano',
+          teamColor: '#006341',
+          alternateColor: '#ffffff',
+          uniformColor: '#006341',
+          uniformType: 'home',
           starters: [
             { name: 'G. Ochoa', jersey: '13', position: 'GK' },
             { name: 'J. Sanchez', jersey: '19', position: 'RB' },
@@ -65,6 +69,10 @@ export default async function handler(req, res) {
         away: {
           formation: '4-4-2',
           coach: 'Hugo Broos',
+          teamColor: '#ffcd00',
+          alternateColor: '#007a4d',
+          uniformColor: '#ffcd00',
+          uniformType: 'home',
           starters: [
             { name: 'R. Williams', jersey: '1', position: 'GK' },
             { name: 'K. Mudau', jersey: '2', position: 'RB' },
@@ -119,13 +127,13 @@ export default async function handler(req, res) {
     }
 
     // 2. Process lineups
-    const lineups = { home: { formation: '', starters: [], bench: [], coach: null }, away: { formation: '', starters: [], bench: [], coach: null } };
+    const lineups = { home: { formation: '', starters: [], bench: [], coach: null, teamColor: null, alternateColor: null, uniformColor: null, uniformType: null }, away: { formation: '', starters: [], bench: [], coach: null, teamColor: null, alternateColor: null, uniformColor: null, uniformType: null } };
     if (data.rosters && Array.isArray(data.rosters)) {
       const homeRoster = data.rosters.find(r => r.homeAway === 'home');
       const awayRoster = data.rosters.find(r => r.homeAway === 'away');
       
       const mapRoster = (teamRoster) => {
-        if (!teamRoster) return { formation: '', starters: [], bench: [], coach: null };
+        if (!teamRoster) return { formation: '', starters: [], bench: [], coach: null, teamColor: null, alternateColor: null, uniformColor: null, uniformType: null };
         const formation = teamRoster.formation || '';
         const rosterList = teamRoster.roster || [];
         const coach = teamRoster.coach?.displayName || 
@@ -133,6 +141,11 @@ export default async function handler(req, res) {
                       (teamRoster.coaches && teamRoster.coaches[0]?.displayName) || 
                       (teamRoster.coaches && teamRoster.coaches[0]?.name) || 
                       null;
+        
+        const teamColor = teamRoster.team?.color ? `#${teamRoster.team.color}` : null;
+        const alternateColor = teamRoster.team?.alternateColor ? `#${teamRoster.team.alternateColor}` : null;
+        const uniformColor = teamRoster.uniform?.color ? `#${teamRoster.uniform.color}` : null;
+        const uniformType = teamRoster.uniform?.type || null;
         
         const mapPlayer = (p) => ({
           name: p.athlete?.displayName || '',
@@ -146,7 +159,7 @@ export default async function handler(req, res) {
         const starters = rosterList.filter(p => p.starter).map(mapPlayer);
         const bench = rosterList.filter(p => !p.starter).map(mapPlayer);
         
-        return { formation, starters, bench, coach };
+        return { formation, starters, bench, coach, teamColor, alternateColor, uniformColor, uniformType };
       };
       
       lineups.home = mapRoster(homeRoster);
