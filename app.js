@@ -2031,6 +2031,7 @@ function renderStatistics() {
   let totalGoals = 0;
   let matchesPlayed = 0;
   const teamGoalsMap = {};
+  const teamMatchesMap = {};
   let totalRedCards = 0;
   let totalOwnGoals = 0;
   let biggestWin = { diff: 0, matchStr: '-', team: '-' };
@@ -2051,6 +2052,8 @@ function renderStatistics() {
 
       teamGoalsMap[m.team1] = (teamGoalsMap[m.team1] || 0) + s1;
       teamGoalsMap[m.team2] = (teamGoalsMap[m.team2] || 0) + s2;
+      teamMatchesMap[m.team1] = (teamMatchesMap[m.team1] || 0) + 1;
+      teamMatchesMap[m.team2] = (teamMatchesMap[m.team2] || 0) + 1;
 
       // Calculate red cards
       const countRedCards = (cardsStr) => {
@@ -2119,9 +2122,22 @@ function renderStatistics() {
     }
   });
 
-  // Display top scorers list only
+  // Display top scorers list only (sorted by goals, then fewest team matches played, then alphabetically)
   const currentList = Object.values(scorersMap)
-    .sort((a, b) => b.goals - a.goals)
+    .sort((a, b) => {
+      // 1. Goals (descending)
+      if (b.goals !== a.goals) {
+        return b.goals - a.goals;
+      }
+      // 2. Fewest team matches played (ascending) — better goals-per-match ratio
+      const matchesA = teamMatchesMap[a.team] || 0;
+      const matchesB = teamMatchesMap[b.team] || 0;
+      if (matchesA !== matchesB) {
+        return matchesA - matchesB;
+      }
+      // 3. Alphabetical fallback
+      return a.name.localeCompare(b.name);
+    })
     .map(s => ({ name: s.name, team: s.team, value: s.goals, label: 'Gol' }));
   const emptyMsg = 'Belum ada gol yang dicetak.';
 
@@ -2776,13 +2792,14 @@ function calculateOfficialGroupStandings() {
         }
       });
 
-      // Sort virtual standings
-      teamsList.sort((a, b) => {
-        if (b.pts !== a.pts) return b.pts - a.pts;
-        if (b.gd !== a.gd) return b.gd - a.gd;
-        if (b.gf !== a.gf) return b.gf - a.gf;
-        return a.originalIndex - b.originalIndex;
+      // Sort virtual standings using standard tie-breakers (H2H, FIFA rankings, etc.)
+      const teamNames = teamsList.map(t => t.teamName);
+      const tempStats = {};
+      teamsList.forEach(t => {
+        tempStats[t.teamName] = { pts: t.pts, gd: t.gd, gf: t.gf };
       });
+      const sortedNames = sortGroupTeams(teamNames, tempStats);
+      teamsList.sort((a, b) => sortedNames.indexOf(a.teamName) - sortedNames.indexOf(b.teamName));
 
       // Save to groupRankings and teamStats
       groupRankings[groupName] = teamsList.map(t => t.teamName);
