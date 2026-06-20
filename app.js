@@ -3314,7 +3314,7 @@ const COMPACT_COORDINATES = {
   101: { x: 290, y: 360 }, // Semifinal 1 (Left)
   102: { x: 586, y: 360 }, // Semifinal 2 (Right)
   104: { x: 438, y: 360 }, // Final (Center)
-  103: { x: 438, y: 520 }  // Juara 3 (Bottom Center)
+  103: { x: 438, y: 440 }  // Juara 3 (Bottom Center)
 };
 
 // Formatter to translate date string "29/6" into "29 Jun"
@@ -3561,17 +3561,19 @@ function renderBracketLines() {
       d = `M ${x_start} ${y_start} H ${x_end}`;
     } else if (conn.type === 'center-third') {
       if (fromCoords.x < toCoords.x) {
-        x_start = fromCoords.x + cardWidth + 7.5;
+        x_start = fromCoords.x + cardWidth;
         y_start = fromCoords.y + 18;
         x_end = toCoords.x;
         y_end = toCoords.y + 18;
-        d = `M ${x_start} ${y_start} V ${y_end} H ${x_end}`;
+        const xm = (x_start + x_end) / 2;
+        d = `M ${x_start} ${y_start} H ${xm} V ${y_end} H ${x_end}`;
       } else {
-        x_start = fromCoords.x - 7.5;
+        x_start = fromCoords.x;
         y_start = fromCoords.y + 18;
         x_end = toCoords.x + cardWidth;
         y_end = toCoords.y + 18;
-        d = `M ${x_start} ${y_start} V ${y_end} H ${x_end}`;
+        const xm = (x_start + x_end) / 2;
+        d = `M ${x_start} ${y_start} H ${xm} V ${y_end} H ${x_end}`;
       }
     }
 
