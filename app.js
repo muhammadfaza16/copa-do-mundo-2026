@@ -336,7 +336,7 @@ let showPotentialDraw = false;
 let _lastRenderedLineupsFingerprint = null; // tracks last-rendered lineup data to avoid redundant re-renders
 let cdElementsCache = null;
 let lastFetchTime = 0;
-let scorePollInterval = null;
+let scorePollTimeout = null;
 let realScores = {};
 try {
   realScores = JSON.parse(localStorage.getItem('wc2026_real_scores')) || {};
@@ -495,6 +495,20 @@ function getMatchDate(dateStr, timeStr) {
   // Subtract 7 hours (WIB is UTC+7) to get actual UTC time
   utcDate.setUTCHours(utcDate.getUTCHours() - 7);
   return utcDate;
+}
+
+// Helper to get and cache kickoff timestamp directly on the match object
+function getMatchKickoffTime(match) {
+  if (!match) return -1;
+  if (match._kickoffTime !== undefined) {
+    return match._kickoffTime;
+  }
+  if (match.date && match.time) {
+    match._kickoffTime = getMatchDate(match.date, match.time).getTime();
+  } else {
+    match._kickoffTime = -1;
+  }
+  return match._kickoffTime;
 }
 
 // Reconstruct match object from match key
@@ -934,10 +948,9 @@ function getMatchMinuteLabel(match, scoreData) {
 
 // Centralized live match detection: API status first, then time-based fallback
 function isMatchLive(match, scoreData) {
-  // Compute kickoff once for all checks
-  let kickoff = -1;
-  if (match && match.date && match.time) {
-    kickoff = getMatchDate(match.date, match.time).getTime();
+  // Compute kickoff once and cache it on the match object itself
+  const kickoff = getMatchKickoffTime(match);
+  if (kickoff >= 0) {
     // Guard: if kickoff is in the future, it cannot be live!
     if (Date.now() < kickoff) {
       return false;
@@ -965,11 +978,21 @@ function isMatchLive(match, scoreData) {
 // ----------------------------------------------------
 let lastHeroMatchKey = null;
 
+let _cachedCdContainer = null;
+let _cachedCdTitle = null;
+let _cachedCdDisplay = null;
+let _cachedCdSub = null;
+
 function updateHeroPanel() {
-  const container = document.querySelector('.countdown-container');
-  const titleEl = document.querySelector('.countdown-title');
-  const cdDisplay = document.getElementById('countdown-display');
-  const subEl = document.getElementById('countdown-sub');
+  if (!_cachedCdContainer) _cachedCdContainer = document.querySelector('.countdown-container');
+  if (!_cachedCdTitle) _cachedCdTitle = document.querySelector('.countdown-title');
+  if (!_cachedCdDisplay) _cachedCdDisplay = document.getElementById('countdown-display');
+  if (!_cachedCdSub) _cachedCdSub = document.getElementById('countdown-sub');
+
+  const container = _cachedCdContainer;
+  const titleEl = _cachedCdTitle;
+  const cdDisplay = _cachedCdDisplay;
+  const subEl = _cachedCdSub;
   if (!container || !titleEl || !cdDisplay || !subEl) return;
 
   // Ensure hero star button is removed
@@ -1791,11 +1814,16 @@ function renderLatestResults() {
   }
 
   // Sort by match date/time descending (most recent matches first)
-  matchesWithScores.sort((a, b) => getMatchDate(b.date, b.time) - getMatchDate(a.date, a.time));
+  const matchesWithTime = matchesWithScores.map(m => ({
+    match: m,
+    time: getMatchKickoffTime(m)
+  }));
+  matchesWithTime.sort((a, b) => b.time - a.time);
+  const sortedMatchesWithScores = matchesWithTime.map(x => x.match);
 
   // Extract the last 2 distinct match dates (newest first)
   const uniqueDates = [];
-  for (const m of matchesWithScores) {
+  for (const m of sortedMatchesWithScores) {
     if (!uniqueDates.includes(m.date)) {
       uniqueDates.push(m.date);
     }
@@ -1805,7 +1833,7 @@ function renderLatestResults() {
   }
 
   // Filter matches belonging to these 2 most recent match days
-  const latestMatches = matchesWithScores.filter(m => uniqueDates.includes(m.date));
+  const latestMatches = sortedMatchesWithScores.filter(m => uniqueDates.includes(m.date));
 
   // Generate hash of current scores to prevent unnecessary DOM recreation on background polling
   const matchesContentHash = latestMatches.map(m => {
@@ -2223,6 +2251,7 @@ function renderNearestMatches() {
   if (!container) return;
 
   const now = new Date();
+  const nowTime = now.getTime();
   
   // Combine all matches
   const allMatches = getAllMatches();
@@ -2238,17 +2267,22 @@ function renderNearestMatches() {
     const score = getMatchScore(matchKey);
     if (score && score.status === 'FINISHED') return false;
     const isLive = score && (score.status === 'IN_PLAY' || score.status === 'PAUSED' || score.status === 'EXTRA_TIME' || score.status === 'PENALTY_SHOOTOUT');
-    return isLive || getMatchDate(m.date, m.time) >= now;
+    return isLive || getMatchKickoffTime(m) >= nowTime;
   });
 
   let upcoming = [];
 
   if (upcomingMatches.length > 0) {
-    // Sort upcoming matches chronologically
-    upcomingMatches.sort((a, b) => getMatchDate(a.date, a.time) - getMatchDate(b.date, b.time));
+    // Sort upcoming matches chronologically using cached kickoff time
+    const upcomingWithTime = upcomingMatches.map(m => ({
+      match: m,
+      time: getMatchKickoffTime(m)
+    }));
+    upcomingWithTime.sort((a, b) => a.time - b.time);
+    const sortedUpcomingMatches = upcomingWithTime.map(x => x.match);
 
     // Get the date of the first upcoming match
-    const earliestMatch = upcomingMatches[0];
+    const earliestMatch = sortedUpcomingMatches[0];
     const day1Date = getMatchDate(earliestMatch.date, earliestMatch.time);
     const day2Date = new Date(day1Date);
     day2Date.setDate(day2Date.getDate() + 1);
@@ -2256,14 +2290,12 @@ function renderNearestMatches() {
     const day1Str = useLocalTimezone ? getLocalDateString(day1Date) : getWibDateString(day1Date);
     const day2Str = useLocalTimezone ? getLocalDateString(day2Date) : getWibDateString(day2Date);
 
-    // Get matches on these two days from the already-filtered set
-    upcoming = upcomingMatches.filter(m => {
+    // Get matches on these two days from the already-filtered set.
+    // Note: Since sortedUpcomingMatches is already sorted, filtering it preserves the chronological order.
+    upcoming = sortedUpcomingMatches.filter(m => {
       const matchDateStr = getMatchDateString(m);
       return matchDateStr === day1Str || matchDateStr === day2Str;
     });
-
-    // Sort chronologically
-    upcoming.sort((a, b) => getMatchDate(a.date, a.time) - getMatchDate(b.date, b.time));
   } else {
     // Fallback: If no upcoming matches (e.g. tournament ended), show the last 3 matches (Semifinals, Final)
     upcoming = allMatches.slice(-3);
@@ -2309,27 +2341,42 @@ function renderNearestMatches() {
   container.innerHTML = listHtml;
 }
 
+let _cachedNextMatch = null;
+let _cachedNextMatchTime = 0;
+
 function getNextMatch() {
   const now = Date.now();
+  
+  if (_cachedNextMatch && _cachedNextMatchTime > now) {
+    return _cachedNextMatch;
+  }
+  
   const allMatches = getAllMatches();
-
   const upcoming = allMatches.filter(m => {
     const matchKey = m.isKO ? `ko_${m.match_id}` : `gs_${m.date}_${m.team1}_${m.team2}`;
     const scoreData = getMatchScore(matchKey);
     if (scoreData && scoreData.status === 'FINISHED') return false;
-    const matchTime = getMatchDate(m.date, m.time).getTime();
+    const matchTime = getMatchKickoffTime(m);
     return matchTime > now;
   });
 
-  if (upcoming.length === 0) return null;
+  if (upcoming.length === 0) {
+    _cachedNextMatch = null;
+    _cachedNextMatchTime = 0;
+    return null;
+  }
 
-  upcoming.sort((a, b) => {
-    const timeA = getMatchDate(a.date, a.time).getTime();
-    const timeB = getMatchDate(b.date, b.time).getTime();
-    return timeA - timeB;
-  });
+  // Pre-calculate times to avoid calling getMatchKickoffTime repeatedly during sort
+  const upcomingWithTime = upcoming.map(m => ({
+    match: m,
+    time: getMatchKickoffTime(m)
+  }));
 
-  return upcoming[0];
+  upcomingWithTime.sort((a, b) => a.time - b.time);
+
+  _cachedNextMatch = upcomingWithTime[0].match;
+  _cachedNextMatchTime = upcomingWithTime[0].time;
+  return _cachedNextMatch;
 }
 
 function renderLiveMatches() {
@@ -2877,6 +2924,7 @@ function recalculateKnockoutTree() {
   // Clear working copy matches (shallow clone is safe — match objects are flat)
   knockoutMatches = WORLD_CUP_DATA.knockout_stage.map(m => ({...m}));
   _cachedAllMatches = null; // Invalidate cached allMatches since knockoutMatches changed
+  _cachedNextMatch = null;  // Invalidate cached next match
 
   // STEP 1: Evaluate Round of 32 starting participants based on group rankings and 3rd place selections (Always evaluate dynamically)
   knockoutMatches.forEach(m => {
@@ -3658,10 +3706,18 @@ let currentScale = 1;
 let baseScale = 1;
 let hasPinched = false;
 
+let _cachedBracketWrapper = null;
+let _cachedBracketContainer = null;
+let _cachedBracketScaffolding = null;
+
 function applyScale() {
-  const wrapper = document.querySelector('.compact-bracket-wrapper');
-  const container = document.getElementById('compact-bracket-container');
-  const scaffolding = document.getElementById('bracket-scroll-scaffolding');
+  if (!_cachedBracketWrapper) _cachedBracketWrapper = document.querySelector('.compact-bracket-wrapper');
+  if (!_cachedBracketContainer) _cachedBracketContainer = document.getElementById('compact-bracket-container');
+  if (!_cachedBracketScaffolding) _cachedBracketScaffolding = document.getElementById('bracket-scroll-scaffolding');
+
+  const wrapper = _cachedBracketWrapper;
+  const container = _cachedBracketContainer;
+  const scaffolding = _cachedBracketScaffolding;
   if (!wrapper || !container) return;
 
   currentScale = Math.max(0.25, Math.min(currentScale, 2.5));
@@ -3814,8 +3870,8 @@ function initBracketDragScroll() {
 
     isDown = true;
     wrapper.classList.add('grabbing');
-    startX = e.pageX - wrapper.offsetLeft;
-    startY = e.pageY - wrapper.offsetTop;
+    startX = e.clientX;
+    startY = e.clientY;
     scrollLeft = wrapper.scrollLeft;
     scrollTop = wrapper.scrollTop;
     window.isBracketDragging = false;
@@ -3836,10 +3892,8 @@ function initBracketDragScroll() {
 
   wrapper.addEventListener('mousemove', (e) => {
     if (!isDown) return;
-    const x = e.pageX - wrapper.offsetLeft;
-    const y = e.pageY - wrapper.offsetTop;
-    const walkX = x - startX;
-    const walkY = y - startY;
+    const walkX = e.clientX - startX;
+    const walkY = e.clientY - startY;
 
     if (Math.abs(walkX) > dragThreshold || Math.abs(walkY) > dragThreshold) {
       window.isBracketDragging = true;
@@ -4359,38 +4413,39 @@ function hasLiveMatches() {
 }
 
 function startScorePolling() {
-  if (scorePollInterval) {
-    clearInterval(scorePollInterval);
+  if (scorePollTimeout) {
+    clearTimeout(scorePollTimeout);
   }
   
-  // Fetch immediately
-  fetchRealTimeScores(false);
-  
-  // Adaptive interval: 10s when live, 60s otherwise
-  const targetInterval = hasLiveMatches() ? 10000 : 60000;
-  currentPollInterval = targetInterval;
-  
-  scorePollInterval = setInterval(() => {
-    fetchRealTimeScores(false);
-    
-    // Re-evaluate poll speed after each fetch
-    const newInterval = hasLiveMatches() ? 10000 : 60000;
-    if (newInterval !== currentPollInterval) {
-      currentPollInterval = newInterval;
-      clearInterval(scorePollInterval);
-      scorePollInterval = setInterval(() => {
-        fetchRealTimeScores(false);
-      }, currentPollInterval);
-      console.log(`Poll interval adjusted to ${currentPollInterval / 1000}s`);
+  // Recursive poll function
+  async function poll() {
+    try {
+      await fetchRealTimeScores(false);
+    } catch (e) {
+      console.error("Auto-poll fetch error:", e);
     }
-  }, currentPollInterval);
-  console.log(`Score polling started (${currentPollInterval / 1000}s interval).`);
+    const targetInterval = hasLiveMatches() ? 10000 : 60000;
+    currentPollInterval = targetInterval;
+    scorePollTimeout = setTimeout(poll, currentPollInterval);
+  }
+  
+  // Fetch immediately, then schedule next
+  fetchRealTimeScores(false).then(() => {
+    const targetInterval = hasLiveMatches() ? 10000 : 60000;
+    currentPollInterval = targetInterval;
+    scorePollTimeout = setTimeout(poll, currentPollInterval);
+    console.log(`Score polling started (${currentPollInterval / 1000}s interval).`);
+  }).catch(err => {
+    console.error("Initial score poll failed, scheduling retry:", err);
+    currentPollInterval = 60000;
+    scorePollTimeout = setTimeout(poll, currentPollInterval);
+  });
 }
 
 function stopScorePolling() {
-  if (scorePollInterval) {
-    clearInterval(scorePollInterval);
-    scorePollInterval = null;
+  if (scorePollTimeout) {
+    clearTimeout(scorePollTimeout);
+    scorePollTimeout = null;
     console.log("Score polling stopped.");
   }
 }
@@ -4533,10 +4588,10 @@ async function fetchRealTimeScores(isManual = false) {
 
       if (localKey) {
         const match = getMatchFromKey(localKey);
+        const kickoff = getMatchKickoffTime(match);
         
         // Guard: if kickoff is in the future, force notstarted / TIMED status
-        if (match && match.date && match.time) {
-          const kickoff = getMatchDate(match.date, match.time).getTime();
+        if (kickoff >= 0) {
           if (Date.now() < kickoff) {
             isFinished = false;
             isLive = false;
@@ -4544,8 +4599,7 @@ async function fetchRealTimeScores(isManual = false) {
         }
         
         // Time-based fallback: if API says notstarted but kickoff has passed, treat as live
-        if (!isFinished && !isLive && match && match.date && match.time) {
-          const kickoff = getMatchDate(match.date, match.time).getTime();
+        if (!isFinished && !isLive && kickoff >= 0) {
           const elapsed = Date.now() - kickoff;
           if (elapsed >= 0 && elapsed < 130 * 60 * 1000) {
             isLive = true;
