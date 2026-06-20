@@ -692,6 +692,7 @@ body.light-theme .hero-banner {
   border: 1px solid rgba(212, 175, 55, 0.22);
   padding: 24px 28px 20px;
   overflow: hidden; /* Clip side accent bars to rounded corners */
+  outline: none;
 }
 
 .countdown-title {
@@ -1464,7 +1465,9 @@ body.light-theme .search-input:focus {
   outline: none;
 }
 
-.countdown-container:focus {
+.countdown-container:focus,
+.countdown-container:focus-visible,
+.countdown-container:active {
   outline: none;
 }
 
