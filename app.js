@@ -2,263 +2,6 @@
 const WORLD_CUP_DATA = window.WORLD_CUP_DATA;
 const TEAM_FLAGS = window.TEAM_FLAGS;
 
-// ----------------------------------------------------
-// I18N / TRANSLATION SYSTEM
-// ----------------------------------------------------
-const TRANSLATIONS = {
-  id: {
-    "hero-ticker-dates": "11 JUNI – 19 JULI 2026",
-    "hero-ticker-stats": "48 TIM · 104 PERTANDINGAN",
-    "hero-ticker-hosts": "USA · KANADA · MEKSIKO",
-    "hero-tagline-start": "11 Juni",
-    "hero-tagline-end": "19 Juli 2026",
-    "host-usa": "Amerika Serikat",
-    "host-canada": "Kanada",
-    "host-mexico": "Meksiko",
-    "hero-stat-teams": "Negara",
-    "hero-stat-matches": "Pertandingan",
-    "hero-stat-stadiums": "Stadion",
-    "hero-stat-hosts": "Tuan Rumah",
-    "countdown-title": "Kick-Off Match Pertama",
-    "countdown-label-days": "Hari",
-    "countdown-label-hours": "Jam",
-    "countdown-label-mins": "Menit",
-    "countdown-label-secs": "Detik",
-    "section-latest-results": "Hasil Terbaru",
-    "section-other-matches": "Pertandingan Lainnya",
-    "section-favorites": "Pertandingan Favorit",
-    "favorites-empty": "Belum ada pertandingan favorit. Ketuk ikon bintang di tab Jadwal untuk menyimpannya.",
-    "section-tournament-stats": "Statistik Turnamen",
-    "stats-played-lbl": "Laga Dimainkan",
-    "stats-played-sub": "Laga berjalan & selesai",
-    "stats-goals-lbl": "Total Gol",
-    "stats-goals-sub": "Gol tercatat",
-    "stats-avg-goals-lbl": "Rata-rata Gol",
-    "stats-avg-goals-sub": "Per pertandingan",
-    "stats-top-team-lbl": "Tim Tersubur",
-    "stats-top-team-sub": "Gol terbanyak",
-    "stats-red-cards-lbl": "Total Kartu Merah",
-    "stats-red-cards-sub": "Seluruh turnamen",
-    "stats-own-goals-lbl": "Gol Bunuh Diri",
-    "stats-own-goals-sub": "Gol bunuh diri",
-    "stats-biggest-win-lbl": "Kemenangan Terbesar",
-    "stats-biggest-win-sub": "Selisih gol terbanyak",
-    "stats-highest-scoring-lbl": "Laga Tersubur",
-    "stats-highest-scoring-sub": "Gol terbanyak satu laga",
-    "stats-leaderboard-title": "Top Scorer",
-    "subtab-upcoming": "Jadwal",
-    "subtab-results": "Hasil Pertandingan",
-    "schedule-search-placeholder": "Cari negara (misal: Brasil, Spanyol)...",
-    "filter-all": "Semua",
-    "filter-group-stage": "Fase Grup",
-    "filter-knockout-stage": "Fase Gugur",
-    "filter-group-all": "Semua Grup",
-    "filter-round-all": "Semua Babak",
-    "filter-round-r32": "Babak 32 Besar",
-    "filter-round-r16": "Babak 16 Besar",
-    "filter-round-qf": "Perempat Final",
-    "filter-round-sf": "Semi Final",
-    "filter-round-third": "Perebutan Tempat ke-3",
-    "filter-round-final": "Final",
-    "section-groups-title": "Grup Piala Dunia 2026",
-    "section-groups-subtitle": "48 Tim di 12 Grup",
-    "section-best-thirds-title": "Klasemen Peringkat 3 Terbaik",
-    "section-best-thirds-subtitle": "8 Tim Terbaik Lolos ke 32 Besar",
-    "section-bracket-title": "Bagan Fase Gugur",
-    "section-bracket-subtitle": "Jalur Lolos Babak Gugur Piala Dunia 2026",
-    "bracket-zoom-label": "Perbesar Bagan",
-    "legend-r32": "32 Besar",
-    "legend-r16": "16 Besar",
-    "legend-qf": "Perempat Final",
-    "legend-sf": "Semifinal",
-    "legend-third": "Juara 3",
-    "legend-final": "Final",
-    "settings-title": "Pengaturan Aplikasi",
-    "settings-tz-label": "Tampilkan Waktu Lokal Saya",
-    "settings-tz-desc": "Konversi waktu pertandingan ke zona waktu HP Anda",
-    "settings-lang-label": "Bahasa Inggris (English)",
-    "settings-lang-desc": "Aktifkan tampilan bahasa Inggris untuk aplikasi",
-    "settings-theme-label": "Mode Terang (Light Mode)",
-    "settings-theme-desc": "Aktifkan tema UI dengan latar belakang terang",
-    "nav-home": "Home",
-    "nav-schedule": "Jadwal",
-    "nav-groups": "Grup",
-    "nav-bracket": "Bagan",
-    "nav-settings": "Setting",
-    "slot-modal-title": "Potensi Pengisi Slot",
-    "match-detail-modal-title": "Detail Laga & Statistik",
-    // Dynamic / JS-only strings
-    "selected": "Terpilih",
-    "live-waiting": "MENUNGGU KICK-OFF...",
-    "live-in-progress": "Pertandingan Berlangsung",
-    "upcoming-match": "Kick-Off Match Berikutnya",
-    "first-match": "Kick-Off Match Pertama",
-    "no-results-criteria": "Belum ada hasil pertandingan yang tersedia untuk kriteria pencarian/filter ini.",
-    "no-schedule-criteria": "Tidak ada jadwal pertandingan yang tersedia untuk kriteria pencarian/filter ini.",
-    "stadium": "Stadion",
-    "referee": "Wasit",
-    "attendance": "Penonton",
-    "loading": "Memuat...",
-    "match-not-found": "Pertandingan tidak ditemukan.",
-    "stats-tab": "Statistik",
-    "lineups-tab": "Lineup",
-    "stats-not-available": "Statistik tidak tersedia.",
-    "lineups-not-released": "Susunan pemain belum dirilis.",
-    "bench": "Cadangan",
-    "coach": "Pelatih:",
-    "legend-goal": "Gol",
-    "legend-red-card": "Kartu Merah",
-    "legend-sub-in": "Masuk",
-    "legend-sub-out": "Keluar",
-    "table-pos": "Pos",
-    "table-group": "Grup",
-    "table-team": "Tim",
-    "table-played": "M",
-    "table-gd": "SG",
-    "table-pts": "P",
-    "table-status": "Status",
-    "status-qualified": "LOLOS",
-    "status-eliminated": "GUGUR",
-    "not-started": "Belum Mulai",
-    "live": "LIVE",
-    "halftime": "HT",
-    "extra-time": "ET",
-    "penalties": "PEN",
-    "period-1": "Babak 1",
-    "period-2": "Babak 2",
-    "period-et-1": "ET Babak 1",
-    "period-et-2": "ET Babak 2"
-  },
-  en: {
-    "hero-ticker-dates": "JUNE 11 – JULY 19, 2026",
-    "hero-ticker-stats": "48 TEAMS · 104 MATCHES",
-    "hero-ticker-hosts": "USA · CANADA · MEXICO",
-    "hero-tagline-start": "June 11",
-    "hero-tagline-end": "July 19, 2026",
-    "host-usa": "United States",
-    "host-canada": "Canada",
-    "host-mexico": "Mexico",
-    "hero-stat-teams": "Teams",
-    "hero-stat-matches": "Matches",
-    "hero-stat-stadiums": "Stadiums",
-    "hero-stat-hosts": "Hosts",
-    "countdown-title": "First Match Kick-Off",
-    "countdown-label-days": "Days",
-    "countdown-label-hours": "Hours",
-    "countdown-label-mins": "Minutes",
-    "countdown-label-secs": "Seconds",
-    "section-latest-results": "Latest Results",
-    "section-other-matches": "Other Matches",
-    "section-favorites": "Favorite Matches",
-    "favorites-empty": "No favorite matches yet. Tap the star icon in the Schedule tab to save them.",
-    "section-tournament-stats": "Tournament Statistics",
-    "stats-played-lbl": "Matches Played",
-    "stats-played-sub": "Matches in progress & finished",
-    "stats-goals-lbl": "Total Goals",
-    "stats-goals-sub": "Goals scored",
-    "stats-avg-goals-lbl": "Average Goals",
-    "stats-avg-goals-sub": "Per match",
-    "stats-top-team-lbl": "Top Scoring Team",
-    "stats-top-team-sub": "Most goals scored",
-    "stats-red-cards-lbl": "Total Red Cards",
-    "stats-red-cards-sub": "Tournament total",
-    "stats-own-goals-lbl": "Own Goals",
-    "stats-own-goals-sub": "Own goals scored",
-    "stats-biggest-win-lbl": "Biggest Win",
-    "stats-biggest-win-sub": "Highest goal difference",
-    "stats-highest-scoring-lbl": "Highest Scoring Match",
-    "stats-highest-scoring-sub": "Most goals in a single match",
-    "stats-leaderboard-title": "Top Scorers",
-    "subtab-upcoming": "Fixtures",
-    "subtab-results": "Results",
-    "schedule-search-placeholder": "Search countries (e.g., Brazil, Spain)...",
-    "filter-all": "All",
-    "filter-group-stage": "Group Stage",
-    "filter-knockout-stage": "Knockout Stage",
-    "filter-group-all": "All Groups",
-    "filter-round-all": "All Rounds",
-    "filter-round-r32": "Round of 32",
-    "filter-round-r16": "Round of 16",
-    "filter-round-qf": "Quarter-finals",
-    "filter-round-sf": "Semifinals",
-    "filter-round-third": "Third-place Playoff",
-    "filter-round-final": "Final",
-    "section-groups-title": "World Cup 2026 Groups",
-    "section-groups-subtitle": "48 Teams in 12 Groups",
-    "section-best-thirds-title": "Best Third-Placed Teams Standings",
-    "section-best-thirds-subtitle": "Top 8 Teams Advance to Round of 32",
-    "section-bracket-title": "Knockout Bracket",
-    "section-bracket-subtitle": "World Cup 2026 Knockout Stage Road",
-    "bracket-zoom-label": "Zoom Bracket",
-    "legend-r32": "Round of 32",
-    "legend-r16": "Round of 16",
-    "legend-qf": "Quarter-finals",
-    "legend-sf": "Semifinals",
-    "legend-third": "Third Place",
-    "legend-final": "Final",
-    "settings-title": "App Settings",
-    "settings-tz-label": "Show My Local Time",
-    "settings-tz-desc": "Convert match times to your device timezone",
-    "settings-lang-label": "English Language",
-    "settings-lang-desc": "Enable English interface for the application",
-    "settings-theme-label": "Light Mode",
-    "settings-theme-desc": "Enable UI theme with a light background",
-    "nav-home": "Home",
-    "nav-schedule": "Schedule",
-    "nav-groups": "Groups",
-    "nav-bracket": "Bracket",
-    "nav-settings": "Settings",
-    "slot-modal-title": "Potential Slot Contenders",
-    "match-detail-modal-title": "Match Details & Stats",
-    // Dynamic / JS-only strings
-    "selected": "Selected",
-    "live-waiting": "AWAITING KICK-OFF...",
-    "live-in-progress": "Match in Progress",
-    "upcoming-match": "Next Match Kick-Off",
-    "first-match": "First Match Kick-Off",
-    "no-results-criteria": "No match results available for these search/filter criteria.",
-    "no-schedule-criteria": "No upcoming matches available for these search/filter criteria.",
-    "stadium": "Stadium",
-    "referee": "Referee",
-    "attendance": "Attendance",
-    "loading": "Loading...",
-    "match-not-found": "Match not found.",
-    "stats-tab": "Stats",
-    "lineups-tab": "Lineups",
-    "stats-not-available": "Statistics not available.",
-    "lineups-not-released": "Lineups have not been released yet.",
-    "bench": "Substitutes",
-    "coach": "Coach:",
-    "legend-goal": "Goal",
-    "legend-red-card": "Red Card",
-    "legend-sub-in": "Subbed In",
-    "legend-sub-out": "Subbed Out",
-    "table-pos": "Pos",
-    "table-group": "Group",
-    "table-team": "Team",
-    "table-played": "MP",
-    "table-gd": "GD",
-    "table-pts": "PTS",
-    "table-status": "Status",
-    "status-qualified": "QUALIFIED",
-    "status-eliminated": "ELIMINATED",
-    "not-started": "Upcoming",
-    "live": "LIVE",
-    "halftime": "HT",
-    "extra-time": "ET",
-    "penalties": "PEN",
-    "period-1": "1st Half",
-    "period-2": "2nd Half",
-    "period-et-1": "ET 1st Half",
-    "period-et-2": "ET 2nd Half"
-  }
-};
-
-function t(key) {
-  const dict = TRANSLATIONS[currentLang] || TRANSLATIONS['id'];
-  return dict[key] || key;
-}
-
 // LOCAL STORAGE MIGRATION (English -> Indonesian)
 const TEAM_TRANSLATIONS = {
   "Mexico": "Meksiko",
@@ -321,56 +64,6 @@ const TEAM_TRANSLATIONS = {
   "Uzbekistan": "Uzbekistan",
   "Colombia": "Kolombia"
 };
-
-const TEAM_TRANSLATIONS_EN = {};
-for (const [en, id] of Object.entries(TEAM_TRANSLATIONS)) {
-  TEAM_TRANSLATIONS_EN[id] = en;
-}
-TEAM_TRANSLATIONS_EN["Ceko"] = "Czechia";
-TEAM_TRANSLATIONS_EN["RD Kongo"] = "DR Congo";
-
-function translateTeam(teamName) {
-  if (!teamName) return '';
-  if (currentLang === 'en') {
-    return TEAM_TRANSLATIONS_EN[teamName] || teamName;
-  }
-  return teamName;
-}
-
-function translateGroup(groupName) {
-  if (!groupName) return '';
-  if (currentLang === 'en') {
-    if (groupName.startsWith('Grup ')) {
-      return groupName.replace('Grup ', 'Group ');
-    }
-    const mappings = {
-      "Round of 32": "Round of 32",
-      "Round of 16": "Round of 16",
-      "Quarter-final": "Quarter-finals",
-      "Semi-final": "Semifinals",
-      "Third-place match": "Third-place Match",
-      "Final": "Final"
-    };
-    return mappings[groupName] || groupName;
-  }
-  
-  if (groupName.startsWith('Group ')) {
-    return groupName.replace('Group ', 'Grup ');
-  }
-  const mappingsID = {
-    "Round of 32": "Babak 32 Besar",
-    "Round of 16": "Babak 16 Besar",
-    "Quarter-final": "Perempat Final",
-    "Semi-final": "Semifinal",
-    "Third-place match": "Perebutan Juara 3",
-    "Final": "Final"
-  };
-  return mappingsID[groupName] || groupName;
-}
-
-function getKoStageLabel(stageName) {
-  return translateGroup(stageName);
-}
 
 const FIFA_RANKINGS = {
   "Argentina": 1,
@@ -633,7 +326,6 @@ function getMatchVenue(match) {
 }
 
 // APP STATE
-let currentLang = localStorage.getItem('wc2026_lang') || 'id';
 let activeTab = 'tab-home';
 let scheduleSubTab = 'upcoming';
 let useLocalTimezone = localStorage.getItem('wc2026_local_tz') !== 'false';
@@ -959,37 +651,21 @@ function getFormattedTime(dateStr, timeStr) {
   const matchDate = getMatchDate(dateStr, timeStr);
 
   if (useLocalTimezone) {
-    let dayName;
-    let datePart;
-    if (currentLang === 'en') {
-      const daysEng = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
-      dayName = daysEng[matchDate.getDay()];
-      datePart = matchDate.toLocaleDateString('en-US', { day: 'numeric', month: 'short' });
-    } else {
-      const daysIndo = ["Minggu", "Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu"];
-      dayName = daysIndo[matchDate.getDay()];
-      datePart = matchDate.toLocaleDateString('id-ID', { day: 'numeric', month: 'short' });
-    }
+    // Format according to browser locale, but enforce Indonesian weekday name
+    const daysIndo = ["Minggu", "Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu"];
+    const dayName = daysIndo[matchDate.getDay()];
+    const datePart = matchDate.toLocaleDateString(undefined, { day: 'numeric', month: 'short' });
     const formattedDate = `${dayName}, ${datePart}`;
     const formattedTime = matchDate.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit', hour12: false });
     return { date: formattedDate, time: formattedTime, tzLabel: getLocalTimezoneAbbr() };
   } else {
     // Standard WIB formatting
     const [day, month] = dateStr.split('/').map(Number);
-    let dayName, formattedDate;
-    if (currentLang === 'en') {
-      const monthsEng = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-      const daysEng = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
-      const wibDate = new Date(2026, month - 1, day);
-      dayName = daysEng[wibDate.getDay()];
-      formattedDate = `${dayName}, ${monthsEng[month - 1]} ${day}`;
-    } else {
-      const monthsIndo = ["Jan", "Feb", "Mar", "Apr", "Mei", "Jun", "Jul", "Agt", "Sep", "Okt", "Nov", "Des"];
-      const daysIndo = ["Minggu", "Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu"];
-      const wibDate = new Date(2026, month - 1, day);
-      dayName = daysIndo[wibDate.getDay()];
-      formattedDate = `${dayName}, ${day} ${monthsIndo[month - 1]}`;
-    }
+    const months = ["Jan", "Feb", "Mar", "Apr", "Mei", "Jun", "Jul", "Agt", "Sep", "Okt", "Nov", "Des"];
+    const days = ["Minggu", "Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu"];
+    const wibDate = new Date(2026, month - 1, day);
+    const dayName = days[wibDate.getDay()];
+    const formattedDate = `${dayName}, ${day} ${months[month - 1]}`;
     return { date: formattedDate, time: timeStr, tzLabel: "WIB" };
   }
 }
@@ -1057,13 +733,13 @@ function getMatchLiveStatusParts(scoreData) {
     if (scoreData.period_desc) {
       const desc = scoreData.period_desc.toLowerCase();
       if (desc.includes('first half') || desc === '1st half') {
-        periodName = t('period-1');
+        periodName = 'Babak 1';
       } else if (desc.includes('second half') || desc === '2nd half') {
-        periodName = t('period-2');
+        periodName = 'Babak 2';
       } else if (desc.includes('first extra') || desc.includes('1st extra')) {
-        periodName = t('period-et-1');
+        periodName = 'ET Babak 1';
       } else if (desc.includes('second extra') || desc.includes('2nd extra')) {
-        periodName = t('period-et-2');
+        periodName = 'ET Babak 2';
       } else if (desc.includes('halftime')) {
         periodName = 'HT';
       } else if (desc.includes('extra time')) {
@@ -1074,10 +750,10 @@ function getMatchLiveStatusParts(scoreData) {
         periodName = scoreData.period_desc;
       }
     } else if (scoreData.period) {
-      if (scoreData.period === 1) periodName = t('period-1');
-      else if (scoreData.period === 2) periodName = t('period-2');
-      else if (scoreData.period === 3) periodName = t('period-et-1');
-      else if (scoreData.period === 4) periodName = t('period-et-2');
+      if (scoreData.period === 1) periodName = 'Babak 1';
+      else if (scoreData.period === 2) periodName = 'Babak 2';
+      else if (scoreData.period === 3) periodName = 'ET Babak 1';
+      else if (scoreData.period === 4) periodName = 'ET Babak 2';
     }
     return { periodName, clock };
   }
@@ -1262,7 +938,7 @@ function updateLiveMatchClocks() {
             `;
           }
         } else {
-          const minuteLabel = scoreData.status === 'FINISHED' ? 'FT' : t('not-started');
+          const minuteLabel = scoreData.status === 'FINISHED' ? 'FT' : 'Belum Mulai';
           modalLiveStatusHtml = `
             <span class="score-status ${scoreData.status === 'FINISHED' ? 'status-ft' : ''}" style="font-size: 0.68rem; font-weight: 800; text-transform: uppercase; color: var(--text-secondary);">${minuteLabel}</span>
           `;
@@ -1438,11 +1114,11 @@ function updateHeroPanel() {
       const isBigMatch = getMatchBadgeHtml(m.team1, m.team2) !== '';
       const liveParts = getMatchLiveStatusParts(scoreData);
       const venue = getMatchVenue(m);
-      const stageName = translateGroup(m.group);
+      const stageName = m.isKO ? m.group : `Grup ${m.group.replace('Grup ', '')}`;
 
       titleEl.innerHTML = `
         <div style="font-size: 0.62rem; font-weight: 700; color: var(--primary-gold); letter-spacing: var(--tracking-widest); text-transform: uppercase; opacity: 0.85; margin-bottom: ${isBigMatch ? '6px' : '18px'};">
-          ${t('live-in-progress')}
+          Pertandingan Berlangsung
         </div>
       `;
 
@@ -1463,7 +1139,7 @@ function updateHeroPanel() {
               <div class="live-team left-team">
                 <div class="live-team-info">
                   <span class="live-team-code highlighted-code">${team1Code}</span>
-                  <span class="subtle-fullname">${translateTeam(team1Name)}</span>
+                  <span class="subtle-fullname">${team1Name}</span>
                 </div>
                 ${flag1}
               </div>
@@ -1485,7 +1161,7 @@ function updateHeroPanel() {
                 ${flag2}
                 <div class="live-team-info">
                   <span class="live-team-code highlighted-code">${team2Code}</span>
-                  <span class="subtle-fullname">${translateTeam(team2Name)}</span>
+                  <span class="subtle-fullname">${team2Name}</span>
                 </div>
               </div>
             </div>
@@ -1548,19 +1224,19 @@ function updateHeroPanel() {
     cdDisplay.innerHTML = `
       <div class="time-segment">
         <span id="cd-days" class="time-num">00</span>
-        <span class="time-label">${t('countdown-label-days')}</span>
+        <span class="time-label">Hari</span>
       </div>
       <div class="time-segment">
         <span id="cd-hours" class="time-num">00</span>
-        <span class="time-label">${t('countdown-label-hours')}</span>
+        <span class="time-label">Jam</span>
       </div>
       <div class="time-segment">
         <span id="cd-mins" class="time-num">00</span>
-        <span class="time-label">${t('countdown-label-mins')}</span>
+        <span class="time-label">Menit</span>
       </div>
       <div class="time-segment">
         <span id="cd-secs" class="time-num">00</span>
-        <span class="time-label">${t('countdown-label-secs')}</span>
+        <span class="time-label">Detik</span>
       </div>
     `;
     // Force reset key when switching structures
@@ -1606,7 +1282,7 @@ function updateHeroPanel() {
       lastHeroMatchKey = cdKey;
 
       const isBigMatch = getMatchBadgeHtml(targetMatch.team1, targetMatch.team2) !== '';
-      const textTitle = isOpening ? t('first-match') : t('upcoming-match');
+      const textTitle = isOpening ? `Kick-Off Match Pertama` : `Kick-Off Match Berikutnya`;
       titleEl.innerHTML = `
         <span>${textTitle}</span>
       `;
@@ -1633,13 +1309,13 @@ function updateHeroPanel() {
         ${badgeHtml}
         <div style="display: flex; align-items: center; justify-content: center; gap: 10px; width: 100%;">
           <div class="cd-team cd-team-left">
-            <span class="cd-team-name">${translateTeam(targetMatch.team1)}</span>
+            <span class="cd-team-name">${targetMatch.team1}</span>
             ${flag1Cd}
           </div>
           <span class="cd-vs">VS</span>
           <div class="cd-team cd-team-right">
             ${flag2Cd}
-            <span class="cd-team-name">${translateTeam(targetMatch.team2)}</span>
+            <span class="cd-team-name">${targetMatch.team2}</span>
           </div>
         </div>
       `;
@@ -1651,7 +1327,7 @@ function updateHeroPanel() {
 
       const timeInfo = getFormattedTime(targetMatch.date, targetMatch.time);
       const dateStr = `${timeInfo.date} · ${timeInfo.time} ${timeInfo.tzLabel}`;
-      const stageName = translateGroup(targetMatch.group);
+      const stageName = targetMatch.isKO ? targetMatch.group : `Grup ${targetMatch.group.replace('Grup ', '')}`;
 
       subEl.style.opacity = '1';
       subEl.innerHTML = `
@@ -1671,7 +1347,7 @@ function updateHeroPanel() {
     cdDisplay.innerHTML = `
       <div style="font-size: 0.82rem; font-weight: 700; color: var(--primary-gold); padding: 8px 0; display: flex; align-items: center; justify-content: center; gap: 8px; letter-spacing: 0.5px;">
         <span class="waiting-pulse-dot"></span>
-        ${t('live-waiting')}
+        MENUNGGU KICK-OFF...
       </div>
     `;
     return;
@@ -1683,7 +1359,7 @@ function updateHeroPanel() {
     lastHeroMatchKey = cdKey;
 
     const isBigMatch = getMatchBadgeHtml(targetMatch.team1, targetMatch.team2) !== '';
-    const textTitle = isOpening ? t('first-match') : t('upcoming-match');
+    const textTitle = isOpening ? `Kick-Off Match Pertama` : `Kick-Off Match Berikutnya`;
     titleEl.innerHTML = `
       <span>${textTitle}</span>
     `;
@@ -1711,13 +1387,13 @@ function updateHeroPanel() {
       ${badgeHtml}
       <div style="display: flex; align-items: center; justify-content: center; gap: 10px; width: 100%;">
         <div class="cd-team cd-team-left">
-          <span class="cd-team-name">${translateTeam(targetMatch.team1)}</span>
+          <span class="cd-team-name">${targetMatch.team1}</span>
           ${flag1Cd}
         </div>
         <span class="cd-vs">VS</span>
         <div class="cd-team cd-team-right">
           ${flag2Cd}
-          <span class="cd-team-name">${translateTeam(targetMatch.team2)}</span>
+          <span class="cd-team-name">${targetMatch.team2}</span>
         </div>
       </div>
     `;
@@ -1729,7 +1405,7 @@ function updateHeroPanel() {
 
     const timeInfo = getFormattedTime(targetMatch.date, targetMatch.time);
     const dateStr = `${timeInfo.date} · ${timeInfo.time} ${timeInfo.tzLabel}`;
-    const stageName = translateGroup(targetMatch.group);
+    const stageName = targetMatch.isKO ? targetMatch.group : `Grup ${targetMatch.group.replace('Grup ', '')}`;
     
     subEl.style.opacity = '1';
     subEl.innerHTML = `
@@ -1797,7 +1473,7 @@ function createMatchCardHtml(match, index, isKnockout = false, showBigMatchBadge
 
   const stageHeaderHtml = `
     <div class="match-stage-container" style="display: flex; align-items: center; gap: 6px;">
-      <span class="match-stage">${translateGroup(match.group)}</span>
+      <span class="match-stage">${match.group}</span>
     </div>
   `;
 
@@ -1836,11 +1512,11 @@ function createMatchCardHtml(match, index, isKnockout = false, showBigMatchBadge
         </div>
         <div class="match-body">
           <div class="team-display left">
-            <span class="team-name">${translateTeam(match.team1)}</span>
+            <span class="team-name">${match.team1}</span>
             ${getFlagHtml(match.team1)}
           </div>
           <div class="match-time-box score-box">
-            ${isLive && liveParts && liveParts.clock && liveParts.clock !== 'LIVE' ? `<div class="match-period-label">${t(liveParts.periodName)}</div>` : ''}
+            ${isLive && liveParts && liveParts.clock && liveParts.clock !== 'LIVE' ? `<div class="match-period-label">${liveParts.periodName}</div>` : ''}
             <div class="score-display" style="white-space: nowrap;">
               <span>${scoreData.score1}</span>
               <span> - </span>
@@ -1850,7 +1526,7 @@ function createMatchCardHtml(match, index, isKnockout = false, showBigMatchBadge
           </div>
           <div class="team-display right">
             ${getFlagHtml(match.team2)}
-            <span class="team-name">${translateTeam(match.team2)}</span>
+            <span class="team-name">${match.team2}</span>
           </div>
           <div class="match-venue-subtle">${labelVenue}</div>
         </div>
@@ -1890,7 +1566,7 @@ function createMatchCardHtml(match, index, isKnockout = false, showBigMatchBadge
         </div>
         <div class="match-body">
           <div class="team-display left">
-            <span class="team-name">${translateTeam(match.team1)}</span>
+            <span class="team-name">${match.team1}</span>
             ${getFlagHtml(match.team1)}
           </div>
           <div class="match-time-box time-box">
@@ -1899,7 +1575,7 @@ function createMatchCardHtml(match, index, isKnockout = false, showBigMatchBadge
           </div>
           <div class="team-display right">
             ${getFlagHtml(match.team2)}
-            <span class="team-name">${translateTeam(match.team2)}</span>
+            <span class="team-name">${match.team2}</span>
           </div>
           <div class="match-venue-subtle match-venue-with-star"><span class="venue-name-text">${labelVenue}</span>${starBtnHtml}</div>
         </div>
@@ -2813,7 +2489,7 @@ function renderGroups() {
           <td>
             <div class="team-cell">
               ${getFlagHtml(team)}
-              <span class="team-name ${teamWeightClass}">${translateTeam(team)}</span>
+              <span class="team-name ${teamWeightClass}">${team}</span>
             </div>
           </td>
           <td style="text-align: center; font-weight: 600; opacity: 0.85;">${stats.played}</td>
@@ -2834,17 +2510,17 @@ function renderGroups() {
     gridHtml += `
       <div class="group-card">
         <div class="group-title" style="display: flex; justify-content: space-between; align-items: center;">
-          <span>${translateGroup(groupName)}</span>
+          <span>Grup ${groupLetter}</span>
           ${isGroupLive ? '<span style="font-size: 0.55rem; color: var(--accent-red); border: 1px solid rgba(239, 68, 68, 0.3); padding: 2px 6px; border-radius: 4px; font-weight: bold; letter-spacing: 0.5px; animation: pulse-blink 1.5s infinite;">LIVE</span>' : ''}
         </div>
         <table class="group-table">
           <thead>
             <tr>
               <th style="width: 10%; text-align: center;">#</th>
-              <th style="text-align: left; width: 50%;">${t('table-team')}</th>
-              <th style="width: 13%; text-align: center;">${t('table-played')}</th>
-              <th style="width: 13%; text-align: center;">${t('table-gd')}</th>
-              <th style="width: 14%; text-align: center;">${t('table-pts')}</th>
+              <th style="text-align: left; width: 50%;">Tim</th>
+              <th style="width: 13%; text-align: center;">M</th>
+              <th style="width: 13%; text-align: center;">SG</th>
+              <th style="width: 14%; text-align: center;">P</th>
             </tr>
           </thead>
           <tbody>
@@ -3271,28 +2947,28 @@ function renderBestThirds() {
   });
 
   let rowsHtml = '';
-  thirds.forEach((tData, idx) => {
+  thirds.forEach((t, idx) => {
     const isQualified = idx < 8;
     const rankClass = isQualified ? 'rank-1st' : 'rank-4th';
-    const statusText = isQualified ? t('status-qualified') : t('status-eliminated');
-    const statusClass = isQualified ? 'lolos' : 'gugur';
-    const statusBadge = `<span class="status-badge ${statusClass}">${statusText}</span>`;
+    const statusBadge = isQualified 
+      ? '<span class="status-badge lolos">LOLOS</span>'
+      : '<span class="status-badge gugur">GUGUR</span>';
     
-    const gdSign = tData.gd > 0 ? `+${tData.gd}` : tData.gd;
+    const gdSign = t.gd > 0 ? `+${t.gd}` : t.gd;
 
     rowsHtml += `
       <tr style="background: ${isQualified ? 'rgba(16, 185, 129, 0.01)' : 'rgba(239, 68, 68, 0.01)'}">
         <td class="group-rank-badge ${rankClass}" style="text-align: center; font-weight: 800;">${idx + 1}</td>
-        <td style="text-align: center; font-weight: 700; color: var(--primary-gold);">${tData.group.replace("Grup ", "").replace("Group ", "")}</td>
+        <td style="text-align: center; font-weight: 700; color: var(--primary-gold);">${t.group.replace("Grup ", "")}</td>
         <td>
           <div class="team-cell">
-            ${getFlagHtml(tData.team)}
-            <span class="team-name ${isQualified ? 'team-bold' : ''}" style="max-width: 160px;">${translateTeam(tData.team)}</span>
+            ${getFlagHtml(t.team)}
+            <span class="team-name ${isQualified ? 'team-bold' : ''}" style="max-width: 160px;">${t.team}</span>
           </div>
         </td>
-        <td style="text-align: center; font-weight: 600; opacity: 0.85;">${tData.played}</td>
+        <td style="text-align: center; font-weight: 600; opacity: 0.85;">${t.played}</td>
         <td style="text-align: center; font-weight: 600; opacity: 0.85;">${gdSign}</td>
-        <td style="text-align: center; font-weight: 700; color: ${isQualified ? 'var(--primary-gold)' : 'inherit'};">${tData.pts}</td>
+        <td style="text-align: center; font-weight: 700; color: ${isQualified ? 'var(--primary-gold)' : 'inherit'};">${t.pts}</td>
         <td style="text-align: center;">${statusBadge}</td>
       </tr>
     `;
@@ -3302,13 +2978,13 @@ function renderBestThirds() {
     <table class="group-table">
       <thead>
         <tr>
-          <th style="width: 8%; text-align: center;">${t('table-pos')}</th>
-          <th style="width: 10%; text-align: center;">${t('table-group')}</th>
-          <th style="text-align: left; width: 42%;">${t('table-team')}</th>
-          <th style="width: 10%; text-align: center;">${t('table-played')}</th>
-          <th style="width: 10%; text-align: center;">${t('table-gd')}</th>
-          <th style="width: 10%; text-align: center;">${t('table-pts')}</th>
-          <th style="width: 10%; text-align: center;">${t('table-status')}</th>
+          <th style="width: 8%; text-align: center;">Pos</th>
+          <th style="width: 10%; text-align: center;">Grup</th>
+          <th style="text-align: left; width: 42%;">Tim</th>
+          <th style="width: 10%; text-align: center;">M</th>
+          <th style="width: 10%; text-align: center;">SG</th>
+          <th style="width: 10%; text-align: center;">P</th>
+          <th style="width: 10%; text-align: center;">Status</th>
         </tr>
       </thead>
       <tbody>
@@ -4673,37 +4349,6 @@ function initNavigation() {
 }
 
 // Setup timezone, filters, search settings and reset
-function applyLanguage() {
-  const elements = document.querySelectorAll('[data-i18n]');
-  elements.forEach(el => {
-    const key = el.getAttribute('data-i18n');
-    const translation = t(key);
-    if (!translation) return;
-
-    if (el.tagName === 'INPUT') {
-      if (el.hasAttribute('placeholder')) {
-        el.setAttribute('placeholder', translation);
-      }
-    } else if (el.tagName === 'OPTION') {
-      el.textContent = translation;
-    } else {
-      el.textContent = translation;
-    }
-  });
-
-  document.title = currentLang === 'en' 
-    ? "FIFA World Cup 2026 | Premium Schedule & Simulator" 
-    : "FIFA World Cup 2026 | Jadwal & Simulator Premium";
-    
-  const metaDesc = document.querySelector('meta[name="description"]');
-  if (metaDesc) {
-    metaDesc.setAttribute('content', currentLang === 'en'
-      ? "Complete FIFA World Cup 2026 schedule, group standings, and interactive knockout stage bracket simulator in premium design."
-      : "Jadwal lengkap Piala Dunia FIFA 2026, klasemen grup, dan simulator bagan fase gugur interaktif dalam desain premium."
-    );
-  }
-}
-
 function initSettingsAndFilters() {
   // Timezone switcher
   const tzToggle = document.getElementById('timezone-toggle');
@@ -4719,31 +4364,6 @@ function initSettingsAndFilters() {
       renderNearestMatches();
       renderLatestResults();
       if (activeTab === 'tab-bracket') renderBracket();
-    });
-  }
-
-  // Language switcher
-  const langToggle = document.getElementById('lang-toggle');
-  if (langToggle) {
-    langToggle.checked = currentLang === 'en';
-    langToggle.addEventListener('change', (e) => {
-      currentLang = e.target.checked ? 'en' : 'id';
-      localStorage.setItem('wc2026_lang', currentLang);
-      
-      applyLanguage();
-      
-      // Re-render all content to update teams, groups, and status texts
-      renderSchedule();
-      renderFavorites();
-      renderNearestMatches();
-      renderLatestResults();
-      renderFavoritesCount();
-      updateHeroPanel();
-      renderGroups();
-      
-      if (activeTab === 'tab-bracket') {
-        renderBracket();
-      }
     });
   }
 
@@ -5327,19 +4947,19 @@ function createModalHeaderHtml(match, scoreData, summaryData) {
   const score1 = scoreData.score1 !== null && scoreData.score1 !== undefined ? scoreData.score1 : '-';
   const score2 = scoreData.score2 !== null && scoreData.score2 !== undefined ? scoreData.score2 : '-';
   // Flash is triggered imperatively by triggerScoreFlash — no inline class evaluation here
-  const minuteLabel = isMatchLive(match, scoreData) ? getMatchMinuteLabel(match, scoreData) : (scoreData.status === 'FINISHED' ? 'FT' : t('not-started'));
+  const minuteLabel = isMatchLive(match, scoreData) ? getMatchMinuteLabel(match, scoreData) : (scoreData.status === 'FINISHED' ? 'FT' : 'Belum Mulai');
   
   let modalLiveStatusHtml = '';
   if (isMatchLive(match, scoreData)) {
     const liveParts = getMatchLiveStatusParts(scoreData);
     if (liveParts.clock && liveParts.clock !== liveParts.periodName) {
       modalLiveStatusHtml = `
-        <span style="font-size: 0.68rem; font-weight: 700; color: var(--text-secondary); text-transform: uppercase;">${t(liveParts.periodName)}</span>
+        <span style="font-size: 0.68rem; font-weight: 700; color: var(--text-secondary); text-transform: uppercase;">${liveParts.periodName}</span>
         <span class="status-live modal-status-live">${liveParts.clock}</span>
       `;
     } else {
       modalLiveStatusHtml = `
-        <span class="status-live modal-status-live">${t(liveParts.periodName)}</span>
+        <span class="status-live modal-status-live">${liveParts.periodName}</span>
       `;
     }
   } else {
@@ -5348,7 +4968,7 @@ function createModalHeaderHtml(match, scoreData, summaryData) {
     `;
   }
   
-  const stageOrGroupLabel = match.isKO ? getKoStageLabel(match.stage) : translateGroup(match.group);
+  const stageOrGroupLabel = match.isKO ? getKoStageLabel(match.stage) : `Grup ${match.group.replace('Grup ', '')}`;
   
   let scorersHtml = '';
   const cleanScorers1 = parseScorers(scoreData.home_scorers);
@@ -5385,18 +5005,18 @@ function createModalHeaderHtml(match, scoreData, summaryData) {
       refereeText = '-';
     }
   } else {
-    refereeText = t('loading');
+    refereeText = 'Memuat...';
   }
 
   let attendanceText = '-';
   if (summaryData) {
     if (summaryData.info && summaryData.info.attendance) {
-      attendanceText = Number(summaryData.info.attendance).toLocaleString(currentLang === 'en' ? 'en-US' : 'id-ID');
+      attendanceText = Number(summaryData.info.attendance).toLocaleString('id-ID');
     } else {
       attendanceText = '-';
     }
   } else {
-    attendanceText = t('loading');
+    attendanceText = 'Memuat...';
   }
 
   const isStarted = scoreData && scoreData.status && scoreData.status !== 'TIMED' && scoreData.status !== 'PRE_MATCH' && scoreData.status !== 'SCHEDULED';
@@ -5417,7 +5037,7 @@ function createModalHeaderHtml(match, scoreData, summaryData) {
       <div class="modal-teams-row">
         <div class="modal-team-col">
           <div class="modal-team-flag-wrapper">${getFlagHtml(t1)}</div>
-          <span class="modal-team-name">${translateTeam(t1)}</span>
+          <span class="modal-team-name">${t1}</span>
         </div>
         <div class="modal-score-box">
           <div class="modal-score-text" id="modal-score-text-val">
@@ -5427,7 +5047,7 @@ function createModalHeaderHtml(match, scoreData, summaryData) {
         </div>
         <div class="modal-team-col">
           <div class="modal-team-flag-wrapper">${getFlagHtml(t2)}</div>
-          <span class="modal-team-name">${translateTeam(t2)}</span>
+          <span class="modal-team-name">${t2}</span>
         </div>
       </div>
       ${scorersHtml}
@@ -5442,21 +5062,21 @@ function createModalHeaderHtml(match, scoreData, summaryData) {
         <div class="meta-item">
           <div class="meta-item-header">
             <svg class="meta-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
-            <span class="meta-label">${t('stadium')}</span>
+            <span class="meta-label">Stadion</span>
           </div>
           <span class="meta-value">${stadiumText}</span>
         </div>
         <div class="meta-item">
           <div class="meta-item-header">
             <svg class="meta-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
-            <span class="meta-label">${t('referee')}</span>
+            <span class="meta-label">Wasit</span>
           </div>
           <span class="meta-value" id="modal-referee-val">${refereeText}</span>
         </div>
         <div class="meta-item">
           <div class="meta-item-header">
             <svg class="meta-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
-            <span class="meta-label">${t('attendance')}</span>
+            <span class="meta-label">Penonton</span>
           </div>
           <span class="meta-value" id="modal-attendance-val">${attendanceText}</span>
         </div>
@@ -5640,8 +5260,8 @@ function renderModalContent() {
     body.innerHTML = `
       <div class="modal-header-container">${headerHtml}</div>
       <div class="modal-tabs-menu">
-        <button class="modal-tab-btn ${currentModalTab === 'stats' ? 'active' : ''}" onclick="window.switchModalTab('stats', this)" data-i18n="stats-tab">${t('stats-tab')}</button>
-        <button class="modal-tab-btn ${currentModalTab === 'lineups' ? 'active' : ''}" onclick="window.switchModalTab('lineups', this)" data-i18n="lineups-tab">${t('lineups-tab')}</button>
+        <button class="modal-tab-btn ${currentModalTab === 'stats' ? 'active' : ''}" onclick="window.switchModalTab('stats', this)">Statistik</button>
+        <button class="modal-tab-btn ${currentModalTab === 'lineups' ? 'active' : ''}" onclick="window.switchModalTab('lineups', this)">Lineup</button>
       </div>
       <div id="modal-tab-content-container">
         ${initialTabContent}
@@ -5692,7 +5312,7 @@ function renderModalContent() {
 
 function renderStatsTab(stats) {
   if (!stats || !stats.home || Object.keys(stats.home).length === 0) {
-    return `<div style="text-align: center; color: var(--text-secondary); font-size: 0.8rem; padding: 20px;">${t('stats-not-available')}</div>`;
+    return `<div style="text-align: center; color: var(--text-secondary); font-size: 0.8rem; padding: 20px;">Statistik tidak tersedia.</div>`;
   }
   
   const h = stats.home;
@@ -5719,7 +5339,7 @@ function renderStatsTab(stats) {
       <div class="stat-item">
         <div class="stat-label-row">
           <span>${valH}${isPct ? '%' : ''}</span>
-          <span class="stat-name">${t(label)}</span>
+          <span class="stat-name">${label}</span>
           <span>${valA}${isPct ? '%' : ''}</span>
         </div>
         <div class="stat-bar-container">
@@ -6141,7 +5761,7 @@ function renderLineupsTab(lineups) {
   if (!hasLineup) {
     return `<div style="text-align:center;color:var(--text-secondary);font-size:0.8rem;padding:32px 16px;">
       <div style="font-size:1.5rem;margin-bottom:8px;">📋</div>
-      ${t('lineups-not-released')}
+      Susunan pemain belum dirilis.
     </div>`;
   }
   
@@ -6151,10 +5771,8 @@ function renderLineupsTab(lineups) {
   const homeLines = groupPlayersIntoLines(home.starters || [], homeFormation);
   const awayLines = groupPlayersIntoLines(away.starters || [], awayFormation);
   
-  const rawT1 = (currentModalData && currentModalData.homeTeam) || 'Home';
-  const rawT2 = (currentModalData && currentModalData.awayTeam) || 'Away';
-  const t1 = translateTeam(rawT1);
-  const t2 = translateTeam(rawT2);
+  const t1 = (currentModalData && currentModalData.homeTeam) || 'Home';
+  const t2 = (currentModalData && currentModalData.awayTeam) || 'Away';
   const scoreData = currentModalData && currentModalData.scoreData;
   
   // Parse event names for icon annotations
@@ -6167,8 +5785,8 @@ function renderLineupsTab(lineups) {
   const apiHomeBg = home.uniformColor || home.teamColor;
   const apiAwayBg = away.uniformColor || away.teamColor;
 
-  const homeKit = getTeamJerseyStyles(rawT1, true,  'var(--primary-gold)', '#000000');
-  const awayKit = getTeamJerseyStyles(rawT2, false, 'var(--secondary-bronze)', '#ffffff');
+  const homeKit = getTeamJerseyStyles(t1, true,  'var(--primary-gold)', '#000000');
+  const awayKit = getTeamJerseyStyles(t2, false, 'var(--secondary-bronze)', '#ffffff');
 
   const homeBg = apiHomeBg || homeKit.homeBg;
   const homeText = apiHomeBg ? getContrastTextColor(homeBg) : homeKit.homeText;
@@ -6270,10 +5888,10 @@ function renderLineupsTab(lineups) {
       }
       const minuteTag = cleanMin ? `<span class="bench-minute">${cleanMin}</span>` : '';
       const subIcon = p.subbedIn
-        ? `<span class="bench-sub-icon sub-in" title="${t('legend-sub-in')}">↑${minuteTag}</span>`
+        ? `<span class="bench-sub-icon sub-in" title="Masuk">↑${minuteTag}</span>`
         : '';
       const goalIcon = goalCount > 0 ? `<span style="font-size:0.55rem;">${'⚽'.repeat(goalCount)}</span>` : '';
-      const redIcon  = hasRed  ? `<span class="bench-red-dot" title="${t('legend-red-card')}"></span>` : '';
+      const redIcon  = hasRed  ? `<span class="bench-red-dot" title="Kartu Merah"></span>` : '';
       const posLabel = (p.position === 'Sub' || p.position === 'SUB' || p.position === 'Res') ? '' : (p.position || '');
       return `
         <div class="bench-player-row">
@@ -6333,15 +5951,15 @@ function renderLineupsTab(lineups) {
 
       <!-- Event Legend -->
       <div class="lineup-event-legend">
-        <span class="lel-item"><span style="font-size:0.7rem;">⚽</span> ${t('legend-goal')}</span>
-        <span class="lel-item"><span class="lel-red-card"></span> ${t('legend-red-card')}</span>
-        <span class="lel-item"><span class="lel-sub-arrow sub-in">↑</span> ${t('legend-sub-in')}</span>
-        <span class="lel-item"><span class="lel-sub-arrow sub-out">↓</span> ${t('legend-sub-out')}</span>
+        <span class="lel-item"><span style="font-size:0.7rem;">⚽</span> Gol</span>
+        <span class="lel-item"><span class="lel-red-card"></span> Kartu Merah</span>
+        <span class="lel-item"><span class="lel-sub-arrow sub-in">↑</span> Masuk</span>
+        <span class="lel-item"><span class="lel-sub-arrow sub-out">↓</span> Keluar</span>
       </div>
 
       <!-- Bench Section -->
       <div class="bench-section">
-        <div class="bench-section-title">${t('bench')}</div>
+        <div class="bench-section-title">Cadangan</div>
         <div class="bench-grid">
           <div class="bench-col bench-col-home">
             <div class="bench-col-header">
@@ -6350,7 +5968,7 @@ function renderLineupsTab(lineups) {
             ${homeBench}
             ${home.coach ? `
               <div class="lineup-coach-row">
-                <strong>${t('coach')}</strong> ${home.coach}
+                <strong>Pelatih:</strong> ${home.coach}
               </div>
             ` : ''}
           </div>
@@ -6362,7 +5980,7 @@ function renderLineupsTab(lineups) {
             ${awayBench}
             ${away.coach ? `
               <div class="lineup-coach-row align-right">
-                <strong>${t('coach')}</strong> ${away.coach}
+                <strong>Pelatih:</strong> ${away.coach}
               </div>
             ` : ''}
           </div>
@@ -6381,8 +5999,6 @@ window.switchLineupTeam = function(team, btn) {};
 document.addEventListener('DOMContentLoaded', () => {
   // Clean up any stale mock live state from previous sessions
   localStorage.removeItem('wc2026_mock_live');
-
-  applyLanguage();
 
   initCountdown();
   initNavigation();
