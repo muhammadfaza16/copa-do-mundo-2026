@@ -1081,11 +1081,10 @@ function updateHeroPanel() {
     const m = liveMatches[0];
     const matchKey = m.isKO ? `ko_${m.match_id}` : `gs_${m.date}_${m.team1}_${m.team2}`;
     
-    container.onclick = () => window.openMatchDetailModal(matchKey);
+    container.onclick = null;
     const heroDetailBtn = document.querySelector('.hero-detail-btn');
     if (heroDetailBtn) {
-      heroDetailBtn.onclick = (e) => {
-        e.stopPropagation();
+      heroDetailBtn.onclick = () => {
         window.openMatchDetailModal(matchKey);
       };
     }
@@ -1256,11 +1255,10 @@ function updateHeroPanel() {
   container.style.display = 'block';
 
   const targetMatchKey = targetMatch.isKO ? `ko_${targetMatch.match_id}` : `gs_${targetMatch.date}_${targetMatch.team1}_${targetMatch.team2}`;
-  container.onclick = () => window.openMatchDetailModal(targetMatchKey);
+  container.onclick = null;
   const heroDetailBtn = document.querySelector('.hero-detail-btn');
   if (heroDetailBtn) {
-    heroDetailBtn.onclick = (e) => {
-      e.stopPropagation();
+    heroDetailBtn.onclick = () => {
       window.openMatchDetailModal(targetMatchKey);
     };
   }

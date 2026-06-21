@@ -1462,24 +1462,8 @@ body.light-theme .search-input:focus {
   overflow: hidden;
   box-shadow: var(--shadow-lg);
   transition: var(--transition-smooth);
-  cursor: pointer;
   outline: none;
   -webkit-tap-highlight-color: transparent;
-}
-
-.countdown-container:focus,
-.countdown-container:focus-visible,
-.countdown-container:active {
-  outline: none !important;
-  border-color: rgba(var(--primary-gold-rgb), 0.3) !important;
-  box-shadow: var(--shadow-lg);
-  -webkit-tap-highlight-color: transparent;
-}
-
-.countdown-container:hover {
-  transform: translateY(-2px);
-  border-color: rgba(var(--primary-gold-rgb), 0.4);
-  box-shadow: 0 10px 25px rgba(var(--primary-gold-rgb), 0.15);
 }
 
 .group-card {
