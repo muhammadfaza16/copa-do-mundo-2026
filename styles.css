@@ -1471,14 +1471,15 @@ body.light-theme .search-input:focus {
 .countdown-container:focus-visible,
 .countdown-container:active {
   outline: none !important;
+  border-color: rgba(var(--primary-gold-rgb), 0.3) !important;
   box-shadow: var(--shadow-lg);
   -webkit-tap-highlight-color: transparent;
 }
 
 .countdown-container:hover {
   transform: translateY(-2px);
-  border-color: var(--primary-gold-rgba);
-  box-shadow: 0 10px 25px rgba(212, 175, 55, 0.1);
+  border-color: rgba(var(--primary-gold-rgb), 0.4);
+  box-shadow: 0 10px 25px rgba(var(--primary-gold-rgb), 0.15);
 }
 
 .group-card {
@@ -4951,8 +4952,8 @@ body.light-theme .stats-rank-other {
   background-color: var(--glass-bg-hover);
   color: var(--text-primary);
   transform: scale(1.08);
-  border-color: var(--primary-gold-rgba);
-  box-shadow: 0 0 8px rgba(212, 175, 55, 0.25);
+  border-color: rgba(var(--primary-gold-rgb), 0.4);
+  box-shadow: 0 0 8px rgba(var(--primary-gold-rgb), 0.25);
 }
 
 .hero-detail-btn svg {
