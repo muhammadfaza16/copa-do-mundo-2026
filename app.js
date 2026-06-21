@@ -254,8 +254,6 @@ const TRANSLATIONS = {
   }
 };
 
-let currentLang = localStorage.getItem('wc2026_lang') || 'id';
-
 function t(key) {
   const dict = TRANSLATIONS[currentLang] || TRANSLATIONS['id'];
   return dict[key] || key;
