@@ -693,6 +693,7 @@ body.light-theme .hero-banner {
   padding: 24px 28px 20px;
   overflow: hidden; /* Clip side accent bars to rounded corners */
   outline: none;
+  -webkit-tap-highlight-color: transparent;
 }
 
 .countdown-title {
@@ -1463,12 +1464,15 @@ body.light-theme .search-input:focus {
   transition: var(--transition-smooth);
   cursor: pointer;
   outline: none;
+  -webkit-tap-highlight-color: transparent;
 }
 
 .countdown-container:focus,
 .countdown-container:focus-visible,
 .countdown-container:active {
-  outline: none;
+  outline: none !important;
+  box-shadow: var(--shadow-lg);
+  -webkit-tap-highlight-color: transparent;
 }
 
 .countdown-container:hover {
