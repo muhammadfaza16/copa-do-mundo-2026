@@ -124,13 +124,55 @@ function getTeamRankLabel(teamName) {
   return '';
 }
 
-function getMatchBadgeHtml(team1, team2) {
-  const bigMatchTeams = new Set([
-    "Brasil", "Maroko", "Jerman", "Belanda", "Jepang", 
-    "Belgia", "Spanyol", "Uruguay", "Norwegia", "Senegal", 
-    "Prancis", "Argentina", "Portugal", "Inggris", "Kroasia", "Kolombia"
-  ]);
+const POPULAR_TEAMS = new Set([
+  "Brasil", "Maroko", "Jerman", "Belanda", "Jepang", 
+  "Belgia", "Spanyol", "Uruguay", "Norwegia", "Senegal", 
+  "Prancis", "Argentina", "Portugal", "Inggris", "Kroasia", "Kolombia"
+]);
 
+function isPopularTeam(team) {
+  if (!team) return false;
+  const clean = team.trim().toLowerCase();
+  for (const t of POPULAR_TEAMS) {
+    if (clean.includes(t.toLowerCase())) {
+      return true;
+    }
+  }
+  return false;
+}
+
+function compareMatchesPriority(matchA, matchB) {
+  const rankA1 = FIFA_RANKINGS[matchA.team1] !== undefined ? FIFA_RANKINGS[matchA.team1] : 999;
+  const rankA2 = FIFA_RANKINGS[matchA.team2] !== undefined ? FIFA_RANKINGS[matchA.team2] : 999;
+  const avgRankA = (rankA1 + rankA2) / 2;
+  const gapA = Math.abs(rankA1 - rankA2);
+  const scoreA = avgRankA + 0.3 * gapA; // Smaller score is better. Penalty for wide rank gap.
+
+  const rankB1 = FIFA_RANKINGS[matchB.team1] !== undefined ? FIFA_RANKINGS[matchB.team1] : 999;
+  const rankB2 = FIFA_RANKINGS[matchB.team2] !== undefined ? FIFA_RANKINGS[matchB.team2] : 999;
+  const avgRankB = (rankB1 + rankB2) / 2;
+  const gapB = Math.abs(rankB1 - rankB2);
+  const scoreB = avgRankB + 0.3 * gapB;
+
+  // 1. Prioritize match with the lower score (lower average rank + smaller gap)
+  if (scoreA !== scoreB) {
+    return scoreA - scoreB;
+  }
+
+  // 2. Tiebreaker: Popularity count (number of popular teams: 2, 1, or 0)
+  const popA = (isPopularTeam(matchA.team1) ? 1 : 0) + (isPopularTeam(matchA.team2) ? 1 : 0);
+  const popB = (isPopularTeam(matchB.team1) ? 1 : 0) + (isPopularTeam(matchB.team2) ? 1 : 0);
+  if (popB !== popA) {
+    return popB - popA; // Descending order
+  }
+
+  // 3. Tiebreaker: Best individual FIFA rank
+  const bestRankA = Math.min(rankA1, rankA2);
+  const bestRankB = Math.min(rankB1, rankB2);
+  return bestRankA - bestRankB; // Ascending order
+}
+
+function getMatchBadgeHtml(team1, team2) {
   if (!team1 || !team2) return '';
 
   // Exclude Norwegia vs Senegal matchup
@@ -141,17 +183,7 @@ function getMatchBadgeHtml(team1, team2) {
     return '';
   }
 
-  const isBigTeam = (team) => {
-    const clean = team.trim().toLowerCase();
-    for (const bigTeam of bigMatchTeams) {
-      if (clean.includes(bigTeam.toLowerCase())) {
-        return true;
-      }
-    }
-    return false;
-  };
-
-  if (isBigTeam(team1) && isBigTeam(team2)) {
+  if (isPopularTeam(team1) && isPopularTeam(team2)) {
     return '<span class="match-badge badge-big-match">BIG MATCH</span>';
   }
   return '';
@@ -1076,6 +1108,7 @@ function updateHeroPanel() {
   });
 
   if (liveMatches.length > 0) {
+    liveMatches.sort((a, b) => compareMatchesPriority(a, b));
     cdElementsCache = null;
     // MODE 1: LIVE Matches Active (Show premium scoreboard)
     const m = liveMatches[0];
@@ -2307,6 +2340,7 @@ function getHeroMatch() {
   });
 
   if (liveMatches.length > 0) {
+    liveMatches.sort((a, b) => compareMatchesPriority(a, b));
     return liveMatches[0];
   }
 
@@ -2450,7 +2484,12 @@ function getNextMatch() {
     time: getMatchKickoffTime(m)
   }));
 
-  upcomingWithTime.sort((a, b) => a.time - b.time);
+  upcomingWithTime.sort((a, b) => {
+    if (a.time !== b.time) {
+      return a.time - b.time;
+    }
+    return compareMatchesPriority(a.match, b.match);
+  });
 
   _cachedNextMatch = upcomingWithTime[0].match;
   _cachedNextMatchTime = upcomingWithTime[0].time;
