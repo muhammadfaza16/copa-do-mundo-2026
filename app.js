@@ -3545,6 +3545,8 @@ function renderBracketLines() {
     { from: 102, to: 103, type: 'center-third' }
   ];
 
+  const drawnSharedTargets = new Set();
+
   connections.forEach(conn => {
     const fromCoords = COMPACT_COORDINATES[conn.from];
     const toCoords = COMPACT_COORDINATES[conn.to];
@@ -3552,6 +3554,10 @@ function renderBracketLines() {
 
     let x_start, y_start, x_end, y_end;
     let d = '';
+    let sharedD = '';
+
+    const siblingConns = connections.filter(c => c.to === conn.to && c.type === conn.type);
+    const hasSharedTrunk = siblingConns.length > 1;
 
     if (conn.type === 'vertical-down') {
       x_start = fromCoords.x + cardWidth / 2;
@@ -3559,28 +3565,48 @@ function renderBracketLines() {
       x_end = toCoords.x + cardWidth / 2;
       y_end = toCoords.y;
       const ym = (y_start + y_end) / 2;
-      d = `M ${x_start} ${y_start} V ${ym} H ${x_end} V ${y_end}`;
+      if (hasSharedTrunk) {
+        d = `M ${x_start} ${y_start} V ${ym} H ${x_end}`;
+        sharedD = `M ${x_end} ${ym} V ${y_end}`;
+      } else {
+        d = `M ${x_start} ${y_start} V ${ym} H ${x_end} V ${y_end}`;
+      }
     } else if (conn.type === 'vertical-up') {
       x_start = fromCoords.x + cardWidth / 2;
       y_start = fromCoords.y;
       x_end = toCoords.x + cardWidth / 2;
       y_end = toCoords.y + cardHeight;
       const ym = (y_start + y_end) / 2;
-      d = `M ${x_start} ${y_start} V ${ym} H ${x_end} V ${y_end}`;
+      if (hasSharedTrunk) {
+        d = `M ${x_start} ${y_start} V ${ym} H ${x_end}`;
+        sharedD = `M ${x_end} ${ym} V ${y_end}`;
+      } else {
+        d = `M ${x_start} ${y_start} V ${ym} H ${x_end} V ${y_end}`;
+      }
     } else if (conn.type === 'horizontal-right') {
       x_start = fromCoords.x + cardWidth;
       y_start = fromCoords.y + 18;
       x_end = toCoords.x;
       y_end = toCoords.y + 18;
       const xm = (x_start + x_end) / 2;
-      d = `M ${x_start} ${y_start} H ${xm} V ${y_end} H ${x_end}`;
+      if (hasSharedTrunk) {
+        d = `M ${x_start} ${y_start} H ${xm} V ${y_end}`;
+        sharedD = `M ${xm} ${y_end} H ${x_end}`;
+      } else {
+        d = `M ${x_start} ${y_start} H ${xm} V ${y_end} H ${x_end}`;
+      }
     } else if (conn.type === 'horizontal-left') {
       x_start = fromCoords.x;
       y_start = fromCoords.y + 18;
       x_end = toCoords.x + cardWidth;
       y_end = toCoords.y + 18;
       const xm = (x_start + x_end) / 2;
-      d = `M ${x_start} ${y_start} H ${xm} V ${y_end} H ${x_end}`;
+      if (hasSharedTrunk) {
+        d = `M ${x_start} ${y_start} H ${xm} V ${y_end}`;
+        sharedD = `M ${xm} ${y_end} H ${x_end}`;
+      } else {
+        d = `M ${x_start} ${y_start} H ${xm} V ${y_end} H ${x_end}`;
+      }
     } else if (conn.type === 'horizontal-straight') {
       if (fromCoords.x < toCoords.x) {
         x_start = fromCoords.x + cardWidth;
@@ -3650,6 +3676,31 @@ function renderBracketLines() {
     }
 
     pathsHtml += `<path d="${d}" class="${lineClass}"></path>`;
+
+    if (hasSharedTrunk && sharedD && !drawnSharedTargets.has(conn.to)) {
+      drawnSharedTargets.add(conn.to);
+
+      const isSharedActive = siblingConns.some(c => !!simulatedWinners[c.from]);
+      let sharedLineClass = 'bracket-line-inactive';
+      if (isSharedActive) {
+        const activeSource = siblingConns.find(c => !!simulatedWinners[c.from]);
+        const fromId = activeSource ? activeSource.from : conn.from;
+        if (fromId >= 73 && fromId <= 88) {
+          sharedLineClass = 'line-active-32';
+        } else if (fromId >= 89 && fromId <= 96) {
+          sharedLineClass = 'line-active-16';
+        } else if (fromId >= 97 && fromId <= 100) {
+          sharedLineClass = 'line-active-qf';
+        } else if (fromId === 101 || fromId === 102) {
+          if (conn.to === 104) {
+            sharedLineClass = 'line-active-final';
+          } else {
+            sharedLineClass = 'line-active-sf';
+          }
+        }
+      }
+      pathsHtml += `<path d="${sharedD}" class="${sharedLineClass}"></path>`;
+    }
   });
 
   svg.innerHTML = pathsHtml;
