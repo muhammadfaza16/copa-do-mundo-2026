@@ -5370,7 +5370,17 @@ function renderModalContent() {
 
 function renderStatsTab(stats) {
   if (!stats || !stats.home || Object.keys(stats.home).length === 0) {
-    return `<div style="text-align: center; color: var(--text-secondary); font-size: 0.8rem; padding: 20px;">Statistik tidak tersedia.</div>`;
+    return `
+      <div class="empty-tab-placeholder">
+        <svg class="empty-placeholder-icon" viewBox="0 0 24 24" width="44" height="44" fill="none" stroke="var(--primary-gold)" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="18" y1="20" x2="18" y2="10" />
+          <line x1="12" y1="20" x2="12" y2="4" />
+          <line x1="6" y1="20" x2="6" y2="14" />
+        </svg>
+        <p class="empty-placeholder-title">Statistik Belum Tersedia</p>
+        <p class="empty-placeholder-subtitle">Statistik detail pertandingan akan ditampilkan langsung setelah laga dimulai.</p>
+      </div>
+    `;
   }
   
   const h = stats.home;
@@ -5810,17 +5820,25 @@ function getLineupsFingerprint(modalData) {
 }
 
 function renderLineupsTab(lineups) {
-
-  const home = lineups.home;
-  const away = lineups.away;
+  const home = lineups ? lineups.home : null;
+  const away = lineups ? lineups.away : null;
   
   const hasLineup = (home && home.starters && home.starters.length > 0) ||
                     (away && away.starters && away.starters.length > 0);
   if (!hasLineup) {
-    return `<div style="text-align:center;color:var(--text-secondary);font-size:0.8rem;padding:32px 16px;">
-      <div style="font-size:1.5rem;margin-bottom:8px;">📋</div>
-      Susunan pemain belum dirilis.
-    </div>`;
+    return `
+      <div class="empty-tab-placeholder">
+        <svg class="empty-placeholder-icon" viewBox="0 0 24 24" width="44" height="44" fill="none" stroke="var(--primary-gold)" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="2" y="2" width="20" height="20" rx="3" />
+          <line x1="2" y1="12" x2="22" y2="12" />
+          <circle cx="12" cy="12" r="3.5" />
+          <rect x="6" y="2" width="12" height="4" />
+          <rect x="6" y="18" width="12" height="4" />
+        </svg>
+        <p class="empty-placeholder-title">Susunan Pemain Belum Tersedia</p>
+        <p class="empty-placeholder-subtitle">Lineup resmi akan ditampilkan segera setelah dirilis oleh tim penyelenggara.</p>
+      </div>
+    `;
   }
   
   const homeFormation = home.formation || '?';

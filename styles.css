@@ -6026,4 +6026,51 @@ body.light-theme .stats-sub-tab-btn.active {
   text-align: right;
 }
 
+/* Empty Tab Placeholders */
+.empty-tab-placeholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 32px 16px;
+  background: rgba(255, 255, 255, 0.01);
+  border: 1px dashed var(--glass-border);
+  border-radius: var(--border-radius-md);
+  margin: 10px 0;
+}
+
+body.light-theme .empty-tab-placeholder {
+  background: rgba(0, 0, 0, 0.01);
+}
+
+.empty-placeholder-icon {
+  margin-bottom: 12px;
+  transition: transform 0.3s ease;
+}
+
+.empty-tab-placeholder:hover .empty-placeholder-icon {
+  transform: scale(1.05);
+}
+
+.empty-placeholder-title {
+  font-family: var(--font-sans);
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 0 0 6px 0 !important;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.empty-placeholder-subtitle {
+  font-family: var(--font-sans);
+  font-size: 0.7rem;
+  font-weight: 500;
+  color: var(--text-secondary);
+  margin: 0 !important;
+  line-height: 1.4;
+  max-width: 280px;
+}
+
 
