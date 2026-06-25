@@ -1632,7 +1632,7 @@ function renderSchedule() {
   let filteredKnockout = knockoutMatches.map(m => {
     const matchKey = `ko_${m.match_id}`;
     const score = getMatchScore(matchKey);
-    if (!score) {
+    if (!score && !showPotentialDraw && !isGroupStageComplete()) {
       const orig = WORLD_CUP_DATA.knockout_stage.find(ok => ok.match_id === m.match_id);
       if (orig) {
         return {
@@ -1780,7 +1780,7 @@ function renderFavorites() {
       if (match) {
         let displayMatch = match;
         const score = getMatchScore(key);
-        if (!score) {
+        if (!score && !showPotentialDraw && !isGroupStageComplete()) {
           const orig = WORLD_CUP_DATA.knockout_stage.find(ok => ok.match_id === matchId);
           if (orig) {
             displayMatch = {
@@ -3060,7 +3060,7 @@ function recalculateKnockoutTree() {
       const idx = rank === '1' ? 0 : 1;
       
       const hasRealScore = getMatchScore(`ko_${m.match_id}`);
-      if (showPotentialDraw || hasRealScore) {
+      if (showPotentialDraw || hasRealScore || isGroupStageComplete()) {
         if (groupRankings[groupName] && groupRankings[groupName][idx]) {
           m.team1 = groupRankings[groupName][idx];
         } else {
@@ -3073,7 +3073,7 @@ function recalculateKnockoutTree() {
       // 3rd placed team choice
       const selectedGroup = selected3rdPlaces[m.match_id];
       const hasRealScore = getMatchScore(`ko_${m.match_id}`);
-      if (showPotentialDraw || hasRealScore) {
+      if (showPotentialDraw || hasRealScore || isGroupStageComplete()) {
         if (selectedGroup && groupRankings[selectedGroup] && groupRankings[selectedGroup][2]) {
           m.team1 = groupRankings[selectedGroup][2]; // 3rd placed team is at index 2
         } else {
@@ -3098,7 +3098,7 @@ function recalculateKnockoutTree() {
       const idx = rank === '1' ? 0 : 1;
       
       const hasRealScore = getMatchScore(`ko_${m.match_id}`);
-      if (showPotentialDraw || hasRealScore) {
+      if (showPotentialDraw || hasRealScore || isGroupStageComplete()) {
         if (groupRankings[groupName] && groupRankings[groupName][idx]) {
           m.team2 = groupRankings[groupName][idx];
         } else {
@@ -3111,7 +3111,7 @@ function recalculateKnockoutTree() {
       // 3rd placed team choice
       const selectedGroup = selected3rdPlaces[m.match_id];
       const hasRealScore = getMatchScore(`ko_${m.match_id}`);
-      if (showPotentialDraw || hasRealScore) {
+      if (showPotentialDraw || hasRealScore || isGroupStageComplete()) {
         if (selectedGroup && groupRankings[selectedGroup] && groupRankings[selectedGroup][2]) {
           m.team2 = groupRankings[selectedGroup][2]; // 3rd placed team
         } else {
@@ -5196,7 +5196,7 @@ window.openMatchDetailModal = async function(matchKey) {
   // Use potential slot names for upcoming knockout matches with no real score
   if (match.isKO) {
     const score = getMatchScore(matchKey);
-    if (!score) {
+    if (!score && !showPotentialDraw && !isGroupStageComplete()) {
       const orig = WORLD_CUP_DATA.knockout_stage.find(ok => ok.match_id === match.match_id);
       if (orig) {
         match = {
