@@ -3658,22 +3658,7 @@ function renderBracketLines() {
     }
 
     const isActive = !!simulatedWinners[conn.from];
-    let lineClass = 'bracket-line-inactive';
-    if (isActive) {
-      if (conn.from >= 73 && conn.from <= 88) {
-        lineClass = 'line-active-32';
-      } else if (conn.from >= 89 && conn.from <= 96) {
-        lineClass = 'line-active-16';
-      } else if (conn.from >= 97 && conn.from <= 100) {
-        lineClass = 'line-active-qf';
-      } else if (conn.from === 101 || conn.from === 102) {
-        if (conn.to === 104) {
-          lineClass = 'line-active-final';
-        } else {
-          lineClass = 'line-active-sf';
-        }
-      }
-    }
+    const lineClass = isActive ? 'bracket-line-active' : 'bracket-line-inactive';
 
     pathsHtml += `<path d="${d}" class="${lineClass}"></path>`;
 
@@ -3681,24 +3666,7 @@ function renderBracketLines() {
       drawnSharedTargets.add(conn.to);
 
       const isSharedActive = siblingConns.some(c => !!simulatedWinners[c.from]);
-      let sharedLineClass = 'bracket-line-inactive';
-      if (isSharedActive) {
-        const activeSource = siblingConns.find(c => !!simulatedWinners[c.from]);
-        const fromId = activeSource ? activeSource.from : conn.from;
-        if (fromId >= 73 && fromId <= 88) {
-          sharedLineClass = 'line-active-32';
-        } else if (fromId >= 89 && fromId <= 96) {
-          sharedLineClass = 'line-active-16';
-        } else if (fromId >= 97 && fromId <= 100) {
-          sharedLineClass = 'line-active-qf';
-        } else if (fromId === 101 || fromId === 102) {
-          if (conn.to === 104) {
-            sharedLineClass = 'line-active-final';
-          } else {
-            sharedLineClass = 'line-active-sf';
-          }
-        }
-      }
+      const sharedLineClass = isSharedActive ? 'bracket-line-active' : 'bracket-line-inactive';
       pathsHtml += `<path d="${sharedD}" class="${sharedLineClass}"></path>`;
     }
   });

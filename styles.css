@@ -3540,17 +3540,16 @@ body.light-theme .compact-match-date {
 /* Glowing gold path lines for predicted progress */
 .bracket-line-inactive {
   stroke: rgba(255, 255, 255, 0.28);
-  stroke-width: 1.8px;
+  stroke-width: 2px;
   fill: none;
-  transition: stroke 0.3s ease, stroke-width 0.3s ease;
+  transition: stroke 0.3s ease;
 }
 
 .bracket-line-active {
   stroke: var(--primary-gold);
-  stroke-width: 2.8px;
+  stroke-width: 2px;
   fill: none;
-  filter: drop-shadow(0 0 3px rgba(212, 175, 55, 0.8));
-  transition: stroke 0.3s ease, stroke-width 0.3s ease;
+  transition: stroke 0.3s ease;
 }
 
 /* Light Theme overrides */
@@ -3604,47 +3603,6 @@ body.light-theme .bracket-line-inactive {
 }
 .compact-match-card.round-third.match-predicted {
   box-shadow: 0 0 12px rgba(213, 0, 249, 0.45);
-}
-
-/* Round-Specific Symmetrical Active Paths */
-.line-active-32 {
-  stroke: #ff0055;
-  stroke-width: 2.8px;
-  fill: none;
-  filter: drop-shadow(0 0 3px rgba(255, 0, 85, 0.8));
-  transition: stroke 0.3s, stroke-width 0.3s;
-}
-
-.line-active-16 {
-  stroke: #00ff66;
-  stroke-width: 2.8px;
-  fill: none;
-  filter: drop-shadow(0 0 3px rgba(0, 255, 102, 0.8));
-  transition: stroke 0.3s, stroke-width 0.3s;
-}
-
-.line-active-qf {
-  stroke: #00e5ff;
-  stroke-width: 2.8px;
-  fill: none;
-  filter: drop-shadow(0 0 3px rgba(0, 229, 255, 0.8));
-  transition: stroke 0.3s, stroke-width 0.3s;
-}
-
-.line-active-sf {
-  stroke: #ff9100;
-  stroke-width: 2.8px;
-  fill: none;
-  filter: drop-shadow(0 0 3px rgba(255, 145, 0, 0.8));
-  transition: stroke 0.3s, stroke-width 0.3s;
-}
-
-.line-active-final {
-  stroke: #ffff00;
-  stroke-width: 3.5px;
-  fill: none;
-  filter: drop-shadow(0 0 4px rgba(255, 255, 0, 0.9));
-  transition: stroke 0.3s, stroke-width 0.3s;
 }
 /* Bracket Round Legend (Subtle, secondary label style) */
 .bracket-legend {
