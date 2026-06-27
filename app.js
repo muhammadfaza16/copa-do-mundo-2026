@@ -3478,10 +3478,10 @@ const COMPACT_COORDINATES = {
   99: { x: 586, y: 280 }, // Stack QF Upper Right
 
   // Bottom Wing (Column 7 lower R32, Bottom-right horizontal R32)
-  85: { x: 846, y: 390 }, // Column 7 lower top
-  86: { x: 846, y: 490 }, // Column 7 lower bottom
-  87: { x: 496, y: 640 }, // Bottom-right horizontal left (TUR)
-  88: { x: 676, y: 640 }, // Bottom-right horizontal right (ARG)
+  88: { x: 846, y: 390 }, // Column 7 lower top (Australia vs Egypt)
+  86: { x: 846, y: 490 }, // Column 7 lower bottom (Argentina vs Cape Verde)
+  87: { x: 496, y: 640 }, // Bottom-right horizontal left (Juara Grup K vs 3rd)
+  85: { x: 676, y: 640 }, // Bottom-right horizontal right (Swiss vs 3rd)
   
   95: { x: 726, y: 440 }, // Column 6 Lower R16
   96: { x: 586, y: 520 }, // Stack Bottom R16 Right
@@ -3620,16 +3620,16 @@ function renderBracketLines() {
     // Right Wing
     { from: 79, to: 92, type: 'horizontal-left' },
     { from: 80, to: 92, type: 'horizontal-left' },
+    { from: 88, to: 95, type: 'horizontal-left' },
     { from: 86, to: 95, type: 'horizontal-left' },
-    { from: 88, to: 95, type: 'vertical-up' },
     { from: 92, to: 99, type: 'horizontal-straight' },
     { from: 95, to: 100, type: 'horizontal-straight' },
 
     // Bottom Wing
     { from: 76, to: 91, type: 'vertical-down' },
     { from: 78, to: 91, type: 'vertical-down' },
-    { from: 85, to: 96, type: 'horizontal-left' },
     { from: 87, to: 96, type: 'vertical-up' },
+    { from: 85, to: 96, type: 'vertical-up' },
 
     // Stack vertical progression
     { from: 89, to: 97, type: 'vertical-straight' },
