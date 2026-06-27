@@ -5927,16 +5927,21 @@ function renderModalContent() {
 }
 
 function renderStatsTab(stats) {
-  if (!stats || !stats.home || Object.keys(stats.home).length === 0) {
+  const status = currentModalData && currentModalData.scoreData ? currentModalData.scoreData.status : null;
+  const matchNotStarted = status === 'TIMED' || status === 'PRE_MATCH' || status === 'SCHEDULED' || !status;
+
+  if (matchNotStarted || !stats || !stats.home || Object.keys(stats.home).length === 0) {
     return `
       <div class="empty-tab-placeholder">
         <svg class="empty-placeholder-icon" viewBox="0 0 24 24" width="44" height="44" fill="none" stroke="var(--primary-gold)" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round">
-          <line x1="18" y1="20" x2="18" y2="10" />
-          <line x1="12" y1="20" x2="12" y2="4" />
-          <line x1="6" y1="20" x2="6" y2="14" />
+          <rect x="2" y="2" width="20" height="20" rx="3" />
+          <line x1="6" y1="17" x2="18" y2="17" />
+          <line x1="18" y1="17" x2="18" y2="11" />
+          <line x1="12" y1="17" x2="12" y2="7" />
+          <line x1="6" y1="17" x2="6" y2="13" />
         </svg>
         <p class="empty-placeholder-title">Statistik Belum Tersedia</p>
-        <p class="empty-placeholder-subtitle">Statistik detail pertandingan akan ditampilkan langsung setelah laga dimulai.</p>
+        <p class="empty-placeholder-subtitle">Statistik detail pertandingan akan ditampilkan secara langsung setelah laga dimulai.</p>
       </div>
     `;
   }
