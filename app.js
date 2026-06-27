@@ -3546,9 +3546,19 @@ function getMatchTooltipHtml(m) {
   const dateStr = formatCompactMatchDate(m.date);
   const timeInfo = getFormattedTime(m.date, m.time);
   
+  const roundTranslations = {
+    "Round of 32": "32 Besar",
+    "Round of 16": "16 Besar",
+    "Quarter-final": "Perempat Final",
+    "Semi-final": "Semifinal",
+    "Third-place match": "Perebutan Tempat Ke-3",
+    "Final": "Final"
+  };
+  const roundLabel = roundTranslations[m.group] || m.group;
+
   return `
     <div style="font-weight: 700; color: var(--primary-gold); margin-bottom: 6px; font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.5px;">
-      Laga ${m.match_id} · ${dateStr} · ${timeInfo.time}
+      ${roundLabel} · ${dateStr} · ${timeInfo.time}
     </div>
     <div style="display: flex; flex-direction: column; gap: 6px; font-size: 0.72rem; min-width: 140px;">
       <div style="display: flex; align-items: center; justify-content: space-between; gap: 12px; font-weight: ${winner === m.team1 ? '700' : '400'}; opacity: ${winner && winner !== m.team1 ? '0.5' : '1'}">
