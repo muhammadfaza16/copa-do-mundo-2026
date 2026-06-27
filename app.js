@@ -3579,11 +3579,16 @@ function getMatchTooltipHtml(m) {
   }
 
   return `
-    <div class="tooltip-container" style="display: flex; flex-direction: column; gap: 8px; min-width: 170px; font-family: var(--font-sans, sans-serif); text-align: left;">
-      <!-- Header: Round + Time -->
-      <div style="display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 6px; font-size: 0.6rem; text-transform: uppercase; letter-spacing: 0.8px; font-weight: 700; color: var(--primary-gold);">
-        <span>${roundLabel}</span>
-        <span style="color: rgba(255,255,255,0.45); font-weight: 500;">${dateStr} · ${timeInfo.time}</span>
+    <div class="tooltip-container" style="display: flex; flex-direction: column; gap: 8px; min-width: 175px; font-family: var(--font-sans, sans-serif); text-align: left;">
+      <!-- Header: Round + Match ID + Time -->
+      <div style="display: flex; flex-direction: column; gap: 2px; border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 6px;">
+        <div style="font-size: 0.62rem; text-transform: uppercase; letter-spacing: 0.8px; font-weight: 700; color: var(--primary-gold); line-height: 1.2;">
+          ${roundLabel}
+        </div>
+        <div style="display: flex; align-items: center; justify-content: space-between; font-size: 0.55rem; color: rgba(255,255,255,0.4); font-weight: 500; margin-top: 1px;">
+          <span style="letter-spacing: 0.3px; font-weight: 600;">LAGA ${m.match_id}</span>
+          <span>${dateStr} · ${timeInfo.time}</span>
+        </div>
       </div>
 
       <!-- Teams & Scores -->

@@ -3387,9 +3387,7 @@ body.light-theme .mobile-team-name {
     display: block;
   }
 
-  .bracket-legend {
-    display: flex;
-  }
+
 }
 
 /* Compact Symmetrical Radial Bracket Styles */
@@ -3503,15 +3501,15 @@ body.light-theme .mobile-team-name {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: rgba(255, 255, 255, 0.08);
-  border: 1px dashed rgba(255, 255, 255, 0.35);
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px dashed rgba(255, 255, 255, 0.15);
   width: 26px;
   height: 26px;
   border-radius: 50%;
   box-sizing: border-box;
   font-size: 10px;
-  font-weight: 800;
-  color: rgba(255, 255, 255, 0.65);
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.35);
   line-height: 1;
   text-transform: uppercase;
 }
@@ -3553,9 +3551,9 @@ body.light-theme .flag-crest-compact {
 }
 
 body.light-theme .flag-crest-placeholder {
-  background: rgba(0, 0, 0, 0.04);
-  border: 1px dashed rgba(0, 0, 0, 0.25);
-  color: rgba(0, 0, 0, 0.55);
+  background: rgba(0, 0, 0, 0.02);
+  border: 1px dashed rgba(0, 0, 0, 0.15);
+  color: rgba(0, 0, 0, 0.35);
 }
 
 body.light-theme .bracket-line-inactive {
@@ -3604,45 +3602,7 @@ body.light-theme .bracket-line-inactive {
 .compact-match-card.round-third.match-predicted {
   box-shadow: 0 0 12px rgba(213, 0, 249, 0.45);
 }
-/* Bracket Round Legend (Subtle, secondary label style) */
-.bracket-legend {
-  display: flex;
-  justify-content: flex-start;
-  align-items: center;
-  gap: 14px;
-  flex-wrap: wrap;
-  margin: 10px auto 8px 12px;
-  padding: 6px 12px;
-  max-width: 960px;
-  background: transparent;
-  border: none;
-  opacity: 0.75;
-}
 
-.legend-item {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  font-family: var(--font-sans);
-  font-size: 0.7rem;
-  font-weight: 500;
-  color: var(--text-secondary);
-  text-transform: none;
-}
-
-.legend-line {
-  display: inline-block;
-  width: 3px;
-  height: 11px;
-  border-radius: 1px;
-}
-
-.round-32-line { background-color: #ff0055; }
-.round-16-line { background-color: #00ff66; }
-.round-qf-line { background-color: #00e5ff; }
-.round-sf-line { background-color: #ff9100; }
-.round-third-line { background-color: #d500f9; }
-.round-final-line { background-color: #ffff00; }
 
 /* Zoom Switch Toggle styling */
 .switch-container {
