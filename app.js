@@ -3614,8 +3614,7 @@ function getMatchTooltipHtml(m) {
           ` : ''}
         </div>
 
-        <!-- Subtle Horizontal Divider -->
-        <div style="height: 1px; background: var(--glass-border); opacity: 0.6;"></div>
+
 
         <!-- Team 2 -->
         <div style="display: flex; flex-direction: column; gap: 2px;">
