@@ -606,8 +606,46 @@ function isGroupStageComplete() {
 
 function isRealTeamName(name) {
   if (!name) return false;
-  const n = name.toLowerCase();
-  return !n.includes("grup") && !n.includes("winner") && !n.includes("loser") && !n.includes("match") && !n.includes("juara") && !n.includes("runner-up") && !n.includes("3rd") && !n.includes("peringkat");
+  const n = name.trim().toLowerCase();
+  return !n.includes("grup") && !n.includes("group") && 
+         !n.includes("winner") && !n.includes("loser") && 
+         !n.includes("match") && !n.includes("laga") && 
+         !n.includes("juara") && !n.includes("runner-up") && 
+         !n.includes("3rd") && !n.includes("third") && 
+         !n.includes("place") && !n.includes("peringkat") && 
+         !n.includes("pemenang") && !n.includes("kalah") &&
+         n !== "1l" && n !== "2l" && n !== "1a" && n !== "2a" && 
+         n !== "1b" && n !== "2b" && n !== "1c" && n !== "2c" &&
+         n !== "1d" && n !== "2d" && n !== "1e" && n !== "2e" &&
+         n !== "1f" && n !== "2f" && n !== "1g" && n !== "2g" &&
+         n !== "1h" && n !== "2h" && n !== "1i" && n !== "2i" &&
+         n !== "1j" && n !== "2j" && n !== "1k" && n !== "2k";
+}
+
+function normalizePlaceholderName(name) {
+  if (!name) return "";
+  let clean = name.trim();
+  const lower = clean.toLowerCase();
+
+  if (lower.startsWith("third place group ")) {
+    return "3rd Grup " + clean.substring(18);
+  }
+  if (lower.startsWith("third place grup ")) {
+    return "3rd Grup " + clean.substring(17);
+  }
+  if (lower.startsWith("group ") && lower.endsWith(" winner")) {
+    return "Juara Grup " + clean.substring(6, clean.length - 7);
+  }
+  if (lower.startsWith("grup ") && lower.endsWith(" winner")) {
+    return "Juara Grup " + clean.substring(5, clean.length - 7);
+  }
+  if (lower.startsWith("group ") && lower.endsWith(" 2nd place")) {
+    return "Runner-up Grup " + clean.substring(6, clean.length - 10);
+  }
+  if (lower.startsWith("grup ") && lower.endsWith(" 2nd place")) {
+    return "Runner-up Grup " + clean.substring(5, clean.length - 10);
+  }
+  return clean;
 }
 
 function isGroupComplete(groupLetter) {
@@ -2392,8 +2430,8 @@ function renderNearestMatches() {
   // Filter for upcoming/live matches (not finished yet, start time >= now, or currently live)
   const upcomingMatches = allMatches.filter(m => {
     if (m.isKO) {
-      const isPlaceholder1 = m.team1.startsWith('Winner Match') || m.team1.startsWith('Loser Match') || m.team1.startsWith('3rd Group') || m.team1.startsWith('Runner-up Group') || m.team1.startsWith('Winner Group');
-      const isPlaceholder2 = m.team2.startsWith('Winner Match') || m.team2.startsWith('Loser Match') || m.team2.startsWith('3rd Group') || m.team2.startsWith('Runner-up Group') || m.team2.startsWith('Winner Group');
+      const isPlaceholder1 = !isRealTeamName(m.team1);
+      const isPlaceholder2 = !isRealTeamName(m.team2);
       if (isPlaceholder1 || isPlaceholder2) return false;
     }
     const matchKey = m.isKO ? `ko_${m.match_id}` : `gs_${m.date}_${m.team1}_${m.team2}`;
@@ -3193,9 +3231,7 @@ function recalculateKnockoutTree() {
       const side = nextMatchForWinner.team1_seed === `W${m.match_id}` ? 'team1' : 'team2';
       
       // If winner exists and both competitor names are known (not placeholders)
-      if (winner && m.team1 && m.team2 &&
-          !m.team1.startsWith('Winner Match') && !m.team2.startsWith('Winner Match') && 
-          !m.team1.startsWith('3rd Grup') && !m.team2.startsWith('3rd Grup')) {
+      if (winner && isRealTeamName(m.team1) && isRealTeamName(m.team2)) {
         nextMatchForWinner[side] = winner;
       } else {
         // Reset slot to placeholder name
@@ -3211,8 +3247,7 @@ function recalculateKnockoutTree() {
     const nextMatchForLoser = knockoutMatches.find(nxt => nxt.team1_seed === `L${m.match_id}` || nxt.team2_seed === `L${m.match_id}`);
     if (nextMatchForLoser) {
       const side = nextMatchForLoser.team1_seed === `L${m.match_id}` ? 'team1' : 'team2';
-      if (winner && loser && m.team1 && m.team2 &&
-          !m.team1.startsWith('Winner Match') && !m.team2.startsWith('Winner Match')) {
+      if (winner && loser && isRealTeamName(m.team1) && isRealTeamName(m.team2)) {
         nextMatchForLoser[side] = loser;
       } else {
         nextMatchForLoser[side] = `Loser Match ${m.match_id}`;
@@ -3302,6 +3337,8 @@ function getTeamCode(teamName) {
   const clean = teamName.trim();
   if (TEAM_CODES[clean]) return TEAM_CODES[clean];
 
+  const lower = clean.toLowerCase();
+
   if (clean.startsWith("Juara Grup ")) {
     return "1" + clean.replace("Juara Grup ", "");
   }
@@ -3313,6 +3350,24 @@ function getTeamCode(teamName) {
   }
   if (clean.startsWith("3rd Group ")) {
     return "3RD " + clean.replace("3rd Group ", "");
+  }
+  if (lower.startsWith("third place group ")) {
+    return "3RD " + clean.substring(18);
+  }
+  if (lower.startsWith("third place grup ")) {
+    return "3RD " + clean.substring(17);
+  }
+  if (lower.startsWith("group ") && lower.endsWith(" winner")) {
+    return "1" + clean.substring(6, clean.length - 7);
+  }
+  if (lower.startsWith("grup ") && lower.endsWith(" winner")) {
+    return "1" + clean.substring(5, clean.length - 7);
+  }
+  if (lower.startsWith("group ") && lower.endsWith(" 2nd place")) {
+    return "2" + clean.substring(6, clean.length - 10);
+  }
+  if (lower.startsWith("grup ") && lower.endsWith(" 2nd place")) {
+    return "2" + clean.substring(5, clean.length - 10);
   }
   if (clean.startsWith("Winner Match ")) {
     return "W" + clean.replace("Winner Match ", "");
@@ -3450,26 +3505,8 @@ function renderBracket() {
     if (!coords) return;
 
     const winner = simulatedWinners[m.match_id];
-    const isPlaceholder1 = m.team1 && typeof m.team1 === 'string' && (
-      m.team1.startsWith('Winner Match') || 
-      m.team1.startsWith('Loser Match') || 
-      m.team1.startsWith('3rd Grup') || 
-      m.team1.startsWith('3rd Group') ||
-      m.team1.startsWith('Juara Grup') ||
-      m.team1.startsWith('Runner-up Grup') ||
-      m.team1.startsWith('Juara Group') ||
-      m.team1.startsWith('Runner-up Group')
-    );
-    const isPlaceholder2 = m.team2 && typeof m.team2 === 'string' && (
-      m.team2.startsWith('Winner Match') || 
-      m.team2.startsWith('Loser Match') || 
-      m.team2.startsWith('3rd Grup') || 
-      m.team2.startsWith('3rd Group') ||
-      m.team2.startsWith('Juara Grup') ||
-      m.team2.startsWith('Runner-up Grup') ||
-      m.team2.startsWith('Juara Group') ||
-      m.team2.startsWith('Runner-up Group')
-    );
+    const isPlaceholder1 = !isRealTeamName(m.team1);
+    const isPlaceholder2 = !isRealTeamName(m.team2);
 
     const team1Code = getTeamCode(m.team1 || '');
     const team2Code = getTeamCode(m.team2 || '');
@@ -4107,31 +4144,13 @@ window.handleBracketTap = function(matchId, teamName, isSelectable) {
     return;
   }
   if (!isSelectable) {
-    if (teamName && (
-      teamName.startsWith('Winner Match') || 
-      teamName.startsWith('Loser Match') || 
-      teamName.startsWith('3rd Grup') || 
-      teamName.startsWith('3rd Group') ||
-      teamName.startsWith('Juara Grup') ||
-      teamName.startsWith('Runner-up Grup') ||
-      teamName.startsWith('Juara Group') ||
-      teamName.startsWith('Runner-up Group')
-    )) {
+    if (teamName && !isRealTeamName(teamName)) {
       window.openSlotModal(teamName, matchId);
     }
     return;
   }
 
-  if (teamName && (
-    teamName.startsWith('Winner Match') || 
-    teamName.startsWith('Loser Match') || 
-    teamName.startsWith('3rd Grup') || 
-    teamName.startsWith('3rd Group') ||
-    teamName.startsWith('Juara Grup') ||
-    teamName.startsWith('Runner-up') ||
-    teamName.startsWith('Juara Group') ||
-    teamName.startsWith('Runner-up Group')
-  )) {
+  if (teamName && !isRealTeamName(teamName)) {
     window.openSlotModal(teamName, matchId);
     return;
   }
@@ -4749,8 +4768,11 @@ async function fetchRealTimeScores(isManual = false) {
       let isFinished = apiMatch.finished === 'TRUE' || apiMatch.time_elapsed === 'finished';
       let isLive = !isFinished && apiMatch.time_elapsed !== 'notstarted';
 
-      const team1Indo = TEAM_TRANSLATIONS[apiMatch.home_team_name_en] || apiMatch.home_team_name_en;
-      const team2Indo = TEAM_TRANSLATIONS[apiMatch.away_team_name_en] || apiMatch.away_team_name_en;
+      let team1Indo = TEAM_TRANSLATIONS[apiMatch.home_team_name_en] || apiMatch.home_team_name_en;
+      let team2Indo = TEAM_TRANSLATIONS[apiMatch.away_team_name_en] || apiMatch.away_team_name_en;
+      
+      team1Indo = normalizePlaceholderName(team1Indo);
+      team2Indo = normalizePlaceholderName(team2Indo);
       
       let localKey = null;
       const matchId = parseInt(apiMatch.id);
@@ -4927,8 +4949,8 @@ async function fetchRealTimeScores(isManual = false) {
               existing.away_scorers !== scorers2 ||
               existing.home_red_cards !== redCards1 ||
               existing.away_red_cards !== redCards2 ||
-              existing.home_team_name_en !== apiMatch.home_team_name_en ||
-              existing.away_team_name_en !== apiMatch.away_team_name_en ||
+              existing.home_team_name_en !== team1Indo ||
+              existing.away_team_name_en !== team2Indo ||
               String(existing.stadium_id) !== String(apiMatch.stadium_id) ||
               String(existing.matchday) !== String(apiMatch.matchday)) {
             hasMatchChanged = true;
@@ -4946,8 +4968,8 @@ async function fetchRealTimeScores(isManual = false) {
             away_scorers: scorers2,
             home_red_cards: redCards1,
             away_red_cards: redCards2,
-            home_team_name_en: apiMatch.home_team_name_en,
-            away_team_name_en: apiMatch.away_team_name_en,
+            home_team_name_en: team1Indo,
+            away_team_name_en: team2Indo,
             time_elapsed: apiMatch.time_elapsed || null,
             espn_event_id: apiMatch.espn_event_id || null,
             display_clock: apiMatch.display_clock || null,
