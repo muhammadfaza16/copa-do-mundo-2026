@@ -3446,7 +3446,7 @@ function getTeamGradientCss(teamColorsOrColor) {
 
 
 
-const COMPACT_COORDINATES = {
+const BASE_COMPACT_COORDINATES = {
   // Left Wing (Outer Left R32, Column 2 Upper R16, Stack Top R16 & QF)
   73: { x: 30, y: 230 },  // Column 1 upper top
   75: { x: 30, y: 330 },  // Column 1 upper bottom
@@ -3494,6 +3494,14 @@ const COMPACT_COORDINATES = {
   103: { x: 438, y: 440 }  // Juara 3 (Bottom Center)
 };
 
+const COMPACT_COORDINATES = {};
+for (const [id, coords] of Object.entries(BASE_COMPACT_COORDINATES)) {
+  COMPACT_COORDINATES[id] = {
+    x: Math.round(coords.x * 0.58),
+    y: Math.round(coords.y * 0.72)
+  };
+}
+
 // Formatter to translate date string "29/6" into "29 Jun"
 function formatCompactMatchDate(dateStr) {
   if (!dateStr) return "";
@@ -3512,9 +3520,98 @@ function getVenueCity(venueStr) {
 // Extractor to get only the stadium name from venue (e.g. "SoFi Stadium, Inglewood" -> "SoFi Stadium")
 function getVenueStadium(venueStr) {
   if (!venueStr) return "";
-  const parts = venueStr.split(',');
-  return parts[0].trim();
+  const parts = vfunction getMatchTooltipHtml(m) {
+  const isPlaceholder1 = !isRealTeamName(m.team1);
+  const isPlaceholder2 = !isRealTeamName(m.team2);
+  
+  const team1Name = isPlaceholder1 ? formatPlaceholderName(m.team1 || 'TBD') : (m.team1 || 'TBD');
+  const team2Name = isPlaceholder2 ? formatPlaceholderName(m.team2 || 'TBD') : (m.team2 || 'TBD');
+  
+  const apiMatchData = realScores[`ko_${m.match_id}`];
+  let score1 = '';
+  let score2 = '';
+  if (apiMatchData && apiMatchData.score1 !== undefined && apiMatchData.score1 !== null) {
+    score1 = apiMatchData.score1;
+    score2 = apiMatchData.score2;
+  }
+  
+  const winner = simulatedWinners[m.match_id];
+  const t1WinnerMarker = winner === m.team1 ? '🏆' : '';
+  const t2WinnerMarker = winner === m.team2 ? '🏆' : '';
+  
+  const dateStr = formatCompactMatchDate(m.date);
+  const timeInfo = getFormattedTime(m.date, m.time);
+  
+  return `
+    <div style="font-weight: 700; color: var(--primary-gold); margin-bottom: 6px; font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.5px;">
+      Laga ${m.match_id} · ${dateStr} · ${timeInfo.time}
+    </div>
+    <div style="display: flex; flex-direction: column; gap: 6px; font-size: 0.72rem; min-width: 140px;">
+      <div style="display: flex; align-items: center; justify-content: space-between; gap: 12px; font-weight: ${winner === m.team1 ? '700' : '400'}; opacity: ${winner && winner !== m.team1 ? '0.5' : '1'}">
+        <span style="display: flex; align-items: center; gap: 6px;">
+          ${m.team1 && !isPlaceholder1 ? getFlagHtml(m.team1).replace('class="flag-crest"', 'style="width:14px; height:10px; border-radius:1px; object-fit:cover;"') : ''}
+          ${team1Name} ${t1WinnerMarker}
+        </span>
+        <span style="font-weight: 700;">${score1}</span>
+      </div>
+      <div style="display: flex; align-items: center; justify-content: space-between; gap: 12px; font-weight: ${winner === m.team2 ? '700' : '400'}; opacity: ${winner && winner !== m.team2 ? '0.5' : '1'}">
+        <span style="display: flex; align-items: center; gap: 6px;">
+          ${m.team2 && !isPlaceholder2 ? getFlagHtml(m.team2).replace('class="flag-crest"', 'style="width:14px; height:10px; border-radius:1px; object-fit:cover;"') : ''}
+          ${team2Name} ${t2WinnerMarker}
+        </span>
+        <span style="font-weight: 700;">${score2}</span>
+      </div>
+    </div>
+    <div style="font-size: 0.6rem; color: var(--text-secondary); margin-top: 6px; border-top: 1px solid rgba(255,255,255,0.08); padding-top: 6px;">
+      ${getMatchVenue(m)}
+    </div>
+  `;
 }
+
+window.showBracketTooltip = function(event, matchId) {
+  const tooltip = document.getElementById('bracket-tooltip');
+  if (!tooltip) return;
+  const match = knockoutMatches.find(m => m.match_id === matchId);
+  if (!match) return;
+  
+  tooltip.innerHTML = getMatchTooltipHtml(match);
+  tooltip.style.display = 'block';
+  window.moveBracketTooltip(event);
+};
+
+window.hideBracketTooltip = function() {
+  const tooltip = document.getElementById('bracket-tooltip');
+  if (tooltip) {
+    tooltip.style.display = 'none';
+  }
+};
+
+window.moveBracketTooltip = function(event) {
+  const tooltip = document.getElementById('bracket-tooltip');
+  if (!tooltip) return;
+  
+  const offsetMouseX = 14;
+  const offsetMouseY = 14;
+  
+  const tooltipRect = tooltip.getBoundingClientRect();
+  const wrapper = document.querySelector('.compact-bracket-wrapper');
+  if (!wrapper) return;
+  const wrapperRect = wrapper.getBoundingClientRect();
+  
+  let x = event.clientX - wrapperRect.left + offsetMouseX;
+  let y = event.clientY - wrapperRect.top + offsetMouseY;
+  
+  if (x + tooltipRect.width > wrapperRect.width) {
+    x = event.clientX - wrapperRect.left - tooltipRect.width - offsetMouseX;
+  }
+  
+  if (y + tooltipRect.height > wrapperRect.height) {
+    y = event.clientY - wrapperRect.top - tooltipRect.height - offsetMouseY;
+  }
+  
+  tooltip.style.left = `${x}px`;
+  tooltip.style.top = `${y}px`;
+};
 
 function renderBracket() {
   recalculateKnockoutTree();
@@ -3530,9 +3627,6 @@ function renderBracket() {
     const winner = simulatedWinners[m.match_id];
     const isPlaceholder1 = !isRealTeamName(m.team1);
     const isPlaceholder2 = !isRealTeamName(m.team2);
-
-    const team1Code = getTeamCode(m.team1 || '');
-    const team2Code = getTeamCode(m.team2 || '');
 
     const team1WinnerClass = (winner && winner === m.team1) ? 'winner' : (winner ? 'loser' : '');
     const team2WinnerClass = (winner && winner === m.team2) ? 'winner' : (winner ? 'loser' : '');
@@ -3559,31 +3653,36 @@ function renderBracket() {
     const flag1 = !isPlaceholder1 && m.team1 ? getFlagHtml(m.team1) : '';
     const flag2 = !isPlaceholder2 && m.team2 ? getFlagHtml(m.team2) : '';
 
-    const formattedFlag1 = flag1 ? flag1.replace('class="flag-crest"', 'class="flag-crest-compact"') : '';
-    const formattedFlag2 = flag2 ? flag2.replace('class="flag-crest"', 'class="flag-crest-compact"') : '';
-
-    const timeInfo = getFormattedTime(m.date, m.time);
-    const compactDate = timeInfo.date.split(',')[1] ? timeInfo.date.split(',')[1].trim() : timeInfo.date;
-    const dateVenueText = `M${m.match_id} · ${compactDate} · ${timeInfo.time}`;
+    const formattedFlag1 = flag1 
+      ? flag1.replace('class="flag-crest"', 'class="flag-crest-compact"') 
+      : `<div class="flag-crest-placeholder">
+           <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.4)" stroke-width="2.5">
+             <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+           </svg>
+         </div>`;
+    const formattedFlag2 = flag2 
+      ? flag2.replace('class="flag-crest"', 'class="flag-crest-compact"') 
+      : `<div class="flag-crest-placeholder">
+           <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.4)" stroke-width="2.5">
+             <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+           </svg>
+         </div>`;
 
     cardsHtml += `
       <div class="compact-match-card ${cardStateClass} ${roundClass}" 
            style="left: ${coords.x}px; top: ${coords.y}px;"
-           title="Laga ${m.match_id} - ${getMatchVenue(m)}">
-        <span class="compact-match-date">${dateVenueText}</span>
+           onmouseenter="window.showBracketTooltip(event, ${m.match_id})"
+           onmouseleave="window.hideBracketTooltip()"
+           onmousemove="window.moveBracketTooltip(event)">
         <!-- Team 1 -->
         <div class="compact-team-row ${isPlaceholder1 ? 'placeholder' : ''} ${team1WinnerClass}"
-             ${!isPlaceholder1 ? `data-team="${m.team1}"` : ''}
              onclick="window.handleBracketTap(${m.match_id}, '${m.team1 ? m.team1.replace(/'/g, "\\'") : ''}', ${!isPlaceholder1 && !isPlaceholder2})">
           ${formattedFlag1}
-          <span class="compact-team-code ${isPlaceholder1 ? 'placeholder-text' : ''}">${team1Code || '???'}</span>
         </div>
         <!-- Team 2 -->
         <div class="compact-team-row ${isPlaceholder2 ? 'placeholder' : ''} ${team2WinnerClass}"
-             ${!isPlaceholder2 ? `data-team="${m.team2}"` : ''}
              onclick="window.handleBracketTap(${m.match_id}, '${m.team2 ? m.team2.replace(/'/g, "\\'") : ''}', ${!isPlaceholder1 && !isPlaceholder2})">
           ${formattedFlag2}
-          <span class="compact-team-code ${isPlaceholder2 ? 'placeholder-text' : ''}">${team2Code || '???'}</span>
         </div>
       </div>
     `;
@@ -3598,8 +3697,8 @@ function renderBracketLines() {
   const svg = document.getElementById('bracket-svg-connections');
   if (!svg) return;
 
-  const cardWidth = 84;
-  const cardHeight = 36;
+  const cardWidth = 36;
+  const cardHeight = 52;
   let pathsHtml = '';
 
   const connections = [
@@ -3690,9 +3789,9 @@ function renderBracketLines() {
       }
     } else if (conn.type === 'horizontal-right') {
       x_start = fromCoords.x + cardWidth;
-      y_start = fromCoords.y + 18;
+      y_start = fromCoords.y + cardHeight / 2;
       x_end = toCoords.x;
-      y_end = toCoords.y + 18;
+      y_end = toCoords.y + cardHeight / 2;
       const xm = (x_start + x_end) / 2;
       if (hasSharedTrunk) {
         d = `M ${x_start} ${y_start} H ${xm} V ${y_end}`;
@@ -3702,9 +3801,9 @@ function renderBracketLines() {
       }
     } else if (conn.type === 'horizontal-left') {
       x_start = fromCoords.x;
-      y_start = fromCoords.y + 18;
+      y_start = fromCoords.y + cardHeight / 2;
       x_end = toCoords.x + cardWidth;
-      y_end = toCoords.y + 18;
+      y_end = toCoords.y + cardHeight / 2;
       const xm = (x_start + x_end) / 2;
       if (hasSharedTrunk) {
         d = `M ${x_start} ${y_start} H ${xm} V ${y_end}`;
@@ -3715,11 +3814,11 @@ function renderBracketLines() {
     } else if (conn.type === 'horizontal-straight') {
       if (fromCoords.x < toCoords.x) {
         x_start = fromCoords.x + cardWidth;
-        y_start = fromCoords.y + 18;
+        y_start = fromCoords.y + cardHeight / 2;
         x_end = toCoords.x;
       } else {
         x_start = fromCoords.x;
-        y_start = fromCoords.y + 18;
+        y_start = fromCoords.y + cardHeight / 2;
         x_end = toCoords.x + cardWidth;
       }
       d = `M ${x_start} ${y_start} H ${x_end}`;
@@ -3736,27 +3835,27 @@ function renderBracketLines() {
     } else if (conn.type === 'center-final') {
       if (fromCoords.x < toCoords.x) {
         x_start = fromCoords.x + cardWidth;
-        y_start = fromCoords.y + 18;
+        y_start = fromCoords.y + cardHeight / 2;
         x_end = toCoords.x;
       } else {
         x_start = fromCoords.x;
-        y_start = fromCoords.y + 18;
+        y_start = fromCoords.y + cardHeight / 2;
         x_end = toCoords.x + cardWidth;
       }
       d = `M ${x_start} ${y_start} H ${x_end}`;
     } else if (conn.type === 'center-third') {
       if (fromCoords.x < toCoords.x) {
         x_start = fromCoords.x + cardWidth;
-        y_start = fromCoords.y + 18;
+        y_start = fromCoords.y + cardHeight / 2;
         x_end = toCoords.x;
-        y_end = toCoords.y + 18;
+        y_end = toCoords.y + cardHeight / 2;
         const xm = (x_start + x_end) / 2;
         d = `M ${x_start} ${y_start} H ${xm} V ${y_end} H ${x_end}`;
       } else {
         x_start = fromCoords.x;
-        y_start = fromCoords.y + 18;
+        y_start = fromCoords.y + cardHeight / 2;
         x_end = toCoords.x + cardWidth;
-        y_end = toCoords.y + 18;
+        y_end = toCoords.y + cardHeight / 2;
         const xm = (x_start + x_end) / 2;
         d = `M ${x_start} ${y_start} H ${xm} V ${y_end} H ${x_end}`;
       }
@@ -3969,39 +4068,24 @@ function applyScale() {
   container.style.transform = `scale(${currentScale})`;
   container.style.transformOrigin = 'top left';
 
-  const baseHeight = 760;
+  const baseHeight = 550;
   const scaledHeight = baseHeight * currentScale;
 
-  // Dynamic bottom padding: decrease when zoomed out, increase when zoomed in
-  let paddingBottomVal = 0;
-  if (currentScale > baseScale) {
-    paddingBottomVal = 60 * currentScale;
-  } else {
-    paddingBottomVal = 35 * currentScale;
-  }
-
-  const totalScaffoldingHeight = scaledHeight + paddingBottomVal;
+  const totalScaffoldingHeight = scaledHeight + 16 * currentScale;
 
   if (scaffolding) {
-    scaffolding.style.width = `${960 * currentScale}px`;
+    scaffolding.style.width = `${560 * currentScale}px`;
     scaffolding.style.height = `${totalScaffoldingHeight}px`;
   }
 
-  const maxWrapperHeight = 760;
+  const maxWrapperHeight = 550;
   const targetWrapperHeight = Math.min(maxWrapperHeight, totalScaffoldingHeight);
   wrapper.style.height = `${targetWrapperHeight}px`;
 
-  // Explicitly control overflow and cursor based on zoom toggle state to prevent dragging when zoomed out
-  const toggle = document.getElementById('bracket-zoom-toggle');
-  if (toggle && toggle.checked) {
-    wrapper.style.overflow = 'auto';
-    wrapper.style.cursor = 'grab';
-  } else {
-    wrapper.style.overflow = 'hidden';
-    wrapper.style.cursor = 'default';
-    wrapper.scrollLeft = 0;
-    wrapper.scrollTop = 0;
-  }
+  wrapper.style.overflow = 'hidden';
+  wrapper.style.cursor = 'default';
+  wrapper.scrollLeft = 0;
+  wrapper.scrollTop = 0;
 }
 
 function scaleCompactBracket() {
@@ -4013,34 +4097,15 @@ function scaleCompactBracket() {
   if (wrapperWidth === 0) return;
 
   const targetWidth = Math.max(280, wrapperWidth - 16);
-  baseScale = targetWidth / 960;
-
-  const toggle = document.getElementById('bracket-zoom-toggle');
-  if (toggle && toggle.checked) {
-    currentScale = 1.35;
-  } else {
-    currentScale = baseScale;
-  }
+  baseScale = targetWidth / 560;
+  currentScale = Math.min(1, baseScale);
 
   applyScale();
 }
 window.scaleCompactBracket = scaleCompactBracket;
 
 window.toggleBracketZoom = function(isZoomed) {
-  if (isZoomed) {
-    currentScale = 1.35;
-  } else {
-    const wrapper = document.querySelector('.compact-bracket-wrapper');
-    if (wrapper) {
-      const wrapperWidth = wrapper.clientWidth;
-      if (wrapperWidth > 0) {
-        const targetWidth = Math.max(280, wrapperWidth - 16);
-        baseScale = targetWidth / 960;
-      }
-    }
-    currentScale = baseScale;
-  }
-  applyScale();
+  // No-op since it fits mobile screens automatically now
 };
 
 window.togglePotentialDraw = function(checked) {
@@ -4049,104 +4114,10 @@ window.togglePotentialDraw = function(checked) {
   renderBracket();
 };
 
-function initBracketTouchGestures() {
-  const wrapper = document.querySelector('.compact-bracket-wrapper');
-  if (!wrapper) return;
-
-  let initialDistance = null;
-  let startScale = 1;
-
-  wrapper.addEventListener('touchstart', (e) => {
-    if (e.touches.length === 2) {
-      initialDistance = getTouchDistance(e.touches[0], e.touches[1]);
-      startScale = currentScale;
-    }
-  }, { passive: false });
-
-  wrapper.addEventListener('touchmove', (e) => {
-    if (e.touches.length === 2 && initialDistance !== null) {
-      e.preventDefault();
-      hasPinched = true;
-
-      const currentDistance = getTouchDistance(e.touches[0], e.touches[1]);
-      const factor = currentDistance / initialDistance;
-      currentScale = startScale * factor;
-
-      const toggle = document.getElementById('bracket-zoom-toggle');
-      if (toggle) {
-        toggle.checked = currentScale > baseScale * 1.1;
-      }
-
-      applyScale();
-    }
-  }, { passive: false });
-
-  wrapper.addEventListener('touchend', (e) => {
-    if (e.touches.length < 2) {
-      initialDistance = null;
-    }
-  });
-
-  function getTouchDistance(t1, t2) {
-    const dx = t1.clientX - t2.clientX;
-    const dy = t1.clientY - t2.clientY;
-    return Math.sqrt(dx * dx + dy * dy);
-  }
-}
+function initBracketTouchGestures() {}
 window.initBracketTouchGestures = initBracketTouchGestures;
 
-function initBracketDragScroll() {
-  const wrapper = document.querySelector('.compact-bracket-wrapper');
-  if (!wrapper) return;
-
-  let isDown = false;
-  let startX;
-  let startY;
-  let scrollLeft;
-  let scrollTop;
-  let dragThreshold = 5;
-
-  window.isBracketDragging = false;
-
-  wrapper.addEventListener('mousedown', (e) => {
-    const toggle = document.getElementById('bracket-zoom-toggle');
-    if (!toggle || !toggle.checked) return;
-
-    isDown = true;
-    wrapper.classList.add('grabbing');
-    startX = e.clientX;
-    startY = e.clientY;
-    scrollLeft = wrapper.scrollLeft;
-    scrollTop = wrapper.scrollTop;
-    window.isBracketDragging = false;
-  });
-
-  wrapper.addEventListener('mouseleave', () => {
-    isDown = false;
-    wrapper.classList.remove('grabbing');
-  });
-
-  wrapper.addEventListener('mouseup', () => {
-    isDown = false;
-    wrapper.classList.remove('grabbing');
-    setTimeout(() => {
-      window.isBracketDragging = false;
-    }, 50);
-  });
-
-  wrapper.addEventListener('mousemove', (e) => {
-    if (!isDown) return;
-    const walkX = e.clientX - startX;
-    const walkY = e.clientY - startY;
-
-    if (Math.abs(walkX) > dragThreshold || Math.abs(walkY) > dragThreshold) {
-      window.isBracketDragging = true;
-    }
-
-    wrapper.scrollLeft = scrollLeft - walkX;
-    wrapper.scrollTop = scrollTop - walkY;
-  });
-}
+function initBracketDragScroll() {}
 window.initBracketDragScroll = initBracketDragScroll;
 
 // Selects 3rd-place team Group mapping in simulator

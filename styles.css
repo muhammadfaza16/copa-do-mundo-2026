@@ -3418,8 +3418,8 @@ body.light-theme .mobile-team-name {
   position: absolute;
   top: 0;
   left: 0;
-  width: 960px;
-  height: 760px;
+  width: 560px;
+  height: 550px;
   transform-origin: top left;
   transition: transform 0.25s ease-out;
   flex-shrink: 0;
@@ -3427,120 +3427,97 @@ body.light-theme .mobile-team-name {
 
 .compact-match-card {
   position: absolute;
-  width: 84px;
-  height: 36px;
+  width: 36px;
+  height: 52px;
   display: flex;
   flex-direction: column;
-  justify-content: center;
-  background: #ffffff !important;
-  border: 1px solid #cbd5e1 !important;
-  border-radius: 4px;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+  justify-content: space-evenly;
+  align-items: center;
+  background: rgba(30, 41, 59, 0.45) !important;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1.5px solid rgba(255, 255, 255, 0.08) !important;
+  border-radius: 20px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.25);
   overflow: visible;
-  transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+  transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
   cursor: pointer;
   z-index: 10;
+  padding: 2px 0;
 }
 
-/* Subtle match date/schedule label (clean text, no background or border) */
+/* Hide date as requested */
 .compact-match-date {
-  position: absolute;
-  top: -12px;
-  left: 0;
-  font-size: 7.5px;
-  font-weight: 600;
-  color: var(--text-secondary);
-  line-height: 1;
-  white-space: nowrap;
-  pointer-events: none;
-  z-index: 15;
-  text-transform: none; /* mixed-case reads much softer */
-  letter-spacing: 0.1px;
-  opacity: 0.8; /* subtle yet legible */
-  text-shadow: 0 0 1.5px var(--bg-gradient-start);
-}
-
-body.light-theme .compact-match-date {
-  color: #8e8e93;
-  opacity: 0.9;
-}
-
-/* Maintain rounded corners when rows have background colors since card overflow is visible */
-.compact-match-card .compact-team-row:first-of-type {
-  border-top-left-radius: 3px;
-  border-top-right-radius: 3px;
-}
-.compact-match-card .compact-team-row:last-of-type {
-  border-bottom-left-radius: 3px;
-  border-bottom-right-radius: 3px;
+  display: none !important;
 }
 
 .compact-match-card:hover {
-  transform: scale(1.05);
-  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4);
-  border-color: var(--primary-gold);
+  transform: scale(1.15) !important;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.45);
+  border-color: var(--primary-gold) !important;
+  background: rgba(30, 41, 59, 0.8) !important;
 }
 
 .compact-match-card.match-predicted {
-  border-color: var(--primary-gold);
-  box-shadow: 0 0 8px rgba(212, 175, 55, 0.25);
+  border-color: var(--primary-gold) !important;
+  box-shadow: 0 0 10px rgba(212, 175, 55, 0.35);
 }
 
 .compact-match-card.match-locked {
-  opacity: 0.75;
+  opacity: 0.85;
 }
 
 .compact-team-row {
   display: flex;
   align-items: center;
-  height: 17px;
-  padding: 0 6px;
-  gap: 5px;
-  transition: background-color 0.2s ease, opacity 0.2s ease;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  border-radius: 50%;
+  transition: transform 0.2s ease, opacity 0.2s ease;
 }
 
 .compact-team-row.winner {
-  background-color: rgba(16, 185, 129, 0.18);
+  transform: scale(1.15);
+  z-index: 2;
 }
 
 .compact-team-row.loser {
-  opacity: 0.45;
+  opacity: 0.35;
+  transform: scale(0.85);
 }
 
 .flag-crest-compact {
-  width: 14px;
-  height: 10px;
-  border-radius: 1px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
   object-fit: cover;
   flex-shrink: 0;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+.flag-crest-placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px dashed rgba(255, 255, 255, 0.25);
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  box-sizing: border-box;
 }
 
 .compact-team-code {
-  font-size: 10px;
-  font-weight: 700;
-  color: var(--text-primary);
-  letter-spacing: 0.3px;
-  text-transform: uppercase;
-}
-.compact-match-card .compact-team-code {
-  color: #1e293b !important;
-}
-
-.compact-team-code.placeholder-text {
-  font-size: 8px;
-  font-weight: 600;
-  color: var(--text-secondary);
-  opacity: 0.7;
-}
-.compact-match-card .compact-team-code.placeholder-text {
-  color: #64748b !important;
-  opacity: 0.8;
+  display: none !important;
 }
 
 /* Glowing gold path lines for predicted progress */
 .bracket-line-inactive {
-  stroke: rgba(255, 255, 255, 0.28);
-  stroke-width: 2px;
+  stroke: rgba(255, 255, 255, 0.15);
+  stroke-width: 1.5px;
   fill: none;
   transition: stroke 0.3s ease;
 }
@@ -3550,16 +3527,32 @@ body.light-theme .compact-match-date {
   stroke-width: 2px;
   fill: none;
   transition: stroke 0.3s ease;
+  filter: drop-shadow(0 0 2px rgba(212, 175, 55, 0.5));
 }
 
 /* Light Theme overrides */
 body.light-theme .compact-match-card {
-  background: rgba(255, 255, 255, 0.75);
-  border-color: rgba(0, 0, 0, 0.08);
+  background: rgba(255, 255, 255, 0.85) !important;
+  border-color: rgba(0, 0, 0, 0.08) !important;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+}
+
+body.light-theme .compact-match-card:hover {
+  background: rgba(255, 255, 255, 0.95) !important;
+  border-color: var(--primary-gold) !important;
+}
+
+body.light-theme .flag-crest-compact {
+  border: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+body.light-theme .flag-crest-placeholder {
+  background: rgba(0, 0, 0, 0.03);
+  border: 1px dashed rgba(0, 0, 0, 0.2);
 }
 
 body.light-theme .bracket-line-inactive {
-  stroke: rgba(0, 0, 0, 0.18);
+  stroke: rgba(0, 0, 0, 0.08);
 }
 
 /* Round-Specific Card Styles (Left Border + Glow Shadow) */

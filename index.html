@@ -346,15 +346,6 @@
 
       <!-- Controls Container -->
       <div style="display: flex; gap: 24px; align-items: center; margin: 10px auto 16px 12px; flex-wrap: wrap;">
-        <!-- Zoom Switch Toggle -->
-        <div class="switch-container" id="bracket-view-switch" style="margin: 0; display: flex; align-items: center; gap: 8px;">
-          <label class="switch">
-            <input type="checkbox" id="bracket-zoom-toggle" onchange="window.toggleBracketZoom(this.checked)">
-            <span class="slider"></span>
-          </label>
-          <span style="font-size: 0.72rem; font-weight: 600; color: var(--text-secondary); text-transform: none;">Perbesar Bagan</span>
-        </div>
-
         <!-- Potential Draw Switch Toggle -->
         <div class="switch-container" id="bracket-potential-draw-switch" style="margin: 0; display: flex; align-items: center; gap: 8px;">
           <label class="switch">
@@ -366,10 +357,12 @@
       </div>
  
       <div class="compact-bracket-wrapper">
+        <!-- Floating Tooltip Container -->
+        <div id="bracket-tooltip" class="glass-panel" style="position: absolute; display: none; pointer-events: none; z-index: 9999; padding: 10px 14px; border-radius: var(--border-radius-md); font-size: 0.72rem; line-height: 1.4; max-width: 240px; box-shadow: 0 10px 25px rgba(0,0,0,0.3); border: 1px solid var(--glass-border); background: rgba(15, 23, 42, 0.95); color: #fff;"></div>
         <div class="bracket-scroll-scaffolding" id="bracket-scroll-scaffolding">
-          <div class="compact-bracket-container" id="compact-bracket-container">
-            <svg id="bracket-svg-connections" width="960" height="760" style="position: absolute; top: 0; left: 0; pointer-events: none; z-index: 1;"></svg>
-            <div id="bracket-cards-root" style="position: relative; width: 960px; height: 760px; z-index: 2;"></div>
+          <div class="compact-bracket-container" id="compact-bracket-container" style="width: 560px; height: 550px;">
+            <svg id="bracket-svg-connections" width="560" height="550" style="position: absolute; top: 0; left: 0; pointer-events: none; z-index: 1;"></svg>
+            <div id="bracket-cards-root" style="position: relative; width: 560px; height: 550px; z-index: 2;"></div>
           </div>
         </div>
       </div>
