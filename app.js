@@ -3454,8 +3454,8 @@ const BASE_COMPACT_COORDINATES = {
   84: { x: 30, y: 530 },  // Column 1 lower bottom
   
   89: { x: 290, y: 170 }, // Stack Top R16
-  90: { x: 160, y: 230 }, // Column 2 Upper R16 (centered)
-  97: { x: 290, y: 230 }, // Stack QF Upper
+  90: { x: 160, y: 260 }, // Column 2 Upper R16 (centered & balanced)
+  97: { x: 290, y: 260 }, // Stack QF Upper (balanced)
  
   // Top Wing (Top and Bottom Horizontal R32 Matches, and Stack Bottom R16 & QF)
   74: { x: 200, y: 80 },  // Top horizontal left (GER)
@@ -3463,9 +3463,9 @@ const BASE_COMPACT_COORDINATES = {
   81: { x: 200, y: 640 }, // Bottom horizontal left (USA)
   82: { x: 380, y: 640 }, // Bottom horizontal right (BEL)
   
-  93: { x: 160, y: 490 }, // Column 2 Lower R16 (centered)
+  93: { x: 160, y: 460 }, // Column 2 Lower R16 (centered & balanced)
   94: { x: 290, y: 550 }, // Stack Bottom R16
-  98: { x: 290, y: 490 }, // Stack QF Lower
+  98: { x: 290, y: 460 }, // Stack QF Lower (balanced)
 
   // Right Wing (Outer Right R32, Column 6 Upper R16, Stack Top Right R16 & QF)
   76: { x: 496, y: 80 },  // Top-right horizontal left (BRA)
@@ -3474,8 +3474,8 @@ const BASE_COMPACT_COORDINATES = {
   80: { x: 846, y: 270 }, // Column 7 upper bottom
   
   91: { x: 586, y: 170 }, // Stack Top Right R16
-  92: { x: 716, y: 230 }, // Column 6 Upper R16 (centered)
-  99: { x: 586, y: 230 }, // Stack QF Upper Right
+  92: { x: 716, y: 260 }, // Column 6 Upper R16 (centered & balanced)
+  99: { x: 586, y: 260 }, // Stack QF Upper Right (balanced)
 
   // Bottom Wing (Column 7 lower R32, Bottom-right horizontal R32)
   88: { x: 846, y: 450 }, // Column 7 lower top (Australia vs Egypt)
@@ -3483,9 +3483,9 @@ const BASE_COMPACT_COORDINATES = {
   87: { x: 496, y: 640 }, // Bottom-right horizontal left (Juara Grup K vs 3rd)
   85: { x: 676, y: 640 }, // Bottom-right horizontal right (Swiss vs 3rd)
   
-  95: { x: 716, y: 490 }, // Column 6 Lower R16 (centered)
+  95: { x: 716, y: 460 }, // Column 6 Lower R16 (centered & balanced)
   96: { x: 586, y: 550 }, // Stack Bottom R16 Right
-  100: { x: 586, y: 490 }, // Stack QF Lower Right
+  100: { x: 586, y: 460 }, // Stack QF Lower Right (balanced)
 
   // Center (Semifinals, Final, Juara 3)
   101: { x: 290, y: 360 }, // Semifinal 1 (Left)
@@ -3582,10 +3582,7 @@ function getMatchTooltipHtml(m) {
     <div class="tooltip-container" style="display: flex; flex-direction: column; gap: 8px; min-width: 170px; font-family: var(--font-sans, sans-serif); text-align: left;">
       <!-- Header: Round + Time -->
       <div style="display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 6px; font-size: 0.6rem; text-transform: uppercase; letter-spacing: 0.8px; font-weight: 700; color: var(--primary-gold);">
-        <span style="display: flex; align-items: center;">
-          ${roundLabel}
-          <span style="font-size: 0.48rem; color: rgba(255,255,255,0.35); background: rgba(255,255,255,0.06); padding: 1px 4px; border-radius: 2px; margin-left: 5px; font-weight: 600; letter-spacing: 0.2px;">LAGA ${m.match_id}</span>
-        </span>
+        <span>${roundLabel}</span>
         <span style="color: rgba(255,255,255,0.45); font-weight: 500;">${dateStr} · ${timeInfo.time}</span>
       </div>
 
@@ -3788,31 +3785,19 @@ function renderBracket() {
     let code1 = getTeamCode(m.team1 || '');
     let code2 = getTeamCode(m.team2 || '');
 
-    // Translate "3RD " to "3rd " for style consistency, but keep group letters!
-    if (code1.startsWith("3RD ")) {
-      code1 = "3rd " + code1.substring(4);
+    if (code1.startsWith("3RD") || code1.startsWith("3rd")) {
+      code1 = "3rd";
     }
-    if (code2.startsWith("3RD ")) {
-      code2 = "3rd " + code2.substring(4);
+    if (code2.startsWith("3RD") || code2.startsWith("3rd")) {
+      code2 = "3rd";
     }
-
-    // Determine font size based on code length to keep enough info
-    let fontSize1 = '10px';
-    if (code1.length > 10) fontSize1 = '5.2px';
-    else if (code1.length > 7) fontSize1 = '6.5px';
-    else if (code1.length > 3) fontSize1 = '8px';
-
-    let fontSize2 = '10px';
-    if (code2.length > 10) fontSize2 = '5.2px';
-    else if (code2.length > 7) fontSize2 = '6.5px';
-    else if (code2.length > 3) fontSize2 = '8px';
 
     const formattedFlag1 = flag1 
       ? flag1.replace('class="flag-crest"', 'class="flag-crest-compact"') 
-      : `<div class="flag-crest-placeholder" style="font-size: ${fontSize1}; letter-spacing: -0.2px;">${code1}</div>`;
+      : `<div class="flag-crest-placeholder">${code1}</div>`;
     const formattedFlag2 = flag2 
       ? flag2.replace('class="flag-crest"', 'class="flag-crest-compact"') 
-      : `<div class="flag-crest-placeholder" style="font-size: ${fontSize2}; letter-spacing: -0.2px;">${code2}</div>`;
+      : `<div class="flag-crest-placeholder">${code2}</div>`;
 
     cardsHtml += `
       <div class="compact-match-card ${cardStateClass} ${roundClass}" 
