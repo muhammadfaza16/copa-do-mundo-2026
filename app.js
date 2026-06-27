@@ -4039,102 +4039,6 @@ window.setScheduleRound = function(roundKey, btnEl) {
   renderBracketSchedule();
 };
 
-function createBracketMatchCardHtml(match, index, isKnockout = true) {
-  const matchKey = `ko_${match.match_id}`;
-  const timeInfo = getFormattedTime(match.date, match.time);
-  const starredClass = isStarred(matchKey) ? 'active' : '';
-  const scoreData = getMatchScore(matchKey);
-  const labelVenue = getMatchVenue(match);
-  const isLive = isMatchLive(match, scoreData);
-  
-  const starBtnHtml = `<button class="star-btn star-btn-inline ${starredClass}" onclick="event.stopPropagation(); toggleMatchStar('${matchKey}', this)" aria-label="Simpan Pertandingan" style="width: 14px; height: 14px;"><svg viewBox="0 0 24 24" style="width: 10px; height: 10px;"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg></button>`;
-
-  const headerHtml = `
-    <div class="match-header" style="display: flex; align-items: center; justify-content: space-between; padding-bottom: 3px; border-bottom: 1px solid var(--glass-border); margin-bottom: 5px;">
-      <span class="match-date-label" style="font-size: 0.58rem; font-weight: 600; color: var(--text-secondary); opacity: 0.85;">LAGA ${match.match_id}</span>
-    </div>
-  `;
-
-  const customFlagReplace = 'class="flag-crest" style="width: 14px; height: 14px; min-width: 14px; min-height: 14px; border-radius: 50%; box-shadow: none; border-width: 1px;"';
-
-  if (scoreData) {
-    const cleanScorers1 = parseScorers(scoreData.home_scorers);
-    const cleanScorers2 = parseScorers(scoreData.away_scorers);
-    
-    let scoreStatusHtml = '';
-    let liveParts = null;
-    if (isLive) {
-      liveParts = getMatchLiveStatusParts(scoreData);
-      const clockInfo = getLiveClockInfo(matchKey);
-      const clockLabel = clockInfo.clock;
-      const pulseClass = clockInfo.isPulsing ? 'pulse-minute' : '';
-      const displayClock = clockLabel === 'LIVE' ? '' : clockLabel;
-      scoreStatusHtml = `<div class="score-status status-live ${pulseClass}" style="font-size: 0.5rem; padding: 1px 3px;">${displayClock}</div>`;
-    }
-
-    return `
-      <div class="match-card" data-key="${matchKey}" title="${labelVenue}" onclick="window.openMatchDetailModal('${matchKey}')" style="cursor: pointer; padding: 5px 8px; margin-bottom: 5px; border-radius: var(--border-radius-md);">
-        ${headerHtml}
-        <div class="match-body" style="padding-top: 1px; padding-bottom: 1px;">
-          <div class="team-display left" style="gap: 5px;">
-            <span class="team-name" style="font-size: 0.7rem;">${match.team1}</span>
-            ${getFlagHtml(match.team1).replace('class="flag-crest"', customFlagReplace)}
-          </div>
-          <div class="match-time-box score-box" style="min-width: 48px;">
-            ${isLive && liveParts && liveParts.clock && liveParts.clock !== 'LIVE' ? `<div class="match-period-label" style="font-size: 0.48rem; margin-bottom: 0px;">${liveParts.periodName}</div>` : ''}
-            <div class="score-display" style="white-space: nowrap; font-size: 0.76rem;">
-              <span>${scoreData.score1}</span>
-              <span> - </span>
-              <span>${scoreData.score2}</span>
-            </div>
-            ${scoreStatusHtml}
-          </div>
-          <div class="team-display right" style="gap: 5px;">
-            ${getFlagHtml(match.team2).replace('class="flag-crest"', customFlagReplace)}
-            <span class="team-name" style="font-size: 0.7rem;">${match.team2}</span>
-          </div>
-          <div class="match-venue-subtle" style="font-size: 0.52rem; margin-top: 3px; opacity: 0.75; text-align: center; width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
-            ${getVenueStadium(labelVenue)}
-          </div>
-        </div>
-        ${(cleanScorers1 || cleanScorers2) ? `
-          <div class="match-scorers-row" style="margin-top: 3px; padding-top: 3px; font-size: 0.5rem; border-top: 1px dashed var(--glass-border);">
-            <div class="scorers-left">${cleanScorers1 || ''}</div>
-            <div class="scorers-icon" style="font-size: 0.52rem;">⚽</div>
-            <div class="scorers-right">${cleanScorers2 || ''}</div>
-          </div>
-        ` : ''}
-      </div>
-    `;
-  } else {
-    return `
-      <div class="match-card match-fixture-card" data-key="${matchKey}" title="${labelVenue}" onclick="window.openMatchDetailModal('${matchKey}')" style="cursor: pointer; padding: 5px 8px; margin-bottom: 5px; border-radius: var(--border-radius-md);">
-        ${headerHtml}
-        <div class="match-body" style="padding-top: 1px; padding-bottom: 1px;">
-          <div class="team-display left" style="gap: 5px;">
-            <span class="team-name" style="font-size: 0.7rem;">${match.team1}</span>
-            ${getFlagHtml(match.team1).replace('class="flag-crest"', customFlagReplace)}
-          </div>
-          <div class="match-time-box time-box" style="min-width: 48px;">
-            <div style="font-size: 0.72rem; font-weight: 700;">${timeInfo.time}</div>
-            <div class="time-tz-label" style="font-size: 0.48rem; opacity: 0.7;">${timeInfo.tzLabel}</div>
-          </div>
-          <div class="team-display right" style="gap: 5px;">
-            ${getFlagHtml(match.team2).replace('class="flag-crest"', customFlagReplace)}
-            <span class="team-name" style="font-size: 0.7rem;">${match.team2}</span>
-          </div>
-          <div class="match-venue-subtle match-venue-with-star" style="font-size: 0.52rem; margin-top: 3px; opacity: 0.75; display: flex; align-items: center; justify-content: center; width: 100%; position: relative;">
-            <span class="venue-name-text" style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 140px; text-align: center;">
-              ${getVenueStadium(labelVenue)}
-            </span>
-            ${starBtnHtml}
-          </div>
-        </div>
-      </div>
-    `;
-  }
-}
-
 function renderBracketSchedule() {
   const container = document.getElementById('bracket-schedule-list');
   if (!container) return;
@@ -4189,7 +4093,7 @@ function renderBracketSchedule() {
       lastDate = dateInfo.date;
       html += `<div class="date-divider"><span>${lastDate}</span></div>`;
     }
-    html += createBracketMatchCardHtml(m, m.match_id, true);
+    html += createMatchCardHtml(m, m.match_id, true);
   });
   
   container.innerHTML = html;
