@@ -6110,4 +6110,71 @@ body.light-theme .compact-match-card.active-popout {
   margin-bottom: 0;
 }
 
+/* Sharp Edge Switch and Slider styling for Projected Toggle */
+.sharp-switch {
+  position: relative;
+  display: inline-block;
+  width: 38px;
+  height: 20px;
+}
+
+.sharp-switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.sharp-slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(255, 255, 255, 0.05);
+  border: 1.5px solid var(--glass-border);
+  transition: .2s ease;
+  border-radius: 0;
+}
+
+.sharp-slider:before {
+  position: absolute;
+  content: "";
+  height: 12px;
+  width: 12px;
+  left: 2px;
+  bottom: 2px;
+  background-color: var(--text-secondary);
+  transition: .2s ease;
+  border-radius: 0;
+}
+
+.sharp-switch input:checked + .sharp-slider {
+  background-color: rgba(212, 175, 55, 0.15);
+  border-color: var(--primary-gold);
+}
+
+.sharp-switch input:checked + .sharp-slider:before {
+  background-color: var(--primary-gold);
+  transform: translateX(18px);
+}
+
+body.light-theme .sharp-slider {
+  background-color: rgba(0, 0, 0, 0.06);
+  border-color: rgba(0, 0, 0, 0.12);
+}
+
+body.light-theme .sharp-slider:before {
+  background-color: rgba(0, 0, 0, 0.4);
+}
+
+body.light-theme .sharp-switch input:checked + .sharp-slider {
+  background-color: rgba(212, 175, 55, 0.12);
+  border-color: var(--primary-gold);
+}
+
+body.light-theme .sharp-switch input:checked + .sharp-slider:before {
+  background-color: var(--primary-gold);
+}
+
 
