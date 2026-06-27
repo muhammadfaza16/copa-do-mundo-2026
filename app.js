@@ -4094,9 +4094,8 @@ function createBracketMatchCardHtml(match, index, isKnockout = true) {
             ${getFlagHtml(match.team2).replace('class="flag-crest"', customFlagReplace)}
             <span class="team-name" style="font-size: 0.7rem;">${match.team2}</span>
           </div>
-          <div class="match-venue-subtle" style="font-size: 0.52rem; margin-top: 3px; opacity: 0.75; display: flex; align-items: center; gap: 3px; width: 100%;">
-            <svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="opacity: 0.75; flex-shrink: 0;"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
-            <span style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${getVenueStadium(labelVenue)}</span>
+          <div class="match-venue-subtle" style="font-size: 0.52rem; margin-top: 3px; opacity: 0.75; text-align: center; width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+            ${getVenueStadium(labelVenue)}
           </div>
         </div>
         ${(cleanScorers1 || cleanScorers2) ? `
@@ -4125,9 +4124,8 @@ function createBracketMatchCardHtml(match, index, isKnockout = true) {
             ${getFlagHtml(match.team2).replace('class="flag-crest"', customFlagReplace)}
             <span class="team-name" style="font-size: 0.7rem;">${match.team2}</span>
           </div>
-          <div class="match-venue-subtle match-venue-with-star" style="font-size: 0.52rem; margin-top: 3px; opacity: 0.75; display: flex; align-items: center; justify-content: space-between; width: 100%;">
-            <span class="venue-name-text" style="display: flex; align-items: center; gap: 3px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 140px;">
-              <svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="opacity: 0.75; flex-shrink: 0;"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
+          <div class="match-venue-subtle match-venue-with-star" style="font-size: 0.52rem; margin-top: 3px; opacity: 0.75; display: flex; align-items: center; justify-content: center; width: 100%; position: relative;">
+            <span class="venue-name-text" style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 140px; text-align: center;">
               ${getVenueStadium(labelVenue)}
             </span>
             ${starBtnHtml}
