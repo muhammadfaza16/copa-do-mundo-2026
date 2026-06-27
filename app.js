@@ -6468,10 +6468,10 @@ function renderLineupsTab(lineups) {
 
   let playerNodesHtml = '';
 
-  // Home players — GK bottom (92%), ATT top of home half (55%)
+  // Home players — GK top (8%), ATT bottom of home half (45%)
   const L_home = homeLines.length;
   homeLines.forEach((line, i) => {
-    const y = 92 - (i / Math.max(L_home - 1, 1)) * 37;
+    const y = 8 + (i / Math.max(L_home - 1, 1)) * 37;
     line.forEach((p, j) => {
       const x = getX(j, line.length);
       const displayName = formatPitchPlayerName(p.name);
@@ -6482,18 +6482,18 @@ function renderLineupsTab(lineups) {
       const icons = eventIcons(p.name, homeScorerNames, homeRedNames, p.subbedOut);
       playerNodesHtml += `
         <div class="pitch-player-node home-team" style="left:${x}%;top:${y}%;" title="${p.name} — ${p.position}">
+          <span class="pitch-player-name">${displayName}</span>
           <div class="pitch-jersey" style="background:${bg}!important;color:${color}!important;border-color:${border}!important;">
             ${p.jersey || ''}${icons}
           </div>
-          <span class="pitch-player-name">${displayName}</span>
         </div>`;
     });
   });
 
-  // Away players — GK top (8%), ATT bottom of away half (45%)
+  // Away players — GK bottom (92%), ATT top of away half (55%)
   const L_away = awayLines.length;
   awayLines.forEach((line, i) => {
-    const y = 8 + (i / Math.max(L_away - 1, 1)) * 37;
+    const y = 92 - (i / Math.max(L_away - 1, 1)) * 37;
     line.forEach((p, j) => {
       const x = getX(j, line.length);
       const displayName = formatPitchPlayerName(p.name);
@@ -6504,10 +6504,10 @@ function renderLineupsTab(lineups) {
       const icons = eventIcons(p.name, awayScorerNames, awayRedNames, p.subbedOut);
       playerNodesHtml += `
         <div class="pitch-player-node away-team" style="left:${x}%;top:${y}%;" title="${p.name} — ${p.position}">
-          <span class="pitch-player-name">${displayName}</span>
           <div class="pitch-jersey" style="background:${bg}!important;color:${color}!important;border-color:${border}!important;">
             ${p.jersey || ''}${icons}
           </div>
+          <span class="pitch-player-name">${displayName}</span>
         </div>`;
     });
   });
