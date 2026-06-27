@@ -3502,12 +3502,17 @@ body.light-theme .mobile-team-name {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: rgba(255, 255, 255, 0.04);
-  border: 1px dashed rgba(255, 255, 255, 0.25);
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px dashed rgba(255, 255, 255, 0.35);
   width: 20px;
   height: 20px;
   border-radius: 50%;
   box-sizing: border-box;
+  font-size: 7.5px;
+  font-weight: 800;
+  color: rgba(255, 255, 255, 0.65);
+  line-height: 1;
+  text-transform: uppercase;
 }
 
 .compact-team-code {
@@ -3547,8 +3552,9 @@ body.light-theme .flag-crest-compact {
 }
 
 body.light-theme .flag-crest-placeholder {
-  background: rgba(0, 0, 0, 0.03);
-  border: 1px dashed rgba(0, 0, 0, 0.2);
+  background: rgba(0, 0, 0, 0.04);
+  border: 1px dashed rgba(0, 0, 0, 0.25);
+  color: rgba(0, 0, 0, 0.55);
 }
 
 body.light-theme .bracket-line-inactive {

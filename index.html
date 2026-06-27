@@ -6,6 +6,27 @@
   <meta name="description" content="Jadwal lengkap Piala Dunia FIFA 2026, klasemen grup, dan simulator bagan fase gugur interaktif dalam desain premium.">
   <title>FIFA World Cup 2026 | Jadwal & Simulator Premium</title>
   <link rel="stylesheet" href="styles.css">
+  <script>
+    window.onerror = function(message, source, lineno, colno, error) {
+      const errDiv = document.createElement('div');
+      errDiv.style.position = 'fixed';
+      errDiv.style.top = '0';
+      errDiv.style.left = '0';
+      errDiv.style.width = '100%';
+      errDiv.style.background = 'rgba(220, 38, 38, 0.95)';
+      errDiv.style.color = 'white';
+      errDiv.style.padding = '14px';
+      errDiv.style.zIndex = '999999';
+      errDiv.style.fontFamily = 'monospace';
+      errDiv.style.fontSize = '12px';
+      errDiv.style.lineHeight = '1.5';
+      errDiv.style.whiteSpace = 'pre-wrap';
+      errDiv.style.boxShadow = '0 4px 12px rgba(0,0,0,0.3)';
+      errDiv.innerHTML = `<strong>JavaScript Error:</strong> ${message}<br><small>Location: ${source}:${lineno}:${colno}</small><br><br><span style="text-decoration: underline; cursor: pointer;" onclick="this.parentNode.remove()">Close [X]</span>`;
+      document.body.appendChild(errDiv);
+      return false;
+    };
+  </script>
 </head>
 <body class="light-theme">
 
@@ -341,8 +362,6 @@
         <span>Jalur Lolos Babak Gugur Piala Dunia 2026</span>
       </div>
 
-      <!-- Standings Summary Panel -->
-      <div id="bracket-standings-summary" class="bracket-standings-summary"></div>
 
       <!-- Controls Container -->
       <div style="display: flex; gap: 24px; align-items: center; margin: 10px auto 16px 12px; flex-wrap: wrap;">

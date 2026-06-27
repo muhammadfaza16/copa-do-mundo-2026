@@ -3657,20 +3657,22 @@ function renderBracket() {
     const flag1 = !isPlaceholder1 && m.team1 ? getFlagHtml(m.team1) : '';
     const flag2 = !isPlaceholder2 && m.team2 ? getFlagHtml(m.team2) : '';
 
+    let code1 = getTeamCode(m.team1 || '');
+    let code2 = getTeamCode(m.team2 || '');
+
+    if (code1.startsWith("3RD") || code1.startsWith("3rd")) {
+      code1 = "3rd";
+    }
+    if (code2.startsWith("3RD") || code2.startsWith("3rd")) {
+      code2 = "3rd";
+    }
+
     const formattedFlag1 = flag1 
       ? flag1.replace('class="flag-crest"', 'class="flag-crest-compact"') 
-      : `<div class="flag-crest-placeholder">
-           <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.4)" stroke-width="2.5">
-             <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
-           </svg>
-         </div>`;
+      : `<div class="flag-crest-placeholder">${code1}</div>`;
     const formattedFlag2 = flag2 
       ? flag2.replace('class="flag-crest"', 'class="flag-crest-compact"') 
-      : `<div class="flag-crest-placeholder">
-           <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.4)" stroke-width="2.5">
-             <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
-           </svg>
-         </div>`;
+      : `<div class="flag-crest-placeholder">${code2}</div>`;
 
     cardsHtml += `
       <div class="compact-match-card ${cardStateClass} ${roundClass}" 
@@ -3885,165 +3887,10 @@ function renderBracketLines() {
 let currentGroupPage = 0; // 0 for A-F, 1 for G-L
 
 function renderStandingsSummary() {
-  const container = document.getElementById('bracket-standings-summary');
-  if (!container) return;
-
-  // Ensure standings are calculated
-  // Calculate best thirds
-  const thirdsList = [];
-  for (const [groupName, teamList] of Object.entries(groupRankings)) {
-    if (teamList && teamList[2]) {
-      const team = teamList[2];
-      const stats = teamStats[team] || { played: 0, won: 0, drawn: 0, lost: 0, gf: 0, ga: 0, gd: 0, pts: 0 };
-      thirdsList.push({
-        group: groupName,
-        team: team,
-        pts: stats.pts,
-        gd: stats.gd,
-        gf: stats.gf,
-        won: stats.won
-      });
-    }
-  }
-
-  // Sort thirds list (Points -> GD -> GF -> Won -> Alphabetical Group)
-  thirdsList.sort((a, b) => {
-    if (b.pts !== a.pts) return b.pts - a.pts;
-    if (b.gd !== a.gd) return b.gd - a.gd;
-    if (b.gf !== a.gf) return b.gf - a.gf;
-    if (b.won !== a.won) return b.won - a.won;
-    return a.group.localeCompare(b.group);
-  });
-
-  const qualifyingThirdTeams = thirdsList.slice(0, 8).map(t => t.team);
-
-  // Group letters mapping
-  const groupLetters = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L'];
-  
-  // Helper to render a group column
-  function renderGroupColumn(letter) {
-    const groupName = `Grup ${letter}`;
-    const teams = groupRankings[groupName] || [];
-    if (teams.length === 0) return '';
-
-    let rowsHtml = '';
-    teams.forEach((team, idx) => {
-      const isFirstOrSecond = idx < 2;
-      const isThird = idx === 2;
-      const isQualifiedThird = isThird && qualifyingThirdTeams.includes(team);
-      const isQualified = isFirstOrSecond || isQualifiedThird;
-
-      const flag = getFlagHtml(team);
-      const code = getTeamCode(team);
-      
-      // Determine state class for card styling
-      const stateClass = isQualified ? 'qualified' : 'eliminated';
-
-      rowsHtml += `
-        <div class="summary-team-row ${stateClass}">
-          <span class="summary-rank">${idx + 1}</span>
-          ${flag}
-          <span class="summary-code">${code}</span>
-        </div>
-      `;
-    });
-
-    return `
-      <div class="summary-group-col">
-        <div class="summary-group-header">Grup ${letter}</div>
-        <div class="summary-group-body">
-          ${rowsHtml}
-        </div>
-      </div>
-    `;
-  }
-
-  // Build Pages
-  // Page 1: A to F
-  let page1Html = '<div class="summary-page" id="summary-page-1" style="display: ' + (currentGroupPage === 0 ? 'grid' : 'none') + ';">';
-  groupLetters.slice(0, 6).forEach(letter => {
-    page1Html += renderGroupColumn(letter);
-  });
-  page1Html += '</div>';
-
-  // Page 2: G to L
-  let page2Html = '<div class="summary-page" id="summary-page-2" style="display: ' + (currentGroupPage === 1 ? 'grid' : 'none') + ';">';
-  groupLetters.slice(6, 12).forEach(letter => {
-    page2Html += renderGroupColumn(letter);
-  });
-  page2Html += '</div>';
-
-  // Pager buttons & dots
-  const pagerHtml = `
-    <div class="summary-pager">
-      <button class="pager-arrow" onclick="window.setGroupPage(0)" aria-label="Halaman Sebelumnya" ${currentGroupPage === 0 ? 'disabled' : ''}>
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-          <polyline points="15 18 9 12 15 6"></polyline>
-        </svg>
-      </button>
-      <div class="pager-dots">
-        <span class="pager-dot ${currentGroupPage === 0 ? 'active' : ''}" onclick="window.setGroupPage(0)"></span>
-        <span class="pager-dot ${currentGroupPage === 1 ? 'active' : ''}" onclick="window.setGroupPage(1)"></span>
-      </div>
-      <button class="pager-arrow" onclick="window.setGroupPage(1)" aria-label="Halaman Berikutnya" ${currentGroupPage === 1 ? 'disabled' : ''}>
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-          <polyline points="9 18 15 12 9 6"></polyline>
-        </svg>
-      </button>
-    </div>
-  `;
-
-  // Build Third-place teams capsules
-  let thirdsCapsulesHtml = '';
-  thirdsList.forEach((t) => {
-    const isQual = qualifyingThirdTeams.includes(t.team);
-    const code = getTeamCode(t.team);
-    const flag = getFlagHtml(t.team);
-    const groupLetter = t.group.replace('Grup ', '');
-    const stateClass = isQual ? 'qualified' : 'eliminated';
-    const statusIcon = isQual ? '●' : '○';
-
-    thirdsCapsulesHtml += `
-      <div class="thirds-summary-card ${stateClass}">
-        <span class="status-indicator">${statusIcon}</span>
-        ${flag}
-        <span class="thirds-code">${code}</span>
-        <span class="thirds-group-label">(${groupLetter})</span>
-      </div>
-    `;
-  });
-
-  const thirdsHtml = `
-    <div class="thirds-summary-section">
-      <div class="thirds-summary-header">
-        <div class="thirds-header-title">
-          Peringkat 3 Terbaik
-          <span>8 Tim Terbaik Lolos ke Babak 32 Besar</span>
-        </div>
-        <div class="thirds-counter-badge">8/12 Lolos</div>
-      </div>
-      <div class="thirds-summary-grid">
-        ${thirdsCapsulesHtml}
-      </div>
-    </div>
-  `;
-
-  container.innerHTML = `
-    <div class="summary-section-title">Ringkasan Klasemen & Kualifikasi</div>
-    <div class="summary-slider-container">
-      ${page1Html}
-      ${page2Html}
-      ${pagerHtml}
-    </div>
-    <div class="summary-divider"></div>
-    ${thirdsHtml}
-  `;
+  // No-op (standings summary removed from bracket page)
 }
 
-window.setGroupPage = function(pageIndex) {
-  currentGroupPage = pageIndex;
-  renderStandingsSummary();
-};
+window.setGroupPage = function(pageIndex) {};
 
 window.renderStandingsSummary = renderStandingsSummary;
 
