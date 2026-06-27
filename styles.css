@@ -1540,14 +1540,14 @@ body.light-theme .scroll-nav-btn:hover {
 /* Bracket Round Switcher */
 .bracket-round-switcher {
   display: flex;
-  background: var(--panel-bg);
-  border: 1px solid var(--glass-border);
-  border-radius: var(--border-radius-md);
-  padding: 4px;
+  background: transparent;
+  border: none;
+  border-radius: 0;
+  padding: 4px 0;
   margin-bottom: 20px;
   gap: 4px;
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
   overflow-x: auto;
   scrollbar-width: none; /* Hide scrollbar Firefox */
 }
@@ -6051,7 +6051,7 @@ body.light-theme #bracket-tooltip {
 
 /* Bracket Schedule Tab styling */
 .schedule-tab-btn {
-  background: transparent;
+  background: var(--glass-bg);
   border: 1px solid var(--glass-border);
   color: var(--text-secondary);
   font-family: var(--font-sans);
