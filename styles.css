@@ -3428,7 +3428,7 @@ body.light-theme .mobile-team-name {
 
 .compact-match-card {
   position: absolute;
-  width: 36px;
+  width: 48px;
   height: 52px;
   display: flex;
   flex-direction: column;
@@ -3490,8 +3490,8 @@ body.light-theme .mobile-team-name {
 }
 
 .flag-crest-compact {
-  width: 20px;
-  height: 20px;
+  width: 24px;
+  height: 24px;
   border-radius: 50%;
   object-fit: cover;
   flex-shrink: 0;
@@ -3505,11 +3505,11 @@ body.light-theme .mobile-team-name {
   justify-content: center;
   background: rgba(255, 255, 255, 0.08);
   border: 1px dashed rgba(255, 255, 255, 0.35);
-  width: 20px;
-  height: 20px;
+  width: 24px;
+  height: 24px;
   border-radius: 50%;
   box-sizing: border-box;
-  font-size: 7.5px;
+  font-size: 9px;
   font-weight: 800;
   color: rgba(255, 255, 255, 0.65);
   line-height: 1;
