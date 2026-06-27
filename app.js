@@ -3572,25 +3572,73 @@ function getMatchTooltipHtml(m) {
   `;
 }
 
-window.showBracketTooltip = function(event, matchId) {
+let activeTooltipMatchId = null;
+
+window.showBracketTooltip = function(event, matchId, isClick = false) {
   const tooltip = document.getElementById('bracket-tooltip');
   if (!tooltip) return;
   const match = knockoutMatches.find(m => m.match_id === matchId);
   if (!match) return;
-  
+
+  // If a click locked another tooltip, hover should be ignored
+  if (!isClick && activeTooltipMatchId !== null) return;
+
+  // Toggle if clicked again on the same card
+  if (isClick && activeTooltipMatchId === matchId) {
+    window.hideBracketTooltip(true);
+    return;
+  }
+
   tooltip.innerHTML = getMatchTooltipHtml(match);
   tooltip.style.display = 'block';
-  window.moveBracketTooltip(event);
+
+  if (isClick) {
+    activeTooltipMatchId = matchId;
+    
+    // Position anchored to the card coordinates
+    const coords = COMPACT_COORDINATES[matchId];
+    if (coords) {
+      // Get tooltip dimensions dynamically
+      const tooltipWidth = tooltip.offsetWidth || 180;
+      const tooltipHeight = tooltip.offsetHeight || 120;
+      
+      // Center horizontally on the card (card is 36px wide)
+      let x = coords.x + 18 - (tooltipWidth / 2);
+      // Clamp horizontally within the 560px bracket width
+      x = Math.max(8, Math.min(x, 560 - tooltipWidth - 8));
+      
+      // Position vertically (above if card is low, below if card is high)
+      let y;
+      if (coords.y > 350) {
+        y = coords.y - tooltipHeight - 10;
+      } else {
+        y = coords.y + 52 + 10;
+      }
+      
+      tooltip.style.left = `${x}px`;
+      tooltip.style.top = `${y}px`;
+    }
+  } else {
+    // Hover mode follows mouse position
+    window.moveBracketTooltip(event);
+  }
 };
 
-window.hideBracketTooltip = function() {
+window.hideBracketTooltip = function(force = false) {
+  if (!force && activeTooltipMatchId !== null) return; // Don't hide if locked
+  
   const tooltip = document.getElementById('bracket-tooltip');
   if (tooltip) {
     tooltip.style.display = 'none';
   }
+  if (force) {
+    activeTooltipMatchId = null;
+  }
 };
 
 window.moveBracketTooltip = function(event) {
+  if (activeTooltipMatchId !== null) return; // Don't move if locked
+  
   const tooltip = document.getElementById('bracket-tooltip');
   if (!tooltip) return;
   
@@ -3616,6 +3664,14 @@ window.moveBracketTooltip = function(event) {
   tooltip.style.left = `${x}px`;
   tooltip.style.top = `${y}px`;
 };
+
+// Global click listener to close popover when clicking outside cards
+document.addEventListener('click', (e) => {
+  if (e.target.closest('.compact-match-card')) return;
+  if (window.hideBracketTooltip) {
+    window.hideBracketTooltip(true);
+  }
+});
 
 function renderBracket() {
   recalculateKnockoutTree();
@@ -3680,7 +3736,7 @@ function renderBracket() {
            onmouseenter="window.showBracketTooltip(event, ${m.match_id})"
            onmouseleave="window.hideBracketTooltip()"
            onmousemove="window.moveBracketTooltip(event)"
-           onclick="window.openMatchDetailModal('ko_${m.match_id}')">
+           onclick="window.showBracketTooltip(event, ${m.match_id}, true); event.stopPropagation();">
         <!-- Team 1 -->
         <div class="compact-team-row ${isPlaceholder1 ? 'placeholder' : ''} ${team1WinnerClass}">
           ${formattedFlag1}
