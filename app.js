@@ -4090,13 +4090,7 @@ function renderBracketSchedule() {
   }
   
   let html = '';
-  let lastDate = '';
   filtered.forEach(m => {
-    const dateInfo = getFormattedTime(m.date, m.time);
-    if (dateInfo.date !== lastDate) {
-      lastDate = dateInfo.date;
-      html += `<div class="date-divider"><span>${lastDate}</span></div>`;
-    }
     html += createMatchCardHtml(m, m.match_id, true, true, true);
   });
   
