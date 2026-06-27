@@ -3540,8 +3540,8 @@ function getMatchTooltipHtml(m) {
   }
   
   const winner = simulatedWinners[m.match_id];
-  const t1WinnerMarker = winner === m.team1 ? '🏆' : '';
-  const t2WinnerMarker = winner === m.team2 ? '🏆' : '';
+  const t1WinnerMarker = winner === m.team1 ? `<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="var(--primary-gold)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display: inline-block; vertical-align: middle; margin-left: 4px;"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"></path><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"></path><path d="M4 22h16"></path><path d="M10 14.66V17c0 .55-.45 1-1 1H4v2h16v-2h-5c-.55 0-1-.45-1-1v-2.34"></path><path d="M12 2a6 6 0 0 1 6 6v5a6 6 0 0 1-6 6 6 6 0 0 1-6-6V8a6 6 0 0 1 6-6z"></path></svg>` : '';
+  const t2WinnerMarker = winner === m.team2 ? `<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="var(--primary-gold)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display: inline-block; vertical-align: middle; margin-left: 4px;"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"></path><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"></path><path d="M4 22h16"></path><path d="M10 14.66V17c0 .55-.45 1-1 1H4v2h16v-2h-5c-.55 0-1-.45-1-1v-2.34"></path><path d="M12 2a6 6 0 0 1 6 6v5a6 6 0 0 1-6 6 6 6 0 0 1-6-6V8a6 6 0 0 1 6-6z"></path></svg>` : '';
   
   const dateStr = formatCompactMatchDate(m.date);
   const timeInfo = getFormattedTime(m.date, m.time);
@@ -3564,7 +3564,7 @@ function getMatchTooltipHtml(m) {
   if (apiMatchData) {
     if (apiMatchData.status === 'IN_PLAY' || apiMatchData.status === 'LIVE') {
       liveMinute = apiMatchData.time_elapsed ? `${apiMatchData.time_elapsed}'` : 'LIVE';
-      statusText = `<span style="color: #ff3366; font-weight: 700; font-size: 0.6rem; animation: pulse 1.5s infinite; letter-spacing: 0.3px;">● ${liveMinute}</span>`;
+      statusText = `<span style="display: inline-flex; align-items: center; gap: 4px; color: #ff3366; font-weight: 700; font-size: 0.6rem; letter-spacing: 0.3px;"><span style="display: inline-block; width: 5px; height: 5px; border-radius: 50%; background: #ff3366; animation: live-blink-pulse 1.2s infinite;"></span>${liveMinute}</span>`;
     } else if (apiMatchData.status === 'FINISHED') {
       statusText = `<span style="background: rgba(255,255,255,0.06); color: rgba(255,255,255,0.55); padding: 1px 4px; border-radius: 3px; font-size: 0.52rem; font-weight: 700; border: 1px solid rgba(255,255,255,0.1); letter-spacing: 0.3px;">SELESAI</span>`;
     }
@@ -3600,7 +3600,7 @@ function getMatchTooltipHtml(m) {
           </div>
           ${homeScorersText ? `
             <div style="font-size: 0.58rem; color: rgba(255,255,255,0.45); padding-left: 20px; font-weight: 400; line-height: 1.2;">
-              ⚽ ${homeScorersText}
+              ${homeScorersText}
             </div>
           ` : ''}
         </div>
@@ -3617,7 +3617,7 @@ function getMatchTooltipHtml(m) {
           </div>
           ${awayScorersText ? `
             <div style="font-size: 0.58rem; color: rgba(255,255,255,0.45); padding-left: 20px; font-weight: 400; line-height: 1.2;">
-              ⚽ ${awayScorersText}
+              ${awayScorersText}
             </div>
           ` : ''}
         </div>
@@ -3626,7 +3626,8 @@ function getMatchTooltipHtml(m) {
       <!-- Footer: Venue + Status -->
       <div style="display: flex; align-items: center; justify-content: space-between; border-top: 1px solid rgba(255,255,255,0.08); padding-top: 6px; margin-top: 4px; font-size: 0.58rem; color: rgba(255,255,255,0.45); font-weight: 500; gap: 8px;">
         <span style="display: flex; align-items: center; gap: 4px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 110px;" title="${getMatchVenue(m)}">
-          📍 ${getVenueStadium(getMatchVenue(m))}
+          <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="display: inline-block; vertical-align: middle; opacity: 0.7;"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
+          ${getVenueStadium(getMatchVenue(m))}
         </span>
         ${statusText}
       </div>
