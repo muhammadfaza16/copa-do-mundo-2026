@@ -3595,8 +3595,8 @@ function getMatchTooltipHtml(m) {
         </div>
       </div>
 
-      <!-- Teams Box (iOS Slate Style) -->
-      <div style="background: var(--glass-bg); border: 1px solid var(--glass-border); border-radius: 8px; padding: 8px 10px; display: flex; flex-direction: column; gap: 7px;">
+      <!-- Teams List (Flat & Clean) -->
+      <div style="display: flex; flex-direction: column; gap: 7px; padding: 2px 0;">
         <!-- Team 1 -->
         <div style="display: flex; flex-direction: column; gap: 2px;">
           <div style="display: flex; align-items: center; justify-content: space-between; gap: 12px;">
@@ -3614,7 +3614,7 @@ function getMatchTooltipHtml(m) {
           ` : ''}
         </div>
 
-        <!-- Horizontal Divider inside Box -->
+        <!-- Subtle Horizontal Divider -->
         <div style="height: 1px; background: var(--glass-border); opacity: 0.6;"></div>
 
         <!-- Team 2 -->
