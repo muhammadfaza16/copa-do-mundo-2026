@@ -217,12 +217,12 @@
       </div>
 
       <div class="stats-layout-wrapper">
-        <!-- Grid Overview -->
-        <div class="stats-overview-grid">
+        <!-- Grid Overview for Counters -->
+        <div class="stats-overview-grid" style="margin-bottom: 12px;">
           <div class="stats-overview-item">
             <span class="stats-overview-label">Laga Dimainkan</span>
             <span id="stats-matches-played" class="stats-overview-val">0</span>
-            <span class="stats-overview-sub">Laga berjalan & selesai</span>
+            <span class="stats-overview-sub">Laga berjalan &amp; selesai</span>
           </div>
           <div class="stats-overview-item">
             <span class="stats-overview-label">Total Gol</span>
@@ -235,12 +235,7 @@
             <span class="stats-overview-sub">Per pertandingan</span>
           </div>
           <div class="stats-overview-item">
-            <span class="stats-overview-label">Tim Tersubur</span>
-            <span id="stats-top-team" class="stats-overview-val">-</span>
-            <span class="stats-overview-sub">Gol terbanyak</span>
-          </div>
-          <div class="stats-overview-item">
-            <span class="stats-overview-label">Total Kartu Merah</span>
+            <span class="stats-overview-label">Kartu Merah</span>
             <span id="stats-total-red-cards" class="stats-overview-val">0</span>
             <span class="stats-overview-sub">Seluruh turnamen</span>
           </div>
@@ -249,15 +244,42 @@
             <span id="stats-total-own-goals" class="stats-overview-val">0</span>
             <span class="stats-overview-sub">Gol bunuh diri</span>
           </div>
-          <div class="stats-overview-item">
-            <span class="stats-overview-label">Kemenangan Terbesar</span>
-            <span id="stats-biggest-win" class="stats-overview-val" style="font-size: 0.72rem; font-weight: 700; height: 36px; display: flex; align-items: center; justify-content: flex-start; line-height: 1.2;">-</span>
-            <span class="stats-overview-sub" id="stats-biggest-win-sub">Selisih gol terbanyak</span>
+        </div>
+
+        <!-- Rich Records Section -->
+        <div class="stats-records-list" style="display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px;">
+          <!-- Tim Tersubur Card -->
+          <div class="glass-panel" style="padding: 12px 14px; border-radius: var(--border-radius-md); background: var(--panel-bg); border: 1px solid var(--glass-border);">
+            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; border-bottom: 1px solid var(--glass-border); padding-bottom: 6px;">
+              <span class="stats-overview-label" style="margin-bottom: 0;">Tim Tersubur</span>
+              <span style="font-size: 0.6rem; color: var(--primary-gold); font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">Gol Terbanyak</span>
+            </div>
+            <div id="stats-top-team" style="display: flex; flex-direction: column; gap: 6px;">
+              <!-- Loaded dynamically -->
+              -
+            </div>
           </div>
-          <div class="stats-overview-item">
-            <span class="stats-overview-label">Laga Tersubur</span>
-            <span id="stats-highest-scoring" class="stats-overview-val" style="font-size: 0.72rem; font-weight: 700; height: 36px; display: flex; align-items: center; justify-content: flex-start; line-height: 1.2;">-</span>
-            <span class="stats-overview-sub">Gol terbanyak satu laga</span>
+
+          <!-- Kemenangan Terbesar Card -->
+          <div class="glass-panel" style="padding: 12px 14px; border-radius: var(--border-radius-md); background: var(--panel-bg); border: 1px solid var(--glass-border);">
+            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; border-bottom: 1px solid var(--glass-border); padding-bottom: 6px;">
+              <span class="stats-overview-label" style="margin-bottom: 0;">Kemenangan Terbesar</span>
+              <span id="stats-biggest-win-sub" class="stats-overview-sub" style="margin-top: 0; font-size: 0.55rem; color: var(--text-secondary); opacity: 0.85;">Selisih gol terbanyak</span>
+            </div>
+            <div id="stats-biggest-win" style="font-size: 0.78rem; font-weight: 700; color: var(--text-primary); min-height: 24px; display: flex; align-items: center;">
+              -
+            </div>
+          </div>
+
+          <!-- Laga Tersubur Card -->
+          <div class="glass-panel" style="padding: 12px 14px; border-radius: var(--border-radius-md); background: var(--panel-bg); border: 1px solid var(--glass-border);">
+            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; border-bottom: 1px solid var(--glass-border); padding-bottom: 6px;">
+              <span class="stats-overview-label" style="margin-bottom: 0;">Laga Tersubur</span>
+              <span class="stats-overview-sub" style="margin-top: 0; font-size: 0.55rem; color: var(--text-secondary); opacity: 0.85;">Gol terbanyak satu laga</span>
+            </div>
+            <div id="stats-highest-scoring" style="font-size: 0.78rem; font-weight: 700; color: var(--text-primary); min-height: 24px; display: flex; align-items: center;">
+              -
+            </div>
           </div>
         </div>
 

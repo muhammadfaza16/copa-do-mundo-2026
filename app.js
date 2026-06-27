@@ -2365,29 +2365,40 @@ function renderStatistics() {
     if (topTeams.length > 0) {
       let html = '';
       topTeams.forEach(team => {
+        const flagCircle = getFlagHtml(team).replace('class="flag-crest"', 'class="flag-crest" style="width: 14px; height: 14px; min-width: 14px; min-height: 14px; border-radius: 50%; box-shadow: none; border-width: 1px;"');
         html += `
-          <div style="display: flex; align-items: center; gap: 6px; margin-top: 2px;">
-            ${getFlagHtml(team)}
-            <span style="font-size: 0.8rem; font-weight: 800; color: var(--text-primary);">${team} (${topTeamGoals} Gol)</span>
+          <div style="display: flex; align-items: center; gap: 8px; margin-top: 2px; width: 100%;">
+            ${flagCircle}
+            <span style="font-size: 0.72rem; font-weight: 700; color: var(--text-primary);">${team}</span>
+            <span style="font-size: 0.72rem; font-weight: 800; color: var(--primary-gold); margin-left: auto;">${topTeamGoals} Gol</span>
           </div>
         `;
       });
       topTeamEl.innerHTML = html;
     } else {
-      topTeamEl.textContent = "-";
+      topTeamEl.innerHTML = `<div style="font-size: 0.72rem; color: var(--text-secondary);">-</div>`;
     }
   }
 
   if (totalRedCardsEl) totalRedCardsEl.textContent = totalRedCards;
   if (totalOwnGoalsEl) totalOwnGoalsEl.textContent = totalOwnGoals;
   if (biggestWinEl) {
-    biggestWinEl.textContent = biggestWin.diff > 0 ? biggestWin.matchStr : '-';
+    biggestWinEl.innerHTML = biggestWin.diff > 0 ? `
+      <div style="display: flex; align-items: center; gap: 8px; width: 100%;">
+        <span style="font-size: 0.72rem; font-weight: 700; color: var(--text-primary);">${biggestWin.matchStr}</span>
+      </div>
+    ` : `<div style="font-size: 0.72rem; color: var(--text-secondary);">-</div>`;
   }
   if (biggestWinSubEl) {
     biggestWinSubEl.textContent = biggestWin.diff > 0 ? `Selisih +${biggestWin.diff} gol (${biggestWin.team})` : 'Selisih gol terbanyak';
   }
   if (highestScoringEl) {
-    highestScoringEl.textContent = highestScoringMatch.total > 0 ? `${highestScoringMatch.matchStr} (${highestScoringMatch.total} Gol)` : '-';
+    highestScoringEl.innerHTML = highestScoringMatch.total > 0 ? `
+      <div style="display: flex; align-items: center; gap: 8px; width: 100%;">
+        <span style="font-size: 0.72rem; font-weight: 700; color: var(--text-primary);">${highestScoringMatch.matchStr}</span>
+        <span style="font-size: 0.72rem; font-weight: 800; color: var(--primary-gold); margin-left: auto;">${highestScoringMatch.total} Gol</span>
+      </div>
+    ` : `<div style="font-size: 0.72rem; color: var(--text-secondary);">-</div>`;
   }
 }
 
