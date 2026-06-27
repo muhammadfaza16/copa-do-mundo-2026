@@ -1559,13 +1559,44 @@ function createMatchCardHtml(match, index, isKnockout = false, showBigMatchBadge
   const labelVenue = getMatchVenue(match);
   const isLive = isMatchLive(match, scoreData);
 
-  const stageHeaderHtml = isBracketSchedule ? `
-    <div class="match-stage-container" style="display: flex; align-items: center; gap: 6px;">
-      <span class="match-date-label" style="text-transform: uppercase; font-weight: 600;">Laga ${match.match_id}</span>
-    </div>
-  ` : `
+  const stageHeaderHtml = `
     <div class="match-stage-container" style="display: flex; align-items: center; gap: 6px;">
       <span class="match-stage">${match.group}</span>
+    </div>
+  `;
+
+  const headerMarkupHtml = isBracketSchedule ? `
+    <div class="match-header">
+      <div class="match-stage-container" style="display: flex; align-items: center; gap: 6px;">
+        <span class="match-date-label" style="font-weight: 600; text-transform: none; opacity: 1;">${timeInfo.date}</span>
+      </div>
+      <div class="match-header-right" style="display: flex; align-items: center; gap: 8px;">
+        <span class="match-date-label" style="text-transform: uppercase; font-weight: 600;">Laga ${match.match_id}</span>
+      </div>
+    </div>
+  ` : `
+    <div class="match-header">
+      ${stageHeaderHtml}
+      <div class="match-header-right" style="display: flex; align-items: center; gap: 8px;">
+        <span class="match-date-label">${timeInfo.date} · ${timeInfo.time} ${timeInfo.tzLabel}</span>
+      </div>
+    </div>
+  `;
+
+  const fixtureHeaderMarkupHtml = isBracketSchedule ? `
+    <div class="match-header">
+      <div class="match-stage-container" style="display: flex; align-items: center; gap: 6px;">
+        <span class="match-date-label" style="font-weight: 600; text-transform: none; opacity: 1;">${timeInfo.date}</span>
+      </div>
+      <div class="match-header-right" style="display: flex; align-items: center; gap: 8px;">
+        <span class="match-date-label" style="text-transform: uppercase; font-weight: 600;">Laga ${match.match_id}</span>
+      </div>
+    </div>
+  ` : `
+    <div class="match-header">
+      ${stageHeaderHtml}
+      ${showBigMatchBadge ? getMatchBadgeHtml(match.team1, match.team2) : ''}
+      <span class="match-date-label">${timeInfo.date}</span>
     </div>
   `;
 
@@ -1596,12 +1627,57 @@ function createMatchCardHtml(match, index, isKnockout = false, showBigMatchBadge
 
     return `
       <div class="match-card" data-key="${matchKey}" title="${labelVenue}" onclick="window.openMatchDetailModal('${matchKey}')" style="cursor: pointer;">
-        <div class="match-header">
-          ${stageHeaderHtml}
-          <div class="match-header-right" style="display: flex; align-items: center; gap: 8px;">
-            <span class="match-date-label">${timeInfo.date} · ${timeInfo.time} ${timeInfo.tzLabel}</span>
+        ${headerMarkupHtml}
+        <div class="match-body">
+          <div class="team-display left">
+            <span class="team-name">${match.team1}</span>
+            ${getFlagHtml(match.team1)}
           </div>
+          <div class="match-time-box score-box">
+            ${isLive && liveParts && liveParts.clock && liveParts.clock !== 'LIVE' ? `<div class="match-period-label">${liveParts.periodName}</div>` : ''}
+            <div class="score-display" style="white-space: nowrap;">
+              <span>${scoreData.score1}</span>
+              <span> - </span>
+              <span>${scoreData.score2}</span>
+            </div>
+            ${scoreStatusHtml}
+          </div>
+          <div class="team-display right">
+            ${getFlagHtml(match.team2)}
+            <span class="team-name">${match.team2}</span>
+          </div>
+          <div class="match-venue-subtle">${labelVenue}</div>
         </div>
+        ${(cleanScorers1 || cleanScorers2) ? `
+          <div class="match-scorers-row">
+            <div class="scorers-left">
+              ${cleanScorers1 || ''}
+            </div>
+            <div class="scorers-icon">⚽</div>
+            <div class="scorers-right">
+              ${cleanScorers2 || ''}
+            </div>
+          </div>
+        ` : ''}
+        ${(cleanRedCards1 || cleanRedCards2) ? `
+          <div class="match-redcards-row${!(cleanScorers1 || cleanScorers2) ? ' no-scorers' : ''}">
+            <div class="redcards-left">
+              ${cleanRedCards1 || ''}
+            </div>
+            <div class="redcards-icon">
+              <span class="red-card-icon"></span>
+            </div>
+            <div class="redcards-right">
+              ${cleanRedCards2 || ''}
+            </div>
+          </div>
+        ` : ''}
+      </div>
+    `;
+  } else {
+    return `
+      <div class="match-card match-fixture-card" data-key="${matchKey}" title="${labelVenue}" onclick="window.openMatchDetailModal('${matchKey}')" style="cursor: pointer;">
+        ${fixtureHeaderMarkupHtml}
         <div class="match-body">
           <div class="team-display left">
             <span class="team-name">${match.team1}</span>
