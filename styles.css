@@ -6098,7 +6098,7 @@ body.light-theme .compact-match-card.active-popout {
 }
 
 #bracket-schedule-list .date-divider {
-  padding: 16px 16px 6px 16px;
+  padding: 16px 0 6px 0;
   margin-top: 8px;
 }
 
