@@ -1587,7 +1587,7 @@ function createMatchCardHtml(match, index, isKnockout = false, showBigMatchBadge
         <span class="match-date-label" style="font-weight: 600; text-transform: none; opacity: 1;">${timeInfo.date}</span>
       </div>
       <div class="match-header-right" style="display: flex; align-items: center; gap: 8px;">
-        <span class="match-date-label" style="text-transform: uppercase; font-weight: 600;">Laga ${match.match_id}</span>
+        <span class="match-date-label" style="font-weight: 600;">Laga ${match.match_id}</span>
       </div>
     </div>
   ` : `
@@ -1605,7 +1605,7 @@ function createMatchCardHtml(match, index, isKnockout = false, showBigMatchBadge
         <span class="match-date-label" style="font-weight: 600; text-transform: none; opacity: 1;">${timeInfo.date}</span>
       </div>
       <div class="match-header-right" style="display: flex; align-items: center; gap: 8px;">
-        <span class="match-date-label" style="text-transform: uppercase; font-weight: 600;">Laga ${match.match_id}</span>
+        <span class="match-date-label" style="font-weight: 600;">Laga ${match.match_id}</span>
       </div>
     </div>
   ` : `
