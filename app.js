@@ -3582,7 +3582,10 @@ function getMatchTooltipHtml(m) {
     <div class="tooltip-container" style="display: flex; flex-direction: column; gap: 8px; min-width: 170px; font-family: var(--font-sans, sans-serif); text-align: left;">
       <!-- Header: Round + Time -->
       <div style="display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 6px; font-size: 0.6rem; text-transform: uppercase; letter-spacing: 0.8px; font-weight: 700; color: var(--primary-gold);">
-        <span>${roundLabel}</span>
+        <span style="display: flex; align-items: center;">
+          ${roundLabel}
+          <span style="font-size: 0.48rem; color: rgba(255,255,255,0.35); background: rgba(255,255,255,0.06); padding: 1px 4px; border-radius: 2px; margin-left: 5px; font-weight: 600; letter-spacing: 0.2px;">LAGA ${m.match_id}</span>
+        </span>
         <span style="color: rgba(255,255,255,0.45); font-weight: 500;">${dateStr} · ${timeInfo.time}</span>
       </div>
 
@@ -3785,19 +3788,31 @@ function renderBracket() {
     let code1 = getTeamCode(m.team1 || '');
     let code2 = getTeamCode(m.team2 || '');
 
-    if (code1.startsWith("3RD") || code1.startsWith("3rd")) {
-      code1 = "3rd";
+    // Translate "3RD " to "3rd " for style consistency, but keep group letters!
+    if (code1.startsWith("3RD ")) {
+      code1 = "3rd " + code1.substring(4);
     }
-    if (code2.startsWith("3RD") || code2.startsWith("3rd")) {
-      code2 = "3rd";
+    if (code2.startsWith("3RD ")) {
+      code2 = "3rd " + code2.substring(4);
     }
+
+    // Determine font size based on code length to keep enough info
+    let fontSize1 = '10px';
+    if (code1.length > 10) fontSize1 = '5.2px';
+    else if (code1.length > 7) fontSize1 = '6.5px';
+    else if (code1.length > 3) fontSize1 = '8px';
+
+    let fontSize2 = '10px';
+    if (code2.length > 10) fontSize2 = '5.2px';
+    else if (code2.length > 7) fontSize2 = '6.5px';
+    else if (code2.length > 3) fontSize2 = '8px';
 
     const formattedFlag1 = flag1 
       ? flag1.replace('class="flag-crest"', 'class="flag-crest-compact"') 
-      : `<div class="flag-crest-placeholder">${code1}</div>`;
+      : `<div class="flag-crest-placeholder" style="font-size: ${fontSize1}; letter-spacing: -0.2px;">${code1}</div>`;
     const formattedFlag2 = flag2 
       ? flag2.replace('class="flag-crest"', 'class="flag-crest-compact"') 
-      : `<div class="flag-crest-placeholder">${code2}</div>`;
+      : `<div class="flag-crest-placeholder" style="font-size: ${fontSize2}; letter-spacing: -0.2px;">${code2}</div>`;
 
     cardsHtml += `
       <div class="compact-match-card ${cardStateClass} ${roundClass}" 
