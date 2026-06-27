@@ -6092,4 +6092,25 @@ body.light-theme .compact-match-card.active-popout {
   border-color: var(--primary-gold) !important;
 }
 
+/* Bracket schedule list match cards row stacking */
+#bracket-schedule-list .match-card {
+  border-radius: 0 !important;
+  border-left: none !important;
+  border-right: none !important;
+  border-top: none !important;
+  margin-bottom: 0 !important;
+  box-shadow: none !important;
+  background: transparent !important;
+  border-bottom: 1px solid var(--glass-border) !important;
+}
+
+#bracket-schedule-list .match-card:last-child {
+  border-bottom: none !important;
+}
+
+#bracket-schedule-list .date-divider {
+  padding: 10px 12px 6px 12px;
+  margin-top: 4px;
+}
+
 
