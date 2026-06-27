@@ -3448,44 +3448,44 @@ function getTeamGradientCss(teamColorsOrColor) {
 
 const BASE_COMPACT_COORDINATES = {
   // Left Wing (Outer Left R32, Column 2 Upper R16, Stack Top R16 & QF)
-  73: { x: 30, y: 230 },  // Column 1 upper top
-  75: { x: 30, y: 330 },  // Column 1 upper bottom
-  83: { x: 30, y: 390 },  // Column 1 lower top
-  84: { x: 30, y: 490 },  // Column 1 lower bottom
+  73: { x: 30, y: 190 },  // Column 1 upper top
+  75: { x: 30, y: 270 },  // Column 1 upper bottom
+  83: { x: 30, y: 450 },  // Column 1 lower top
+  84: { x: 30, y: 530 },  // Column 1 lower bottom
   
-  89: { x: 290, y: 200 }, // Stack Top R16
-  90: { x: 160, y: 280 }, // Column 2 Upper R16 (centered)
-  97: { x: 290, y: 280 }, // Stack QF Upper
-
+  89: { x: 290, y: 170 }, // Stack Top R16
+  90: { x: 160, y: 230 }, // Column 2 Upper R16 (centered)
+  97: { x: 290, y: 230 }, // Stack QF Upper
+ 
   // Top Wing (Top and Bottom Horizontal R32 Matches, and Stack Bottom R16 & QF)
   74: { x: 200, y: 80 },  // Top horizontal left (GER)
   77: { x: 380, y: 80 },  // Top horizontal right (FRA)
   81: { x: 200, y: 640 }, // Bottom horizontal left (USA)
   82: { x: 380, y: 640 }, // Bottom horizontal right (BEL)
   
-  93: { x: 160, y: 440 }, // Column 2 Lower R16 (centered)
-  94: { x: 290, y: 520 }, // Stack Bottom R16
-  98: { x: 290, y: 440 }, // Stack QF Lower
+  93: { x: 160, y: 490 }, // Column 2 Lower R16 (centered)
+  94: { x: 290, y: 550 }, // Stack Bottom R16
+  98: { x: 290, y: 490 }, // Stack QF Lower
 
   // Right Wing (Outer Right R32, Column 6 Upper R16, Stack Top Right R16 & QF)
   76: { x: 496, y: 80 },  // Top-right horizontal left (BRA)
   78: { x: 676, y: 80 },  // Top-right horizontal right (ECU)
-  79: { x: 846, y: 230 }, // Column 7 upper top
-  80: { x: 846, y: 330 }, // Column 7 upper bottom
+  79: { x: 846, y: 190 }, // Column 7 upper top
+  80: { x: 846, y: 270 }, // Column 7 upper bottom
   
-  91: { x: 586, y: 200 }, // Stack Top Right R16
-  92: { x: 716, y: 280 }, // Column 6 Upper R16 (centered)
-  99: { x: 586, y: 280 }, // Stack QF Upper Right
+  91: { x: 586, y: 170 }, // Stack Top Right R16
+  92: { x: 716, y: 230 }, // Column 6 Upper R16 (centered)
+  99: { x: 586, y: 230 }, // Stack QF Upper Right
 
   // Bottom Wing (Column 7 lower R32, Bottom-right horizontal R32)
-  88: { x: 846, y: 390 }, // Column 7 lower top (Australia vs Egypt)
-  86: { x: 846, y: 490 }, // Column 7 lower bottom (Argentina vs Cape Verde)
+  88: { x: 846, y: 450 }, // Column 7 lower top (Australia vs Egypt)
+  86: { x: 846, y: 530 }, // Column 7 lower bottom (Argentina vs Cape Verde)
   87: { x: 496, y: 640 }, // Bottom-right horizontal left (Juara Grup K vs 3rd)
   85: { x: 676, y: 640 }, // Bottom-right horizontal right (Swiss vs 3rd)
   
-  95: { x: 716, y: 440 }, // Column 6 Lower R16 (centered)
-  96: { x: 586, y: 520 }, // Stack Bottom R16 Right
-  100: { x: 586, y: 440 }, // Stack QF Lower Right
+  95: { x: 716, y: 490 }, // Column 6 Lower R16 (centered)
+  96: { x: 586, y: 550 }, // Stack Bottom R16 Right
+  100: { x: 586, y: 490 }, // Stack QF Lower Right
 
   // Center (Semifinals, Final, Juara 3)
   101: { x: 290, y: 360 }, // Semifinal 1 (Left)
