@@ -6189,4 +6189,27 @@ body.light-theme .sharp-switch input:checked + .sharp-slider:before {
   background-color: var(--primary-gold);
 }
 
+/* Bracket schedule section horizontal padding overrides */
+.bracket-schedule-section {
+  margin-left: -16px !important;
+  margin-right: -16px !important;
+}
+
+.bracket-schedule-tabs {
+  margin-left: 16px !important;
+  margin-right: 16px !important;
+}
+
+/* Adjust best 3rd placed table cell spacing on very small viewports */
+@media (max-width: 480px) {
+  #best-thirds-table-container table.group-table td {
+    padding: 6px 1px;
+    font-size: 0.7rem;
+  }
+  #best-thirds-table-container table.group-table th {
+    padding: 6px 1px;
+    font-size: 0.55rem;
+  }
+}
+
 

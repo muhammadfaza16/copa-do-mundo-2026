@@ -3137,7 +3137,7 @@ function renderBestThirds() {
         <td>
           <div class="team-cell">
             ${getFlagHtml(t.team)}
-            <span class="team-name ${isQualified ? 'team-bold' : ''}" style="max-width: 160px;">${t.team}</span>
+            <span class="team-name ${isQualified ? 'team-bold' : ''}">${t.team}</span>
           </div>
         </td>
         <td style="text-align: center; font-weight: 600; opacity: 0.85;">${t.played}</td>
@@ -5560,7 +5560,7 @@ function createModalHeaderHtml(match, scoreData, summaryData) {
     `;
   }
   
-  const stageOrGroupLabel = match.isKO ? getKoStageLabel(match.stage) : `Grup ${match.group.replace('Grup ', '')}`;
+  const stageOrGroupLabel = match.isKO ? translateRoundName(match.group) : `Grup ${match.group.replace('Grup ', '')}`;
   
   let scorersHtml = '';
   const cleanScorers1 = parseScorers(scoreData.home_scorers);
