@@ -3522,15 +3522,15 @@ body.light-theme .mobile-team-name {
 
 /* Glowing gold path lines for predicted progress */
 .bracket-line-inactive {
-  stroke: rgba(255, 255, 255, 0.15);
-  stroke-width: 1.5px;
+  stroke: rgba(255, 255, 255, 0.3);
+  stroke-width: 2px;
   fill: none;
   transition: stroke 0.3s ease;
 }
 
 .bracket-line-active {
   stroke: var(--primary-gold);
-  stroke-width: 2px;
+  stroke-width: 2.5px;
   fill: none;
   transition: stroke 0.3s ease;
   filter: drop-shadow(0 0 2px rgba(212, 175, 55, 0.5));
@@ -3559,7 +3559,8 @@ body.light-theme .flag-crest-placeholder {
 }
 
 body.light-theme .bracket-line-inactive {
-  stroke: rgba(0, 0, 0, 0.08);
+  stroke: rgba(0, 0, 0, 0.3);
+  stroke-width: 2px;
 }
 
 /* Round-Specific Card Styles (Left Border + Glow Shadow) */
