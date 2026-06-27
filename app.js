@@ -3595,24 +3595,30 @@ window.showBracketTooltip = function(event, matchId, isClick = false) {
   if (isClick) {
     activeTooltipMatchId = matchId;
     
-    // Position anchored to the card coordinates
-    const coords = COMPACT_COORDINATES[matchId];
-    if (coords) {
-      // Get tooltip dimensions dynamically
+    // Position anchored to the card element's physical rect
+    const cardEl = (event && event.target) ? event.target.closest('.compact-match-card') : null;
+    const wrapper = document.querySelector('.compact-bracket-wrapper');
+    if (cardEl && wrapper) {
+      const cardRect = cardEl.getBoundingClientRect();
+      const wrapperRect = wrapper.getBoundingClientRect();
+      
+      const leftRelativeToWrapper = cardRect.left - wrapperRect.left + wrapper.scrollLeft;
+      const topRelativeToWrapper = cardRect.top - wrapperRect.top + wrapper.scrollTop;
+      
       const tooltipWidth = tooltip.offsetWidth || 180;
       const tooltipHeight = tooltip.offsetHeight || 120;
       
-      // Center horizontally on the card (card is 36px wide)
-      let x = coords.x + 18 - (tooltipWidth / 2);
-      // Clamp horizontally within the 560px bracket width
-      x = Math.max(8, Math.min(x, 560 - tooltipWidth - 8));
+      // Center horizontally on the card
+      let x = leftRelativeToWrapper + (cardRect.width / 2) - (tooltipWidth / 2);
+      // Clamp horizontally within the wrapper boundaries
+      x = Math.max(8, Math.min(x, wrapperRect.width + wrapper.scrollLeft - tooltipWidth - 8));
       
       // Position vertically (above if card is low, below if card is high)
       let y;
-      if (coords.y > 350) {
-        y = coords.y - tooltipHeight - 10;
+      if (topRelativeToWrapper > 320) {
+        y = topRelativeToWrapper - tooltipHeight - 10;
       } else {
-        y = coords.y + 52 + 10;
+        y = topRelativeToWrapper + cardRect.height + 10;
       }
       
       tooltip.style.left = `${x}px`;
@@ -3650,8 +3656,8 @@ window.moveBracketTooltip = function(event) {
   if (!wrapper) return;
   const wrapperRect = wrapper.getBoundingClientRect();
   
-  let x = event.clientX - wrapperRect.left + offsetMouseX;
-  let y = event.clientY - wrapperRect.top + offsetMouseY;
+  let x = event.clientX - wrapperRect.left + wrapper.scrollLeft + offsetMouseX;
+  let y = event.clientY - wrapperRect.top + wrapper.scrollTop + offsetMouseY;
   
   if (x + tooltipRect.width > wrapperRect.width) {
     x = event.clientX - wrapperRect.left - tooltipRect.width - offsetMouseX;
