@@ -1548,7 +1548,7 @@ function initCountdown() {
 // ----------------------------------------------------
 
 // Render Match Card
-function createMatchCardHtml(match, index, isKnockout = false, showBigMatchBadge = true) {
+function createMatchCardHtml(match, index, isKnockout = false, showBigMatchBadge = true, isBracketSchedule = false) {
   const matchKey = isKnockout ? `ko_${match.match_id}` : `gs_${match.date}_${match.team1}_${match.team2}`;
   const timeInfo = getFormattedTime(match.date, match.time);
   const starredClass = isStarred(matchKey) ? 'active' : '';
@@ -1559,7 +1559,11 @@ function createMatchCardHtml(match, index, isKnockout = false, showBigMatchBadge
   const labelVenue = getMatchVenue(match);
   const isLive = isMatchLive(match, scoreData);
 
-  const stageHeaderHtml = `
+  const stageHeaderHtml = isBracketSchedule ? `
+    <div class="match-stage-container" style="display: flex; align-items: center; gap: 6px;">
+      <span class="match-date-label" style="text-transform: uppercase; font-weight: 600;">Laga ${match.match_id}</span>
+    </div>
+  ` : `
     <div class="match-stage-container" style="display: flex; align-items: center; gap: 6px;">
       <span class="match-stage">${match.group}</span>
     </div>
@@ -4093,7 +4097,7 @@ function renderBracketSchedule() {
       lastDate = dateInfo.date;
       html += `<div class="date-divider"><span>${lastDate}</span></div>`;
     }
-    html += createMatchCardHtml(m, m.match_id, true);
+    html += createMatchCardHtml(m, m.match_id, true, true, true);
   });
   
   container.innerHTML = html;
