@@ -117,7 +117,7 @@ body {
   line-height: 1.6;
   letter-spacing: var(--tracking-tight);
   overflow-x: hidden;
-  padding-bottom: 120px; /* Space for floating bottom nav */
+  padding-bottom: 80px; /* Space for floating bottom nav */
 }
 
 /* Premium Custom Scrollbar */
