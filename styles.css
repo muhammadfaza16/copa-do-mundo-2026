@@ -6092,22 +6092,34 @@ body.light-theme .compact-match-card.active-popout {
   border-color: var(--primary-gold) !important;
 }
 
-/* Bracket schedule list match cards row stacking */
-#bracket-schedule-list {
-  gap: 0;
+/* Bracket & Home (Pertandingan Lainnya & Jadwal Tersimpan) match cards row stacking */
+#bracket-schedule-list,
+#nearest-matches-list,
+#favorites-list {
+  gap: 0 !important;
+}
+
+#bracket-schedule-list .match-card,
+#nearest-matches-list .match-card,
+#favorites-list .match-card {
+  border-radius: 0 !important;
+  border-left: none !important;
+  border-right: none !important;
+  border-top: none !important;
+  margin-bottom: 0 !important;
+  box-shadow: none !important;
+  border-bottom: 1px solid var(--glass-border) !important;
+}
+
+#bracket-schedule-list .match-card:last-child,
+#nearest-matches-list .match-card:last-child,
+#favorites-list .match-card:last-child {
+  border-bottom: none !important;
 }
 
 #bracket-schedule-list .date-divider {
   padding: 16px 0 6px 0;
   margin-top: 8px;
-}
-
-#bracket-schedule-list .match-card {
-  border-radius: 0;
-  border-left: none;
-  border-right: none;
-  border-top: none;
-  margin-bottom: 0;
 }
 
 /* Sharp Edge Switch and Slider styling for Projected Toggle */
