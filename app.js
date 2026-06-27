@@ -4052,7 +4052,6 @@ function createBracketMatchCardHtml(match, index, isKnockout = true) {
   const headerHtml = `
     <div class="match-header" style="display: flex; align-items: center; justify-content: space-between; padding-bottom: 3px; border-bottom: 1px solid var(--glass-border); margin-bottom: 5px;">
       <span class="match-date-label" style="font-size: 0.58rem; font-weight: 600; color: var(--text-secondary); opacity: 0.85;">LAGA ${match.match_id}</span>
-      <span class="match-date-label" style="font-size: 0.58rem; color: var(--text-secondary); opacity: 0.85;">${timeInfo.date}</span>
     </div>
   `;
 
@@ -4183,7 +4182,13 @@ function renderBracketSchedule() {
   }
   
   let html = '';
+  let lastDate = '';
   filtered.forEach(m => {
+    const dateInfo = getFormattedTime(m.date, m.time);
+    if (dateInfo.date !== lastDate) {
+      lastDate = dateInfo.date;
+      html += `<div class="date-divider"><span>${lastDate}</span></div>`;
+    }
     html += createBracketMatchCardHtml(m, m.match_id, true);
   });
   
