@@ -3828,7 +3828,7 @@ function renderBracketLines() {
   if (!svg) return;
 
   const cardWidth = 48;
-  const cardHeight = 52;
+  const cardHeight = 56;
   let pathsHtml = '';
 
   const connections = [
