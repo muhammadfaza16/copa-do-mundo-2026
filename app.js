@@ -364,7 +364,7 @@ let useLocalTimezone = localStorage.getItem('wc2026_local_tz') !== 'false';
 let apiKey = '12aad17c1bf941f68c2318631dfcea1b';
 let lastRenderedDate = new Date().toDateString();
 let isDataDirty = true;
-let showPotentialDraw = false;
+let showPotentialDraw = true;
 let _lastRenderedLineupsFingerprint = null; // tracks last-rendered lineup data to avoid redundant re-renders
 let cdElementsCache = null;
 let lastFetchTime = 0;
