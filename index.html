@@ -380,6 +380,26 @@
             <svg id="bracket-svg-connections" width="560" height="760" style="position: absolute; top: 0; left: 0; pointer-events: none; z-index: 1;"></svg>
             <div id="bracket-cards-root" style="position: relative; width: 560px; height: 760px; z-index: 2;"></div>
           </div>
+      </div>
+
+      <!-- Tab Jadwal Fase Gugur -->
+      <div class="bracket-schedule-section" style="margin-top: 30px; padding: 0 12px; max-width: 580px; margin-left: auto; margin-right: auto;">
+        <h4 style="font-family: var(--font-display); font-size: 0.95rem; font-weight: 700; color: var(--text-primary); text-align: left; margin-bottom: 12px; letter-spacing: 0.3px;">
+          Jadwal &amp; Hasil Fase Gugur
+        </h4>
+        
+        <!-- Tabs Nav -->
+        <div class="bracket-schedule-tabs" style="display: flex; gap: 8px; overflow-x: auto; padding-bottom: 8px; margin-bottom: 16px; -webkit-overflow-scrolling: touch; border-bottom: 1px solid var(--glass-border);">
+          <button class="schedule-tab-btn active" onclick="window.setScheduleRound('Round of 32', this)">32 Besar</button>
+          <button class="schedule-tab-btn" onclick="window.setScheduleRound('Round of 16', this)">16 Besar</button>
+          <button class="schedule-tab-btn" onclick="window.setScheduleRound('Quarter-final', this)">Perempat Final</button>
+          <button class="schedule-tab-btn" onclick="window.setScheduleRound('Semi-final', this)">Semifinal</button>
+          <button class="schedule-tab-btn" onclick="window.setScheduleRound('Finals', this)">Final &amp; 3rd</button>
+        </div>
+
+        <!-- Schedule List Container -->
+        <div id="bracket-schedule-list" style="display: flex; flex-direction: column; gap: 10px; margin-bottom: 40px;">
+          <!-- Loaded dynamically -->
         </div>
       </div>
     </section>
