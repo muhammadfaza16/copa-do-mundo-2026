@@ -1370,7 +1370,7 @@ function updateHeroPanel() {
       lastHeroMatchKey = cdKey;
 
       const isBigMatch = getMatchBadgeHtml(targetMatch.team1, targetMatch.team2) !== '';
-      const textTitle = isOpening ? `Kick-Off Match Pertama` : `Kick-Off Match Berikutnya`;
+      const textTitle = isOpening ? `Kick-Off Laga Pertama` : `Kick-Off Laga Berikutnya`;
       titleEl.innerHTML = `
         <span>${textTitle}</span>
       `;
@@ -1447,7 +1447,7 @@ function updateHeroPanel() {
     lastHeroMatchKey = cdKey;
 
     const isBigMatch = getMatchBadgeHtml(targetMatch.team1, targetMatch.team2) !== '';
-    const textTitle = isOpening ? `Kick-Off Match Pertama` : `Kick-Off Match Berikutnya`;
+    const textTitle = isOpening ? `Kick-Off Laga Pertama` : `Kick-Off Laga Berikutnya`;
     titleEl.innerHTML = `
       <span>${textTitle}</span>
     `;
