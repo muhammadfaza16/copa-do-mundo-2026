@@ -604,6 +604,23 @@ function isGroupStageComplete() {
   });
 }
 
+function isRealTeamName(name) {
+  if (!name) return false;
+  const n = name.toLowerCase();
+  return !n.includes("grup") && !n.includes("winner") && !n.includes("loser") && !n.includes("match") && !n.includes("juara") && !n.includes("runner-up") && !n.includes("3rd") && !n.includes("peringkat");
+}
+
+function isGroupComplete(groupLetter) {
+  const groupName = `Grup ${groupLetter}`;
+  const groupMatches = WORLD_CUP_DATA.group_stage.filter(m => m.group === groupName);
+  if (groupMatches.length === 0) return false;
+  return groupMatches.every(m => {
+    const matchKey = `gs_${m.date}_${m.team1}_${m.team2}`;
+    const score = getMatchScore(matchKey);
+    return score && score.status === 'FINISHED';
+  });
+}
+
 function getLocalTimezoneAbbr() {
   try {
     const formatter = new Intl.DateTimeFormat('id-ID', { timeZoneName: 'short' });
@@ -1633,13 +1650,15 @@ function renderSchedule() {
     const matchKey = `ko_${m.match_id}`;
     const score = getMatchScore(matchKey);
     if (!score && !showPotentialDraw && !isGroupStageComplete()) {
-      const orig = WORLD_CUP_DATA.knockout_stage.find(ok => ok.match_id === m.match_id);
-      if (orig) {
-        return {
-          ...m,
-          team1: orig.team1,
-          team2: orig.team2
-        };
+      if (!isRealTeamName(m.team1) || !isRealTeamName(m.team2)) {
+        const orig = WORLD_CUP_DATA.knockout_stage.find(ok => ok.match_id === m.match_id);
+        if (orig) {
+          return {
+            ...m,
+            team1: isRealTeamName(m.team1) ? m.team1 : orig.team1,
+            team2: isRealTeamName(m.team2) ? m.team2 : orig.team2
+          };
+        }
       }
     }
     return m;
@@ -1781,13 +1800,15 @@ function renderFavorites() {
         let displayMatch = match;
         const score = getMatchScore(key);
         if (!score && !showPotentialDraw && !isGroupStageComplete()) {
-          const orig = WORLD_CUP_DATA.knockout_stage.find(ok => ok.match_id === matchId);
-          if (orig) {
-            displayMatch = {
-              ...match,
-              team1: orig.team1,
-              team2: orig.team2
-            };
+          if (!isRealTeamName(match.team1) || !isRealTeamName(match.team2)) {
+            const orig = WORLD_CUP_DATA.knockout_stage.find(ok => ok.match_id === matchId);
+            if (orig) {
+              displayMatch = {
+                ...match,
+                team1: isRealTeamName(match.team1) ? match.team1 : orig.team1,
+                team2: isRealTeamName(match.team2) ? match.team2 : orig.team2
+              };
+            }
           }
         }
         listHtml += createMatchCardHtml(displayMatch, displayMatch.match_id, true);
@@ -3048,79 +3069,103 @@ function recalculateKnockoutTree() {
   knockoutMatches.forEach(m => {
     if (m.group !== "Round of 32") return;
 
+    const apiMatchData = realScores[`ko_${m.match_id}`];
+
     // Check seed 1 (Home/team1)
-    if (m.team1_seed && (
-        m.team1_seed.endsWith('A') || m.team1_seed.endsWith('B') || m.team1_seed.endsWith('C') || m.team1_seed.endsWith('D') || 
-        m.team1_seed.endsWith('E') || m.team1_seed.endsWith('F') || m.team1_seed.endsWith('G') || m.team1_seed.endsWith('H') || 
-        m.team1_seed.endsWith('I') || m.team1_seed.endsWith('J') || m.team1_seed.endsWith('K') || m.team1_seed.endsWith('L')
-    )) {
-      const rank = m.team1_seed.charAt(0); // '1' or '2'
-      const groupLetter = m.team1_seed.charAt(1); // 'A' to 'L'
-      const groupName = `Grup ${groupLetter}`;
-      const idx = rank === '1' ? 0 : 1;
-      
-      const hasRealScore = getMatchScore(`ko_${m.match_id}`);
-      if (showPotentialDraw || hasRealScore || isGroupStageComplete()) {
-        if (groupRankings[groupName] && groupRankings[groupName][idx]) {
-          m.team1 = groupRankings[groupName][idx];
+    let team1SetFromApi = false;
+    if (apiMatchData && apiMatchData.home_team_name_en) {
+      const apiHomeName = apiMatchData.home_team_name_en;
+      if (isRealTeamName(apiHomeName)) {
+        m.team1 = TEAM_TRANSLATIONS[apiHomeName] || apiHomeName;
+        team1SetFromApi = true;
+      }
+    }
+
+    if (!team1SetFromApi) {
+      if (m.team1_seed && (
+          m.team1_seed.endsWith('A') || m.team1_seed.endsWith('B') || m.team1_seed.endsWith('C') || m.team1_seed.endsWith('D') || 
+          m.team1_seed.endsWith('E') || m.team1_seed.endsWith('F') || m.team1_seed.endsWith('G') || m.team1_seed.endsWith('H') || 
+          m.team1_seed.endsWith('I') || m.team1_seed.endsWith('J') || m.team1_seed.endsWith('K') || m.team1_seed.endsWith('L')
+      )) {
+        const rank = m.team1_seed.charAt(0); // '1' or '2'
+        const groupLetter = m.team1_seed.charAt(1); // 'A' to 'L'
+        const groupName = `Grup ${groupLetter}`;
+        const idx = rank === '1' ? 0 : 1;
+        
+        const hasRealScore = getMatchScore(`ko_${m.match_id}`);
+        if (showPotentialDraw || hasRealScore || isGroupStageComplete() || isGroupComplete(groupLetter)) {
+          if (groupRankings[groupName] && groupRankings[groupName][idx]) {
+            m.team1 = groupRankings[groupName][idx];
+          } else {
+            m.team1 = `${rank === '1' ? 'Juara' : 'Runner-up'} ${groupName}`;
+          }
         } else {
           m.team1 = `${rank === '1' ? 'Juara' : 'Runner-up'} ${groupName}`;
         }
-      } else {
-        m.team1 = `${rank === '1' ? 'Juara' : 'Runner-up'} ${groupName}`;
-      }
-    } else if (m.team1_seed === '3rd') {
-      // 3rd placed team choice
-      const selectedGroup = selected3rdPlaces[m.match_id];
-      const hasRealScore = getMatchScore(`ko_${m.match_id}`);
-      if (showPotentialDraw || hasRealScore || isGroupStageComplete()) {
-        if (selectedGroup && groupRankings[selectedGroup] && groupRankings[selectedGroup][2]) {
-          m.team1 = groupRankings[selectedGroup][2]; // 3rd placed team is at index 2
+      } else if (m.team1_seed === '3rd') {
+        // 3rd placed team choice
+        const selectedGroup = selected3rdPlaces[m.match_id];
+        const hasRealScore = getMatchScore(`ko_${m.match_id}`);
+        if (showPotentialDraw || hasRealScore || isGroupStageComplete()) {
+          if (selectedGroup && groupRankings[selectedGroup] && groupRankings[selectedGroup][2]) {
+            m.team1 = groupRankings[selectedGroup][2]; // 3rd placed team is at index 2
+          } else {
+            const orig = WORLD_CUP_DATA.knockout_stage.find(ok => ok.match_id === m.match_id);
+            m.team1 = orig ? orig.team1 : "3rd Grup";
+          }
         } else {
           const orig = WORLD_CUP_DATA.knockout_stage.find(ok => ok.match_id === m.match_id);
           m.team1 = orig ? orig.team1 : "3rd Grup";
         }
-      } else {
-        const orig = WORLD_CUP_DATA.knockout_stage.find(ok => ok.match_id === m.match_id);
-        m.team1 = orig ? orig.team1 : "3rd Grup";
       }
     }
 
     // Check seed 2 (Away/team2)
-    if (m.team2_seed && (
-        m.team2_seed.endsWith('A') || m.team2_seed.endsWith('B') || m.team2_seed.endsWith('C') || m.team2_seed.endsWith('D') || 
-        m.team2_seed.endsWith('E') || m.team2_seed.endsWith('F') || m.team2_seed.endsWith('G') || m.team2_seed.endsWith('H') || 
-        m.team2_seed.endsWith('I') || m.team2_seed.endsWith('J') || m.team2_seed.endsWith('K') || m.team2_seed.endsWith('L')
-    )) {
-      const rank = m.team2_seed.charAt(0); // '1' or '2'
-      const groupLetter = m.team2_seed.charAt(1); // 'A' to 'L'
-      const groupName = `Grup ${groupLetter}`;
-      const idx = rank === '1' ? 0 : 1;
-      
-      const hasRealScore = getMatchScore(`ko_${m.match_id}`);
-      if (showPotentialDraw || hasRealScore || isGroupStageComplete()) {
-        if (groupRankings[groupName] && groupRankings[groupName][idx]) {
-          m.team2 = groupRankings[groupName][idx];
+    let team2SetFromApi = false;
+    if (apiMatchData && apiMatchData.away_team_name_en) {
+      const apiAwayName = apiMatchData.away_team_name_en;
+      if (isRealTeamName(apiAwayName)) {
+        m.team2 = TEAM_TRANSLATIONS[apiAwayName] || apiAwayName;
+        team2SetFromApi = true;
+      }
+    }
+
+    if (!team2SetFromApi) {
+      if (m.team2_seed && (
+          m.team2_seed.endsWith('A') || m.team2_seed.endsWith('B') || m.team2_seed.endsWith('C') || m.team2_seed.endsWith('D') || 
+          m.team2_seed.endsWith('E') || m.team2_seed.endsWith('F') || m.team2_seed.endsWith('G') || m.team2_seed.endsWith('H') || 
+          m.team2_seed.endsWith('I') || m.team2_seed.endsWith('J') || m.team2_seed.endsWith('K') || m.team2_seed.endsWith('L')
+      )) {
+        const rank = m.team2_seed.charAt(0); // '1' or '2'
+        const groupLetter = m.team2_seed.charAt(1); // 'A' to 'L'
+        const groupName = `Grup ${groupLetter}`;
+        const idx = rank === '1' ? 0 : 1;
+        
+        const hasRealScore = getMatchScore(`ko_${m.match_id}`);
+        if (showPotentialDraw || hasRealScore || isGroupStageComplete() || isGroupComplete(groupLetter)) {
+          if (groupRankings[groupName] && groupRankings[groupName][idx]) {
+            m.team2 = groupRankings[groupName][idx];
+          } else {
+            m.team2 = `${rank === '1' ? 'Juara' : 'Runner-up'} ${groupName}`;
+          }
         } else {
           m.team2 = `${rank === '1' ? 'Juara' : 'Runner-up'} ${groupName}`;
         }
-      } else {
-        m.team2 = `${rank === '1' ? 'Juara' : 'Runner-up'} ${groupName}`;
-      }
-    } else if (m.team2_seed === '3rd') {
-      // 3rd placed team choice
-      const selectedGroup = selected3rdPlaces[m.match_id];
-      const hasRealScore = getMatchScore(`ko_${m.match_id}`);
-      if (showPotentialDraw || hasRealScore || isGroupStageComplete()) {
-        if (selectedGroup && groupRankings[selectedGroup] && groupRankings[selectedGroup][2]) {
-          m.team2 = groupRankings[selectedGroup][2]; // 3rd placed team
+      } else if (m.team2_seed === '3rd') {
+        // 3rd placed team choice
+        const selectedGroup = selected3rdPlaces[m.match_id];
+        const hasRealScore = getMatchScore(`ko_${m.match_id}`);
+        if (showPotentialDraw || hasRealScore || isGroupStageComplete()) {
+          if (selectedGroup && groupRankings[selectedGroup] && groupRankings[selectedGroup][2]) {
+            m.team2 = groupRankings[selectedGroup][2]; // 3rd placed team
+          } else {
+            const orig = WORLD_CUP_DATA.knockout_stage.find(ok => ok.match_id === m.match_id);
+            m.team2 = orig ? orig.team2 : "3rd Grup";
+          }
         } else {
           const orig = WORLD_CUP_DATA.knockout_stage.find(ok => ok.match_id === m.match_id);
           m.team2 = orig ? orig.team2 : "3rd Grup";
         }
-      } else {
-        const orig = WORLD_CUP_DATA.knockout_stage.find(ok => ok.match_id === m.match_id);
-        m.team2 = orig ? orig.team2 : "3rd Grup";
       }
     }
   });
@@ -4882,6 +4927,8 @@ async function fetchRealTimeScores(isManual = false) {
               existing.away_scorers !== scorers2 ||
               existing.home_red_cards !== redCards1 ||
               existing.away_red_cards !== redCards2 ||
+              existing.home_team_name_en !== apiMatch.home_team_name_en ||
+              existing.away_team_name_en !== apiMatch.away_team_name_en ||
               String(existing.stadium_id) !== String(apiMatch.stadium_id) ||
               String(existing.matchday) !== String(apiMatch.matchday)) {
             hasMatchChanged = true;
@@ -4899,6 +4946,8 @@ async function fetchRealTimeScores(isManual = false) {
             away_scorers: scorers2,
             home_red_cards: redCards1,
             away_red_cards: redCards2,
+            home_team_name_en: apiMatch.home_team_name_en,
+            away_team_name_en: apiMatch.away_team_name_en,
             time_elapsed: apiMatch.time_elapsed || null,
             espn_event_id: apiMatch.espn_event_id || null,
             display_clock: apiMatch.display_clock || null,
@@ -5165,13 +5214,15 @@ window.openMatchDetailModal = async function(matchKey) {
   if (match.isKO) {
     const score = getMatchScore(matchKey);
     if (!score && !showPotentialDraw && !isGroupStageComplete()) {
-      const orig = WORLD_CUP_DATA.knockout_stage.find(ok => ok.match_id === match.match_id);
-      if (orig) {
-        match = {
-          ...match,
-          team1: orig.team1,
-          team2: orig.team2
-        };
+      if (!isRealTeamName(match.team1) || !isRealTeamName(match.team2)) {
+        const orig = WORLD_CUP_DATA.knockout_stage.find(ok => ok.match_id === match.match_id);
+        if (orig) {
+          match = {
+            ...match,
+            team1: isRealTeamName(match.team1) ? match.team1 : orig.team1,
+            team2: isRealTeamName(match.team2) ? match.team2 : orig.team2
+          };
+        }
       }
     }
   }
