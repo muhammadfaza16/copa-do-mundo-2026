@@ -3520,7 +3520,11 @@ function getVenueCity(venueStr) {
 // Extractor to get only the stadium name from venue (e.g. "SoFi Stadium, Inglewood" -> "SoFi Stadium")
 function getVenueStadium(venueStr) {
   if (!venueStr) return "";
-  const parts = vfunction getMatchTooltipHtml(m) {
+  const parts = venueStr.split(',');
+  return parts[0].trim();
+}
+
+function getMatchTooltipHtml(m) {
   const isPlaceholder1 = !isRealTeamName(m.team1);
   const isPlaceholder2 = !isRealTeamName(m.team2);
   
