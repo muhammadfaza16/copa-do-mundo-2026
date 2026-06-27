@@ -6051,7 +6051,7 @@ body.light-theme #bracket-tooltip {
 
 /* Bracket Schedule Tab styling */
 .schedule-tab-btn {
-  background: var(--glass-bg);
+  background: transparent;
   border: 1px solid var(--glass-border);
   color: var(--text-secondary);
   font-family: var(--font-sans);
