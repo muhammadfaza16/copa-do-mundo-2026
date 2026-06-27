@@ -3448,10 +3448,10 @@ function getTeamGradientCss(teamColorsOrColor) {
 
 const BASE_COMPACT_COORDINATES = {
   // Left Wing (Outer Left R32, Column 2 Upper R16, Stack Top R16 & QF)
-  73: { x: 30, y: 190 },  // Column 1 upper top
-  75: { x: 30, y: 270 },  // Column 1 upper bottom
-  83: { x: 30, y: 450 },  // Column 1 lower top
-  84: { x: 30, y: 530 },  // Column 1 lower bottom
+  73: { x: 30, y: 220 },  // Column 1 upper top (aligned for fork center)
+  75: { x: 30, y: 300 },  // Column 1 upper bottom (aligned for fork center)
+  83: { x: 30, y: 420 },  // Column 1 lower top (aligned for fork center)
+  84: { x: 30, y: 500 },  // Column 1 lower bottom (aligned for fork center)
   
   89: { x: 290, y: 170 }, // Stack Top R16
   90: { x: 160, y: 260 }, // Column 2 Upper R16 (centered & balanced)
@@ -3470,16 +3470,16 @@ const BASE_COMPACT_COORDINATES = {
   // Right Wing (Outer Right R32, Column 6 Upper R16, Stack Top Right R16 & QF)
   76: { x: 496, y: 80 },  // Top-right horizontal left (BRA)
   78: { x: 676, y: 80 },  // Top-right horizontal right (ECU)
-  79: { x: 846, y: 190 }, // Column 7 upper top
-  80: { x: 846, y: 270 }, // Column 7 upper bottom
+  79: { x: 846, y: 220 }, // Column 7 upper top (aligned for fork center)
+  80: { x: 846, y: 300 }, // Column 7 upper bottom (aligned for fork center)
   
   91: { x: 586, y: 170 }, // Stack Top Right R16
   92: { x: 716, y: 260 }, // Column 6 Upper R16 (centered & balanced)
   99: { x: 586, y: 260 }, // Stack QF Upper Right (balanced)
 
   // Bottom Wing (Column 7 lower R32, Bottom-right horizontal R32)
-  88: { x: 846, y: 450 }, // Column 7 lower top (Australia vs Egypt)
-  86: { x: 846, y: 530 }, // Column 7 lower bottom (Argentina vs Cape Verde)
+  88: { x: 846, y: 420 }, // Column 7 lower top (aligned for fork center)
+  86: { x: 846, y: 500 }, // Column 7 lower bottom (aligned for fork center)
   87: { x: 496, y: 640 }, // Bottom-right horizontal left (Juara Grup K vs 3rd)
   85: { x: 676, y: 640 }, // Bottom-right horizontal right (Swiss vs 3rd)
   
