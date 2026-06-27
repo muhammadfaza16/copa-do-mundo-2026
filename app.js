@@ -3965,10 +3965,89 @@ window.togglePotentialDraw = function(checked) {
   renderBracket();
 };
 
-function initBracketTouchGestures() {}
+function initBracketTouchGestures() {
+  const wrapper = document.querySelector('.compact-bracket-wrapper');
+  if (!wrapper) return;
+
+  let initialDistance = null;
+  let startScale = 1;
+
+  wrapper.addEventListener('touchstart', (e) => {
+    if (e.touches.length === 2) {
+      initialDistance = getTouchDistance(e.touches[0], e.touches[1]);
+      startScale = currentScale;
+    }
+  }, { passive: false });
+
+  wrapper.addEventListener('touchmove', (e) => {
+    if (e.touches.length === 2 && initialDistance !== null) {
+      e.preventDefault(); // Prevent native page zoom
+
+      const currentDistance = getTouchDistance(e.touches[0], e.touches[1]);
+      if (currentDistance > 5) {
+        const factor = currentDistance / initialDistance;
+        currentScale = startScale * factor;
+        applyScale();
+      }
+    }
+  }, { passive: false });
+
+  wrapper.addEventListener('touchend', (e) => {
+    if (e.touches.length < 2) {
+      initialDistance = null;
+    }
+  });
+
+  function getTouchDistance(t1, t2) {
+    const dx = t1.clientX - t2.clientX;
+    const dy = t1.clientY - t2.clientY;
+    return Math.sqrt(dx * dx + dy * dy);
+  }
+}
 window.initBracketTouchGestures = initBracketTouchGestures;
 
-function initBracketDragScroll() {}
+function initBracketDragScroll() {
+  const wrapper = document.querySelector('.compact-bracket-wrapper');
+  if (!wrapper) return;
+
+  let isDown = false;
+  let startX, startY, scrollLeft, scrollTop;
+
+  wrapper.addEventListener('mousedown', (e) => {
+    if (currentScale <= baseScale * 1.05) return; // Only drag when zoomed in
+    isDown = true;
+    wrapper.style.cursor = 'grabbing';
+    startX = e.clientX - wrapper.offsetLeft;
+    startY = e.clientY - wrapper.offsetTop;
+    scrollLeft = wrapper.scrollLeft;
+    scrollTop = wrapper.scrollTop;
+  });
+
+  wrapper.addEventListener('mouseleave', () => {
+    if (isDown) {
+      isDown = false;
+      wrapper.style.cursor = 'grab';
+    }
+  });
+
+  wrapper.addEventListener('mouseup', () => {
+    if (isDown) {
+      isDown = false;
+      wrapper.style.cursor = 'grab';
+    }
+  });
+
+  wrapper.addEventListener('mousemove', (e) => {
+    if (!isDown) return;
+    e.preventDefault();
+    const x = e.clientX - wrapper.offsetLeft;
+    const y = e.clientY - wrapper.offsetTop;
+    const walkX = (x - startX) * 1.5;
+    const walkY = (y - startY) * 1.5;
+    wrapper.scrollLeft = scrollLeft - walkX;
+    wrapper.scrollTop = scrollTop - walkY;
+  });
+}
 window.initBracketDragScroll = initBracketDragScroll;
 
 // Selects 3rd-place team Group mapping in simulator

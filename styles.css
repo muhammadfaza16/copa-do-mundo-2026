@@ -3404,6 +3404,7 @@ body.light-theme .mobile-team-name {
   position: relative;
   margin: 12px 0 16px 0;
   min-height: auto;
+  -webkit-overflow-scrolling: touch;
 }
 
 .bracket-scroll-scaffolding {
