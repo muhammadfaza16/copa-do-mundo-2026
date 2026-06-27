@@ -3579,49 +3579,52 @@ function getMatchTooltipHtml(m) {
   }
 
   return `
-    <div class="tooltip-container" style="display: flex; flex-direction: column; gap: 8px; min-width: 175px; font-family: var(--font-sans, sans-serif); text-align: left;">
+    <div class="tooltip-container" style="display: flex; flex-direction: column; gap: 9px; min-width: 190px; padding: 2px; font-family: var(--font-sans, sans-serif); text-align: left;">
       <!-- Header: Round + Match ID + Time -->
-      <div style="display: flex; flex-direction: column; gap: 2px; border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 6px;">
+      <div style="display: flex; flex-direction: column; gap: 2px; border-bottom: 1px solid rgba(255,255,255,0.06); padding-bottom: 7px;">
         <div style="font-size: 0.62rem; text-transform: uppercase; letter-spacing: 0.8px; font-weight: 700; color: var(--primary-gold); line-height: 1.2; text-align: center;">
           ${roundLabel}
         </div>
-        <div style="display: flex; align-items: center; justify-content: space-between; font-size: 0.55rem; color: rgba(255,255,255,0.4); font-weight: 500; margin-top: 1px;">
+        <div style="display: flex; align-items: center; justify-content: space-between; font-size: 0.55rem; color: rgba(255,255,255,0.35); font-weight: 500; margin-top: 1px;">
           <span style="letter-spacing: 0.3px; font-weight: 600;">LAGA ${m.match_id}</span>
           <span>${dateStr} · ${timeInfo.time}</span>
         </div>
       </div>
 
-      <!-- Teams & Scores -->
-      <div style="display: flex; flex-direction: column; gap: 7px; margin-top: 2px;">
+      <!-- Teams Box (iOS Slate Style) -->
+      <div style="background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.06); border-radius: 8px; padding: 8px 10px; display: flex; flex-direction: column; gap: 7px;">
         <!-- Team 1 -->
         <div style="display: flex; flex-direction: column; gap: 2px;">
           <div style="display: flex; align-items: center; justify-content: space-between; gap: 12px;">
-            <span style="display: flex; align-items: center; gap: 6px; font-size: 0.72rem; font-weight: ${winner === m.team1 ? '700' : '500'}; color: ${winner && winner !== m.team1 ? 'rgba(255,255,255,0.45)' : '#ffffff'};">
+            <span style="display: flex; align-items: center; gap: 6px; font-size: 0.72rem; font-weight: ${winner === m.team1 ? '700' : '500'}; color: ${winner && winner !== m.team1 ? 'rgba(255,255,255,0.45)' : '#ffffff'}; min-width: 0;">
               ${m.team1 && !isPlaceholder1 ? getFlagHtml(m.team1).replace('class="flag-crest"', 'style="width:14px; height:10px; border-radius:1px; object-fit:cover;"') : ''}
-              <span style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 110px;">${team1Name}</span>
+              <span style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 120px;">${team1Name}</span>
               ${t1WinnerMarker}
             </span>
             <span style="font-size: 0.8rem; font-weight: 700; color: ${winner === m.team1 ? 'var(--primary-gold)' : '#ffffff'};">${score1}</span>
           </div>
           ${homeScorersText ? `
-            <div style="font-size: 0.58rem; color: rgba(255,255,255,0.45); padding-left: 20px; font-weight: 400; line-height: 1.2;">
+            <div style="font-size: 0.55rem; color: rgba(255,255,255,0.35); padding-left: 20px; font-weight: 400; line-height: 1.3;">
               ${homeScorersText}
             </div>
           ` : ''}
         </div>
 
+        <!-- Horizontal Divider inside Box -->
+        <div style="height: 1px; background: rgba(255,255,255,0.04);"></div>
+
         <!-- Team 2 -->
         <div style="display: flex; flex-direction: column; gap: 2px;">
           <div style="display: flex; align-items: center; justify-content: space-between; gap: 12px;">
-            <span style="display: flex; align-items: center; gap: 6px; font-size: 0.72rem; font-weight: ${winner === m.team2 ? '700' : '500'}; color: ${winner && winner !== m.team2 ? 'rgba(255,255,255,0.45)' : '#ffffff'};">
+            <span style="display: flex; align-items: center; gap: 6px; font-size: 0.72rem; font-weight: ${winner === m.team2 ? '700' : '500'}; color: ${winner && winner !== m.team2 ? 'rgba(255,255,255,0.45)' : '#ffffff'}; min-width: 0;">
               ${m.team2 && !isPlaceholder2 ? getFlagHtml(m.team2).replace('class="flag-crest"', 'style="width:14px; height:10px; border-radius:1px; object-fit:cover;"') : ''}
-              <span style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 110px;">${team2Name}</span>
+              <span style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 120px;">${team2Name}</span>
               ${t2WinnerMarker}
             </span>
             <span style="font-size: 0.8rem; font-weight: 700; color: ${winner === m.team2 ? 'var(--primary-gold)' : '#ffffff'};">${score2}</span>
           </div>
           ${awayScorersText ? `
-            <div style="font-size: 0.58rem; color: rgba(255,255,255,0.45); padding-left: 20px; font-weight: 400; line-height: 1.2;">
+            <div style="font-size: 0.55rem; color: rgba(255,255,255,0.35); padding-left: 20px; font-weight: 400; line-height: 1.3;">
               ${awayScorersText}
             </div>
           ` : ''}
@@ -3629,8 +3632,8 @@ function getMatchTooltipHtml(m) {
       </div>
 
       <!-- Footer: Venue + Status -->
-      <div style="display: flex; align-items: center; justify-content: space-between; border-top: 1px solid rgba(255,255,255,0.08); padding-top: 6px; margin-top: 4px; font-size: 0.58rem; color: rgba(255,255,255,0.45); font-weight: 500; gap: 8px;">
-        <span style="display: flex; align-items: center; gap: 4px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 110px;" title="${getMatchVenue(m)}">
+      <div style="display: flex; align-items: center; justify-content: space-between; font-size: 0.58rem; color: rgba(255,255,255,0.4); font-weight: 500; gap: 8px; padding-top: 1px;">
+        <span style="display: flex; align-items: center; gap: 4px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 120px;" title="${getMatchVenue(m)}">
           <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="display: inline-block; vertical-align: middle; opacity: 0.7;"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
           ${getVenueStadium(getMatchVenue(m))}
         </span>
