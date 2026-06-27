@@ -3582,7 +3582,7 @@ function getMatchTooltipHtml(m) {
     <div class="tooltip-container" style="display: flex; flex-direction: column; gap: 8px; min-width: 175px; font-family: var(--font-sans, sans-serif); text-align: left;">
       <!-- Header: Round + Match ID + Time -->
       <div style="display: flex; flex-direction: column; gap: 2px; border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 6px;">
-        <div style="font-size: 0.62rem; text-transform: uppercase; letter-spacing: 0.8px; font-weight: 700; color: var(--primary-gold); line-height: 1.2;">
+        <div style="font-size: 0.62rem; text-transform: uppercase; letter-spacing: 0.8px; font-weight: 700; color: var(--primary-gold); line-height: 1.2; text-align: center;">
           ${roundLabel}
         </div>
         <div style="display: flex; align-items: center; justify-content: space-between; font-size: 0.55rem; color: rgba(255,255,255,0.4); font-weight: 500; margin-top: 1px;">
