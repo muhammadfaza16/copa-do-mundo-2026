@@ -4647,6 +4647,308 @@ function stopScorePolling() {
   }
 }
 
+// Fallback client-side fetch from ESPN scoreboards and standings API (enables fully functional local mode)
+async function fetchScoresDirectFromEspn() {
+  const espnUrl = 'https://site.api.espn.com/apis/site/v2/sports/soccer/fifa.world/scoreboard?dates=20260611-20260719&limit=150';
+  const response = await fetch(espnUrl);
+  if (!response.ok) {
+    throw new Error(`ESPN API returned status ${response.status}`);
+  }
+  const espnData = await response.json();
+
+  let groupsData = null;
+  try {
+    const resGroups = await fetch('https://site.api.espn.com/apis/v2/sports/soccer/fifa.world/standings');
+    if (resGroups.ok) {
+      groupsData = await resGroups.json();
+    }
+  } catch (err) {
+    console.warn("Direct groups fetch failed:", err);
+  }
+
+  const officialMatches = [];
+  const getOfficialUtcTime = (dateStr, timeStr) => {
+    const [day, month] = dateStr.split('/').map(Number);
+    const [hour, min] = timeStr.split(':').map(Number);
+    const dateObj = new Date(Date.UTC(2026, month - 1, day, hour - 7, min));
+    return dateObj.toISOString();
+  };
+
+  WORLD_CUP_DATA.group_stage.forEach((m, idx) => {
+    officialMatches.push({
+      match_id: idx + 1,
+      team1: m.team1,
+      team2: m.team2,
+      group: m.group,
+      utc_time: getOfficialUtcTime(m.date, m.time)
+    });
+  });
+
+  WORLD_CUP_DATA.knockout_stage.forEach((m) => {
+    officialMatches.push({
+      match_id: m.match_id,
+      team1: m.team1,
+      team2: m.team2,
+      group: m.group,
+      utc_time: getOfficialUtcTime(m.date, m.time)
+    });
+  });
+
+  const groupStageEvents = [];
+  const knockoutEvents = [];
+
+  const localTranslations = { ...TEAM_TRANSLATIONS };
+  localTranslations['Czech Republic'] = 'Ceko';
+  localTranslations['Czechia'] = 'Ceko';
+  localTranslations['Bosnia-Herzegovina'] = 'Bosnia dan Herzegovina';
+  localTranslations['DR Kongo'] = 'RD Kongo';
+  localTranslations['Congo DR'] = 'RD Kongo';
+  localTranslations['Türkiye'] = 'Turki';
+  localTranslations['Turkey'] = 'Turki';
+
+  espnData.events.forEach((ev) => {
+    const comp = ev.competitions[0];
+    const home = comp.competitors.find(c => c.homeAway === 'home');
+    const away = comp.competitors.find(c => c.homeAway === 'away');
+    
+    const homeName = home.team.displayName;
+    const awayName = away.team.displayName;
+    const homeIndo = localTranslations[homeName] || homeName;
+    const awayIndo = localTranslations[awayName] || awayName;
+    
+    const gsIdx = WORLD_CUP_DATA.group_stage.findIndex(m => 
+      (m.team1 === homeIndo && m.team2 === awayIndo) || 
+      (m.team1 === awayIndo && m.team2 === homeIndo)
+    );
+    
+    if (gsIdx !== -1) {
+      groupStageEvents.push({ ev, match_id: gsIdx + 1 });
+    } else {
+      knockoutEvents.push(ev);
+    }
+  });
+
+  const KNOCKOUT_MAPPING = {
+    "760486": 73, "760487": 76, "760488": 75, "760489": 74, "760490": 78,
+    "760491": 79, "760492": 77, "760495": 80, "760493": 82, "760494": 81,
+    "760497": 84, "760496": 83, "760498": 85, "760499": 88, "760500": 86,
+    "760501": 87, "760502": 92, "760503": 89, "760504": 90, "760505": 96,
+    "760506": 93, "760507": 94, "760508": 91, "760509": 95, "760510": 97,
+    "760511": 98, "760512": 99, "760513": 100, "760514": 101, "760515": 102,
+    "760516": 103, "760517": 104
+  };
+
+  const mappings = {};
+  groupStageEvents.forEach(item => {
+    mappings[item.ev.id] = item.match_id;
+  });
+  knockoutEvents.forEach(ev => {
+    if (KNOCKOUT_MAPPING[ev.id]) {
+      mappings[ev.id] = KNOCKOUT_MAPPING[ev.id];
+    }
+  });
+
+  const STADIUM_MAP = {
+    "1": { "city": "Mexico City" }, "2": { "city": "Zapopan" }, "3": { "city": "Monterrey" },
+    "4": { "city": "Arlington" }, "5": { "city": "Houston" }, "6": { "city": "Kansas City" },
+    "7": { "city": "Atlanta" }, "8": { "city": "Miami" }, "9": { "city": "Foxborough" },
+    "10": { "city": "Philadelphia" }, "11": { "city": "East Rutherford" }, "12": { "city": "Toronto" },
+    "13": { "city": "Vancouver" }, "14": { "city": "Seattle" }, "15": { "city": "Santa Clara" },
+    "16": { "city": "Inglewood" }
+  };
+
+  const mappedGames = espnData.events.map(ev => {
+    const matchId = mappings[ev.id];
+    if (!matchId) return null;
+    
+    const comp = ev.competitions[0];
+    const home = comp.competitors.find(c => c.homeAway === 'home');
+    const away = comp.competitors.find(c => c.homeAway === 'away');
+    
+    const homeName = home.team.displayName;
+    const awayName = away.team.displayName;
+    const homeScore = home.score || "0";
+    const awayScore = away.score || "0";
+    
+    const homeScorersList = [];
+    const awayScorersList = [];
+    const homeRedCardsList = [];
+    const awayRedCardsList = [];
+    
+    if (comp.details) {
+      comp.details.forEach(detail => {
+        const isGoal = detail.scoringPlay || (detail.type && detail.type.text.includes("Goal")) || detail.ownGoal;
+        const isRed = detail.redCard || (detail.type && detail.type.text.includes("Red Card"));
+        const athlete = detail.athletesInvolved && detail.athletesInvolved[0];
+        const playerName = athlete ? athlete.displayName : "";
+        const minute = detail.clock ? detail.clock.displayValue : "";
+        
+        if (playerName) {
+          const teamId = detail.team && detail.team.id;
+          const isHomeTeam = teamId === home.id || teamId === home.team.id;
+          
+          if (isGoal) {
+            const suffix = detail.ownGoal ? " (OG)" : "";
+            const assister = detail.athletesInvolved && detail.athletesInvolved[1];
+            const assistText = assister ? ` (A: ${assister.displayName})` : "";
+            const scorerText = `${playerName} ${minute}${suffix}${assistText}`;
+            if (isHomeTeam) {
+              homeScorersList.push(scorerText);
+            } else {
+              awayScorersList.push(scorerText);
+            }
+          }
+          
+          if (isRed) {
+            const redText = `${playerName} ${minute}`;
+            if (isHomeTeam) {
+              homeRedCardsList.push(redText);
+            } else {
+              awayRedCardsList.push(redText);
+            }
+          }
+        }
+      });
+    }
+    
+    const formatList = (list) => {
+      if (list.length === 0) return "null";
+      return `{"${list.join('","')}"}`;
+    };
+    
+    const home_scorers = formatList(homeScorersList);
+    const away_scorers = formatList(awayScorersList);
+    const home_red_cards = formatList(homeRedCardsList);
+    const away_red_cards = formatList(awayRedCardsList);
+    
+    const state = ev.status && ev.status.type && ev.status.type.state;
+    let finished = state === 'post' ? 'TRUE' : 'FALSE';
+    
+    let time_elapsed = 'notstarted';
+    if (state === 'post') {
+      time_elapsed = 'finished';
+    } else if (state === 'in') {
+      finished = 'FALSE';
+      time_elapsed = ev.status.displayClock || 'live';
+      
+      const espnName = ev.status && ev.status.type && ev.status.type.name;
+      const espnDesc = ev.status && ev.status.type && ev.status.type.description;
+
+      if (espnName === 'STATUS_HALFTIME' || (espnDesc && espnDesc.toLowerCase() === 'halftime')) {
+        time_elapsed = 'HT';
+      } else if (espnName === 'STATUS_EXTRA_TIME' || (espnDesc && espnDesc.toLowerCase().includes('extra'))) {
+        time_elapsed = 'ET';
+      } else if (espnName === 'STATUS_SHOOTOUT' || (espnDesc && espnDesc.toLowerCase().includes('shootout') || espnDesc && espnDesc.toLowerCase().includes('penalty'))) {
+        time_elapsed = 'PEN';
+      }
+    }
+    
+    let status = 'TIMED';
+    if (state === 'post') {
+      status = 'FINISHED';
+    } else if (state === 'in') {
+      const espnName = ev.status && ev.status.type && ev.status.type.name;
+      const espnDesc = ev.status && ev.status.type && ev.status.type.description;
+
+      if (espnName === 'STATUS_HALFTIME' || (espnDesc && espnDesc.toLowerCase() === 'halftime')) {
+        status = 'PAUSED';
+      } else if (espnName === 'STATUS_EXTRA_TIME' || (espnDesc && espnDesc.toLowerCase().includes('extra'))) {
+        status = 'EXTRA_TIME';
+      } else if (espnName === 'STATUS_SHOOTOUT' || (espnDesc && espnDesc.toLowerCase().includes('shootout') || espnDesc && espnDesc.toLowerCase().includes('penalty'))) {
+        status = 'PENALTY_SHOOTOUT';
+      } else {
+        status = 'IN_PLAY';
+      }
+    }
+    
+    const espnCity = comp.venue && comp.venue.address && comp.venue.address.city;
+    let stadium_id = "1";
+    if (espnCity) {
+      const foundKey = Object.keys(STADIUM_MAP).find(key => 
+        STADIUM_MAP[key].city.toLowerCase().includes(espnCity.toLowerCase()) || 
+        espnCity.toLowerCase().includes(STADIUM_MAP[key].city.toLowerCase())
+      );
+      if (foundKey) stadium_id = foundKey;
+    }
+    
+    const officialMatch = officialMatches.find(m => m.match_id === matchId);
+    const groupLetter = officialMatch && officialMatch.group ? officialMatch.group.replace("Grup ", "") : "A";
+    
+    let type = 'group';
+    if (matchId > 72 && officialMatch && officialMatch.group) {
+      const g = officialMatch.group.toLowerCase();
+      if (g.includes("32")) type = 'r32';
+      else if (g.includes("16")) type = 'r16';
+      else if (g.includes("quarter")) type = 'qf';
+      else if (g.includes("semi")) type = 'sf';
+      else if (g.includes("ketiga") || g.includes("third")) type = 'third';
+      else if (g.includes("final")) type = 'final';
+    }
+
+    return {
+      _id: `espn_${ev.id}`,
+      id: String(matchId),
+      espn_event_id: ev.id,
+      home_team_id: home.id,
+      away_team_id: away.id,
+      home_score: homeScore,
+      away_score: awayScore,
+      home_scorers,
+      away_scorers,
+      home_red_cards,
+      away_red_cards,
+      group: groupLetter,
+      matchday: String(officialMatch ? (Math.ceil(matchId / 24) || 1) : 1),
+      stadium_id,
+      finished,
+      time_elapsed,
+      type,
+      home_team_name_en: homeName,
+      away_team_name_en: awayName,
+      display_clock: ev.status.displayClock || "",
+      period: ev.status.period || 0,
+      period_desc: (ev.status.type && ev.status.type.description) || ""
+    };
+  }).filter(Boolean);
+
+  const mockLive = new URL(window.location.href).searchParams.get('mockLive') === 'true';
+  if (mockLive) {
+    const mockGame = {
+      _id: "espn_mock_1",
+      id: "1",
+      espn_event_id: "mock_1",
+      home_team_id: "mock_home",
+      away_team_id: "mock_away",
+      home_score: "2",
+      away_score: "1",
+      home_scorers: `{"Santiago Gimenez 12'","Hirving Lozano 34'"}`,
+      away_scorers: `{"Percy Tau 25'"}`,
+      home_red_cards: `{"Edson Alvarez 40'"}`,
+      away_red_cards: "null",
+      group: "A",
+      matchday: "1",
+      stadium_id: "1",
+      finished: "FALSE",
+      time_elapsed: "45'+2'",
+      type: "group",
+      home_team_name_en: "Mexico",
+      away_team_name_en: "South Africa",
+      display_clock: "45'+2'",
+      period: 1,
+      period_desc: "1st Half"
+    };
+
+    const existingIdx = mappedGames.findIndex(g => g.id === "1");
+    if (existingIdx !== -1) {
+      mappedGames[existingIdx] = mockGame;
+    } else {
+      mappedGames.unshift(mockGame);
+    }
+  }
+
+  return { games: mappedGames, groups: groupsData };
+}
+
 // Fetch and update scores from API
 async function fetchRealTimeScores(isManual = false) {
   const statusMsgEl = document.getElementById('api-status-msg');
@@ -4689,7 +4991,14 @@ async function fetchRealTimeScores(isManual = false) {
     console.log("Vercel Proxy fetch succeeded!");
   } catch (err) {
     errorMsg = err.message || "Error on Vercel Proxy fetch";
-    console.log("Vercel Proxy fetch failed:", err);
+    console.log("Vercel Proxy fetch failed, trying direct client-side ESPN API fetch...", err);
+    try {
+      data = await fetchScoresDirectFromEspn();
+      console.log("Direct client-side ESPN fetch succeeded!");
+    } catch (fallbackErr) {
+      errorMsg = `Proxy error: ${errorMsg}. Direct fetch error: ${fallbackErr.message}`;
+      console.error("Direct client-side ESPN fetch failed:", fallbackErr);
+    }
   }
 
   // Helper to determine the winner of a knockout match from the API
