@@ -1584,7 +1584,7 @@ function createMatchCardHtml(match, index, isKnockout = false, showBigMatchBadge
   const headerMarkupHtml = isBracketSchedule ? `
     <div class="match-header">
       <div class="match-stage-container" style="display: flex; align-items: center; gap: 6px;">
-        <span class="match-date-label" style="font-weight: 600; text-transform: none; opacity: 1;">Laga ${match.match_id}</span>
+        <span class="match-date-label" style="font-weight: 600; text-transform: none; opacity: 1;">Match ${match.match_id}</span>
       </div>
       <div class="match-header-right" style="display: flex; align-items: center; gap: 8px;">
         <span class="match-date-label" style="font-weight: 600;">${timeInfo.date}</span>
@@ -1602,7 +1602,7 @@ function createMatchCardHtml(match, index, isKnockout = false, showBigMatchBadge
   const fixtureHeaderMarkupHtml = isBracketSchedule ? `
     <div class="match-header">
       <div class="match-stage-container" style="display: flex; align-items: center; gap: 6px;">
-        <span class="match-date-label" style="font-weight: 600; text-transform: none; opacity: 1;">Laga ${match.match_id}</span>
+        <span class="match-date-label" style="font-weight: 600; text-transform: none; opacity: 1;">Match ${match.match_id}</span>
       </div>
       <div class="match-header-right" style="display: flex; align-items: center; gap: 8px;">
         <span class="match-date-label" style="font-weight: 600;">${timeInfo.date}</span>
@@ -3170,6 +3170,43 @@ function renderBestThirds() {
   `;
 }
 
+// Helper to get the winner of a knockout match, dynamically checking real score and simulated prediction
+function getKnockoutMatchWinner(m) {
+  if (!m) return undefined;
+  // 1. Check actual finished score
+  const scoreKey = `ko_${m.match_id}`;
+  const score = getMatchScore(scoreKey);
+  if (score && (score.status === 'FINISHED' || score.status === 'PENALTY_SHOOTOUT')) {
+    if (score.score1 > score.score2) {
+      return m.team1;
+    } else if (score.score2 > score.score1) {
+      return m.team2;
+    } else {
+      if (score.winner_home) return m.team1;
+      if (score.winner_away) return m.team2;
+      // Fallback if penalty shootout info isn't available but user simulated it
+    }
+  }
+  // 2. Check if simulated winner is set by user prediction
+  if (simulatedWinners[m.match_id]) {
+    const simW = simulatedWinners[m.match_id];
+    if (simW === m.team1 || simW === m.team2) {
+      return simW;
+    }
+  }
+  return undefined;
+}
+
+// Helper to format placeholder names to standard English labels for the bracket tooltip
+function formatPlaceholderNameEn(name) {
+  if (!name) return 'TBD';
+  return name
+    .replace(/Winner Match (\d+)/g, "Match $1 Winner")
+    .replace(/Loser Match (\d+)/g, "Match $1 Loser")
+    .replace(/Winner Group ([A-L])/g, "Group $1 Winner")
+    .replace(/Runner-up Group ([A-L])/g, "Group $1 Runner-up");
+}
+
 // Main function to dynamically trace standing ranks and calculate bracket teams
 function recalculateKnockoutTree() {
   if (!isDataDirty) return;
@@ -3290,7 +3327,7 @@ function recalculateKnockoutTree() {
   const sortedKO = [...knockoutMatches].sort((a, b) => a.match_id - b.match_id);
 
   sortedKO.forEach(m => {
-    let winner = simulatedWinners[m.match_id];
+    let winner = getKnockoutMatchWinner(m);
     if (winner && winner !== m.team1 && winner !== m.team2) {
       delete simulatedWinners[m.match_id];
       winner = undefined;
@@ -3583,8 +3620,8 @@ function getMatchTooltipHtml(m) {
   const isPlaceholder1 = !isRealTeamName(m.team1);
   const isPlaceholder2 = !isRealTeamName(m.team2);
   
-  const team1Name = isPlaceholder1 ? formatPlaceholderName(m.team1 || 'TBD') : (m.team1 || 'TBD');
-  const team2Name = isPlaceholder2 ? formatPlaceholderName(m.team2 || 'TBD') : (m.team2 || 'TBD');
+  const team1Name = isPlaceholder1 ? formatPlaceholderNameEn(m.team1 || 'TBD') : (m.team1 || 'TBD');
+  const team2Name = isPlaceholder2 ? formatPlaceholderNameEn(m.team2 || 'TBD') : (m.team2 || 'TBD');
   
   const apiMatchData = realScores[`ko_${m.match_id}`];
   let score1 = '';
@@ -3594,22 +3631,14 @@ function getMatchTooltipHtml(m) {
     score2 = apiMatchData.score2;
   }
   
-  const winner = simulatedWinners[m.match_id];
+  const winner = getKnockoutMatchWinner(m);
   const t1WinnerMarker = winner === m.team1 ? `<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="var(--primary-gold)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display: inline-block; vertical-align: middle; margin-left: 4px;"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"></path><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"></path><path d="M4 22h16"></path><path d="M10 14.66V17c0 .55-.45 1-1 1H4v2h16v-2h-5c-.55 0-1-.45-1-1v-2.34"></path><path d="M12 2a6 6 0 0 1 6 6v5a6 6 0 0 1-6 6 6 6 0 0 1-6-6V8a6 6 0 0 1 6-6z"></path></svg>` : '';
   const t2WinnerMarker = winner === m.team2 ? `<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="var(--primary-gold)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display: inline-block; vertical-align: middle; margin-left: 4px;"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"></path><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"></path><path d="M4 22h16"></path><path d="M10 14.66V17c0 .55-.45 1-1 1H4v2h16v-2h-5c-.55 0-1-.45-1-1v-2.34"></path><path d="M12 2a6 6 0 0 1 6 6v5a6 6 0 0 1-6 6 6 6 0 0 1-6-6V8a6 6 0 0 1 6-6z"></path></svg>` : '';
   
   const dateStr = formatCompactMatchDate(m.date);
   const timeInfo = getFormattedTime(m.date, m.time);
   
-  const roundTranslations = {
-    "Round of 32": "32 Besar",
-    "Round of 16": "16 Besar",
-    "Quarter-final": "Perempat Final",
-    "Semi-final": "Semifinal",
-    "Third-place match": "Perebutan Tempat Ke-3",
-    "Final": "Final"
-  };
-  const roundLabel = roundTranslations[m.group] || m.group;
+  const roundLabel = m.group;
 
   let statusText = '';
   let liveMinute = '';
@@ -3645,7 +3674,7 @@ function getMatchTooltipHtml(m) {
           ${roundLabel}
         </div>
         <div style="display: flex; align-items: center; justify-content: space-between; font-size: 0.55rem; color: var(--text-secondary); opacity: 0.7; font-weight: 500; margin-top: 1px;">
-          <span style="letter-spacing: 0.3px; font-weight: 600;">LAGA ${m.match_id}</span>
+          <span style="letter-spacing: 0.3px; font-weight: 600;">MATCH ${m.match_id}</span>
           <span>${dateStr} · ${timeInfo.time}</span>
         </div>
       </div>
@@ -3818,7 +3847,7 @@ function renderBracket() {
     const coords = COMPACT_COORDINATES[m.match_id];
     if (!coords) return;
 
-    const winner = simulatedWinners[m.match_id];
+    const winner = getKnockoutMatchWinner(m);
     const isPlaceholder1 = !isRealTeamName(m.team1);
     const isPlaceholder2 = !isRealTeamName(m.team2);
 
@@ -4057,7 +4086,8 @@ function renderBracketLines() {
       }
     }
 
-    const isActive = !!simulatedWinners[conn.from];
+    const matchFrom = knockoutMatches.find(m => m.match_id === conn.from);
+    const isActive = !!(matchFrom && getKnockoutMatchWinner(matchFrom));
     const lineClass = isActive ? 'bracket-line-active' : 'bracket-line-inactive';
 
     pathsHtml += `<path d="${d}" class="${lineClass}"></path>`;
@@ -4065,7 +4095,10 @@ function renderBracketLines() {
     if (hasSharedTrunk && sharedD && !drawnSharedTargets.has(conn.to)) {
       drawnSharedTargets.add(conn.to);
 
-      const isSharedActive = siblingConns.some(c => !!simulatedWinners[c.from]);
+      const isSharedActive = siblingConns.some(c => {
+        const mFrom = knockoutMatches.find(m => m.match_id === c.from);
+        return !!(mFrom && getKnockoutMatchWinner(mFrom));
+      });
       const sharedLineClass = isSharedActive ? 'bracket-line-active' : 'bracket-line-inactive';
       pathsHtml += `<path d="${sharedD}" class="${sharedLineClass}"></path>`;
     }
@@ -5069,7 +5102,9 @@ async function fetchScoresDirectFromEspn() {
       away_team_name_en: awayName,
       display_clock: ev.status.displayClock || "",
       period: ev.status.period || 0,
-      period_desc: (ev.status.type && ev.status.type.description) || ""
+      period_desc: (ev.status.type && ev.status.type.description) || "",
+      winner_home: home.winner || false,
+      winner_away: away.winner || false
     };
   }).filter(Boolean);
 
@@ -5440,6 +5475,8 @@ async function fetchRealTimeScores(isManual = false) {
             display_clock: apiMatch.display_clock || null,
             period: apiMatch.period || null,
             period_desc: apiMatch.period_desc || null,
+            winner_home: apiMatch.winner_home || false,
+            winner_away: apiMatch.winner_away || false,
             score1_updated_at: score1_updated_at,
             score2_updated_at: score2_updated_at,
             clock_updated_at: clock_updated_at,
