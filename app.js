@@ -3676,18 +3676,17 @@ function renderBracket() {
 
     cardsHtml += `
       <div class="compact-match-card ${cardStateClass} ${roundClass}" 
-           style="left: ${coords.x}px; top: ${coords.y}px;"
+           style="left: ${coords.x}px; top: ${coords.y}px; cursor: pointer;"
            onmouseenter="window.showBracketTooltip(event, ${m.match_id})"
            onmouseleave="window.hideBracketTooltip()"
-           onmousemove="window.moveBracketTooltip(event)">
+           onmousemove="window.moveBracketTooltip(event)"
+           onclick="window.openMatchDetailModal('ko_${m.match_id}')">
         <!-- Team 1 -->
-        <div class="compact-team-row ${isPlaceholder1 ? 'placeholder' : ''} ${team1WinnerClass}"
-             onclick="window.handleBracketTap(${m.match_id}, '${m.team1 ? m.team1.replace(/'/g, "\\'") : ''}', ${!isPlaceholder1 && !isPlaceholder2})">
+        <div class="compact-team-row ${isPlaceholder1 ? 'placeholder' : ''} ${team1WinnerClass}">
           ${formattedFlag1}
         </div>
         <!-- Team 2 -->
-        <div class="compact-team-row ${isPlaceholder2 ? 'placeholder' : ''} ${team2WinnerClass}"
-             onclick="window.handleBracketTap(${m.match_id}, '${m.team2 ? m.team2.replace(/'/g, "\\'") : ''}', ${!isPlaceholder1 && !isPlaceholder2})">
+        <div class="compact-team-row ${isPlaceholder2 ? 'placeholder' : ''} ${team2WinnerClass}">
           ${formattedFlag2}
         </div>
       </div>
@@ -4062,36 +4061,7 @@ window.select3rdPlaceGroup = function(matchId, groupName) {
   renderFavorites();
 };
 
-// Handles selection of winner in the bracket card or displays potential slot contenders
-window.handleBracketTap = function(matchId, teamName, isSelectable) {
-  if (window.isBracketDragging) {
-    return;
-  }
-  if (!isSelectable) {
-    if (teamName && !isRealTeamName(teamName)) {
-      window.openSlotModal(teamName, matchId);
-    }
-    return;
-  }
 
-  if (teamName && !isRealTeamName(teamName)) {
-    window.openSlotModal(teamName, matchId);
-    return;
-  }
-
-  // Toggle winner
-  if (simulatedWinners[matchId] === teamName) {
-    // Already winner -> untap/reset winner
-    delete simulatedWinners[matchId];
-  } else {
-    simulatedWinners[matchId] = teamName;
-  }
-
-  isDataDirty = true;
-  recalculateKnockoutTree();
-  renderBracket();
-  renderFavorites(); // In case favorited cards are affected
-};
 
 window.openSlotModal = function(teamName, matchId) {
   const title = document.getElementById('slot-modal-title');
