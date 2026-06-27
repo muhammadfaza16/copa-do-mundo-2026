@@ -3498,7 +3498,7 @@ const COMPACT_COORDINATES = {};
 for (const [id, coords] of Object.entries(BASE_COMPACT_COORDINATES)) {
   COMPACT_COORDINATES[id] = {
     x: Math.round(coords.x * 0.58),
-    y: Math.round(coords.y * 0.72)
+    y: coords.y
   };
 }
 
@@ -3919,7 +3919,7 @@ function applyScale() {
   container.style.transform = `scale(${currentScale})`;
   container.style.transformOrigin = 'top left';
 
-  const baseHeight = 550;
+  const baseHeight = 760;
   const scaledHeight = baseHeight * currentScale;
 
   const totalScaffoldingHeight = scaledHeight + 16 * currentScale;
@@ -3929,7 +3929,7 @@ function applyScale() {
     scaffolding.style.height = `${totalScaffoldingHeight}px`;
   }
 
-  const maxWrapperHeight = 550;
+  const maxWrapperHeight = 760;
   const targetWrapperHeight = Math.min(maxWrapperHeight, totalScaffoldingHeight);
   wrapper.style.height = `${targetWrapperHeight}px`;
 
