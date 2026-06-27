@@ -4034,6 +4034,94 @@ window.setScheduleRound = function(roundKey, btnEl) {
   renderBracketSchedule();
 };
 
+function createBracketMatchCardHtml(match, index, isKnockout = true) {
+  const matchKey = `ko_${match.match_id}`;
+  const timeInfo = getFormattedTime(match.date, match.time);
+  const starredClass = isStarred(matchKey) ? 'active' : '';
+  const scoreData = getMatchScore(matchKey);
+  const labelVenue = getMatchVenue(match);
+  const isLive = isMatchLive(match, scoreData);
+  
+  const starBtnHtml = `<button class="star-btn star-btn-inline ${starredClass}" onclick="event.stopPropagation(); toggleMatchStar('${matchKey}', this)" aria-label="Simpan Pertandingan" style="width: 14px; height: 14px;"><svg viewBox="0 0 24 24" style="width: 10px; height: 10px;"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg></button>`;
+
+  const headerHtml = `
+    <div class="match-header" style="display: flex; align-items: center; justify-content: space-between; padding-bottom: 4px; border-bottom: 1px solid var(--glass-border); margin-bottom: 6px;">
+      <span class="match-date-label" style="font-size: 0.58rem; font-weight: 600; color: var(--text-secondary); opacity: 0.85;">LAGA ${match.match_id}</span>
+      <span class="match-date-label" style="font-size: 0.58rem; color: var(--text-secondary); opacity: 0.85;">${timeInfo.date} · ${timeInfo.time} ${timeInfo.tzLabel}</span>
+    </div>
+  `;
+
+  if (scoreData) {
+    const cleanScorers1 = parseScorers(scoreData.home_scorers);
+    const cleanScorers2 = parseScorers(scoreData.away_scorers);
+    
+    let scoreStatusHtml = '';
+    let liveParts = null;
+    if (isLive) {
+      liveParts = getMatchLiveStatusParts(scoreData);
+      const clockInfo = getLiveClockInfo(matchKey);
+      const clockLabel = clockInfo.clock;
+      const pulseClass = clockInfo.isPulsing ? 'pulse-minute' : '';
+      const displayClock = clockLabel === 'LIVE' ? '' : clockLabel;
+      scoreStatusHtml = `<div class="score-status status-live ${pulseClass}" style="font-size: 0.52rem; padding: 1px 3px;">${displayClock}</div>`;
+    }
+
+    return `
+      <div class="match-card" data-key="${matchKey}" title="${labelVenue}" onclick="window.openMatchDetailModal('${matchKey}')" style="cursor: pointer; padding: 8px 10px; margin-bottom: 6px; border-radius: var(--border-radius-md);">
+        ${headerHtml}
+        <div class="match-body" style="padding-top: 2px; padding-bottom: 2px;">
+          <div class="team-display left" style="gap: 6px;">
+            <span class="team-name" style="font-size: 0.72rem;">${match.team1}</span>
+            ${getFlagHtml(match.team1).replace('class="flag-crest"', 'style="width: 15px; height: 11px; border-radius: 1px; object-fit: cover;"')}
+          </div>
+          <div class="match-time-box score-box" style="min-width: 50px;">
+            ${isLive && liveParts && liveParts.clock && liveParts.clock !== 'LIVE' ? `<div class="match-period-label" style="font-size: 0.5rem; margin-bottom: 1px;">${liveParts.periodName}</div>` : ''}
+            <div class="score-display" style="white-space: nowrap; font-size: 0.8rem;">
+              <span>${scoreData.score1}</span>
+              <span> - </span>
+              <span>${scoreData.score2}</span>
+            </div>
+            ${scoreStatusHtml}
+          </div>
+          <div class="team-display right" style="gap: 6px;">
+            ${getFlagHtml(match.team2).replace('class="flag-crest"', 'style="width: 15px; height: 11px; border-radius: 1px; object-fit: cover;"')}
+            <span class="team-name" style="font-size: 0.72rem;">${match.team2}</span>
+          </div>
+          <div class="match-venue-subtle" style="font-size: 0.55rem; margin-top: 4px; opacity: 0.75;">${getVenueStadium(labelVenue)}</div>
+        </div>
+        ${(cleanScorers1 || cleanScorers2) ? `
+          <div class="match-scorers-row" style="margin-top: 4px; padding-top: 4px; font-size: 0.52rem; border-top: 1px dashed var(--glass-border);">
+            <div class="scorers-left">${cleanScorers1 || ''}</div>
+            <div class="scorers-icon" style="font-size: 0.55rem;">⚽</div>
+            <div class="scorers-right">${cleanScorers2 || ''}</div>
+          </div>
+        ` : ''}
+      </div>
+    `;
+  } else {
+    return `
+      <div class="match-card match-fixture-card" data-key="${matchKey}" title="${labelVenue}" onclick="window.openMatchDetailModal('${matchKey}')" style="cursor: pointer; padding: 8px 10px; margin-bottom: 6px; border-radius: var(--border-radius-md);">
+        ${headerHtml}
+        <div class="match-body" style="padding-top: 2px; padding-bottom: 2px;">
+          <div class="team-display left" style="gap: 6px;">
+            <span class="team-name" style="font-size: 0.72rem;">${match.team1}</span>
+            ${getFlagHtml(match.team1).replace('class="flag-crest"', 'style="width: 15px; height: 11px; border-radius: 1px; object-fit: cover;"')}
+          </div>
+          <div class="match-time-box time-box" style="min-width: 50px;">
+            <div style="font-size: 0.75rem; font-weight: 700;">${timeInfo.time}</div>
+            <div class="time-tz-label" style="font-size: 0.5rem; opacity: 0.7;">${timeInfo.tzLabel}</div>
+          </div>
+          <div class="team-display right" style="gap: 6px;">
+            ${getFlagHtml(match.team2).replace('class="flag-crest"', 'style="width: 15px; height: 11px; border-radius: 1px; object-fit: cover;"')}
+            <span class="team-name" style="font-size: 0.72rem;">${match.team2}</span>
+          </div>
+          <div class="match-venue-subtle match-venue-with-star" style="font-size: 0.55rem; margin-top: 4px; opacity: 0.75; display: flex; align-items: center; justify-content: space-between; width: 100%;"><span class="venue-name-text">${getVenueStadium(labelVenue)}</span>${starBtnHtml}</div>
+        </div>
+      </div>
+    `;
+  }
+}
+
 function renderBracketSchedule() {
   const container = document.getElementById('bracket-schedule-list');
   if (!container) return;
@@ -4082,7 +4170,7 @@ function renderBracketSchedule() {
   
   let html = '';
   filtered.forEach(m => {
-    html += createMatchCardHtml(m, m.match_id, true);
+    html += createBracketMatchCardHtml(m, m.match_id, true);
   });
   
   container.innerHTML = html;
