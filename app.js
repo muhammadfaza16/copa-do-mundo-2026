@@ -3458,18 +3458,18 @@ const BASE_COMPACT_COORDINATES = {
   97: { x: 290, y: 280 }, // Stack QF Upper
 
   // Top Wing (Top and Bottom Horizontal R32 Matches, and Stack Bottom R16 & QF)
-  74: { x: 200, y: 80 },  // Top horizontal left (GER)
-  77: { x: 380, y: 80 },  // Top horizontal right (FRA)
-  81: { x: 200, y: 640 }, // Bottom horizontal left (USA)
-  82: { x: 380, y: 640 }, // Bottom horizontal right (BEL)
+  74: { x: 200, y: 130 },  // Top horizontal left (GER)
+  77: { x: 380, y: 130 },  // Top horizontal right (FRA)
+  81: { x: 200, y: 590 }, // Bottom horizontal left (USA)
+  82: { x: 380, y: 590 }, // Bottom horizontal right (BEL)
   
   93: { x: 150, y: 440 }, // Column 2 Lower R16
   94: { x: 290, y: 520 }, // Stack Bottom R16
   98: { x: 290, y: 440 }, // Stack QF Lower
 
   // Right Wing (Outer Right R32, Column 6 Upper R16, Stack Top Right R16 & QF)
-  76: { x: 496, y: 80 },  // Top-right horizontal left (BRA)
-  78: { x: 676, y: 80 },  // Top-right horizontal right (ECU)
+  76: { x: 496, y: 130 },  // Top-right horizontal left (BRA)
+  78: { x: 676, y: 130 },  // Top-right horizontal right (ECU)
   79: { x: 846, y: 230 }, // Column 7 upper top
   80: { x: 846, y: 330 }, // Column 7 upper bottom
   
@@ -3480,8 +3480,8 @@ const BASE_COMPACT_COORDINATES = {
   // Bottom Wing (Column 7 lower R32, Bottom-right horizontal R32)
   88: { x: 846, y: 390 }, // Column 7 lower top (Australia vs Egypt)
   86: { x: 846, y: 490 }, // Column 7 lower bottom (Argentina vs Cape Verde)
-  87: { x: 496, y: 640 }, // Bottom-right horizontal left (Juara Grup K vs 3rd)
-  85: { x: 676, y: 640 }, // Bottom-right horizontal right (Swiss vs 3rd)
+  87: { x: 496, y: 590 }, // Bottom-right horizontal left (Juara Grup K vs 3rd)
+  85: { x: 676, y: 590 }, // Bottom-right horizontal right (Swiss vs 3rd)
   
   95: { x: 726, y: 440 }, // Column 6 Lower R16
   96: { x: 586, y: 520 }, // Stack Bottom R16 Right
@@ -4043,7 +4043,7 @@ function applyScale() {
   container.style.transform = `scale(${currentScale})`;
   container.style.transformOrigin = 'top left';
 
-  const baseHeight = 760;
+  const baseHeight = 660;
   const scaledHeight = baseHeight * currentScale;
 
   const totalScaffoldingHeight = scaledHeight + 16 * currentScale;
@@ -4053,7 +4053,7 @@ function applyScale() {
     scaffolding.style.height = `${totalScaffoldingHeight}px`;
   }
 
-  const maxWrapperHeight = 760;
+  const maxWrapperHeight = 660;
   const targetWrapperHeight = Math.min(maxWrapperHeight, totalScaffoldingHeight);
   wrapper.style.height = `${targetWrapperHeight}px`;
 
