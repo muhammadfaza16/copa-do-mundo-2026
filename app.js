@@ -3670,9 +3670,13 @@ window.showBracketTooltip = function(event, matchId, isClick = false) {
   if (isClick) {
     activeTooltipMatchId = matchId;
     
+    // Clear any active popouts first
+    document.querySelectorAll('.compact-match-card.active-popout').forEach(el => el.classList.remove('active-popout'));
+    
     // Position anchored to the card element's physical rect relative to viewport
     const cardEl = (event && event.target) ? event.target.closest('.compact-match-card') : null;
     if (cardEl) {
+      cardEl.classList.add('active-popout');
       const cardRect = cardEl.getBoundingClientRect();
       const tooltipWidth = tooltip.offsetWidth || 180;
       const tooltipHeight = tooltip.offsetHeight || 120;
@@ -3708,8 +3712,9 @@ window.hideBracketTooltip = function(force = false) {
   if (tooltip) {
     tooltip.style.display = 'none';
   }
-  if (force) {
+  if (force || activeTooltipMatchId === null) {
     activeTooltipMatchId = null;
+    document.querySelectorAll('.compact-match-card.active-popout').forEach(el => el.classList.remove('active-popout'));
   }
 };
 
@@ -3805,7 +3810,7 @@ function renderBracket() {
       : `<div class="flag-crest-placeholder">${code2}</div>`;
 
     cardsHtml += `
-      <div class="compact-match-card ${cardStateClass} ${roundClass}" 
+      <div class="compact-match-card ${cardStateClass} ${roundClass}" data-match-id="${m.match_id}"
            style="left: ${coords.x}px; top: ${coords.y}px; cursor: pointer;"
            onmouseenter="window.showBracketTooltip(event, ${m.match_id})"
            onmouseleave="window.hideBracketTooltip()"
@@ -4045,11 +4050,13 @@ function createBracketMatchCardHtml(match, index, isKnockout = true) {
   const starBtnHtml = `<button class="star-btn star-btn-inline ${starredClass}" onclick="event.stopPropagation(); toggleMatchStar('${matchKey}', this)" aria-label="Simpan Pertandingan" style="width: 14px; height: 14px;"><svg viewBox="0 0 24 24" style="width: 10px; height: 10px;"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg></button>`;
 
   const headerHtml = `
-    <div class="match-header" style="display: flex; align-items: center; justify-content: space-between; padding-bottom: 4px; border-bottom: 1px solid var(--glass-border); margin-bottom: 6px;">
+    <div class="match-header" style="display: flex; align-items: center; justify-content: space-between; padding-bottom: 3px; border-bottom: 1px solid var(--glass-border); margin-bottom: 5px;">
       <span class="match-date-label" style="font-size: 0.58rem; font-weight: 600; color: var(--text-secondary); opacity: 0.85;">LAGA ${match.match_id}</span>
-      <span class="match-date-label" style="font-size: 0.58rem; color: var(--text-secondary); opacity: 0.85;">${timeInfo.date} · ${timeInfo.time} ${timeInfo.tzLabel}</span>
+      <span class="match-date-label" style="font-size: 0.58rem; color: var(--text-secondary); opacity: 0.85;">${timeInfo.date}</span>
     </div>
   `;
+
+  const customFlagReplace = 'class="flag-crest" style="width: 14px; height: 14px; min-width: 14px; min-height: 14px; border-radius: 50%; box-shadow: none; border-width: 1px;"';
 
   if (scoreData) {
     const cleanScorers1 = parseScorers(scoreData.home_scorers);
@@ -4063,36 +4070,36 @@ function createBracketMatchCardHtml(match, index, isKnockout = true) {
       const clockLabel = clockInfo.clock;
       const pulseClass = clockInfo.isPulsing ? 'pulse-minute' : '';
       const displayClock = clockLabel === 'LIVE' ? '' : clockLabel;
-      scoreStatusHtml = `<div class="score-status status-live ${pulseClass}" style="font-size: 0.52rem; padding: 1px 3px;">${displayClock}</div>`;
+      scoreStatusHtml = `<div class="score-status status-live ${pulseClass}" style="font-size: 0.5rem; padding: 1px 3px;">${displayClock}</div>`;
     }
 
     return `
-      <div class="match-card" data-key="${matchKey}" title="${labelVenue}" onclick="window.openMatchDetailModal('${matchKey}')" style="cursor: pointer; padding: 8px 10px; margin-bottom: 6px; border-radius: var(--border-radius-md);">
+      <div class="match-card" data-key="${matchKey}" title="${labelVenue}" onclick="window.openMatchDetailModal('${matchKey}')" style="cursor: pointer; padding: 5px 8px; margin-bottom: 5px; border-radius: var(--border-radius-md);">
         ${headerHtml}
-        <div class="match-body" style="padding-top: 2px; padding-bottom: 2px;">
-          <div class="team-display left" style="gap: 6px;">
-            <span class="team-name" style="font-size: 0.72rem;">${match.team1}</span>
-            ${getFlagHtml(match.team1).replace('class="flag-crest"', 'style="width: 15px; height: 11px; border-radius: 1px; object-fit: cover;"')}
+        <div class="match-body" style="padding-top: 1px; padding-bottom: 1px;">
+          <div class="team-display left" style="gap: 5px;">
+            <span class="team-name" style="font-size: 0.7rem;">${match.team1}</span>
+            ${getFlagHtml(match.team1).replace('class="flag-crest"', customFlagReplace)}
           </div>
-          <div class="match-time-box score-box" style="min-width: 50px;">
-            ${isLive && liveParts && liveParts.clock && liveParts.clock !== 'LIVE' ? `<div class="match-period-label" style="font-size: 0.5rem; margin-bottom: 1px;">${liveParts.periodName}</div>` : ''}
-            <div class="score-display" style="white-space: nowrap; font-size: 0.8rem;">
+          <div class="match-time-box score-box" style="min-width: 48px;">
+            ${isLive && liveParts && liveParts.clock && liveParts.clock !== 'LIVE' ? `<div class="match-period-label" style="font-size: 0.48rem; margin-bottom: 0px;">${liveParts.periodName}</div>` : ''}
+            <div class="score-display" style="white-space: nowrap; font-size: 0.76rem;">
               <span>${scoreData.score1}</span>
               <span> - </span>
               <span>${scoreData.score2}</span>
             </div>
             ${scoreStatusHtml}
           </div>
-          <div class="team-display right" style="gap: 6px;">
-            ${getFlagHtml(match.team2).replace('class="flag-crest"', 'style="width: 15px; height: 11px; border-radius: 1px; object-fit: cover;"')}
-            <span class="team-name" style="font-size: 0.72rem;">${match.team2}</span>
+          <div class="team-display right" style="gap: 5px;">
+            ${getFlagHtml(match.team2).replace('class="flag-crest"', customFlagReplace)}
+            <span class="team-name" style="font-size: 0.7rem;">${match.team2}</span>
           </div>
-          <div class="match-venue-subtle" style="font-size: 0.55rem; margin-top: 4px; opacity: 0.75;">${getVenueStadium(labelVenue)}</div>
+          <div class="match-venue-subtle" style="font-size: 0.52rem; margin-top: 3px; opacity: 0.75;">${getVenueStadium(labelVenue)}</div>
         </div>
         ${(cleanScorers1 || cleanScorers2) ? `
-          <div class="match-scorers-row" style="margin-top: 4px; padding-top: 4px; font-size: 0.52rem; border-top: 1px dashed var(--glass-border);">
+          <div class="match-scorers-row" style="margin-top: 3px; padding-top: 3px; font-size: 0.5rem; border-top: 1px dashed var(--glass-border);">
             <div class="scorers-left">${cleanScorers1 || ''}</div>
-            <div class="scorers-icon" style="font-size: 0.55rem;">⚽</div>
+            <div class="scorers-icon" style="font-size: 0.52rem;">⚽</div>
             <div class="scorers-right">${cleanScorers2 || ''}</div>
           </div>
         ` : ''}
@@ -4100,22 +4107,22 @@ function createBracketMatchCardHtml(match, index, isKnockout = true) {
     `;
   } else {
     return `
-      <div class="match-card match-fixture-card" data-key="${matchKey}" title="${labelVenue}" onclick="window.openMatchDetailModal('${matchKey}')" style="cursor: pointer; padding: 8px 10px; margin-bottom: 6px; border-radius: var(--border-radius-md);">
+      <div class="match-card match-fixture-card" data-key="${matchKey}" title="${labelVenue}" onclick="window.openMatchDetailModal('${matchKey}')" style="cursor: pointer; padding: 5px 8px; margin-bottom: 5px; border-radius: var(--border-radius-md);">
         ${headerHtml}
-        <div class="match-body" style="padding-top: 2px; padding-bottom: 2px;">
-          <div class="team-display left" style="gap: 6px;">
-            <span class="team-name" style="font-size: 0.72rem;">${match.team1}</span>
-            ${getFlagHtml(match.team1).replace('class="flag-crest"', 'style="width: 15px; height: 11px; border-radius: 1px; object-fit: cover;"')}
+        <div class="match-body" style="padding-top: 1px; padding-bottom: 1px;">
+          <div class="team-display left" style="gap: 5px;">
+            <span class="team-name" style="font-size: 0.7rem;">${match.team1}</span>
+            ${getFlagHtml(match.team1).replace('class="flag-crest"', customFlagReplace)}
           </div>
-          <div class="match-time-box time-box" style="min-width: 50px;">
-            <div style="font-size: 0.75rem; font-weight: 700;">${timeInfo.time}</div>
-            <div class="time-tz-label" style="font-size: 0.5rem; opacity: 0.7;">${timeInfo.tzLabel}</div>
+          <div class="match-time-box time-box" style="min-width: 48px;">
+            <div style="font-size: 0.72rem; font-weight: 700;">${timeInfo.time}</div>
+            <div class="time-tz-label" style="font-size: 0.48rem; opacity: 0.7;">${timeInfo.tzLabel}</div>
           </div>
-          <div class="team-display right" style="gap: 6px;">
-            ${getFlagHtml(match.team2).replace('class="flag-crest"', 'style="width: 15px; height: 11px; border-radius: 1px; object-fit: cover;"')}
-            <span class="team-name" style="font-size: 0.72rem;">${match.team2}</span>
+          <div class="team-display right" style="gap: 5px;">
+            ${getFlagHtml(match.team2).replace('class="flag-crest"', customFlagReplace)}
+            <span class="team-name" style="font-size: 0.7rem;">${match.team2}</span>
           </div>
-          <div class="match-venue-subtle match-venue-with-star" style="font-size: 0.55rem; margin-top: 4px; opacity: 0.75; display: flex; align-items: center; justify-content: space-between; width: 100%;"><span class="venue-name-text">${getVenueStadium(labelVenue)}</span>${starBtnHtml}</div>
+          <div class="match-venue-subtle match-venue-with-star" style="font-size: 0.52rem; margin-top: 3px; opacity: 0.75; display: flex; align-items: center; justify-content: space-between; width: 100%;"><span class="venue-name-text">${getVenueStadium(labelVenue)}</span>${starBtnHtml}</div>
         </div>
       </div>
     `;
