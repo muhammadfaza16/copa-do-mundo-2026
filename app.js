@@ -3659,35 +3659,32 @@ window.showBracketTooltip = function(event, matchId, isClick = false) {
 
   tooltip.innerHTML = getMatchTooltipHtml(match);
   tooltip.style.display = 'block';
+  tooltip.style.position = 'fixed';
 
   if (isClick) {
     activeTooltipMatchId = matchId;
     
-    // Position anchored to the card element's physical rect
+    // Position anchored to the card element's physical rect relative to viewport
     const cardEl = (event && event.target) ? event.target.closest('.compact-match-card') : null;
-    const wrapper = document.querySelector('.compact-bracket-wrapper');
-    if (cardEl && wrapper) {
+    if (cardEl) {
       const cardRect = cardEl.getBoundingClientRect();
-      const wrapperRect = wrapper.getBoundingClientRect();
-      
-      const leftRelativeToWrapper = cardRect.left - wrapperRect.left + wrapper.scrollLeft;
-      const topRelativeToWrapper = cardRect.top - wrapperRect.top + wrapper.scrollTop;
-      
       const tooltipWidth = tooltip.offsetWidth || 180;
       const tooltipHeight = tooltip.offsetHeight || 120;
       
       // Center horizontally on the card
-      let x = leftRelativeToWrapper + (cardRect.width / 2) - (tooltipWidth / 2);
-      // Clamp horizontally within the wrapper boundaries
-      x = Math.max(8, Math.min(x, wrapperRect.width + wrapper.scrollLeft - tooltipWidth - 8));
+      let x = cardRect.left + (cardRect.width / 2) - (tooltipWidth / 2);
+      // Clamp horizontally within viewport
+      x = Math.max(8, Math.min(x, window.innerWidth - tooltipWidth - 8));
       
-      // Position vertically (above if card is low, below if card is high)
+      // Position vertically (above if card is in the lower half of viewport, below otherwise)
       let y;
-      if (topRelativeToWrapper > 320) {
-        y = topRelativeToWrapper - tooltipHeight - 10;
+      if (cardRect.top > window.innerHeight / 2) {
+        y = cardRect.top - tooltipHeight - 10;
       } else {
-        y = topRelativeToWrapper + cardRect.height + 10;
+        y = cardRect.bottom + 10;
       }
+      // Clamp vertically within viewport
+      y = Math.max(8, Math.min(y, window.innerHeight - tooltipHeight - 8));
       
       tooltip.style.left = `${x}px`;
       tooltip.style.top = `${y}px`;
@@ -3720,21 +3717,18 @@ window.moveBracketTooltip = function(event) {
   const offsetMouseY = 14;
   
   const tooltipRect = tooltip.getBoundingClientRect();
-  const wrapper = document.querySelector('.compact-bracket-wrapper');
-  if (!wrapper) return;
-  const wrapperRect = wrapper.getBoundingClientRect();
+  const tooltipWidth = tooltipRect.width || 180;
+  const tooltipHeight = tooltipRect.height || 120;
   
-  let x = event.clientX - wrapperRect.left + wrapper.scrollLeft + offsetMouseX;
-  let y = event.clientY - wrapperRect.top + wrapper.scrollTop + offsetMouseY;
+  let x = event.clientX + offsetMouseX;
+  let y = event.clientY + offsetMouseY;
   
-  if (x + tooltipRect.width > wrapperRect.width) {
-    x = event.clientX - wrapperRect.left - tooltipRect.width - offsetMouseX;
-  }
+  // Clamp horizontally within viewport
+  x = Math.max(8, Math.min(x, window.innerWidth - tooltipWidth - 8));
+  // Clamp vertically within viewport
+  y = Math.max(8, Math.min(y, window.innerHeight - tooltipHeight - 8));
   
-  if (y + tooltipRect.height > wrapperRect.height) {
-    y = event.clientY - wrapperRect.top - tooltipRect.height - offsetMouseY;
-  }
-  
+  tooltip.style.position = 'fixed';
   tooltip.style.left = `${x}px`;
   tooltip.style.top = `${y}px`;
 };
@@ -4138,6 +4132,11 @@ window.initBracketTouchGestures = initBracketTouchGestures;
 function initBracketDragScroll() {
   const wrapper = document.querySelector('.compact-bracket-wrapper');
   if (!wrapper) return;
+
+  // Auto-hide tooltip on scroll/zoom to prevent popover drift
+  wrapper.addEventListener('scroll', () => {
+    window.hideBracketTooltip(true);
+  }, { passive: true });
 
   let isDown = false;
   let startX, startY, scrollLeft, scrollTop;
