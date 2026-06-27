@@ -2649,12 +2649,35 @@ window.moveGroupTeam = function(groupName, index, direction) {
 function solveThirdsAssignment(matchesNeed3rd, qualifyingThirds) {
   const assignment = {};
   const used = new Set();
+
+  // Step 1: Pre-assign groups for matches that are already resolved in the real scores API
+  matchesNeed3rd.forEach(m => {
+    const isTeam1_3rd = m.team1_seed === '3rd';
+    const apiMatchData = realScores[`ko_${m.match_id}`];
+    if (apiMatchData) {
+      const apiTeamName = isTeam1_3rd ? apiMatchData.home_team_name_en : apiMatchData.away_team_name_en;
+      if (apiTeamName && isRealTeamName(apiTeamName)) {
+        const normalized = TEAM_TRANSLATIONS[apiTeamName] || apiTeamName;
+        // Find which group contains this team
+        for (const [groupName, teamList] of Object.entries(groupRankings)) {
+          if (teamList && teamList.includes(normalized)) {
+            assignment[m.match_id] = groupName;
+            used.add(groupName);
+            break;
+          }
+        }
+      }
+    }
+  });
+
+  // Filter out matches that have already been assigned from the API
+  const unassignedMatches = matchesNeed3rd.filter(m => !assignment[m.match_id]);
   
   function dfs(matchIdx) {
-    if (matchIdx === matchesNeed3rd.length) {
+    if (matchIdx === unassignedMatches.length) {
       return true;
     }
-    const m = matchesNeed3rd[matchIdx];
+    const m = unassignedMatches[matchIdx];
     const label = m.team1_seed === '3rd' ? m.team1 : m.team2;
     const eligible = getEligibleGroupsFor3rd(label);
     
@@ -2677,9 +2700,9 @@ function solveThirdsAssignment(matchesNeed3rd, qualifyingThirds) {
   }
   
   // Fallback greedy matching if DFS fails (should not happen for valid combinations)
-  const fallbackAssignment = {};
-  const fallbackUsed = new Set();
-  matchesNeed3rd.forEach(m => {
+  const fallbackAssignment = { ...assignment };
+  const fallbackUsed = new Set(used);
+  unassignedMatches.forEach(m => {
     const label = m.team1_seed === '3rd' ? m.team1 : m.team2;
     const eligible = getEligibleGroupsFor3rd(label);
     for (const group of eligible) {
