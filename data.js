@@ -204,8 +204,8 @@ window.WORLD_CUP_DATA = {
     { "match_id": 92, "group": "Round of 16", "date": "5/7", "time": "00:00", "team1": "Winner Match 79", "team2": "Winner Match 80", "team1_seed": "W79", "team2_seed": "W80", "venue": "NRG Stadium, Houston", "top10": false, "top20": true },
     { "match_id": 93, "group": "Round of 16", "date": "7/7", "time": "02:00", "team1": "Winner Match 83", "team2": "Winner Match 84", "team1_seed": "W83", "team2_seed": "W84", "venue": "AT&T Stadium, Arlington", "top10": false, "top20": true },
     { "match_id": 94, "group": "Round of 16", "date": "7/7", "time": "07:00", "team1": "Winner Match 81", "team2": "Winner Match 82", "team1_seed": "W81", "team2_seed": "W82", "venue": "Lumen Field, Seattle", "top10": false, "top20": true },
-    { "match_id": 95, "group": "Round of 16", "date": "7/7", "time": "23:00", "team1": "Winner Match 85", "team2": "Winner Match 86", "team1_seed": "W85", "team2_seed": "W86", "venue": "Mercedes-Benz Stadium, Atlanta", "top10": false, "top20": true },
-    { "match_id": 96, "group": "Round of 16", "date": "6/7", "time": "07:00", "team1": "Winner Match 87", "team2": "Winner Match 88", "team1_seed": "W87", "team2_seed": "W88", "venue": "Estadio Azteca, Mexico City", "top10": false, "top20": true },
+    { "match_id": 95, "group": "Round of 16", "date": "7/7", "time": "23:00", "team1": "Winner Match 86", "team2": "Winner Match 88", "team1_seed": "W86", "team2_seed": "W88", "venue": "Mercedes-Benz Stadium, Atlanta", "top10": false, "top20": true },
+    { "match_id": 96, "group": "Round of 16", "date": "6/7", "time": "07:00", "team1": "Winner Match 85", "team2": "Winner Match 87", "team1_seed": "W85", "team2_seed": "W87", "venue": "Estadio Azteca, Mexico City", "top10": false, "top20": true },
     { "match_id": 97, "group": "Quarter-final", "date": "10/7", "time": "03:00", "team1": "Winner Match 89", "team2": "Winner Match 90", "team1_seed": "W89", "team2_seed": "W90", "venue": "Gillette Stadium, Foxborough", "top10": true, "top20": true },
     { "match_id": 98, "group": "Quarter-final", "date": "11/7", "time": "02:00", "team1": "Winner Match 93", "team2": "Winner Match 94", "team1_seed": "W93", "team2_seed": "W94", "venue": "SoFi Stadium, Inglewood", "top10": true, "top20": true },
     { "match_id": 99, "group": "Quarter-final", "date": "12/7", "time": "04:00", "team1": "Winner Match 91", "team2": "Winner Match 92", "team1_seed": "W91", "team2_seed": "W92", "venue": "Hard Rock Stadium, Miami", "top10": true, "top20": true },
@@ -241,8 +241,8 @@ window.WORLD_CUP_DATA = {
       { "match": 92, "home": "Winner Match 79", "away": "Winner Match 80" },
       { "match": 93, "home": "Winner Match 83", "away": "Winner Match 84" },
       { "match": 94, "home": "Winner Match 81", "away": "Winner Match 82" },
-      { "match": 95, "home": "Winner Match 85", "away": "Winner Match 86" },
-      { "match": 96, "home": "Winner Match 87", "away": "Winner Match 88" }
+      { "match": 95, "home": "Winner Match 86", "away": "Winner Match 88" },
+      { "match": 96, "home": "Winner Match 85", "away": "Winner Match 87" }
     ],
     "quarter_finals": [
       { "match": 97, "home": "Winner Match 89", "away": "Winner Match 90" },

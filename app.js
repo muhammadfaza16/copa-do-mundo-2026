@@ -3620,16 +3620,16 @@ function renderBracketLines() {
     // Right Wing
     { from: 79, to: 92, type: 'horizontal-left' },
     { from: 80, to: 92, type: 'horizontal-left' },
-    { from: 85, to: 95, type: 'horizontal-left' },
     { from: 86, to: 95, type: 'horizontal-left' },
+    { from: 88, to: 95, type: 'vertical-up' },
     { from: 92, to: 99, type: 'horizontal-straight' },
     { from: 95, to: 100, type: 'horizontal-straight' },
 
     // Bottom Wing
     { from: 76, to: 91, type: 'vertical-down' },
     { from: 78, to: 91, type: 'vertical-down' },
+    { from: 85, to: 96, type: 'horizontal-left' },
     { from: 87, to: 96, type: 'vertical-up' },
-    { from: 88, to: 96, type: 'vertical-up' },
 
     // Stack vertical progression
     { from: 89, to: 97, type: 'vertical-straight' },
