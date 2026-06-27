@@ -383,9 +383,17 @@
         Bagan Fase Gugur
       </div>
 
+      <div class="compact-bracket-wrapper">
+        <div class="bracket-scroll-scaffolding" id="bracket-scroll-scaffolding">
+          <div class="compact-bracket-container" id="compact-bracket-container" style="width: 560px; height: 760px;">
+            <svg id="bracket-svg-connections" width="560" height="760" style="position: absolute; top: 0; left: 0; pointer-events: none; z-index: 1;"></svg>
+            <div id="bracket-cards-root" style="position: relative; width: 560px; height: 760px; z-index: 2;"></div>
+          </div>
+        </div>
+      </div>
 
       <!-- Controls Container -->
-      <div style="display: flex; gap: 24px; align-items: center; margin: 10px auto 16px 12px; flex-wrap: wrap;">
+      <div style="display: flex; justify-content: center; align-items: center; margin: 0 auto 8px auto;">
         <!-- Potential Draw Switch Toggle -->
         <div class="switch-container" id="bracket-potential-draw-switch" style="margin: 0; display: flex; align-items: center; gap: 8px;">
           <label class="sharp-switch">
@@ -393,15 +401,6 @@
             <span class="sharp-slider"></span>
           </label>
           <span style="font-size: 0.72rem; font-weight: 700; color: var(--text-primary);">Projected <span style="font-size: 0.65rem; font-weight: 500; color: var(--text-secondary); opacity: 0.85; margin-left: 2px;">(As It Stands)</span></span>
-        </div>
-      </div>
- 
-      <div class="compact-bracket-wrapper">
-        <div class="bracket-scroll-scaffolding" id="bracket-scroll-scaffolding">
-          <div class="compact-bracket-container" id="compact-bracket-container" style="width: 560px; height: 760px;">
-            <svg id="bracket-svg-connections" width="560" height="760" style="position: absolute; top: 0; left: 0; pointer-events: none; z-index: 1;"></svg>
-            <div id="bracket-cards-root" style="position: relative; width: 560px; height: 760px; z-index: 2;"></div>
-          </div>
         </div>
       </div>
 

@@ -1547,6 +1547,22 @@ function initCountdown() {
 // UI RENDERING ENGINES
 // ----------------------------------------------------
 
+function translateRoundName(groupName) {
+  if (!groupName) return '';
+  const translations = {
+    'Round of 32': '32 Besar',
+    'Round of 16': '16 Besar',
+    'Quarter-final': 'Perempat Final',
+    'Semi-final': 'Semifinal',
+    'Third-place match': 'Perebutan Tempat Ke-3',
+    'Final': 'Final'
+  };
+  if (translations[groupName]) {
+    return translations[groupName];
+  }
+  return groupName.replace(/^Group\s+/i, 'Grup ');
+}
+
 // Render Match Card
 function createMatchCardHtml(match, index, isKnockout = false, showBigMatchBadge = true, isBracketSchedule = false) {
   const matchKey = isKnockout ? `ko_${match.match_id}` : `gs_${match.date}_${match.team1}_${match.team2}`;
@@ -1561,7 +1577,7 @@ function createMatchCardHtml(match, index, isKnockout = false, showBigMatchBadge
 
   const stageHeaderHtml = `
     <div class="match-stage-container" style="display: flex; align-items: center; gap: 6px;">
-      <span class="match-stage">${match.group}</span>
+      <span class="match-stage">${translateRoundName(match.group)}</span>
     </div>
   `;
 
