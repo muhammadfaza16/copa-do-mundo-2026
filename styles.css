@@ -6131,6 +6131,20 @@ body.light-theme .compact-match-card.active-popout {
   border-color: var(--primary-gold) !important;
 }
 
+/* Overrides to persist gold/bronze background when final/third place slots are clicked */
+body .compact-match-card.round-final.active-popout {
+  background: linear-gradient(160deg, #6b4f08 0%, #c9922a 30%, #f0c84a 50%, #c9922a 70%, #6b4f08 100%) !important;
+}
+body.light-theme .compact-match-card.round-final.active-popout {
+  background: linear-gradient(160deg, #b8890a 0%, #e8b830 30%, #ffd740 50%, #e8b830 70%, #b8890a 100%) !important;
+}
+body .compact-match-card.round-third.active-popout {
+  background: linear-gradient(160deg, #4a2008 0%, #8b4513 30%, #cd7f32 50%, #8b4513 70%, #4a2008 100%) !important;
+}
+body.light-theme .compact-match-card.round-third.active-popout {
+  background: linear-gradient(160deg, #9a5a18 0%, #c87d38 30%, #e09c50 50%, #c87d38 70%, #9a5a18 100%) !important;
+}
+
 /* Bracket & Home (Pertandingan Lainnya & Jadwal Tersimpan) match cards row stacking */
 #bracket-schedule-list,
 #nearest-matches-list,
