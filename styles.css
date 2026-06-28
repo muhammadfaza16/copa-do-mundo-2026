@@ -6286,24 +6286,22 @@ body.light-theme .sharp-switch input:checked + .sharp-slider:before {
 }
 
 .bracket-hero-title-main {
-  font-size: clamp(2.6rem, 11vw, 4.2rem);
+  font-size: clamp(2.8rem, 12vw, 4.8rem);
   font-weight: 900;
   line-height: 1;
   margin: 0;
   text-transform: uppercase;
   letter-spacing: 4px;
-  background: linear-gradient(180deg, #ffffff 0%, var(--primary-gold) 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  filter: drop-shadow(0 4px 16px rgba(212, 175, 55, 0.35));
+  color: #d4af37;
+  -webkit-text-fill-color: #d4af37;
+  filter: drop-shadow(0 4px 20px #9a7a1a);
   font-family: 'Bebas Neue', var(--font-sans);
 }
 
 body.light-theme .bracket-hero-title-main {
-  background: linear-gradient(180deg, var(--text-primary) 0%, var(--primary-gold) 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  filter: drop-shadow(0 2px 6px rgba(0,0,0,0.06));
+  color: #9a7400;
+  -webkit-text-fill-color: #9a7400;
+  filter: drop-shadow(0 2px 8px #c9a80033);
 }
 
 .bracket-hero-divider {
