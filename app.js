@@ -3572,8 +3572,8 @@ const BASE_COMPACT_COORDINATES = {
 const COMPACT_COORDINATES = {};
 for (const [id, coords] of Object.entries(BASE_COMPACT_COORDINATES)) {
   COMPACT_COORDINATES[id] = {
-    x: Math.round(coords.x * 0.58),
-    y: coords.y
+    x: Math.round(coords.x * 0.72),
+    y: Math.round(coords.y * 1.1)
   };
 }
 
@@ -4222,22 +4222,22 @@ function applyScale() {
 
   currentScale = Math.max(0.25, Math.min(currentScale, 2.5));
 
-  // Topmost bracket cards start at y=80 in the 760px container — shift up partially to reduce gap
-  const topOffset = Math.round(40 * currentScale);
-  container.style.transform = `scale(${currentScale}) translateY(-${40}px)`;
+  // Topmost bracket cards start at y=88 in the 820px container — shift up partially to reduce gap
+  const topOffset = Math.round(44 * currentScale);
+  container.style.transform = `scale(${currentScale}) translateY(-${44}px)`;
   container.style.transformOrigin = 'top left';
 
-  const baseHeight = 760;
-  const scaledHeight = (baseHeight - 40) * currentScale; // subtract partial top dead space
+  const baseHeight = 820;
+  const scaledHeight = (baseHeight - 44) * currentScale; // subtract partial top dead space
 
   const totalScaffoldingHeight = scaledHeight + 16 * currentScale;
 
   if (scaffolding) {
-    scaffolding.style.width = `${560 * currentScale}px`;
+    scaffolding.style.width = `${680 * currentScale}px`;
     scaffolding.style.height = `${totalScaffoldingHeight}px`;
   }
 
-  const maxWrapperHeight = 760;
+  const maxWrapperHeight = 820;
   const targetWrapperHeight = Math.min(maxWrapperHeight, totalScaffoldingHeight);
   wrapper.style.height = `${targetWrapperHeight}px`;
 
@@ -4256,7 +4256,7 @@ function scaleCompactBracket() {
   if (wrapperWidth === 0) return;
 
   const targetWidth = Math.max(280, wrapperWidth - 16);
-  baseScale = targetWidth / 560;
+  baseScale = targetWidth / 680;
   currentScale = Math.min(1, baseScale);
 
   applyScale();

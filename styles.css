@@ -3417,8 +3417,8 @@ body.light-theme .mobile-team-name {
   position: absolute;
   top: 0;
   left: 0;
-  width: 560px;
-  height: 760px;
+  width: 680px;
+  height: 820px;
   transform-origin: top left;
   transition: transform 0.25s ease-out;
   flex-shrink: 0;
@@ -3426,8 +3426,8 @@ body.light-theme .mobile-team-name {
 
 .compact-match-card {
   position: absolute;
-  width: 58px;
-  height: 64px;
+  width: 68px;
+  height: 76px;
   display: flex;
   flex-direction: column;
   justify-content: space-evenly;
@@ -3436,7 +3436,7 @@ body.light-theme .mobile-team-name {
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
   border: 1.5px solid rgba(255, 255, 255, 0.08) !important;
-  border-radius: 24px;
+  border-radius: 28px;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.25);
   overflow: visible;
   transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
@@ -3470,8 +3470,8 @@ body.light-theme .mobile-team-name {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 32px;
-  height: 32px;
+  width: 38px;
+  height: 38px;
   padding: 0;
   border-radius: 50%;
   transition: transform 0.2s ease, opacity 0.2s ease;
@@ -3488,8 +3488,8 @@ body.light-theme .mobile-team-name {
 }
 
 .flag-crest-compact {
-  width: 32px;
-  height: 32px;
+  width: 38px;
+  height: 38px;
   border-radius: 50%;
   object-fit: cover;
   flex-shrink: 0;
@@ -3503,11 +3503,11 @@ body.light-theme .mobile-team-name {
   justify-content: center;
   background: rgba(255, 255, 255, 0.02);
   border: 1px dashed rgba(255, 255, 255, 0.15);
-  width: 32px;
-  height: 32px;
+  width: 38px;
+  height: 38px;
   border-radius: 50%;
   box-sizing: border-box;
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 600;
   color: rgba(255, 255, 255, 0.35);
   line-height: 1;
@@ -3521,14 +3521,14 @@ body.light-theme .mobile-team-name {
 /* Glowing gold path lines for predicted progress */
 .bracket-line-inactive {
   stroke: rgba(255, 255, 255, 0.15);
-  stroke-width: 1.5px;
+  stroke-width: 2px;
   fill: none;
   transition: stroke 0.3s ease;
 }
 
 .bracket-line-active {
   stroke: var(--primary-gold);
-  stroke-width: 2px;
+  stroke-width: 3px;
   fill: none;
   transition: stroke 0.3s ease;
   filter: drop-shadow(0 0 2px rgba(212, 175, 55, 0.5));
