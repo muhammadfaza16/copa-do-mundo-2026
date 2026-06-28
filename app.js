@@ -4013,53 +4013,96 @@ function renderBracketLines() {
     const siblingConns = connections.filter(c => c.to === conn.to && c.type === conn.type);
     const hasSharedTrunk = siblingConns.length > 1;
 
+    // Radius for the rounded corners (smooth/round vibe)
+    const r = 8;
+
     if (conn.type === 'vertical-down') {
       x_start = fromCoords.x + cardWidth / 2;
       y_start = fromCoords.y + cardHeight;
       x_end = toCoords.x + cardWidth / 2;
       y_end = toCoords.y;
+      
       const ym = (y_start + y_end) / 2;
-      if (hasSharedTrunk) {
-        d = `M ${x_start} ${y_start} V ${ym} H ${x_end}`;
-        sharedD = `M ${x_end} ${ym} V ${y_end}`;
+      const dx = Math.abs(x_end - x_start);
+      const dy = Math.abs(ym - y_start);
+      const actualR = Math.min(r, dx / 2, dy);
+
+      if (dx < 1) {
+        d = `M ${x_start} ${y_start} V ${y_end}`;
       } else {
-        d = `M ${x_start} ${y_start} V ${ym} H ${x_end} V ${y_end}`;
+        const dirX = x_end > x_start ? 1 : -1;
+        if (hasSharedTrunk) {
+          d = `M ${x_start} ${y_start} V ${ym - actualR} Q ${x_start} ${ym}, ${x_start + dirX * actualR} ${ym} H ${x_end}`;
+          sharedD = `M ${x_end} ${ym} V ${y_end}`;
+        } else {
+          d = `M ${x_start} ${y_start} V ${ym - actualR} Q ${x_start} ${ym}, ${x_start + dirX * actualR} ${ym} H ${x_end - dirX * actualR} Q ${x_end} ${ym}, ${x_end} ${ym + actualR} V ${y_end}`;
+        }
       }
     } else if (conn.type === 'vertical-up') {
       x_start = fromCoords.x + cardWidth / 2;
       y_start = fromCoords.y;
       x_end = toCoords.x + cardWidth / 2;
       y_end = toCoords.y + cardHeight;
+
       const ym = (y_start + y_end) / 2;
-      if (hasSharedTrunk) {
-        d = `M ${x_start} ${y_start} V ${ym} H ${x_end}`;
-        sharedD = `M ${x_end} ${ym} V ${y_end}`;
+      const dx = Math.abs(x_end - x_start);
+      const dy = Math.abs(ym - y_start);
+      const actualR = Math.min(r, dx / 2, dy);
+
+      if (dx < 1) {
+        d = `M ${x_start} ${y_start} V ${y_end}`;
       } else {
-        d = `M ${x_start} ${y_start} V ${ym} H ${x_end} V ${y_end}`;
+        const dirX = x_end > x_start ? 1 : -1;
+        if (hasSharedTrunk) {
+          d = `M ${x_start} ${y_start} V ${ym + actualR} Q ${x_start} ${ym}, ${x_start + dirX * actualR} ${ym} H ${x_end}`;
+          sharedD = `M ${x_end} ${ym} V ${y_end}`;
+        } else {
+          d = `M ${x_start} ${y_start} V ${ym + actualR} Q ${x_start} ${ym}, ${x_start + dirX * actualR} ${ym} H ${x_end - dirX * actualR} Q ${x_end} ${ym}, ${x_end} ${ym - actualR} V ${y_end}`;
+        }
       }
     } else if (conn.type === 'horizontal-right') {
       x_start = fromCoords.x + cardWidth;
       y_start = fromCoords.y + cardHeight / 2;
       x_end = toCoords.x;
       y_end = toCoords.y + cardHeight / 2;
+
       const xm = (x_start + x_end) / 2;
-      if (hasSharedTrunk) {
-        d = `M ${x_start} ${y_start} H ${xm} V ${y_end}`;
-        sharedD = `M ${xm} ${y_end} H ${x_end}`;
+      const dx = Math.abs(xm - x_start);
+      const dy = Math.abs(y_end - y_start);
+      const actualR = Math.min(r, dx, dy / 2);
+
+      if (dy < 1) {
+        d = `M ${x_start} ${y_start} H ${x_end}`;
       } else {
-        d = `M ${x_start} ${y_start} H ${xm} V ${y_end} H ${x_end}`;
+        const dirY = y_end > y_start ? 1 : -1;
+        if (hasSharedTrunk) {
+          d = `M ${x_start} ${y_start} H ${xm - actualR} Q ${xm} ${y_start}, ${xm} ${y_start + dirY * actualR} V ${y_end}`;
+          sharedD = `M ${xm} ${y_end} H ${x_end}`;
+        } else {
+          d = `M ${x_start} ${y_start} H ${xm - actualR} Q ${xm} ${y_start}, ${xm} ${y_start + dirY * actualR} V ${y_end - dirY * actualR} Q ${xm} ${y_end}, ${xm + actualR} ${y_end} H ${x_end}`;
+        }
       }
     } else if (conn.type === 'horizontal-left') {
       x_start = fromCoords.x;
       y_start = fromCoords.y + cardHeight / 2;
       x_end = toCoords.x + cardWidth;
       y_end = toCoords.y + cardHeight / 2;
+
       const xm = (x_start + x_end) / 2;
-      if (hasSharedTrunk) {
-        d = `M ${x_start} ${y_start} H ${xm} V ${y_end}`;
-        sharedD = `M ${xm} ${y_end} H ${x_end}`;
+      const dx = Math.abs(xm - x_start);
+      const dy = Math.abs(y_end - y_start);
+      const actualR = Math.min(r, dx, dy / 2);
+
+      if (dy < 1) {
+        d = `M ${x_start} ${y_start} H ${x_end}`;
       } else {
-        d = `M ${x_start} ${y_start} H ${xm} V ${y_end} H ${x_end}`;
+        const dirY = y_end > y_start ? 1 : -1;
+        if (hasSharedTrunk) {
+          d = `M ${x_start} ${y_start} H ${xm + actualR} Q ${xm} ${y_start}, ${xm} ${y_start + dirY * actualR} V ${y_end}`;
+          sharedD = `M ${xm} ${y_end} H ${x_end}`;
+        } else {
+          d = `M ${x_start} ${y_start} H ${xm + actualR} Q ${xm} ${y_start}, ${xm} ${y_start + dirY * actualR} V ${y_end - dirY * actualR} Q ${xm} ${y_end}, ${xm - actualR} ${y_end} H ${x_end}`;
+        }
       }
     } else if (conn.type === 'horizontal-straight') {
       if (fromCoords.x < toCoords.x) {
@@ -4099,15 +4142,24 @@ function renderBracketLines() {
         y_start = fromCoords.y + cardHeight / 2;
         x_end = toCoords.x;
         y_end = toCoords.y + cardHeight / 2;
-        const xm = (x_start + x_end) / 2;
-        d = `M ${x_start} ${y_start} H ${xm} V ${y_end} H ${x_end}`;
       } else {
         x_start = fromCoords.x;
         y_start = fromCoords.y + cardHeight / 2;
         x_end = toCoords.x + cardWidth;
         y_end = toCoords.y + cardHeight / 2;
-        const xm = (x_start + x_end) / 2;
-        d = `M ${x_start} ${y_start} H ${xm} V ${y_end} H ${x_end}`;
+      }
+      
+      const xm = (x_start + x_end) / 2;
+      const dx = Math.abs(xm - x_start);
+      const dy = Math.abs(y_end - y_start);
+      const actualR = Math.min(r, dx, dy / 2);
+      
+      if (dy < 1) {
+        d = `M ${x_start} ${y_start} H ${x_end}`;
+      } else {
+        const dirY = y_end > y_start ? 1 : -1;
+        const dirX = x_end > x_start ? 1 : -1;
+        d = `M ${x_start} ${y_start} H ${xm - dirX * actualR} Q ${xm} ${y_start}, ${xm} ${y_start + dirY * actualR} V ${y_end - dirY * actualR} Q ${xm} ${y_end}, ${xm + dirX * actualR} ${y_end} H ${x_end}`;
       }
     }
 
