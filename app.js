@@ -3903,6 +3903,20 @@ function renderBracket() {
     `;
   });
 
+  // Inject WC 2026 logo above the Final card (match 104)
+  const finalCoords = COMPACT_COORDINATES[104];
+  if (finalCoords) {
+    const isLight = document.body.classList.contains('light-theme');
+    const logoSrc = isLight ? 'wc2026_logo_light.svg' : 'wc2026_logo.svg';
+    const logoSize = 38;
+    const logoX = finalCoords.x + 24 - logoSize / 2; // center over card (card width=48, center=+24)
+    const logoY = finalCoords.y - logoSize - 4;       // 4px gap above the card
+    cardsHtml += `
+      <div class="bracket-wc-logo" style="position:absolute;left:${logoX}px;top:${logoY}px;width:${logoSize}px;height:${logoSize}px;pointer-events:none;z-index:3;">
+        <img src="${logoSrc}" width="${logoSize}" height="${logoSize}" alt="World Cup 2026" style="width:100%;height:100%;object-fit:contain;display:block;opacity:0.92;">
+      </div>`;
+  }
+
   container.innerHTML = cardsHtml;
   renderBracketLines();
   renderBracketSchedule();
