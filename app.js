@@ -1824,16 +1824,9 @@ function renderSchedule() {
     return;
   }
 
-  // Group by Date for cleaner schedule presentation
   let listHtml = '';
-  let lastDate = '';
 
   allFiltered.forEach(match => {
-    const dateInfo = getFormattedTime(match.date, match.time);
-    if (dateInfo.date !== lastDate) {
-      lastDate = dateInfo.date;
-      listHtml += `<div class="date-divider"><span>${lastDate}</span></div>`;
-    }
     listHtml += createMatchCardHtml(match, match.match_id || 0, match.isKO);
   });
 
