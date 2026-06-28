@@ -2363,19 +2363,32 @@ function renderStatistics() {
     .filter(([_, goals]) => goals > 0)
     .sort((a, b) => b[1] - a[1]);
 
-  const uniqueGoalCounts = [...new Set(sortedTeams.map(([_, goals]) => goals))].slice(0, 3);
-  const topTeams = sortedTeams.filter(([_, goals]) => uniqueGoalCounts.includes(goals));
+  // Group teams by their goals
+  const goalsGrouped = {};
+  sortedTeams.forEach(([team, goals]) => {
+    if (!goalsGrouped[goals]) goalsGrouped[goals] = [];
+    goalsGrouped[goals].push(team);
+  });
+
+  // Get the top 3 unique goal counts
+  const top3GoalCounts = Object.keys(goalsGrouped)
+    .map(Number)
+    .sort((a, b) => b - a)
+    .slice(0, 3);
 
   if (topTeamEl) {
-    if (topTeams.length > 0) {
+    if (top3GoalCounts.length > 0) {
       let html = '';
-      topTeams.forEach(([team, goals]) => {
-        const flagCircle = getFlagHtml(team).replace('class="flag-crest"', 'class="flag-crest" style="width: 14px; height: 14px; min-width: 14px; min-height: 14px; border-radius: 50%; box-shadow: none; border-width: 1px;"');
+      top3GoalCounts.forEach(goals => {
+        const teams = goalsGrouped[goals];
+        const flagsHtml = teams.map(team => {
+          return getFlagHtml(team).replace('class="flag-crest"', 'class="flag-crest" style="width: 14px; height: 14px; min-width: 14px; min-height: 14px; border-radius: 50%; box-shadow: none; border-width: 1px; margin: 0;"');
+        }).join('');
+
         html += `
           <div style="display: flex; align-items: center; justify-content: space-between; gap: 4px; width: 100%;">
-            <div style="display: flex; align-items: center; gap: 6px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: calc(100% - 40px);">
-              ${flagCircle}
-              <span style="font-size: 0.68rem; font-weight: 700; color: var(--text-primary);">${team}</span>
+            <div style="display: flex; align-items: center; gap: 4px; flex-wrap: wrap; max-width: calc(100% - 32px);">
+              ${flagsHtml}
             </div>
             <span style="font-size: 0.68rem; font-weight: 800; color: var(--primary-gold); flex-shrink: 0;">${goals} G</span>
           </div>

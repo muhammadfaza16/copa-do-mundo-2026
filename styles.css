@@ -4636,7 +4636,7 @@ body.light-theme .results-dot.active {
   border-radius: var(--border-radius-sm);
   padding: 10px 12px;
   text-align: left;
-  min-height: 88px;
+  min-height: 94px;
   box-sizing: border-box;
 }
 
