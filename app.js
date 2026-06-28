@@ -3912,7 +3912,7 @@ function renderBracket() {
   if (finalCoords && qfUpperLeft && qfLowerLeft && sfLeft && sfRight) {
     const isLight = document.body.classList.contains('light-theme');
     const logoSrc = isLight ? 'wc2026_logo_light.svg' : 'wc2026_logo.svg';
-    const CARD_W = 58, CARD_H = 64;
+    const CARD_W = 54, CARD_H = 62;
     // Boundaries of the clear center diamond
     const spaceLeft   = sfLeft.x  + CARD_W;          // right edge of SF left card
     const spaceRight  = sfRight.x;                    // left edge of SF right card
@@ -3943,8 +3943,8 @@ function renderBracketLines() {
   const svg = document.getElementById('bracket-svg-connections');
   if (!svg) return;
 
-  const cardWidth = 58;
-  const cardHeight = 64;
+  const cardWidth = 54;
+  const cardHeight = 62;
   let pathsHtml = '';
 
   const connections = [
@@ -4642,6 +4642,16 @@ function initNavigation() {
       item.classList.add('active');
       activeTab = item.getAttribute('data-tab');
       document.getElementById(activeTab).classList.add('active');
+
+      // Toggle wide-layout on main to let the bracket stretch out on desktop
+      const mainEl = document.querySelector('main');
+      if (mainEl) {
+        if (activeTab === 'tab-bracket') {
+          mainEl.classList.add('wide-layout');
+        } else {
+          mainEl.classList.remove('wide-layout');
+        }
+      }
 
       // Stop results slider autoplay and reset transition state when navigating away from Home tab
       if (activeTab !== 'tab-home') {
