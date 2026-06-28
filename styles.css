@@ -6216,7 +6216,7 @@ body.light-theme .sharp-switch input:checked + .sharp-slider:before {
 .bracket-hero-header {
   text-align: center;
   margin-top: 20px;
-  margin-bottom: 28px;
+  margin-bottom: 8px;
   padding: 0 16px;
 }
 
