@@ -3551,41 +3551,29 @@ body.light-theme .compact-match-card:hover {
   border-color: var(--primary-gold) !important;
 }
 
-/* ── Final slot: gold shimmer (dark + light) ── */
+/* ── Final slot: solid gold (dark + light) ── */
 body .compact-match-card.round-final {
-  border: 1.5px solid rgba(212, 175, 55, 0.6) !important;
-  background: linear-gradient(145deg,
-    rgba(212, 175, 55, 0.22) 0%,
-    rgba(255, 236, 153, 0.10) 40%,
-    rgba(212, 175, 55, 0.22) 100%) !important;
-  box-shadow: 0 0 16px rgba(212, 175, 55, 0.3), inset 0 0 12px rgba(255, 215, 0, 0.08) !important;
+  border: 2px solid #d4af37 !important;
+  background: linear-gradient(145deg, #3a2e0a 0%, #4a3b10 40%, #3a2e0a 100%) !important;
+  box-shadow: 0 0 18px #b8960c, inset 0 0 10px #5a470f !important;
   overflow: hidden !important;
 }
 body.light-theme .compact-match-card.round-final {
-  border: 1.5px solid rgba(180, 135, 20, 0.7) !important;
-  background: linear-gradient(145deg,
-    rgba(255, 220, 100, 0.28) 0%,
-    rgba(255, 245, 180, 0.14) 40%,
-    rgba(255, 220, 100, 0.28) 100%) !important;
-  box-shadow: 0 0 14px rgba(180, 135, 20, 0.25), inset 0 0 10px rgba(255, 200, 0, 0.08) !important;
+  border: 2px solid #b8960c !important;
+  background: linear-gradient(145deg, #f5e27a 0%, #fef3b4 40%, #f5e27a 100%) !important;
+  box-shadow: 0 0 14px #c9a800, inset 0 0 8px #e6d060 !important;
 }
 
-/* ── 3rd place slot: bronze (dark + light) ── */
+/* ── 3rd place slot: solid bronze (dark + light) ── */
 body .compact-match-card.round-third {
-  border: 1.5px solid rgba(176, 141, 87, 0.55) !important;
-  background: linear-gradient(145deg,
-    rgba(120, 90, 50, 0.22) 0%,
-    rgba(205, 170, 110, 0.09) 50%,
-    rgba(120, 90, 50, 0.22) 100%) !important;
-  box-shadow: 0 0 12px rgba(176, 141, 87, 0.22) !important;
+  border: 2px solid #a0724a !important;
+  background: linear-gradient(145deg, #2e1e0e 0%, #3d2810 50%, #2e1e0e 100%) !important;
+  box-shadow: 0 0 14px #7a4f28, inset 0 0 8px #4a3018 !important;
 }
 body.light-theme .compact-match-card.round-third {
-  border: 1.5px solid rgba(150, 110, 55, 0.6) !important;
-  background: linear-gradient(145deg,
-    rgba(210, 170, 100, 0.25) 0%,
-    rgba(235, 205, 150, 0.12) 50%,
-    rgba(210, 170, 100, 0.25) 100%) !important;
-  box-shadow: 0 0 10px rgba(150, 110, 55, 0.2) !important;
+  border: 2px solid #8b5e2e !important;
+  background: linear-gradient(145deg, #e8c88a 0%, #f5ddb0 50%, #e8c88a 100%) !important;
+  box-shadow: 0 0 10px #a07040, inset 0 0 6px #d4a870 !important;
 }
 
 body.light-theme .flag-crest-compact {
@@ -3631,30 +3619,21 @@ body.light-theme .bracket-line-inactive {
   box-shadow: 0 0 12px rgba(255, 145, 0, 0.45);
 }
 
+/* shimmer sweep on final slot */
 .compact-match-card.round-final {
-  border: 1.5px solid rgba(212, 175, 55, 0.5) !important;
-  background: linear-gradient(145deg,
-    rgba(212, 175, 55, 0.18) 0%,
-    rgba(255, 236, 153, 0.08) 40%,
-    rgba(212, 175, 55, 0.18) 100%) !important;
-  box-shadow: 0 0 14px rgba(212, 175, 55, 0.25), inset 0 0 10px rgba(255, 215, 0, 0.07) !important;
   position: relative;
   overflow: hidden !important;
 }
 .compact-match-card.round-final::after {
   content: '';
   position: absolute;
-  inset: 0;
-  border-radius: inherit;
-  background: linear-gradient(
-    105deg,
-    transparent 30%,
-    rgba(255, 236, 153, 0.22) 48%,
-    rgba(255, 255, 255, 0.12) 52%,
-    transparent 70%
-  );
-  background-size: 200% 100%;
-  animation: shimmer-gold 2.8s ease-in-out infinite;
+  top: -50%;
+  left: -75%;
+  width: 50%;
+  height: 200%;
+  background: linear-gradient(90deg, transparent, #fff8, transparent);
+  transform: skewX(-20deg);
+  animation: shimmer-swipe 2.8s ease-in-out infinite;
   pointer-events: none;
   z-index: 0;
 }
@@ -3662,25 +3641,17 @@ body.light-theme .bracket-line-inactive {
   position: relative;
   z-index: 1;
 }
-.compact-match-card.round-final.match-predicted {
-  box-shadow: 0 0 22px rgba(212, 175, 55, 0.55), inset 0 0 14px rgba(255, 215, 0, 0.1) !important;
+@keyframes shimmer-swipe {
+  0%   { left: -75%; }
+  60%  { left: 130%; }
+  100% { left: 130%; }
 }
-@keyframes shimmer-gold {
-  0%   { background-position: -100% 0; }
-  60%  { background-position: 200% 0; }
-  100% { background-position: 200% 0; }
+.compact-match-card.round-final.match-predicted {
+  box-shadow: 0 0 28px #d4af37 !important;
 }
 
-.compact-match-card.round-third {
-  border: 1.5px solid rgba(176, 141, 87, 0.45) !important;
-  background: linear-gradient(145deg,
-    rgba(120, 90, 50, 0.18) 0%,
-    rgba(205, 170, 110, 0.07) 50%,
-    rgba(120, 90, 50, 0.18) 100%) !important;
-  box-shadow: 0 0 10px rgba(176, 141, 87, 0.2) !important;
-}
 .compact-match-card.round-third.match-predicted {
-  box-shadow: 0 0 16px rgba(176, 141, 87, 0.45) !important;
+  box-shadow: 0 0 20px #a0724a !important;
 }
 
 
