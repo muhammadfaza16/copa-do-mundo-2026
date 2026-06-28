@@ -3426,8 +3426,8 @@ body.light-theme .mobile-team-name {
 
 .compact-match-card {
   position: absolute;
-  width: 48px;
-  height: 56px;
+  width: 58px;
+  height: 64px;
   display: flex;
   flex-direction: column;
   justify-content: space-evenly;
@@ -3436,7 +3436,7 @@ body.light-theme .mobile-team-name {
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
   border: 1.5px solid rgba(255, 255, 255, 0.08) !important;
-  border-radius: 20px;
+  border-radius: 24px;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.25);
   overflow: visible;
   transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
@@ -3470,8 +3470,8 @@ body.light-theme .mobile-team-name {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 26px;
-  height: 26px;
+  width: 32px;
+  height: 32px;
   padding: 0;
   border-radius: 50%;
   transition: transform 0.2s ease, opacity 0.2s ease;
@@ -3488,8 +3488,8 @@ body.light-theme .mobile-team-name {
 }
 
 .flag-crest-compact {
-  width: 26px;
-  height: 26px;
+  width: 32px;
+  height: 32px;
   border-radius: 50%;
   object-fit: cover;
   flex-shrink: 0;
@@ -3503,11 +3503,11 @@ body.light-theme .mobile-team-name {
   justify-content: center;
   background: rgba(255, 255, 255, 0.02);
   border: 1px dashed rgba(255, 255, 255, 0.15);
-  width: 26px;
-  height: 26px;
+  width: 32px;
+  height: 32px;
   border-radius: 50%;
   box-sizing: border-box;
-  font-size: 10px;
+  font-size: 11px;
   font-weight: 600;
   color: rgba(255, 255, 255, 0.35);
   line-height: 1;
@@ -6232,17 +6232,17 @@ body.light-theme .sharp-switch input:checked + .sharp-slider:before {
 }
 
 .bracket-hero-title-main {
-  font-size: clamp(1.6rem, 6vw, 2.4rem);
-  font-weight: 900;
-  line-height: 1.05;
+  font-size: clamp(2rem, 9vw, 3.2rem);
+  font-weight: 400; /* Bebas Neue is inherently ultra-bold */
+  line-height: 1;
   margin: 0;
   text-transform: uppercase;
-  letter-spacing: 1px;
+  letter-spacing: 3px;
   background: linear-gradient(180deg, #ffffff 0%, var(--primary-gold) 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   filter: drop-shadow(0 3px 12px rgba(212, 175, 55, 0.22));
-  font-family: var(--font-sans);
+  font-family: 'Bebas Neue', var(--font-sans);
 }
 
 body.light-theme .bracket-hero-title-main {

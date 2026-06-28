@@ -3912,16 +3912,19 @@ function renderBracket() {
   if (finalCoords && qfUpperLeft && qfLowerLeft && sfLeft && sfRight) {
     const isLight = document.body.classList.contains('light-theme');
     const logoSrc = isLight ? 'wc2026_logo_light.svg' : 'wc2026_logo.svg';
-    const CARD_W = 48, CARD_H = 56;
+    const CARD_W = 58, CARD_H = 64;
     // Boundaries of the clear center diamond
     const spaceLeft   = sfLeft.x  + CARD_W;          // right edge of SF left card
     const spaceRight  = sfRight.x;                    // left edge of SF right card
     const spaceTop    = qfUpperLeft.y + CARD_H;       // bottom edge of upper QF stacks
     const spaceBottom = qfLowerLeft.y;                // top edge of lower QF stacks
     const centerX = (spaceLeft + spaceRight) / 2;
-    const centerY = (qfUpperLeft.y + finalCoords.y) / 2; // center between QF top and Final row
-    // Fill the space with a little breathing room on all sides
-    const logoSize = Math.round(Math.min(spaceRight - spaceLeft, spaceBottom - spaceTop) * 0.88);
+    const r16Upper    = COMPACT_COORDINATES[89];  // Stack Top R16 Left (inner top)
+    const centerY = r16Upper
+      ? (r16Upper.y + finalCoords.y) / 2          // center between R16 inner top and Final row
+      : (qfUpperLeft.y + finalCoords.y) / 2;
+    // Maximize logo size to fit the full horizontal space between the side stacks
+    const logoSize = Math.round(spaceRight - spaceLeft - 6);
     const logoX = Math.round(centerX - logoSize / 2);
     const logoY = Math.round(centerY - logoSize / 2);
     cardsHtml += `
@@ -3940,8 +3943,8 @@ function renderBracketLines() {
   const svg = document.getElementById('bracket-svg-connections');
   if (!svg) return;
 
-  const cardWidth = 48;
-  const cardHeight = 56;
+  const cardWidth = 58;
+  const cardHeight = 64;
   let pathsHtml = '';
 
   const connections = [
@@ -4219,11 +4222,13 @@ function applyScale() {
 
   currentScale = Math.max(0.25, Math.min(currentScale, 2.5));
 
-  container.style.transform = `scale(${currentScale})`;
+  // Topmost bracket cards start at y=80 in the 760px container — shift up partially to reduce gap
+  const topOffset = Math.round(40 * currentScale);
+  container.style.transform = `scale(${currentScale}) translateY(-${40}px)`;
   container.style.transformOrigin = 'top left';
 
   const baseHeight = 760;
-  const scaledHeight = baseHeight * currentScale;
+  const scaledHeight = (baseHeight - 40) * currentScale; // subtract partial top dead space
 
   const totalScaffoldingHeight = scaledHeight + 16 * currentScale;
 
