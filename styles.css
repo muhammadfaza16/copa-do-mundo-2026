@@ -6213,15 +6213,26 @@ body.light-theme .sharp-switch input:checked + .sharp-slider:before {
   background-color: var(--primary-gold);
 }
 
-/* Bracket schedule section horizontal padding overrides */
+/* Bracket schedule section — full bleed, tabs aligned to match card edges */
 .bracket-schedule-section {
+  margin-top: 24px;
   margin-left: -16px !important;
   margin-right: -16px !important;
+  padding: 0;
 }
 
 .bracket-schedule-tabs {
-  margin-left: 16px !important;
-  margin-right: 16px !important;
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  padding: 0 16px 8px 16px;
+  margin-bottom: 16px;
+  border-bottom: 1px solid var(--glass-border);
+  scrollbar-width: none;
+}
+.bracket-schedule-tabs::-webkit-scrollbar {
+  display: none;
 }
 
 /* Adjust best 3rd placed table cell spacing on very small viewports */
