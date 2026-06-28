@@ -4624,14 +4624,8 @@ body.light-theme .results-dot.active {
 
 .stats-overview-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(2, 1fr);
   gap: 12px;
-}
-
-@media (max-width: 480px) {
-  .stats-overview-grid {
-    grid-template-columns: 1fr 1fr;
-  }
 }
 
 .stats-overview-item {
@@ -4642,6 +4636,8 @@ body.light-theme .results-dot.active {
   border-radius: var(--border-radius-sm);
   padding: 10px 12px;
   text-align: left;
+  min-height: 88px;
+  box-sizing: border-box;
 }
 
 body.light-theme .stats-overview-item {

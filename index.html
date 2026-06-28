@@ -221,7 +221,7 @@
 
       <div class="stats-layout-wrapper">
         <!-- Grid Overview for Counters -->
-        <div class="stats-overview-grid" style="margin-bottom: 12px;">
+        <div class="stats-overview-grid" style="margin-bottom: 20px;">
           <div class="stats-overview-item">
             <span class="stats-overview-label">Laga Dimainkan</span>
             <span id="stats-matches-played" class="stats-overview-val">0</span>
@@ -237,17 +237,12 @@
             <span id="stats-avg-goals" class="stats-overview-val">0.00</span>
             <span class="stats-overview-sub">Per pertandingan</span>
           </div>
-        </div>
-
-        <!-- Tim Tersubur Card -->
-        <div class="glass-panel" style="padding: 12px 14px; border-radius: var(--border-radius-md); background: var(--panel-bg); border: 1px solid var(--glass-border); margin-bottom: 20px;">
-          <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; border-bottom: 1px solid var(--glass-border); padding-bottom: 6px;">
-            <span class="stats-overview-label" style="margin-bottom: 0;">Tim Tersubur</span>
-            <span style="font-size: 0.6rem; color: var(--primary-gold); font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">Gol Terbanyak</span>
-          </div>
-          <div id="stats-top-team" style="display: flex; flex-direction: column; gap: 6px;">
-            <!-- Loaded dynamically -->
-            -
+          <div class="stats-overview-item" style="justify-content: flex-start;">
+            <span class="stats-overview-label" style="margin-bottom: 4px;">Tim Tersubur</span>
+            <div id="stats-top-team" style="display: flex; flex-direction: column; gap: 4px; width: 100%; max-height: 48px; overflow-y: auto; scrollbar-width: none;">
+              <!-- Loaded dynamically -->
+              -
+            </div>
           </div>
         </div>
 

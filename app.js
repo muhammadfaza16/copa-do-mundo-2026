@@ -2358,28 +2358,26 @@ function renderStatistics() {
   if (totalGoalsEl) totalGoalsEl.textContent = totalGoals;
   if (avgGoalsEl) avgGoalsEl.textContent = matchesPlayed > 0 ? (totalGoals / matchesPlayed).toFixed(2) : "0.00";
   
-  // Calculate top team (most goals) - supports multiple teams if tied
-  let topTeams = [];
-  let topTeamGoals = 0;
-  Object.entries(teamGoalsMap).forEach(([team, goals]) => {
-    if (goals > topTeamGoals) {
-      topTeams = [team];
-      topTeamGoals = goals;
-    } else if (goals === topTeamGoals && goals > 0) {
-      topTeams.push(team);
-    }
-  });
+  // Calculate top teams (most goals, dense ranking for top 3 goal counts)
+  const sortedTeams = Object.entries(teamGoalsMap)
+    .filter(([_, goals]) => goals > 0)
+    .sort((a, b) => b[1] - a[1]);
+
+  const uniqueGoalCounts = [...new Set(sortedTeams.map(([_, goals]) => goals))].slice(0, 3);
+  const topTeams = sortedTeams.filter(([_, goals]) => uniqueGoalCounts.includes(goals));
 
   if (topTeamEl) {
     if (topTeams.length > 0) {
       let html = '';
-      topTeams.forEach(team => {
+      topTeams.forEach(([team, goals]) => {
         const flagCircle = getFlagHtml(team).replace('class="flag-crest"', 'class="flag-crest" style="width: 14px; height: 14px; min-width: 14px; min-height: 14px; border-radius: 50%; box-shadow: none; border-width: 1px;"');
         html += `
-          <div style="display: flex; align-items: center; gap: 8px; margin-top: 2px; width: 100%;">
-            ${flagCircle}
-            <span style="font-size: 0.72rem; font-weight: 700; color: var(--text-primary);">${team}</span>
-            <span style="font-size: 0.72rem; font-weight: 800; color: var(--primary-gold); margin-left: auto;">${topTeamGoals} Gol</span>
+          <div style="display: flex; align-items: center; justify-content: space-between; gap: 4px; width: 100%;">
+            <div style="display: flex; align-items: center; gap: 6px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: calc(100% - 40px);">
+              ${flagCircle}
+              <span style="font-size: 0.68rem; font-weight: 700; color: var(--text-primary);">${team}</span>
+            </div>
+            <span style="font-size: 0.68rem; font-weight: 800; color: var(--primary-gold); flex-shrink: 0;">${goals} G</span>
           </div>
         `;
       });
