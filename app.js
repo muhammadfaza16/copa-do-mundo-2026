@@ -3903,19 +3903,30 @@ function renderBracket() {
     `;
   });
 
-  // Inject WC 2026 logo in the center empty space above the Final card (match 104)
+  // Inject WC 2026 logo centered in the empty diamond space at the heart of the bracket
   const finalCoords = COMPACT_COORDINATES[104];
-  if (finalCoords) {
+  const qfUpperLeft  = COMPACT_COORDINATES[97];  // QF Upper Left stack
+  const qfLowerLeft  = COMPACT_COORDINATES[98];  // QF Lower Left stack
+  const sfLeft       = COMPACT_COORDINATES[101]; // SF Left
+  const sfRight      = COMPACT_COORDINATES[102]; // SF Right
+  if (finalCoords && qfUpperLeft && qfLowerLeft && sfLeft && sfRight) {
     const isLight = document.body.classList.contains('light-theme');
     const logoSrc = isLight ? 'wc2026_logo_light.svg' : 'wc2026_logo.svg';
-    // Fill the center gap between QF stacks (y≈260) and SF row (y=360)
-    // Logo sits centered horizontally on the Final card, filling the vertical gap
-    const logoSize = 90;
-    const logoX = finalCoords.x + 24 - logoSize / 2; // center over Final card (card width=48, center=+24)
-    const logoY = finalCoords.y - logoSize - 6;       // sit just above the Final card with small gap
+    const CARD_W = 48, CARD_H = 56;
+    // Boundaries of the clear center diamond
+    const spaceLeft   = sfLeft.x  + CARD_W;          // right edge of SF left card
+    const spaceRight  = sfRight.x;                    // left edge of SF right card
+    const spaceTop    = qfUpperLeft.y + CARD_H;       // bottom edge of upper QF stacks
+    const spaceBottom = qfLowerLeft.y;                // top edge of lower QF stacks
+    const centerX = (spaceLeft + spaceRight) / 2;
+    const centerY = (spaceTop  + spaceBottom) / 2;
+    // Fill the space with a little breathing room on all sides
+    const logoSize = Math.round(Math.min(spaceRight - spaceLeft, spaceBottom - spaceTop) * 0.88);
+    const logoX = Math.round(centerX - logoSize / 2);
+    const logoY = Math.round(centerY - logoSize / 2);
     cardsHtml += `
-      <div class="bracket-wc-logo" style="position:absolute;left:${logoX}px;top:${logoY}px;width:${logoSize}px;height:${logoSize}px;pointer-events:none;z-index:3;">
-        <img src="${logoSrc}" width="${logoSize}" height="${logoSize}" alt="World Cup 2026" style="width:100%;height:100%;object-fit:contain;display:block;opacity:0.9;">
+      <div class="bracket-wc-logo" style="position:absolute;left:${logoX}px;top:${logoY}px;width:${logoSize}px;height:${logoSize}px;pointer-events:none;z-index:1;opacity:0.88;">
+        <img src="${logoSrc}" width="${logoSize}" height="${logoSize}" alt="World Cup 2026" style="width:100%;height:100%;object-fit:contain;display:block;">
       </div>`;
   }
 
