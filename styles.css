@@ -6227,7 +6227,7 @@ body.light-theme .sharp-switch input:checked + .sharp-slider:before {
   overflow-x: auto;
   -webkit-overflow-scrolling: touch;
   padding: 0 16px 8px 16px;
-  margin-bottom: 16px;
+  margin-bottom: 0;
   border-bottom: 1px solid var(--glass-border);
   scrollbar-width: none;
 }
