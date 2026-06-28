@@ -3912,7 +3912,7 @@ function renderBracket() {
   if (finalCoords && qfUpperLeft && qfLowerLeft && sfLeft && sfRight) {
     const isLight = document.body.classList.contains('light-theme');
     const logoSrc = isLight ? 'wc2026_logo_light.svg' : 'wc2026_logo.svg';
-    const CARD_W = 54, CARD_H = 62;
+    const CARD_W = 68, CARD_H = 76;
     // Boundaries of the clear center diamond
     const spaceLeft   = sfLeft.x  + CARD_W;          // right edge of SF left card
     const spaceRight  = sfRight.x;                    // left edge of SF right card
@@ -3943,8 +3943,8 @@ function renderBracketLines() {
   const svg = document.getElementById('bracket-svg-connections');
   if (!svg) return;
 
-  const cardWidth = 54;
-  const cardHeight = 62;
+  const cardWidth = 68;
+  const cardHeight = 76;
   let pathsHtml = '';
 
   const connections = [
