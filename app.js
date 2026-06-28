@@ -3923,8 +3923,8 @@ function renderBracket() {
     const centerY = r16Upper
       ? (r16Upper.y + finalCoords.y) / 2          // center between R16 inner top and Final row
       : (qfUpperLeft.y + finalCoords.y) / 2;
-    // Maximize logo size to fit the full horizontal space between the side stacks
-    const logoSize = Math.round(spaceRight - spaceLeft - 6);
+    // Maximize logo size to fit the full horizontal space between the side stacks, with a comfortable margin
+    const logoSize = Math.round(spaceRight - spaceLeft - 26);
     const logoX = Math.round(centerX - logoSize / 2);
     const logoY = Math.round(centerY - logoSize / 2);
     cardsHtml += `
