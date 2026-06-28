@@ -3435,8 +3435,9 @@ body.light-theme .mobile-team-name {
   height: 76px;
   display: flex;
   flex-direction: column;
-  justify-content: space-evenly;
+  justify-content: center;
   align-items: center;
+  gap: 2px;
   background: rgba(30, 41, 59, 0.45) !important;
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
@@ -3447,7 +3448,7 @@ body.light-theme .mobile-team-name {
   transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
   cursor: pointer;
   z-index: 10;
-  padding: 2px 0;
+  padding: 0;
 }
 
 /* Hide date as requested */
@@ -3475,8 +3476,8 @@ body.light-theme .mobile-team-name {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 38px;
-  height: 38px;
+  width: 36px;
+  height: 36px;
   padding: 0;
   border-radius: 50%;
   transition: transform 0.2s ease, opacity 0.2s ease;
@@ -3493,8 +3494,8 @@ body.light-theme .mobile-team-name {
 }
 
 .flag-crest-compact {
-  width: 38px;
-  height: 38px;
+  width: 36px;
+  height: 36px;
   border-radius: 50%;
   object-fit: cover;
   flex-shrink: 0;
@@ -3508,11 +3509,11 @@ body.light-theme .mobile-team-name {
   justify-content: center;
   background: rgba(255, 255, 255, 0.02);
   border: 1px dashed rgba(255, 255, 255, 0.15);
-  width: 38px;
-  height: 38px;
+  width: 36px;
+  height: 36px;
   border-radius: 50%;
   box-sizing: border-box;
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 600;
   color: rgba(255, 255, 255, 0.35);
   line-height: 1;
