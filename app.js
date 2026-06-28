@@ -2387,10 +2387,10 @@ function renderStatistics() {
 
         html += `
           <div style="display: flex; align-items: center; justify-content: space-between; gap: 4px; width: 100%;">
-            <div style="display: flex; align-items: center; gap: 4px; flex-wrap: wrap; max-width: calc(100% - 32px);">
+            <div style="display: flex; align-items: center; gap: 4px; flex-wrap: wrap; max-width: calc(100% - 24px);">
               ${flagsHtml}
             </div>
-            <span style="font-size: 0.68rem; font-weight: 800; color: var(--primary-gold); flex-shrink: 0;">${goals} G</span>
+            <span style="font-size: 0.68rem; font-weight: 800; color: var(--primary-gold); flex-shrink: 0;">${goals}</span>
           </div>
         `;
       });
