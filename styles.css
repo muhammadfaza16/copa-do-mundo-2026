@@ -6212,4 +6212,52 @@ body.light-theme .sharp-switch input:checked + .sharp-slider:before {
   }
 }
 
+/* Bracket Hero Header Styling */
+.bracket-hero-header {
+  text-align: center;
+  margin-top: 12px;
+  margin-bottom: 24px;
+  padding: 0 16px;
+}
+
+.bracket-hero-subtitle-top {
+  font-size: 0.65rem;
+  font-weight: 800;
+  color: var(--primary-gold);
+  letter-spacing: 2.5px;
+  text-transform: uppercase;
+  margin-bottom: 3px;
+  font-family: var(--font-sans);
+}
+
+.bracket-hero-title {
+  font-size: 1.7rem;
+  font-weight: 900;
+  line-height: 1.2;
+  margin: 0;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  background: linear-gradient(135deg, #ffffff 40%, var(--primary-gold) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  text-shadow: 0 4px 12px rgba(0,0,0,0.3);
+  font-family: var(--font-sans);
+}
+
+body.light-theme .bracket-hero-title {
+  background: linear-gradient(135deg, var(--text-primary) 40%, var(--primary-gold) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  text-shadow: 0 2px 8px rgba(0,0,0,0.06);
+}
+
+.bracket-hero-divider {
+  width: 24px;
+  height: 2px;
+  background: var(--primary-gold);
+  margin: 12px auto 0 auto;
+  border-radius: 1px;
+  opacity: 0.9;
+}
+
 
