@@ -3369,11 +3369,11 @@ function recalculateKnockoutTree() {
 // Formatter to translate placeholder teams into clean Indonesian labels
 function formatPlaceholderName(name) {
   return name
-    .replace("Winner Match", "Pemenang M")
-    .replace("Loser Match", "Kalah M")
-    .replace("Winner Group", "Juara Grup")
-    .replace("Runner-up Group", "Runner-up Grup")
-    .replace("3rd Group", "Peringkat 3");
+    .replace("Winner Match ", "Pemenang M")
+    .replace("Loser Match ", "Kalah M")
+    .replace("Winner Group ", "Juara Grup ")
+    .replace("Runner-up Group ", "Runner-up Grup ")
+    .replace("3rd Group ", "Peringkat 3 ");
 }
 
 const TEAM_CODES = {
