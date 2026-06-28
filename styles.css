@@ -3554,10 +3554,44 @@ body.light-theme .compact-match-card:hover {
 /* ── Final slot: realistic gold (dark + light) ── */
 body .compact-match-card.round-final {
   background: linear-gradient(160deg, #6b4f08 0%, #c9922a 30%, #f0c84a 50%, #c9922a 70%, #6b4f08 100%) !important;
+  position: relative;
+  overflow: hidden !important;
 }
 body.light-theme .compact-match-card.round-final {
   background: linear-gradient(160deg, #b8890a 0%, #e8b830 30%, #ffd740 50%, #e8b830 70%, #b8890a 100%) !important;
 }
+
+/* Premium slow reflection shimmer overlay for final slot */
+.compact-match-card.round-final::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    115deg,
+    rgba(255, 255, 255, 0) 0%,
+    rgba(255, 255, 255, 0) 35%,
+    rgba(255, 255, 255, 0.12) 50%,
+    rgba(255, 255, 255, 0) 65%,
+    rgba(255, 255, 255, 0) 100%
+  );
+  background-size: 200% 100%;
+  animation: premium-shimmer 8s linear infinite;
+  pointer-events: none;
+  z-index: 1;
+}
+.compact-match-card.round-final > * {
+  position: relative;
+  z-index: 2;
+}
+@keyframes premium-shimmer {
+  0% {
+    background-position: 150% 0;
+  }
+  100% {
+    background-position: -50% 0;
+  }
+}
+
 
 /* ── 3rd place slot: realistic bronze (dark + light) ── */
 body .compact-match-card.round-third {
