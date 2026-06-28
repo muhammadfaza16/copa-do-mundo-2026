@@ -1583,9 +1583,7 @@ function createMatchCardHtml(match, index, isKnockout = false, showBigMatchBadge
 
   const headerMarkupHtml = isBracketSchedule ? `
     <div class="match-header">
-      <div class="match-stage-container" style="display: flex; align-items: center; gap: 6px;">
-        <span class="match-date-label" style="font-weight: 600; text-transform: none; opacity: 1;">Laga ${match.match_id}</span>
-      </div>
+        <span class="match-date-label" style="font-weight: 600; text-transform: none; opacity: 1;">M${match.match_id}</span>
       <div class="match-header-right" style="display: flex; align-items: center; gap: 8px;">
         <span class="match-date-label" style="font-weight: 600;">${timeInfo.date}</span>
       </div>
@@ -1601,9 +1599,7 @@ function createMatchCardHtml(match, index, isKnockout = false, showBigMatchBadge
 
   const fixtureHeaderMarkupHtml = isBracketSchedule ? `
     <div class="match-header">
-      <div class="match-stage-container" style="display: flex; align-items: center; gap: 6px;">
-        <span class="match-date-label" style="font-weight: 600; text-transform: none; opacity: 1;">Laga ${match.match_id}</span>
-      </div>
+        <span class="match-date-label" style="font-weight: 600; text-transform: none; opacity: 1;">M${match.match_id}</span>
       <div class="match-header-right" style="display: flex; align-items: center; gap: 8px;">
         <span class="match-date-label" style="font-weight: 600;">${timeInfo.date}</span>
       </div>
@@ -3669,7 +3665,7 @@ function getMatchTooltipHtml(m) {
           ${roundLabel}
         </div>
         <div style="display: flex; align-items: center; justify-content: space-between; font-size: 0.55rem; color: var(--text-secondary); opacity: 0.7; font-weight: 500; margin-top: 1px;">
-          <span style="letter-spacing: 0.3px; font-weight: 600;">LAGA ${m.match_id}</span>
+          <span style="letter-spacing: 0.3px; font-weight: 600;">M${m.match_id}</span>
           <span>${dateStr} · ${timeInfo.time}</span>
         </div>
       </div>
