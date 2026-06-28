@@ -1202,7 +1202,7 @@ function updateHeroPanel() {
       const isBigMatch = getMatchBadgeHtml(m.team1, m.team2) !== '';
       const liveParts = getMatchLiveStatusParts(scoreData);
       const venue = getMatchVenue(m);
-      const stageName = m.isKO ? m.group : `Grup ${m.group.replace('Grup ', '')}`;
+      const stageName = m.isKO ? translateRoundName(m.group) : `Grup ${m.group.replace('Grup ', '')}`;
 
       titleEl.innerHTML = `
         <div style="font-size: 0.62rem; font-weight: 700; color: var(--primary-gold); letter-spacing: var(--tracking-widest); text-transform: uppercase; opacity: 0.85; margin-bottom: ${isBigMatch ? '6px' : '18px'};">
@@ -1415,7 +1415,7 @@ function updateHeroPanel() {
 
       const timeInfo = getFormattedTime(targetMatch.date, targetMatch.time);
       const dateStr = `${timeInfo.date} · ${timeInfo.time} ${timeInfo.tzLabel}`;
-      const stageName = targetMatch.isKO ? targetMatch.group : `Grup ${targetMatch.group.replace('Grup ', '')}`;
+      const stageName = targetMatch.isKO ? translateRoundName(targetMatch.group) : `Grup ${targetMatch.group.replace('Grup ', '')}`;
 
       subEl.style.opacity = '1';
       subEl.innerHTML = `
@@ -1493,7 +1493,7 @@ function updateHeroPanel() {
 
     const timeInfo = getFormattedTime(targetMatch.date, targetMatch.time);
     const dateStr = `${timeInfo.date} · ${timeInfo.time} ${timeInfo.tzLabel}`;
-    const stageName = targetMatch.isKO ? targetMatch.group : `Grup ${targetMatch.group.replace('Grup ', '')}`;
+    const stageName = targetMatch.isKO ? translateRoundName(targetMatch.group) : `Grup ${targetMatch.group.replace('Grup ', '')}`;
     
     subEl.style.opacity = '1';
     subEl.innerHTML = `
