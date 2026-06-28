@@ -3919,7 +3919,7 @@ function renderBracket() {
     const spaceTop    = qfUpperLeft.y + CARD_H;       // bottom edge of upper QF stacks
     const spaceBottom = qfLowerLeft.y;                // top edge of lower QF stacks
     const centerX = (spaceLeft + spaceRight) / 2;
-    const centerY = (spaceTop + finalCoords.y) / 2; // center in top half only (above Final row)
+    const centerY = (qfUpperLeft.y + finalCoords.y) / 2; // center between QF top and Final row
     // Fill the space with a little breathing room on all sides
     const logoSize = Math.round(Math.min(spaceRight - spaceLeft, spaceBottom - spaceTop) * 0.88);
     const logoX = Math.round(centerX - logoSize / 2);
