@@ -3619,33 +3619,6 @@ body.light-theme .bracket-line-inactive {
   box-shadow: 0 0 12px rgba(255, 145, 0, 0.45);
 }
 
-/* shimmer sweep on final slot — fully opaque highlight stripe */
-.compact-match-card.round-final {
-  position: relative;
-  overflow: hidden !important;
-}
-.compact-match-card.round-final::after {
-  content: '';
-  position: absolute;
-  top: -50%;
-  left: -75%;
-  width: 40%;
-  height: 200%;
-  background: linear-gradient(90deg, #6b4f08, #f5e090, #f5e090, #6b4f08);
-  transform: skewX(-20deg);
-  animation: shimmer-swipe 2.8s ease-in-out infinite;
-  pointer-events: none;
-  z-index: 0;
-}
-.compact-match-card.round-final > * {
-  position: relative;
-  z-index: 1;
-}
-@keyframes shimmer-swipe {
-  0%   { left: -75%; }
-  60%  { left: 130%; }
-  100% { left: 130%; }
-}
 .compact-match-card.round-final.match-predicted {
   box-shadow: 0 0 28px #d4af37 !important;
 }
