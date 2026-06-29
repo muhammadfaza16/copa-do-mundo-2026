@@ -6578,10 +6578,10 @@ function renderLineupsTab(lineups) {
 
   let playerNodesHtml = '';
 
-  // Home players — GK top (6%), ATT bottom of home half (48%)
+  // Home players — GK top (6%), ATT bottom of home half (44%)
   const L_home = homeLines.length;
   homeLines.forEach((line, i) => {
-    const y = 6 + (i / Math.max(L_home - 1, 1)) * 42;
+    const y = 6 + (i / Math.max(L_home - 1, 1)) * 38;
     line.forEach((p, j) => {
       const x = 100 - getX(j, line.length);
       const displayName = formatPitchPlayerName(p.name);
@@ -6600,10 +6600,10 @@ function renderLineupsTab(lineups) {
     });
   });
 
-  // Away players — GK bottom (94%), ATT top of away half (52%)
+  // Away players — GK bottom (94%), ATT top of away half (56%)
   const L_away = awayLines.length;
   awayLines.forEach((line, i) => {
-    const y = 94 - (i / Math.max(L_away - 1, 1)) * 42;
+    const y = 94 - (i / Math.max(L_away - 1, 1)) * 38;
     line.forEach((p, j) => {
       const x = getX(j, line.length);
       const displayName = formatPitchPlayerName(p.name);
