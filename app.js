@@ -907,13 +907,13 @@ function getLiveClockInfo(matchKey) {
   const maxPlausibleMin = isExtraTime ? 135 : 105;
   if (displayMin > maxPlausibleMin) {
     // Use the raw API value only, without adding drift
-    const rawClockStr = extraMin > 0 ? `${baseMin}'+${extraMin}'` : `${baseMin}'`;
+    const rawClockStr = extraMin > 0 ? `${baseMin}+${extraMin}'` : `${baseMin}'`;
     return { clock: rawClockStr, isPulsing: true };
   }
 
   let clockStr = '';
   if (displayExtra > 0) {
-    clockStr = `${displayMin}'+${displayExtra}'`;
+    clockStr = `${displayMin}+${displayExtra}'`;
   } else {
     clockStr = `${displayMin}'`;
   }
