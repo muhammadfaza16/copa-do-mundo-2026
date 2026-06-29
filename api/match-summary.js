@@ -147,38 +147,103 @@ export default async function handler(req, res) {
         const uniformColor = teamRoster.uniform?.color ? `#${teamRoster.uniform.color}` : null;
         const uniformType = teamRoster.uniform?.type || null;
         
-        const mapPlayer = (p) => {
-          let pos = p.position ? (p.position.abbreviation || p.position.name || '') : '';
-          
-          if (p.starter && p.formationPlace) {
-            const place = String(p.formationPlace);
-            const ESPN_POSITION_MAP = {
-              '1': 'GK',
-              '2': 'RB',
-              '3': 'LB',
-              '4': 'LDM',
-              '5': 'RCB',
-              '6': 'LCB',
-              '7': 'RW',
-              '8': 'RDM',
-              '9': 'ST',
-              '10': 'CAM',
-              '11': 'LW'
-            };
-            if (ESPN_POSITION_MAP[place]) {
-              pos = ESPN_POSITION_MAP[place];
-            }
-          }
-          
-          return {
-            name: p.athlete?.displayName || '',
-            jersey: p.jersey || '',
-            position: pos,
-            subbedIn: p.subbedIn === true,
-            subbedOut: p.subbedOut === true,
-            subbedMinute: p.subOn?.displayValue || p.subOff?.displayValue || ''
-          };
+        // ESPN's position.name (verbose) is always more specific than position.abbreviation.
+        // e.g. name="Center Left Defender" even when abbreviation="D" (generic).
+        // We normalise the verbose name to a standard abbreviation first; only fall back
+        // to abbreviation when the name itself is still generic.
+        const ESPN_NAME_TO_ABBR = {
+          // Goalkeeper
+          'goalkeeper':              'GK',
+          // Defenders
+          'right back':              'RB',
+          'left back':               'LB',
+          'right wing back':         'RWB',
+          'left wing back':          'LWB',
+          'center defender':         'CB',
+          'centre defender':         'CB',
+          'center right defender':   'RCB',
+          'centre right defender':   'RCB',
+          'center left defender':    'LCB',
+          'centre left defender':    'LCB',
+          'right center defender':   'RCB',
+          'left center defender':    'LCB',
+          // Defensive Midfielders
+          'defensive midfielder':    'CDM',
+          'right defensive midfielder': 'RDM',
+          'left defensive midfielder':  'LDM',
+          'center defensive midfielder': 'CDM',
+          // Central Midfielders
+          'center midfielder':       'CM',
+          'centre midfielder':       'CM',
+          'right center midfielder': 'RCM',
+          'left center midfielder':  'LCM',
+          'center right midfielder': 'RCM',
+          'center left midfielder':  'LCM',
+          // Wide Midfielders
+          'right midfielder':        'RM',
+          'left midfielder':         'LM',
+          // Attacking Midfielders
+          'attacking midfielder':    'CAM',
+          'right attacking midfielder': 'RAM',
+          'left attacking midfielder':  'LAM',
+          'center attacking midfielder': 'CAM',
+          // Forwards / Wingers
+          'right forward':           'RF',
+          'left forward':            'LF',
+          'center forward':          'CF',
+          'centre forward':          'CF',
+          'center right forward':    'RF',
+          'center left forward':     'LF',
+          'right winger':            'RW',
+          'left winger':             'LW',
+          'striker':                 'ST',
+          'forward':                 'F',
+          // generics – keep abbreviation as-is
+          'defender':                null,
+          'midfielder':              null,
         };
+
+        const resolvePosition = (p, formationStr) => {
+          const posObj = p.position;
+          if (!posObj) return '';
+          const verboseName = (posObj.name || '').toLowerCase().trim();
+          const abbr = posObj.abbreviation || '';
+
+          if (ESPN_NAME_TO_ABBR.hasOwnProperty(verboseName)) {
+            const mapped = ESPN_NAME_TO_ABBR[verboseName];
+            if (mapped !== null) return mapped; // specific name resolved
+
+            // Generic name ("defender" / "midfielder") — use formationPlace fallback
+            const fPlace = String(p.formationPlace || '0');
+
+            if (verboseName === 'defender') {
+              // Defensive slots are FORMATION-INDEPENDENT for 4-back systems:
+              // 2=RB, 3=LB, 5=RCB, 6=LCB.  3-back adds 4=CB.
+              const DEF_SLOTS = { '2': 'RB', '3': 'LB', '4': 'CB', '5': 'RCB', '6': 'LCB' };
+              return DEF_SLOTS[fPlace] || abbr;
+            }
+
+            // Generic "midfielder" or "forward": no reliable cross-formation mapping
+            // from formationPlace alone. Return the abbreviation as-is and let
+            // app.js use formationPlace as a visual sort tiebreaker.
+          }
+
+          // Name not in map → abbreviation is already specific (e.g. CD-L, LM, RM)
+          return abbr || verboseName.toUpperCase();
+        };
+
+        const mapPlayer = (p) => ({
+          name: p.athlete?.displayName || '',
+          jersey: p.jersey || '',
+          position: resolvePosition(p, formation),
+          // formationPlace is ESPN's 1-11 slot index for starters.
+          // app.js uses this as a visual sort tiebreaker when position is still generic
+          // (i.e. ESPN sent incomplete pre-match data). Bench players get 0.
+          formationPlace: p.starter ? (Number(p.formationPlace) || 0) : 0,
+          subbedIn: p.subbedIn === true,
+          subbedOut: p.subbedOut === true,
+          subbedMinute: p.subOn?.displayValue || p.subOff?.displayValue || ''
+        });
 
         const starters = rosterList.filter(p => p.starter).map(mapPlayer);
         const bench = rosterList.filter(p => !p.starter).map(mapPlayer);

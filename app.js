@@ -6170,18 +6170,32 @@ function groupPlayersIntoLines(players, formationString) {
   const gk = players.find(p => isGoalkeeper(p.position)) || players[0];
   const outfield = players.filter(p => p !== gk);
 
-  // 2. Sort outfield players by longitudinal depth rank, then side rank (Left -> Right)
+  // 2. Sort outfield players by longitudinal depth rank, then side rank, then
+  //    formationPlace as a final tiebreaker for generic/pre-match data where
+  //    ESPN sends incomplete positions (D / M / F) but still provides a 1-11
+  //    slot index that encodes the coach's intended formation layout.
+  const fpOf = (p) => (typeof p.formationPlace === 'number' ? p.formationPlace : 99);
   const sortedOutfield = [...outfield].sort((a, b) => {
     const longA = getLongitudinalRank(a.position);
     const longB = getLongitudinalRank(b.position);
-    
-    if (longA !== longB) {
-      return longA - longB;
-    }
-    return getSideRank(a.position) - getSideRank(b.position);
+    if (longA !== longB) return longA - longB;
+
+    const sideA = getSideRank(a.position);
+    const sideB = getSideRank(b.position);
+    if (sideA !== sideB) return sideA - sideB;
+
+    // Both ranks identical → use formationPlace as tiebreaker
+    return fpOf(a) - fpOf(b);
   });
 
   const lines = [[gk]];
+
+  // Helper: sort a line left-to-right by sideRank, using formationPlace to break ties
+  const sortLineLR = (line) =>
+    line.sort((a, b) => {
+      const d = getSideRank(a.position) - getSideRank(b.position);
+      return d !== 0 ? d : fpOf(a) - fpOf(b);
+    });
 
   // 3. Distribute into lines based on formation
   let parts = [4, 3, 3];
@@ -6195,8 +6209,7 @@ function groupPlayersIntoLines(players, formationString) {
     let idx = 0;
     parts.forEach(count => {
       const linePlayers = sortedOutfield.slice(idx, idx + count);
-      // Ensure each sliced line is strictly ordered Left to Right
-      linePlayers.sort((a, b) => getSideRank(a.position) - getSideRank(b.position));
+      sortLineLR(linePlayers);
       lines.push(linePlayers);
       idx += count;
     });
@@ -6206,18 +6219,9 @@ function groupPlayersIntoLines(players, formationString) {
     const mid = sortedOutfield.filter(p => getLineCategory(p.position) === 'MID');
     const fwd = sortedOutfield.filter(p => getLineCategory(p.position) === 'ATT');
     
-    if (def.length > 0) {
-      def.sort((a, b) => getSideRank(a.position) - getSideRank(b.position));
-      lines.push(def);
-    }
-    if (mid.length > 0) {
-      mid.sort((a, b) => getSideRank(a.position) - getSideRank(b.position));
-      lines.push(mid);
-    }
-    if (fwd.length > 0) {
-      fwd.sort((a, b) => getSideRank(a.position) - getSideRank(b.position));
-      lines.push(fwd);
-    }
+    if (def.length > 0) { sortLineLR(def); lines.push(def); }
+    if (mid.length > 0) { sortLineLR(mid); lines.push(mid); }
+    if (fwd.length > 0) { sortLineLR(fwd); lines.push(fwd); }
   }
 
   return lines;
