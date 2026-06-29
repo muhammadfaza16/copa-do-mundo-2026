@@ -147,14 +147,38 @@ export default async function handler(req, res) {
         const uniformColor = teamRoster.uniform?.color ? `#${teamRoster.uniform.color}` : null;
         const uniformType = teamRoster.uniform?.type || null;
         
-        const mapPlayer = (p) => ({
-          name: p.athlete?.displayName || '',
-          jersey: p.jersey || '',
-          position: p.position ? (p.position.abbreviation || p.position.name || '') : '',
-          subbedIn: p.subbedIn === true,
-          subbedOut: p.subbedOut === true,
-          subbedMinute: p.subOn?.displayValue || p.subOff?.displayValue || ''
-        });
+        const mapPlayer = (p) => {
+          let pos = p.position ? (p.position.abbreviation || p.position.name || '') : '';
+          
+          if (p.starter && p.formationPlace) {
+            const place = String(p.formationPlace);
+            const ESPN_POSITION_MAP = {
+              '1': 'GK',
+              '2': 'RB',
+              '3': 'LB',
+              '4': 'LDM',
+              '5': 'RCB',
+              '6': 'LCB',
+              '7': 'RW',
+              '8': 'RDM',
+              '9': 'ST',
+              '10': 'CAM',
+              '11': 'LW'
+            };
+            if (ESPN_POSITION_MAP[place]) {
+              pos = ESPN_POSITION_MAP[place];
+            }
+          }
+          
+          return {
+            name: p.athlete?.displayName || '',
+            jersey: p.jersey || '',
+            position: pos,
+            subbedIn: p.subbedIn === true,
+            subbedOut: p.subbedOut === true,
+            subbedMinute: p.subOn?.displayValue || p.subOff?.displayValue || ''
+          };
+        };
 
         const starters = rosterList.filter(p => p.starter).map(mapPlayer);
         const bench = rosterList.filter(p => !p.starter).map(mapPlayer);
