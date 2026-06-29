@@ -1086,8 +1086,10 @@ body.light-theme .match-redcards-row.no-scorers {
 
 /* Remove scorers border only in the schedule tab list */
 #schedule-list .match-scorers-row,
-#schedule-list .match-redcards-row.no-scorers {
-  border-top: none;
+#schedule-list .match-redcards-row.no-scorers,
+#bracket-schedule-list .match-scorers-row,
+#bracket-schedule-list .match-redcards-row.no-scorers {
+  border-top: none !important;
   padding-top: 0;
 }
 
@@ -3465,7 +3467,7 @@ body.light-theme .mobile-team-name {
 
 .compact-match-card.match-predicted {
   border-color: var(--primary-gold) !important;
-  box-shadow: 0 0 10px rgba(212, 175, 55, 0.35);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.25) !important;
 }
 
 .compact-match-card.match-locked {
@@ -3621,28 +3623,28 @@ body.light-theme .bracket-line-inactive {
   border-left: 4px solid #ff0055 !important;
 }
 .compact-match-card.round-32.match-predicted {
-  box-shadow: 0 0 12px rgba(255, 0, 85, 0.45);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.25) !important;
 }
 
 .compact-match-card.round-16 {
   border-left: 4px solid #00ff66 !important;
 }
 .compact-match-card.round-16.match-predicted {
-  box-shadow: 0 0 12px rgba(0, 255, 102, 0.45);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.25) !important;
 }
 
 .compact-match-card.round-qf {
   border-left: 4px solid #00e5ff !important;
 }
 .compact-match-card.round-qf.match-predicted {
-  box-shadow: 0 0 12px rgba(0, 229, 255, 0.45);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.25) !important;
 }
 
 .compact-match-card.round-sf {
   border-left: 4px solid #ff9100 !important;
 }
 .compact-match-card.round-sf.match-predicted {
-  box-shadow: 0 0 12px rgba(255, 145, 0, 0.45);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.25) !important;
 }
 
 

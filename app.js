@@ -183,6 +183,12 @@ function getMatchBadgeHtml(team1, team2) {
     return '';
   }
 
+  // France vs Sweden BIG MATCH override
+  if ((name1.includes("prancis") && name2.includes("swedia")) || 
+      (name1.includes("swedia") && name2.includes("prancis"))) {
+    return '<span class="match-badge badge-big-match">BIG MATCH</span>';
+  }
+
   if (isPopularTeam(team1) && isPopularTeam(team2)) {
     return '<span class="match-badge badge-big-match">BIG MATCH</span>';
   }
@@ -1202,7 +1208,7 @@ function updateHeroPanel() {
       const isBigMatch = getMatchBadgeHtml(m.team1, m.team2) !== '';
       const liveParts = getMatchLiveStatusParts(scoreData);
       const venue = getMatchVenue(m);
-      const stageName = m.isKO ? translateRoundName(m.group) : `Grup ${m.group.replace('Grup ', '')}`;
+      const stageName = (m.isKO ? translateRoundName(m.group) : `Grup ${m.group.replace('Grup ', '')}`).toUpperCase();
 
       titleEl.innerHTML = `
         <div style="font-size: 0.62rem; font-weight: 700; color: var(--primary-gold); letter-spacing: var(--tracking-widest); text-transform: uppercase; opacity: 0.85; margin-bottom: ${isBigMatch ? '6px' : '18px'};">
@@ -1415,7 +1421,7 @@ function updateHeroPanel() {
 
       const timeInfo = getFormattedTime(targetMatch.date, targetMatch.time);
       const dateStr = `${timeInfo.date} · ${timeInfo.time} ${timeInfo.tzLabel}`;
-      const stageName = targetMatch.isKO ? translateRoundName(targetMatch.group) : `Grup ${targetMatch.group.replace('Grup ', '')}`;
+      const stageName = (targetMatch.isKO ? translateRoundName(targetMatch.group) : `Grup ${targetMatch.group.replace('Grup ', '')}`).toUpperCase();
 
       subEl.style.opacity = '1';
       subEl.innerHTML = `
@@ -1493,7 +1499,7 @@ function updateHeroPanel() {
 
     const timeInfo = getFormattedTime(targetMatch.date, targetMatch.time);
     const dateStr = `${timeInfo.date} · ${timeInfo.time} ${timeInfo.tzLabel}`;
-    const stageName = targetMatch.isKO ? translateRoundName(targetMatch.group) : `Grup ${targetMatch.group.replace('Grup ', '')}`;
+    const stageName = (targetMatch.isKO ? translateRoundName(targetMatch.group) : `Grup ${targetMatch.group.replace('Grup ', '')}`).toUpperCase();
     
     subEl.style.opacity = '1';
     subEl.innerHTML = `
@@ -3615,8 +3621,8 @@ function getMatchTooltipHtml(m) {
   }
   
   const winner = simulatedWinners[m.match_id];
-  const t1WinnerMarker = winner === m.team1 ? `<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="var(--primary-gold)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display: inline-block; vertical-align: middle; margin-left: 4px;"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"></path><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"></path><path d="M4 22h16"></path><path d="M10 14.66V17c0 .55-.45 1-1 1H4v2h16v-2h-5c-.55 0-1-.45-1-1v-2.34"></path><path d="M12 2a6 6 0 0 1 6 6v5a6 6 0 0 1-6 6 6 6 0 0 1-6-6V8a6 6 0 0 1 6-6z"></path></svg>` : '';
-  const t2WinnerMarker = winner === m.team2 ? `<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="var(--primary-gold)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display: inline-block; vertical-align: middle; margin-left: 4px;"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"></path><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"></path><path d="M4 22h16"></path><path d="M10 14.66V17c0 .55-.45 1-1 1H4v2h16v-2h-5c-.55 0-1-.45-1-1v-2.34"></path><path d="M12 2a6 6 0 0 1 6 6v5a6 6 0 0 1-6 6 6 6 0 0 1-6-6V8a6 6 0 0 1 6-6z"></path></svg>` : '';
+  const t1WinnerMarker = '';
+  const t2WinnerMarker = '';
   
   const dateStr = formatCompactMatchDate(m.date);
   const timeInfo = getFormattedTime(m.date, m.time);
