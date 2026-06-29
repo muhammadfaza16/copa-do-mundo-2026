@@ -6579,7 +6579,7 @@ function renderLineupsTab(lineups) {
   homeLines.forEach((line, i) => {
     const y = 8 + (i / Math.max(L_home - 1, 1)) * 37;
     line.forEach((p, j) => {
-      const x = getX(j, line.length);
+      const x = 100 - getX(j, line.length);
       const displayName = formatPitchPlayerName(p.name);
       const isGK = isGoalkeeper(p.position);
       const bg = isGK ? gkBg : homeBg;
