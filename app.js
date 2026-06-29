@@ -815,12 +815,11 @@ function getMatchLiveStatusParts(scoreData) {
   if (!scoreData) return { periodName: 'LIVE', clock: '' };
   
   if (scoreData.status === 'FINISHED') return { periodName: 'FT', clock: '' };
-  if (scoreData.status === 'EXTRA_TIME') return { periodName: 'ET', clock: '' };
   if (scoreData.status === 'PENALTY_SHOOTOUT') return { periodName: 'PEN', clock: '' };
   if (scoreData.status === 'PAUSED' || scoreData.time_elapsed === 'HT' || scoreData.display_clock === 'HT') return { periodName: 'HT', clock: '' };
   
   const clock = scoreData.display_clock || scoreData.time_elapsed || '';
-  let periodName = 'LIVE';
+  let periodName = scoreData.status === 'EXTRA_TIME' ? 'ET' : 'LIVE';
   
   if (clock && clock !== 'notstarted' && clock !== 'finished') {
     if (scoreData.period_desc) {
@@ -829,12 +828,12 @@ function getMatchLiveStatusParts(scoreData) {
         periodName = 'Babak 1';
       } else if (desc.includes('second half') || desc === '2nd half') {
         periodName = 'Babak 2';
-      } else if (desc.includes('first extra') || desc.includes('1st extra')) {
+      } else if (desc.includes('first extra') || desc.includes('1st extra') || desc.includes('1st et') || desc.includes('et1')) {
         periodName = 'ET Babak 1';
-      } else if (desc.includes('second extra') || desc.includes('2nd extra')) {
+      } else if (desc.includes('second extra') || desc.includes('2nd extra') || desc.includes('2nd et') || desc.includes('et2')) {
         periodName = 'ET Babak 2';
       } else if (desc.includes('halftime')) {
-        periodName = 'HT';
+        periodName = scoreData.status === 'EXTRA_TIME' ? 'ET HT' : 'HT';
       } else if (desc.includes('extra time')) {
         periodName = 'ET';
       } else if (desc.includes('shootout') || desc.includes('penalty')) {
@@ -1089,16 +1088,23 @@ function getMatchMinuteLabel(match, scoreData) {
   if (!scoreData) return "LIVE";
   
   if (scoreData.status === 'FINISHED') return "FT";
-  if (scoreData.status === 'EXTRA_TIME') return "ET";
-  if (scoreData.status === 'PENALTY_SHOOTOUT') return "PEN";
   if (scoreData.status === 'PAUSED' || scoreData.time_elapsed === 'HT' || scoreData.display_clock === 'HT') return "HT";
   
   const parts = getMatchLiveStatusParts(scoreData);
-  if (parts.clock && parts.clock !== 'LIVE') {
+  
+  // Use getLiveClockInfo to get the ticking clock with drift if possible
+  let displayClock = parts.clock;
+  const matchKey = match.isKO ? `ko_${match.match_id}` : `gs_${match.date}_${match.team1}_${match.team2}`;
+  const clockInfo = getLiveClockInfo(matchKey);
+  if (clockInfo && clockInfo.clock && clockInfo.clock !== 'LIVE') {
+    displayClock = clockInfo.clock;
+  }
+
+  if (displayClock && displayClock !== 'LIVE') {
     if (parts.periodName && parts.periodName !== 'LIVE') {
-      return `${parts.periodName} - ${parts.clock}`;
+      return `${parts.periodName} - ${displayClock}`;
     }
-    return parts.clock;
+    return displayClock;
   }
   
   return parts.periodName || "LIVE";
