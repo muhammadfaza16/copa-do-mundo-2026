@@ -5400,14 +5400,14 @@ body.light-theme .lineup-team-btn.active {
 /* Tactical Pitch Lineups Styles */
 .pitch-container {
   width: 100%;
-  max-width: 380px;
+  max-width: 460px;
   position: relative;
   /* Realistic grass pattern using alternating light/dark stripes & radial vignette */
   background: radial-gradient(circle, transparent 20%, rgba(0, 0, 0, 0.35) 100%),
               repeating-linear-gradient(to bottom, #1f4e24, #1f4e24 8.33%, #163b1a 8.33%, #163b1a 16.66%);
   border: 3px solid rgba(255, 255, 255, 0.7);
   border-radius: 8px;
-  aspect-ratio: 3 / 4;
+  aspect-ratio: 2 / 3;
   overflow: hidden;
   box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
   margin: 4px auto;
@@ -5455,7 +5455,7 @@ body.light-theme .lineup-team-btn.active {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 2px;
+  gap: 3px;
   z-index: 5;
   transition: transform 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275); /* Spring physics hover! */
 }
@@ -5466,10 +5466,10 @@ body.light-theme .lineup-team-btn.active {
 }
 
 .pitch-jersey {
-  width: 24px;
-  height: 24px;
-  min-width: 24px;
-  min-height: 24px;
+  width: 28px;
+  height: 28px;
+  min-width: 28px;
+  min-height: 28px;
   box-sizing: content-box;
   flex-shrink: 0;
   border-radius: 50%;
@@ -5478,7 +5478,7 @@ body.light-theme .lineup-team-btn.active {
   align-items: center;
   justify-content: center;
   font-weight: 800;
-  font-size: 0.56rem;
+  font-size: 0.6rem;
   box-shadow: 0 2px 8px rgba(0,0,0,0.45), 0 0 0 1px rgba(0,0,0,0.12);
   position: relative;
   overflow: visible;
@@ -5489,10 +5489,10 @@ body.light-theme .lineup-team-btn.active {
   backdrop-filter: blur(2px);
   -webkit-backdrop-filter: blur(2px);
   border: 1px solid rgba(255, 255, 255, 0.1);
-  padding: 1.5px 4px;
+  padding: 2px 5px;
   border-radius: 5px;
   color: #ffffff !important;
-  font-size: 0.44rem;
+  font-size: 0.48rem;
   font-weight: 700;
   white-space: nowrap;
   letter-spacing: 0.15px;

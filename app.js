@@ -6559,7 +6559,7 @@ function renderLineupsTab(lineups) {
   // Horizontal spread helper
   const getX = (j, P) => {
     if (P === 1) return 50;
-    const spacing = Math.min(84 / P, 22);
+    const spacing = Math.min(88 / P, 26);
     return 50 + (j - (P - 1) / 2) * spacing;
   };
 
@@ -6578,10 +6578,10 @@ function renderLineupsTab(lineups) {
 
   let playerNodesHtml = '';
 
-  // Home players — GK top (8%), ATT bottom of home half (45%)
+  // Home players — GK top (6%), ATT bottom of home half (48%)
   const L_home = homeLines.length;
   homeLines.forEach((line, i) => {
-    const y = 8 + (i / Math.max(L_home - 1, 1)) * 37;
+    const y = 6 + (i / Math.max(L_home - 1, 1)) * 42;
     line.forEach((p, j) => {
       const x = 100 - getX(j, line.length);
       const displayName = formatPitchPlayerName(p.name);
@@ -6600,10 +6600,10 @@ function renderLineupsTab(lineups) {
     });
   });
 
-  // Away players — GK bottom (92%), ATT top of away half (55%)
+  // Away players — GK bottom (94%), ATT top of away half (52%)
   const L_away = awayLines.length;
   awayLines.forEach((line, i) => {
-    const y = 92 - (i / Math.max(L_away - 1, 1)) * 37;
+    const y = 94 - (i / Math.max(L_away - 1, 1)) * 42;
     line.forEach((p, j) => {
       const x = getX(j, line.length);
       const displayName = formatPitchPlayerName(p.name);
