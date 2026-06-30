@@ -811,17 +811,31 @@ function getEligibleGroupsFor3rd(label) {
 }
 
 // Helper to get structured period name and display clock for live match cards
-function getMatchLiveStatusParts(scoreData) {
+function getMatchLiveStatusParts(scoreData, matchKey = null) {
   if (!scoreData) return { periodName: 'LIVE', clock: '' };
   
   if (scoreData.status === 'FINISHED') return { periodName: 'FT', clock: '' };
   
   const clock = scoreData.display_clock || scoreData.time_elapsed || '';
+  
+  // Set default periodName based on status
   let periodName = 'LIVE';
   if (scoreData.status === 'EXTRA_TIME') {
     periodName = 'Extra Time';
   } else if (scoreData.status === 'PENALTY_SHOOTOUT') {
-    periodName = 'Pen Shootout';
+    periodName = 'Adu Penalti';
+  }
+  
+  // Proactive overrides for API lag using getLiveClockInfo
+  const isKnockout = matchKey && matchKey.startsWith('ko_');
+  const isTied = scoreData.score1 !== null && scoreData.score2 !== null && parseInt(scoreData.score1) === parseInt(scoreData.score2);
+  if (isKnockout && isTied) {
+    const clockInfo = getLiveClockInfo(matchKey);
+    if (clockInfo.clock === 'PEN') {
+      periodName = 'Adu Penalti';
+    } else if (clockInfo.clock === 'ET') {
+      periodName = 'Extra Time';
+    }
   }
   
   if (clock && clock !== 'notstarted' && clock !== 'finished') {
@@ -846,7 +860,7 @@ function getMatchLiveStatusParts(scoreData) {
       } else if (desc.includes('extra time') || desc.includes('overtime')) {
         periodName = 'Extra Time';
       } else if (desc.includes('shootout') || desc.includes('penalty')) {
-        periodName = 'Pen Shootout';
+        periodName = 'Adu Penalti';
       } else {
         periodName = scoreData.period_desc;
       }
@@ -893,6 +907,15 @@ function getLiveClockInfo(matchKey) {
   const extraMatch = baseClock.match(/\+(\d+)/);
   const extraMin = extraMatch ? parseInt(extraMatch[1]) : 0;
   
+  // Proactive knockout checks
+  const isKnockout = matchKey && matchKey.startsWith('ko_');
+  const isTied = scoreData.score1 !== null && scoreData.score2 !== null && parseInt(scoreData.score1) === parseInt(scoreData.score2);
+  
+  const hasShootout = scoreData.shootout_score1 !== null || scoreData.shootout_score2 !== null;
+  if (isKnockout && isTied && (scoreData.status === 'PENALTY_SHOOTOUT' || hasShootout)) {
+    return { clock: 'PEN', isPulsing: true };
+  }
+  
   const clockUpdatedAt = scoreData.clock_updated_at || scoreData.fetched_at || Date.now();
   const elapsedMs = Date.now() - clockUpdatedAt;
   const elapsedSec = Math.floor(elapsedMs / 1000);
@@ -906,15 +929,23 @@ function getLiveClockInfo(matchKey) {
     displayExtra += additionalMins;
   } else {
     displayMin += additionalMins;
+    
+    // Proactive cap & transition for regular time -> extra time break
+    if (isKnockout && isTied && scoreData.status === 'IN_PLAY' && displayMin >= 90) {
+      return { clock: 'ET', isPulsing: true };
+    }
+    
+    // Proactive cap & transition for extra time -> shootout break
+    if (isKnockout && isTied && scoreData.status === 'EXTRA_TIME' && displayMin >= 120) {
+      return { clock: 'PEN', isPulsing: true };
+    }
   }
-
+  
   // Safety cap: football minutes should never exceed ~105 (90+15) in normal play,
-  // or ~135 (120+15) in extra time. If we somehow exceed 150, the timestamp is
-  // stale/corrupt — fall back to showing just the API base clock without drift.
+  // or ~135 (120+15) in extra time.
   const isExtraTime = scoreData.status === 'EXTRA_TIME';
   const maxPlausibleMin = isExtraTime ? 135 : 105;
   if (displayMin > maxPlausibleMin) {
-    // Use the raw API value only, without adding drift
     const rawClockStr = extraMin > 0 ? `${baseMin}+${extraMin}'` : `${baseMin}'`;
     return { clock: rawClockStr, isPulsing: true };
   }
@@ -926,9 +957,7 @@ function getLiveClockInfo(matchKey) {
     clockStr = `${displayMin}'`;
   }
   
-  const isPulsing = true;
-  
-  return { clock: clockStr, isPulsing };
+  return { clock: clockStr, isPulsing: true };
 }
 
 function updateLiveMatchClocks() {
@@ -969,7 +998,7 @@ function updateLiveMatchClocks() {
       const matchKey = m.isKO ? `ko_${m.match_id}` : `gs_${m.date}_${m.team1}_${m.team2}`;
       const clockInfo = getLiveClockInfo(matchKey);
       
-      const parts = getMatchLiveStatusParts(realScores[matchKey]);
+      const parts = getMatchLiveStatusParts(realScores[matchKey], matchKey);
       const displayClock = clockInfo.clock || parts.clock || 'LIVE';
       
       if (heroStatusLiveEl.textContent !== displayClock) {
@@ -1030,7 +1059,7 @@ function updateLiveMatchClocks() {
       if (modalStatusBoxVal) {
         let modalLiveStatusHtml = '';
         if (isMatchLive(currentModalData.match, scoreData)) {
-          const liveParts = getMatchLiveStatusParts(scoreData);
+          const liveParts = getMatchLiveStatusParts(scoreData, key);
           const clockInfo = getLiveClockInfo(key);
           const displayClock = clockInfo.clock || liveParts.clock || 'LIVE';
           const isPulsing = clockInfo.isPulsing;
@@ -1057,7 +1086,7 @@ function updateLiveMatchClocks() {
                                 scoreData.shootout_score2 !== null && 
                                 scoreData.shootout_score2 !== undefined;
             if (hasShootout) {
-              finishedLabel = `FT (Shootout: ${scoreData.shootout_score1} - ${scoreData.shootout_score2})`;
+              finishedLabel = `FT (Adu Penalti: ${scoreData.shootout_score1} - ${scoreData.shootout_score2})`;
             } else {
               const statusName = scoreData.espn_status_name || '';
               const statusDetail = scoreData.espn_status_detail || '';
@@ -1134,11 +1163,11 @@ function getMatchMinuteLabel(match, scoreData) {
   if (scoreData.status === 'FINISHED') return "FT";
   if (scoreData.status === 'PAUSED' || scoreData.time_elapsed === 'HT' || scoreData.display_clock === 'HT') return "HT";
   
-  const parts = getMatchLiveStatusParts(scoreData);
+  const matchKey = match.isKO ? `ko_${match.match_id}` : `gs_${match.date}_${match.team1}_${match.team2}`;
+  const parts = getMatchLiveStatusParts(scoreData, matchKey);
   
   // Use getLiveClockInfo to get the ticking clock with drift if possible
   let displayClock = parts.clock;
-  const matchKey = match.isKO ? `ko_${match.match_id}` : `gs_${match.date}_${match.team1}_${match.team2}`;
   const clockInfo = getLiveClockInfo(matchKey);
   if (clockInfo && clockInfo.clock && clockInfo.clock !== 'LIVE') {
     displayClock = clockInfo.clock;
@@ -1256,7 +1285,7 @@ function updateHeroPanel() {
       lastHeroMatchKey = liveKey;
 
       const isBigMatch = getMatchBadgeHtml(m.team1, m.team2) !== '';
-      const liveParts = getMatchLiveStatusParts(scoreData);
+      const liveParts = getMatchLiveStatusParts(scoreData, matchKey);
       const venue = getMatchVenue(m);
       const stageName = (m.isKO ? translateRoundName(m.group) : `Grup ${m.group.replace('Grup ', '')}`).toUpperCase();
 
@@ -1637,7 +1666,7 @@ function getMatchFinishedExtraInfo(scoreData) {
                       scoreData.shootout_score2 !== undefined;
                       
   if (hasShootout) {
-    return `<div class="match-period-label penalty-finished-label">Shootout (${scoreData.shootout_score1}-${scoreData.shootout_score2})</div>`;
+    return `<div class="match-period-label penalty-finished-label">Adu Penalti (${scoreData.shootout_score1}-${scoreData.shootout_score2})</div>`;
   }
   
   // 2. Check if finished in extra time (AET)
@@ -1720,7 +1749,7 @@ function createMatchCardHtml(match, index, isKnockout = false, showBigMatchBadge
     let scoreStatusHtml = '';
     let liveParts = null;
     if (isLive) {
-      liveParts = getMatchLiveStatusParts(scoreData);
+      liveParts = getMatchLiveStatusParts(scoreData, matchKey);
       const clockInfo = getLiveClockInfo(matchKey);
       const clockLabel = clockInfo.clock;
       const pulseClass = clockInfo.isPulsing ? 'pulse-minute' : '';
@@ -5834,7 +5863,7 @@ function createModalHeaderHtml(match, scoreData, summaryData) {
                           scoreData.shootout_score2 !== null && 
                           scoreData.shootout_score2 !== undefined;
       if (hasShootout) {
-        finishedLabel = `FT (Shootout: ${scoreData.shootout_score1} - ${scoreData.shootout_score2})`;
+        finishedLabel = `FT (Adu Penalti: ${scoreData.shootout_score1} - ${scoreData.shootout_score2})`;
       } else {
         const statusName = scoreData.espn_status_name || '';
         const statusDetail = scoreData.espn_status_detail || '';
