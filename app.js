@@ -3793,9 +3793,10 @@ function getMatchTooltipHtml(m) {
   const isWinner1 = winner === m.team1;
   const isWinner2 = winner === m.team2;
   const hasWinner = !!winner;
+  const hasScorers = !!(homeScorersText || awayScorersText);
 
   return `
-    <div class="tooltip-container" style="display: flex; flex-direction: column; gap: 9px; min-width: 190px; padding: 2px; font-family: var(--font-sans, sans-serif); text-align: left;">
+    <div class="tooltip-container" style="display: flex; flex-direction: column; gap: 9px; min-width: ${hasScorers ? '230px' : '190px'}; padding: 2px; font-family: var(--font-sans, sans-serif); text-align: left;">
       <!-- Header: Round + Match ID + Time -->
       <div style="display: flex; flex-direction: column; gap: 2px; border-bottom: 1px solid var(--glass-border); padding-bottom: 7px;">
         <div style="font-size: 0.62rem; text-transform: uppercase; letter-spacing: 0.8px; font-weight: 700; color: var(--primary-gold); line-height: 1.2; text-align: center;">
@@ -3819,14 +3820,7 @@ function getMatchTooltipHtml(m) {
             </span>
             <span style="font-size: 0.8rem; font-weight: 700; color: ${isWinner1 ? 'var(--primary-gold)' : 'var(--text-primary)'}; ${hasWinner && !isWinner1 ? 'opacity: 0.45;' : ''}">${score1}</span>
           </div>
-          ${homeScorersText ? `
-            <div style="font-size: 0.55rem; color: var(--text-secondary); opacity: 0.85; padding-left: 20px; font-weight: 400; line-height: 1.3;">
-              ${homeScorersText}
-            </div>
-          ` : ''}
         </div>
-
-
 
         <!-- Team 2 -->
         <div style="display: flex; flex-direction: column; gap: 2px;">
@@ -3838,13 +3832,20 @@ function getMatchTooltipHtml(m) {
             </span>
             <span style="font-size: 0.8rem; font-weight: 700; color: ${isWinner2 ? 'var(--primary-gold)' : 'var(--text-primary)'}; ${hasWinner && !isWinner2 ? 'opacity: 0.45;' : ''}">${score2}</span>
           </div>
-          ${awayScorersText ? `
-            <div style="font-size: 0.55rem; color: var(--text-secondary); opacity: 0.85; padding-left: 20px; font-weight: 400; line-height: 1.3;">
-              ${awayScorersText}
-            </div>
-          ` : ''}
         </div>
       </div>
+
+      <!-- Scorers Row (2 Columns) -->
+      ${hasScorers ? `
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; font-size: 0.55rem; color: var(--text-secondary); opacity: 0.85; border-top: 1px dashed var(--glass-border); padding-top: 6px; margin-top: -2px;">
+          <div style="text-align: left; line-height: 1.3; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+            ${homeScorersText || ''}
+          </div>
+          <div style="text-align: right; line-height: 1.3; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+            ${awayScorersText || ''}
+          </div>
+        </div>
+      ` : ''}
 
       <!-- Footer: Venue + Status -->
       <div style="display: flex; align-items: center; justify-content: space-between; font-size: 0.58rem; color: var(--text-secondary); font-weight: 500; gap: 8px; padding-top: 1px;">
