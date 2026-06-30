@@ -3796,7 +3796,7 @@ function getMatchTooltipHtml(m) {
   const hasScorers = !!(homeScorersText || awayScorersText);
 
   return `
-    <div class="tooltip-container" style="display: flex; flex-direction: column; gap: 9px; min-width: ${hasScorers ? '230px' : '190px'}; padding: 2px; font-family: var(--font-sans, sans-serif); text-align: left;">
+    <div class="tooltip-container" style="display: flex; flex-direction: column; gap: 9px; min-width: ${hasScorers ? '260px' : '230px'}; padding: 2px; font-family: var(--font-sans, sans-serif); text-align: left;">
       <!-- Header: Round + Match ID + Time -->
       <div style="display: flex; flex-direction: column; gap: 2px; border-bottom: 1px solid var(--glass-border); padding-bottom: 7px;">
         <div style="font-size: 0.62rem; text-transform: uppercase; letter-spacing: 0.8px; font-weight: 700; color: var(--primary-gold); line-height: 1.2; text-align: center;">
@@ -3808,40 +3808,36 @@ function getMatchTooltipHtml(m) {
         </div>
       </div>
 
-      <!-- Teams List (Flat & Clean) -->
-      <div style="display: flex; flex-direction: column; gap: 7px; padding: 2px 0;">
-        <!-- Team 1 -->
-        <div style="display: flex; flex-direction: column; gap: 2px;">
-          <div style="display: flex; align-items: center; justify-content: space-between; gap: 12px;">
-            <span style="display: flex; align-items: center; gap: 6px; font-size: 0.72rem; font-weight: ${isWinner1 ? '700' : '500'}; color: var(--text-primary); ${hasWinner && !isWinner1 ? 'opacity: 0.45;' : ''} min-width: 0;">
-              ${m.team1 && !isPlaceholder1 ? getFlagHtml(m.team1).replace('class="flag-crest"', 'style="width:14px; height:10px; border-radius:1px; object-fit:cover;"') : ''}
-              <span style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 120px;">${team1Name}</span>
-              ${t1WinnerMarker}
-            </span>
-            <span style="font-size: 0.8rem; font-weight: 700; color: ${isWinner1 ? 'var(--primary-gold)' : 'var(--text-primary)'}; ${hasWinner && !isWinner1 ? 'opacity: 0.45;' : ''}">${score1}</span>
-          </div>
+      <!-- Teams Display (Result Card Style) -->
+      <div style="display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); align-items: center; gap: 8px; padding: 2px 0;">
+        <!-- Left Team (Team 1) -->
+        <div style="display: flex; align-items: center; justify-content: flex-end; gap: 6px; font-size: 0.72rem; font-weight: ${isWinner1 ? '700' : '500'}; color: var(--text-primary); ${hasWinner && !isWinner1 ? 'opacity: 0.45;' : ''} min-width: 0; text-align: right;">
+          <span style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 85px;">${team1Name}</span>
+          ${m.team1 && !isPlaceholder1 ? getFlagHtml(m.team1).replace('class="flag-crest"', 'style="width:14px; height:10px; border-radius:1px; object-fit:cover;"') : ''}
         </div>
 
-        <!-- Team 2 -->
-        <div style="display: flex; flex-direction: column; gap: 2px;">
-          <div style="display: flex; align-items: center; justify-content: space-between; gap: 12px;">
-            <span style="display: flex; align-items: center; gap: 6px; font-size: 0.72rem; font-weight: ${isWinner2 ? '700' : '500'}; color: var(--text-primary); ${hasWinner && !isWinner2 ? 'opacity: 0.45;' : ''} min-width: 0;">
-              ${m.team2 && !isPlaceholder2 ? getFlagHtml(m.team2).replace('class="flag-crest"', 'style="width:14px; height:10px; border-radius:1px; object-fit:cover;"') : ''}
-              <span style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 120px;">${team2Name}</span>
-              ${t2WinnerMarker}
-            </span>
-            <span style="font-size: 0.8rem; font-weight: 700; color: ${isWinner2 ? 'var(--primary-gold)' : 'var(--text-primary)'}; ${hasWinner && !isWinner2 ? 'opacity: 0.45;' : ''}">${score2}</span>
-          </div>
+        <!-- Score display -->
+        <div style="font-size: 0.8rem; font-weight: 700; color: var(--text-primary); white-space: nowrap; display: flex; align-items: center; gap: 4px; padding: 0 4px;">
+          <span style="${hasWinner && !isWinner1 ? 'opacity: 0.45;' : ''}">${score1}</span>
+          <span style="opacity: 0.5; font-size: 0.7rem;">-</span>
+          <span style="${hasWinner && !isWinner2 ? 'opacity: 0.45;' : ''}">${score2}</span>
+        </div>
+
+        <!-- Right Team (Team 2) -->
+        <div style="display: flex; align-items: center; justify-content: flex-start; gap: 6px; font-size: 0.72rem; font-weight: ${isWinner2 ? '700' : '500'}; color: var(--text-primary); ${hasWinner && !isWinner2 ? 'opacity: 0.45;' : ''} min-width: 0; text-align: left;">
+          ${m.team2 && !isPlaceholder2 ? getFlagHtml(m.team2).replace('class="flag-crest"', 'style="width:14px; height:10px; border-radius:1px; object-fit:cover;"') : ''}
+          <span style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 85px;">${team2Name}</span>
         </div>
       </div>
 
-      <!-- Scorers Row (2 Columns) -->
+      <!-- Scorers Row (3 Columns: Left Scorers, Center Icon, Right Scorers) -->
       ${hasScorers ? `
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; font-size: 0.55rem; color: var(--text-secondary); opacity: 0.85; border-top: 1px dashed var(--glass-border); padding-top: 6px; margin-top: -2px;">
-          <div style="text-align: left; line-height: 1.3; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+        <div style="display: grid; grid-template-columns: minmax(0, 1fr) 20px minmax(0, 1fr); gap: 8px; font-size: 0.55rem; color: var(--text-secondary); opacity: 0.85; border-top: 1px dashed var(--glass-border); padding-top: 6px; margin-top: -2px;">
+          <div style="text-align: right; line-height: 1.3; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
             ${homeScorersText || ''}
           </div>
-          <div style="text-align: right; line-height: 1.3; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+          <div style="text-align: center; line-height: 1.3; opacity: 0.7;">⚽</div>
+          <div style="text-align: left; line-height: 1.3; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
             ${awayScorersText || ''}
           </div>
         </div>
