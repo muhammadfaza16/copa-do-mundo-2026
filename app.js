@@ -2241,6 +2241,12 @@ function renderBracketProxyCard() {
     headline = 'Fase grup usai — fase gugur menanti';
     subtext = `Semua pertandingan grup telah berakhir. Bagan fase gugur telah terbentuk — siapa yang berhadapan dengan siapa?`;
     badge = 'FASE GUGUR DIMULAI';
+  } else {
+    const pct = Math.round((finishedGS.length / WORLD_CUP_DATA.group_stage.length) * 100);
+    headline = 'Jalur menuju partai puncak';
+    subtext = `${finishedGS.length} laga fase grup telah selesai dari ${WORLD_CUP_DATA.group_stage.length} total (${pct}%). Bagan fase gugur siap dipantau.`;
+    badge = 'BAGAN TURNAMEN';
+  }
 
   // Define badge design details based on phase
   let badgeBg = 'rgba(245, 158, 11, 0.15)';
