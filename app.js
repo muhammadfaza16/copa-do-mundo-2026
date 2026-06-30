@@ -2125,6 +2125,19 @@ window.handleResultDotClick = function(index) {
 // -------------------------------------------------------
 // BRACKET PROXY CARD — dynamic narrative entry point
 // -------------------------------------------------------
+
+// Define navigateToBracket globally so onclick always resolves
+window.navigateToBracket = function() {
+  const navBtn = document.querySelector('.nav-item[data-tab="tab-bracket"]');
+  if (navBtn) {
+    navBtn.click();
+    setTimeout(() => {
+      const container = document.getElementById('tab-bracket');
+      if (container) container.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 100);
+  }
+};
+
 function renderBracketProxyCard() {
   const wrapper = document.getElementById('bracket-proxy-card-wrapper');
   if (!wrapper) return;
