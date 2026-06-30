@@ -961,20 +961,19 @@ function updateLiveMatchClocks() {
       const clockInfo = getLiveClockInfo(matchKey);
       
       const parts = getMatchLiveStatusParts(realScores[matchKey]);
-      const displayClock = clockInfo.clock || parts.clock || '';
-      let clockText = 'LIVE';
-      if (parts.periodName && parts.periodName !== 'LIVE') {
-        if (displayClock && displayClock !== parts.periodName) {
-          clockText = `${parts.periodName} · ${displayClock}`;
-        } else {
-          clockText = parts.periodName;
-        }
-      } else if (displayClock) {
-        clockText = displayClock;
-      }
+      const displayClock = clockInfo.clock || parts.clock || 'LIVE';
       
-      if (heroStatusLiveEl.textContent !== clockText) {
-        heroStatusLiveEl.textContent = clockText;
+      if (heroStatusLiveEl.textContent !== displayClock) {
+        heroStatusLiveEl.textContent = displayClock;
+      }
+
+      // Update match phase above the score
+      const heroPhaseEl = document.querySelector('.hero-phase-row .hero-match-phase');
+      if (heroPhaseEl) {
+        const phaseText = (parts.periodName && parts.periodName !== 'LIVE') ? parts.periodName : '';
+        if (heroPhaseEl.textContent !== phaseText) {
+          heroPhaseEl.textContent = phaseText;
+        }
       }
       
       if (clockInfo.isPulsing) {
@@ -1257,17 +1256,7 @@ function updateHeroPanel() {
       `;
 
       const clockInfo = getLiveClockInfo(matchKey);
-      const displayClock = clockInfo.clock || liveParts.clock || '';
-      let timeLabel = 'LIVE';
-      if (liveParts.periodName && liveParts.periodName !== 'LIVE') {
-        if (displayClock && displayClock !== liveParts.periodName) {
-          timeLabel = `${liveParts.periodName} · ${displayClock}`;
-        } else {
-          timeLabel = liveParts.periodName;
-        }
-      } else if (displayClock) {
-        timeLabel = displayClock;
-      }
+      const displayClock = clockInfo.clock || liveParts.clock || 'LIVE';
 
       // Flash is triggered imperatively by triggerScoreFlash — no inline class needed
 
@@ -1278,8 +1267,16 @@ function updateHeroPanel() {
             <div style="display: flex; justify-content: center; margin-bottom: 6px;">
               <span class="badge-big-match" style="position: static; transform: none; font-size: 0.55rem; padding: 2px 8px; white-space: nowrap;">BIG MATCH</span>
             </div>
-          ` : ''}
-          <div class="live-main-row" style="margin-bottom: 10px;">
+            ` : ''}
+            
+            <!-- Dedicated layout-invariant row for match phase (Extra Time, Shootout, 1st Half, etc.) -->
+            <div class="hero-phase-row" style="min-height: 16px; display: flex; align-items: center; justify-content: center; margin-bottom: 8px;">
+              ${(liveParts.periodName && liveParts.periodName !== 'LIVE') ? `
+                <span class="hero-match-phase" style="font-size: 0.62rem; font-weight: 700; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.5px;">${liveParts.periodName}</span>
+              ` : ''}
+            </div>
+
+            <div class="live-main-row" style="margin-bottom: 10px;">
               <!-- Team 1 -->
               <div class="live-team left-team">
                 <div class="live-team-info">
@@ -1297,7 +1294,7 @@ function updateHeroPanel() {
                   <span class="live-score">${scoreData.score2 !== null && scoreData.score2 !== undefined ? scoreData.score2 : 0}</span>
                 </div>
                 <span class="status-live hero-status-live">
-                  ${timeLabel}
+                  ${displayClock}
                 </span>
               </div>
               
