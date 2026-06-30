@@ -2130,7 +2130,6 @@ function renderBracketProxyCard() {
   if (!wrapper) return;
 
   recalculateKnockoutTree();
-  const allMatches = getAllMatches();
 
   // --- Gather data signals ---
   const finishedKO = knockoutMatches.filter(m => {
@@ -2141,32 +2140,27 @@ function renderBracketProxyCard() {
     const score = getMatchScore(`ko_${m.match_id}`);
     return score && (score.status === 'IN_PLAY' || score.status === 'EXTRA_TIME' || score.status === 'PAUSED' || score.status === 'PENALTY_SHOOTOUT');
   });
-
   const finishedGS = WORLD_CUP_DATA.group_stage.filter(m => {
     const key = `gs_${m.date}_${m.team1}_${m.team2}`;
     const score = getMatchScore(key);
     return score && score.status === 'FINISHED';
   });
-
   const upcomingKO = knockoutMatches.filter(m => {
     const score = getMatchScore(`ko_${m.match_id}`);
     return !score;
   });
 
-  // Determine tournament phase and build narrative
+  // Determine tournament phase
   let phase = 'group';
   if (finishedKO.length > 0 || liveKO.length > 0) phase = 'knockout';
   else if (finishedGS.length >= WORLD_CUP_DATA.group_stage.length) phase = 'ko_imminent';
 
-  // Figure out most recent dramatic KO result for headline
   let headline = '';
   let subtext = '';
   let accentColor = 'var(--accent-star)';
-  let badge = 'BABAK GUGUR';
-  let iconSvg = `<path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"></path><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"></path><path d="M4 22h16"></path><path d="M10 14.66V17c0 .55-.45 1-1 1H4v2h16v-2h-5c-.55 0-1-.45-1-1v-2.34"></path><path d="M12 2a6 6 0 0 1 6 6v5a6 6 0 0 1-6 6 6 6 0 0 1-6-6V8a6 6 0 0 1 6-6z"></path>`;
+  let badge = 'BAGAN TURNAMEN';
 
   if (liveKO.length > 0) {
-    // There's a live knockout match right now
     const live = liveKO[0];
     const score = getMatchScore(`ko_${live.match_id}`);
     const t1 = live.team1 || '?';
@@ -2176,25 +2170,20 @@ function renderBracketProxyCard() {
     const roundLabel = live.group || 'Fase Gugur';
 
     if (score.status === 'PENALTY_SHOOTOUT') {
-      headline = `🔥 Adu Penalti Sedang Berlangsung`;
-      subtext = `${t1} vs ${t2} masuk adu penalti di ${roundLabel}! Jantungan? Buka bagan sekarang.`;
+      headline = `Adu Penalti Sedang Berlangsung`;
+      subtext = `${t1} vs ${t2} berlanjut ke adu penalti di ${roundLabel}. Buka bagan untuk memantau perkembangannya.`;
     } else if (score.status === 'EXTRA_TIME') {
-      headline = `⚡ Babak Tambahan — ${t1} ${s1}–${s2} ${t2}`;
-      subtext = `Waktu normal tidak cukup di ${roundLabel}. Siapa yang bertahan? Pantau bagan turnamen.`;
+      headline = `Babak Tambahan — ${t1} ${s1}–${s2} ${t2}`;
+      subtext = `Waktu normal habis tanpa pemenang di ${roundLabel}. Dua puluh menit menentukan siapa yang bertahan.`;
     } else {
-      headline = `🟢 LIVE — ${t1} ${s1}–${s2} ${t2}`;
-      subtext = `Pertandingan fase gugur sedang berjalan di ${roundLabel}. Buka bagan untuk melihat jalur selanjutnya.`;
+      headline = `Sedang Berlangsung — ${t1} ${s1}–${s2} ${t2}`;
+      subtext = `Pertandingan ${roundLabel} sedang berjalan. Buka bagan untuk melihat jalur selanjutnya.`;
     }
     accentColor = '#4ade80';
-    badge = 'SEDANG BERLANGSUNG';
+    badge = 'LIVE SEKARANG';
 
   } else if (finishedKO.length > 0) {
-    // Sort by most recently played — use match_id as proxy (higher = later round)
-    const sorted = [...finishedKO].sort((a, b) => {
-      const sa = getMatchScore(`ko_${a.match_id}`);
-      const sb = getMatchScore(`ko_${b.match_id}`);
-      return b.match_id - a.match_id;
-    });
+    const sorted = [...finishedKO].sort((a, b) => b.match_id - a.match_id);
     const latest = sorted[0];
     const score = getMatchScore(`ko_${latest.match_id}`);
     const t1 = latest.team1 || '?';
@@ -2203,73 +2192,58 @@ function renderBracketProxyCard() {
     const s2 = score.score2;
     const roundLabel = latest.group || 'Fase Gugur';
 
-    // Determine winner
     let winner, loser;
     if (score.winner === 'HOME') { winner = t1; loser = t2; }
     else if (score.winner === 'AWAY') { winner = t2; loser = t1; }
-    else { winner = null; loser = null; }
 
     const isPenalty = score.penScore1 !== null && score.penScore2 !== null;
-    const isET = score.status === 'FINISHED' && (score.extraTime1 !== null || (s1 === s2 && isPenalty));
-
-    // Next upcoming KO match for the winner
-    const nextMatch = winner ? knockoutMatches.find(nm => nm.team1 === winner || nm.team2 === winner) : null;
+    const isET = score.extraTime1 !== null || (s1 === s2 && isPenalty);
 
     if (isPenalty && winner) {
-      headline = `${winner} Lolos Lewat Adu Penalti`;
-      subtext = `Drama di ${roundLabel}: ${t1} ${s1}–${s2} ${t2} (pen. ${score.penScore1}–${score.penScore2}). ${nextMatch ? `${winner} kini menunggu lawan berikutnya.` : `${winner} maju ke babak selanjutnya.`}`;
+      headline = `${winner} lolos lewat adu penalti`;
+      subtext = `${roundLabel}: ${t1} ${s1}–${s2} ${t2}, lanjut penalti ${score.penScore1}–${score.penScore2}. ${winner} melaju ke babak berikutnya.`;
     } else if (isET && winner) {
-      headline = `${winner} Lolos di Babak Tambahan`;
-      subtext = `${t1} ${s1}–${s2} ${t2} di ${roundLabel}. Laga dramatis berakhir setelah 120 menit penuh tekanan.`;
+      headline = `${winner} lolos di babak tambahan`;
+      subtext = `${t1} ${s1}–${s2} ${t2} di ${roundLabel}. Laga berakhir setelah 120 menit yang menegangkan.`;
     } else if (winner) {
-      const goal_diff = Math.abs(s1 - s2);
-      if (goal_diff >= 3) {
-        headline = `${winner} Menghancurkan ${loser}!`;
-        subtext = `Kemenangan meyakinkan ${s1}–${s2} di ${roundLabel}. ${winner} tampil dominan dan melaju ke babak berikutnya.`;
-      } else if (goal_diff === 1) {
-        headline = `${winner} Menang Tipis atas ${loser}`;
-        subtext = `Duel ketat di ${roundLabel} berakhir ${s1}–${s2}. Ketegangan hingga menit akhir. Lihat siapa yang menanti di bagan.`;
+      const diff = Math.abs(s1 - s2);
+      if (diff >= 3) {
+        headline = `${winner} menang telak ${s1}–${s2} atas ${loser}`;
+        subtext = `Kemenangan dominan di ${roundLabel}. ${winner} melaju mulus ke babak berikutnya.`;
+      } else if (diff === 1) {
+        headline = `${winner} menang tipis atas ${loser}`;
+        subtext = `Duel sengit di ${roundLabel} berakhir ${s1}–${s2}. Margin satu gol yang menentukan segalanya.`;
       } else {
-        headline = `${winner} Melaju, ${loser} Tersingkir`;
-        subtext = `Hasil ${roundLabel}: ${t1} ${s1}–${s2} ${t2}. Buka bagan untuk melihat perjalanan selanjutnya.`;
+        headline = `${winner} melaju, ${loser} tersingkir`;
+        subtext = `${roundLabel}: ${t1} ${s1}–${s2} ${t2}. Buka bagan untuk melihat peta persaingan selanjutnya.`;
       }
     } else {
-      headline = `Hasil Terbaru: ${t1} ${s1}–${s2} ${t2}`;
-      subtext = `${roundLabel} telah selesai. Buka bagan untuk melihat peta persaingan fase gugur secara lengkap.`;
+      headline = `${t1} ${s1}–${s2} ${t2}`;
+      subtext = `${roundLabel} telah selesai. Pantau bagan untuk melihat siapa yang tersisa di turnamen.`;
     }
 
-    // How many teams are still in
-    const totalKO = knockoutMatches.length;
-    const eliminated = finishedKO.length;
-    badge = `${eliminated}/${totalKO} LAGA SELESAI`;
+    badge = `${finishedKO.length} DARI ${knockoutMatches.length} LAGA SELESAI`;
 
   } else if (phase === 'ko_imminent') {
-    headline = 'Fase Grup Usai — Fase Gugur Menanti';
-    subtext = `Semua laga grup telah selesai. 32 tim terbaik siap bertarung di babak gugur. Cek bagan untuk melihat siapa yang berhadapan.`;
+    headline = 'Fase grup usai — fase gugur menanti';
+    subtext = `Semua pertandingan grup telah berakhir. Bagan fase gugur telah terbentuk — siapa yang berhadapan dengan siapa?`;
     badge = 'FASE GUGUR DIMULAI';
 
   } else {
-    // Still in group stage
-    const remaining = WORLD_CUP_DATA.group_stage.length - finishedGS.length;
     const pct = Math.round((finishedGS.length / WORLD_CUP_DATA.group_stage.length) * 100);
-    headline = 'Jalur Menuju Partai Puncak';
-    subtext = `${finishedGS.length} laga grup telah selesai (${pct}%). Fase gugur belum dimulai — tapi bagan sudah siap. Pantau perkembangan turnamen di sana.`;
+    headline = 'Jalur menuju partai puncak';
+    subtext = `${finishedGS.length} laga fase grup telah selesai dari ${WORLD_CUP_DATA.group_stage.length} total (${pct}%). Bagan fase gugur siap dipantau.`;
     badge = 'BAGAN TURNAMEN';
-    accentColor = 'var(--accent-star)';
   }
 
-  // Compose next match teaser chips
+  // Upcoming chips
   let chips = '';
   if (upcomingKO.length > 0) {
     const next = upcomingKO[0];
-    const t1 = next.team1 && next.team1 !== '?' ? next.team1 : null;
-    const t2 = next.team2 && next.team2 !== '?' ? next.team2 : null;
-    if (t1 && t2) {
-      chips += `<span class="bpc-chip">${t1} vs ${t2}</span>`;
-    }
-    if (upcomingKO.length > 1) {
-      chips += `<span class="bpc-chip">+${upcomingKO.length - 1} laga lainnya</span>`;
-    }
+    const ct1 = next.team1 && next.team1 !== '?' ? next.team1 : null;
+    const ct2 = next.team2 && next.team2 !== '?' ? next.team2 : null;
+    if (ct1 && ct2) chips += `<span class="bpc-chip">${ct1} vs ${ct2}</span>`;
+    if (upcomingKO.length > 1) chips += `<span class="bpc-chip">+${upcomingKO.length - 1} laga lainnya</span>`;
   }
 
   wrapper.innerHTML = `
@@ -2279,94 +2253,85 @@ function renderBracketProxyCard() {
         overflow: hidden;
         padding: 18px 20px;
         border-radius: var(--border-radius-lg);
-        border: 1px solid var(--glass-border);
-        background: linear-gradient(135deg, rgba(15, 23, 42, 0.7) 0%, rgba(30, 41, 59, 0.5) 100%);
+        border: 1px solid rgba(255,255,255,0.07);
+        background: linear-gradient(135deg, rgba(15, 23, 42, 0.85) 0%, rgba(30, 41, 59, 0.7) 100%);
         cursor: pointer;
         transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         display: flex;
         align-items: center;
         gap: 16px;
-        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
       }
       .bracket-proxy-card-main:hover {
-        transform: translateY(-3px);
-        border-color: rgba(255, 255, 255, 0.13);
-        box-shadow: 0 12px 32px rgba(0, 0, 0, 0.4);
-        background: linear-gradient(135deg, rgba(245, 158, 11, 0.07) 0%, rgba(30, 41, 59, 0.55) 100%);
+        transform: translateY(-2px);
+        border-color: rgba(255, 255, 255, 0.12);
+        box-shadow: 0 10px 28px rgba(0, 0, 0, 0.4);
       }
-      .bracket-proxy-card-main:active { transform: translateY(-1px); }
+      .bracket-proxy-card-main:active { transform: translateY(0); }
       .bracket-proxy-card-main:hover .bpc-arrow { transform: translateX(4px); }
       .bpc-glow {
-        position: absolute;
-        top: -60%;
-        right: -10%;
-        width: 240px;
-        height: 240px;
-        background: radial-gradient(circle, rgba(245, 158, 11, 0.14) 0%, transparent 70%);
-        filter: blur(24px);
-        pointer-events: none;
+        position: absolute; top: -50%; right: -5%;
+        width: 220px; height: 220px;
+        background: radial-gradient(circle, rgba(245, 158, 11, 0.12) 0%, transparent 70%);
+        filter: blur(28px); pointer-events: none;
       }
       .bpc-badge {
-        font-size: 0.56rem;
+        font-size: 0.55rem;
         text-transform: uppercase;
-        letter-spacing: 1.4px;
+        letter-spacing: 1.5px;
         font-weight: 700;
         color: ${accentColor};
-        margin-bottom: 5px;
+        margin-bottom: 6px;
       }
       .bpc-headline {
-        font-size: 1rem;
-        font-weight: 800;
-        color: var(--text-primary);
-        margin: 0 0 5px 0;
-        line-height: 1.3;
+        font-size: 0.97rem;
+        font-weight: 700;
+        color: #f1f5f9;
+        margin: 0 0 6px 0;
+        line-height: 1.35;
       }
       .bpc-subtext {
-        font-size: 0.7rem;
-        color: var(--text-secondary);
-        opacity: 0.82;
-        line-height: 1.5;
-        margin: 0 0 12px 0;
+        font-size: 0.72rem;
+        color: #94a3b8;
+        line-height: 1.55;
+        margin: 0 0 10px 0;
       }
       .bpc-chips { display: flex; flex-wrap: wrap; gap: 5px; }
       .bpc-chip {
         font-size: 0.56rem;
         font-weight: 600;
-        color: var(--text-secondary);
-        background: rgba(255,255,255,0.04);
-        border: 0.5px solid rgba(255,255,255,0.07);
-        padding: 2px 8px;
+        color: #94a3b8;
+        background: rgba(255,255,255,0.05);
+        border: 0.5px solid rgba(255,255,255,0.1);
+        padding: 2px 9px;
         border-radius: 12px;
       }
       .bpc-icon-wrap {
         flex-shrink: 0;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        width: 56px;
-        height: 56px;
-        border-radius: 50%;
-        background: rgba(255, 255, 255, 0.025);
-        border: 1px solid rgba(255, 255, 255, 0.06);
+        display: flex; align-items: center; justify-content: center;
+        width: 48px; height: 48px;
+        border-radius: 12px;
+        background: rgba(255, 255, 255, 0.04);
+        border: 1px solid rgba(255, 255, 255, 0.08);
         transition: all 0.3s ease;
       }
       .bracket-proxy-card-main:hover .bpc-icon-wrap {
-        background: rgba(245, 158, 11, 0.08);
-        border-color: rgba(245, 158, 11, 0.2);
-        transform: rotate(5deg) scale(1.06);
+        background: rgba(245, 158, 11, 0.09);
+        border-color: rgba(245, 158, 11, 0.22);
       }
-      .bpc-arrow {
-        transition: transform 0.25s ease;
-        flex-shrink: 0;
-      }
+      .bpc-arrow { transition: transform 0.25s ease; flex-shrink: 0; }
     </style>
 
     <div class="bracket-proxy-card-main" onclick="window.navigateToBracket()" role="button" aria-label="Buka Bagan Turnamen">
       <div class="bpc-glow"></div>
 
       <div class="bpc-icon-wrap">
-        <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="${accentColor}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="filter: drop-shadow(0 0 6px ${accentColor}55);">
-          ${iconSvg}
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="${accentColor}" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="3" y="3" width="7" height="5" rx="1"/><rect x="14" y="3" width="7" height="5" rx="1"/>
+          <rect x="7" y="16" width="10" height="5" rx="1"/>
+          <line x1="6.5" y1="8" x2="6.5" y2="13"/><line x1="17.5" y1="8" x2="17.5" y2="13"/>
+          <line x1="6.5" y1="13" x2="17.5" y2="13"/>
+          <line x1="12" y1="13" x2="12" y2="16"/>
         </svg>
       </div>
 
@@ -2377,23 +2342,13 @@ function renderBracketProxyCard() {
         ${chips ? `<div class="bpc-chips">${chips}</div>` : ''}
       </div>
 
-      <svg class="bpc-arrow" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.25)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;">
+      <svg class="bpc-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.3)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;">
         <polyline points="9 18 15 12 9 6"></polyline>
       </svg>
     </div>
   `;
 }
 
-window.navigateToBracket = function() {
-  const navBtn = document.querySelector('.nav-item[data-tab="tab-bracket"]');
-  if (navBtn) {
-    navBtn.click();
-    setTimeout(() => {
-      const container = document.getElementById('tab-bracket');
-      if (container) container.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }, 100);
-  }
-};
 
 // Render Latest Match Results (Hasil Pertandingan Terbaru)
 function renderLatestResults() {
