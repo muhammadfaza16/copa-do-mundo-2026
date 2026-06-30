@@ -2285,6 +2285,16 @@ body.light-theme .flag-crest {
   margin-bottom: 8px;
 }
 
+.score-box .match-period-label.penalty-finished-label {
+  color: var(--accent-star);
+  font-weight: 700;
+}
+
+.score-box .match-period-label.aet-finished-label {
+  color: var(--accent-star);
+  font-weight: 700;
+}
+
 .score-box .score-status {
   font-size: 0.65rem;
   font-weight: 800;

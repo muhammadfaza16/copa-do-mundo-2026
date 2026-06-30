@@ -260,9 +260,9 @@ export default async function handler(req, res) {
 
         if (espnName === 'STATUS_HALFTIME' || (espnDesc && espnDesc.toLowerCase() === 'halftime')) {
           time_elapsed = 'HT';
-        } else if (espnName === 'STATUS_EXTRA_TIME' || (espnDesc && espnDesc.toLowerCase().includes('extra'))) {
+        } else if (espnName === 'STATUS_EXTRA_TIME' || espnName === 'STATUS_OVERTIME' || (espnDesc && (espnDesc.toLowerCase().includes('extra') || espnDesc.toLowerCase().includes('overtime')))) {
           time_elapsed = 'ET';
-        } else if (espnName === 'STATUS_SHOOTOUT' || (espnDesc && espnDesc.toLowerCase().includes('shootout') || espnDesc && espnDesc.toLowerCase().includes('penalty'))) {
+        } else if (espnName === 'STATUS_SHOOTOUT' || espnName === 'STATUS_FINAL_PEN' || (espnDesc && (espnDesc.toLowerCase().includes('shootout') || espnDesc.toLowerCase().includes('penalty')))) {
           time_elapsed = 'PEN';
         }
       }
@@ -277,9 +277,9 @@ export default async function handler(req, res) {
 
         if (espnName === 'STATUS_HALFTIME' || (espnDesc && espnDesc.toLowerCase() === 'halftime')) {
           status = 'PAUSED'; // HT
-        } else if (espnName === 'STATUS_EXTRA_TIME' || (espnDesc && espnDesc.toLowerCase().includes('extra'))) {
+        } else if (espnName === 'STATUS_EXTRA_TIME' || espnName === 'STATUS_OVERTIME' || (espnDesc && (espnDesc.toLowerCase().includes('extra') || espnDesc.toLowerCase().includes('overtime')))) {
           status = 'EXTRA_TIME';
-        } else if (espnName === 'STATUS_SHOOTOUT' || (espnDesc && espnDesc.toLowerCase().includes('shootout') || espnDesc && espnDesc.toLowerCase().includes('penalty'))) {
+        } else if (espnName === 'STATUS_SHOOTOUT' || espnName === 'STATUS_FINAL_PEN' || (espnDesc && (espnDesc.toLowerCase().includes('shootout') || espnDesc.toLowerCase().includes('penalty')))) {
           status = 'PENALTY_SHOOTOUT';
         } else {
           status = 'IN_PLAY';
@@ -333,7 +333,11 @@ export default async function handler(req, res) {
         away_team_name_en: awayName,
         display_clock: ev.status.displayClock || "",
         period: ev.status.period || 0,
-        period_desc: (ev.status.type && ev.status.type.description) || ""
+        period_desc: (ev.status.type && ev.status.type.description) || "",
+        home_shootout_score: home.shootoutScore !== undefined ? String(home.shootoutScore) : null,
+        away_shootout_score: away.shootoutScore !== undefined ? String(away.shootoutScore) : null,
+        espn_status_name: (ev.status && ev.status.type && ev.status.type.name) || "",
+        espn_status_detail: (ev.status && ev.status.type && ev.status.type.detail) || ""
       };
     }).filter(Boolean);
 

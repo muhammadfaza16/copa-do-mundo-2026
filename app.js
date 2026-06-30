@@ -961,7 +961,17 @@ function updateLiveMatchClocks() {
       const clockInfo = getLiveClockInfo(matchKey);
       
       const parts = getMatchLiveStatusParts(realScores[matchKey]);
-      const clockText = clockInfo.clock || parts.clock || parts.periodName || 'LIVE';
+      const displayClock = clockInfo.clock || parts.clock || '';
+      let clockText = 'LIVE';
+      if (parts.periodName && parts.periodName !== 'LIVE') {
+        if (displayClock && displayClock !== parts.periodName) {
+          clockText = `${parts.periodName} · ${displayClock}`;
+        } else {
+          clockText = parts.periodName;
+        }
+      } else if (displayClock) {
+        clockText = displayClock;
+      }
       
       if (heroStatusLiveEl.textContent !== clockText) {
         heroStatusLiveEl.textContent = clockText;
@@ -1030,9 +1040,33 @@ function updateLiveMatchClocks() {
             `;
           }
         } else {
-          const minuteLabel = scoreData.status === 'FINISHED' ? 'FT' : 'Belum Mulai';
+          let finishedLabel = scoreData.status === 'FINISHED' ? 'FT' : 'Belum Mulai';
+          if (scoreData.status === 'FINISHED') {
+            const hasShootout = scoreData.shootout_score1 !== null && 
+                                scoreData.shootout_score1 !== undefined && 
+                                scoreData.shootout_score2 !== null && 
+                                scoreData.shootout_score2 !== undefined;
+            if (hasShootout) {
+              finishedLabel = `FT (Pen. ${scoreData.shootout_score1} - ${scoreData.shootout_score2})`;
+            } else {
+              const statusName = scoreData.espn_status_name || '';
+              const statusDetail = scoreData.espn_status_detail || '';
+              const periodDesc = scoreData.period_desc || '';
+              const clock = scoreData.display_clock || '';
+              
+              const isAet = statusName === 'STATUS_FINAL_OVERTIME' || 
+                            statusDetail === 'AET' || 
+                            statusDetail.toLowerCase().includes('aet') ||
+                            periodDesc.toLowerCase().includes('extra') || 
+                            periodDesc.toLowerCase().includes('overtime') ||
+                            clock === "120'";
+              if (isAet) {
+                finishedLabel = `FT (AET)`;
+              }
+            }
+          }
           modalLiveStatusHtml = `
-            <span class="score-status ${scoreData.status === 'FINISHED' ? 'status-ft' : ''}" style="font-size: 0.68rem; font-weight: 800; text-transform: uppercase; color: var(--text-secondary);">${minuteLabel}</span>
+            <span class="score-status ${scoreData.status === 'FINISHED' ? 'status-ft' : ''}" style="font-size: 0.68rem; font-weight: 800; text-transform: uppercase; color: var(--text-secondary);">${finishedLabel}</span>
           `;
         }
         if (modalStatusBoxVal.innerHTML !== modalLiveStatusHtml) {
@@ -1222,7 +1256,18 @@ function updateHeroPanel() {
         </div>
       `;
 
-      const timeLabel = liveParts.clock || liveParts.periodName;
+      const clockInfo = getLiveClockInfo(matchKey);
+      const displayClock = clockInfo.clock || liveParts.clock || '';
+      let timeLabel = 'LIVE';
+      if (liveParts.periodName && liveParts.periodName !== 'LIVE') {
+        if (displayClock && displayClock !== liveParts.periodName) {
+          timeLabel = `${liveParts.periodName} · ${displayClock}`;
+        } else {
+          timeLabel = liveParts.periodName;
+        }
+      } else if (displayClock) {
+        timeLabel = displayClock;
+      }
 
       // Flash is triggered imperatively by triggerScoreFlash — no inline class needed
 
@@ -1575,6 +1620,40 @@ function translateRoundName(groupName) {
   return groupName.replace(/^Group\s+/i, 'Grup ');
 }
 
+// Get extra details (penalty shootout or extra time) for a completed match
+function getMatchFinishedExtraInfo(scoreData) {
+  if (!scoreData) return '';
+  
+  // 1. Check penalty shootout
+  const hasShootout = scoreData.shootout_score1 !== null && 
+                      scoreData.shootout_score1 !== undefined && 
+                      scoreData.shootout_score2 !== null && 
+                      scoreData.shootout_score2 !== undefined;
+                      
+  if (hasShootout) {
+    return `<div class="match-period-label penalty-finished-label">Pen. ${scoreData.shootout_score1}-${scoreData.shootout_score2}</div>`;
+  }
+  
+  // 2. Check if finished in extra time (AET)
+  const statusName = scoreData.espn_status_name || '';
+  const statusDetail = scoreData.espn_status_detail || '';
+  const periodDesc = scoreData.period_desc || '';
+  const clock = scoreData.display_clock || '';
+  
+  const isAet = statusName === 'STATUS_FINAL_OVERTIME' || 
+                statusDetail === 'AET' || 
+                statusDetail.toLowerCase().includes('aet') ||
+                periodDesc.toLowerCase().includes('extra') || 
+                periodDesc.toLowerCase().includes('overtime') ||
+                clock === "120'";
+                
+  if (isAet) {
+    return `<div class="match-period-label aet-finished-label">AET</div>`;
+  }
+  
+  return '';
+}
+
 // Render Match Card
 function createMatchCardHtml(match, index, isKnockout = false, showBigMatchBadge = true, isBracketSchedule = false) {
   const matchKey = isKnockout ? `ko_${match.match_id}` : `gs_${match.date}_${match.team1}_${match.team2}`;
@@ -1659,6 +1738,7 @@ function createMatchCardHtml(match, index, isKnockout = false, showBigMatchBadge
           </div>
           <div class="match-time-box score-box">
             ${isLive && liveParts && liveParts.clock && liveParts.clock !== 'LIVE' ? `<div class="match-period-label">${liveParts.periodName}</div>` : ''}
+            ${!isLive ? getMatchFinishedExtraInfo(scoreData) : ''}
             <div class="score-display" style="white-space: nowrap;">
               <span>${scoreData.score1}</span>
               <span> - </span>
@@ -5301,6 +5381,15 @@ async function fetchRealTimeScores(isManual = false) {
     if (score1 > score2) return team1;
     if (score2 > score1) return team2;
     
+    // Tie breaker 1: check shootout scores
+    const shootout1 = parseInt(apiMatch.home_shootout_score);
+    const shootout2 = parseInt(apiMatch.away_shootout_score);
+    if (!isNaN(shootout1) && !isNaN(shootout2)) {
+      if (shootout1 > shootout2) return team1;
+      if (shootout2 > shootout1) return team2;
+    }
+
+    // Tie breaker 2: check who advanced to next rounds in the API
     const matchId = parseInt(apiMatch.id);
     const nextMatch = allApiMatches.find(m => 
       parseInt(m.id) > matchId && 
@@ -5409,6 +5498,8 @@ async function fetchRealTimeScores(isManual = false) {
         let scorers2 = null;
         let redCards1 = null;
         let redCards2 = null;
+        let shootoutScore1 = null;
+        let shootoutScore2 = null;
         
         const rawHomeRed = apiMatch.home_red_cards || apiMatch.home_redcards || null;
         const rawAwayRed = apiMatch.away_red_cards || apiMatch.away_redcards || null;
@@ -5421,6 +5512,11 @@ async function fetchRealTimeScores(isManual = false) {
           if (isNaN(rawScore1) || rawScore1 < 0 || rawScore1 > 15) rawScore1 = 0;
           if (isNaN(rawScore2) || rawScore2 < 0 || rawScore2 > 15) rawScore2 = 0;
           
+          const rawShoot1 = parseInt(apiMatch.home_shootout_score);
+          const rawShoot2 = parseInt(apiMatch.away_shootout_score);
+          const shoot1Val = !isNaN(rawShoot1) ? rawShoot1 : null;
+          const shoot2Val = !isNaN(rawShoot2) ? rawShoot2 : null;
+
           if (match) {
             if (match.team1 === team1Indo) {
               score1 = rawScore1;
@@ -5429,6 +5525,8 @@ async function fetchRealTimeScores(isManual = false) {
               scorers2 = apiMatch.away_scorers;
               redCards1 = rawHomeRed;
               redCards2 = rawAwayRed;
+              shootoutScore1 = shoot1Val;
+              shootoutScore2 = shoot2Val;
             } else {
               score1 = rawScore2;
               score2 = rawScore1;
@@ -5436,6 +5534,8 @@ async function fetchRealTimeScores(isManual = false) {
               scorers2 = apiMatch.home_scorers;
               redCards1 = rawAwayRed;
               redCards2 = rawHomeRed;
+              shootoutScore1 = shoot2Val;
+              shootoutScore2 = shoot1Val;
             }
           } else {
             score1 = rawScore1;
@@ -5444,6 +5544,8 @@ async function fetchRealTimeScores(isManual = false) {
             scorers2 = apiMatch.away_scorers;
             redCards1 = rawHomeRed;
             redCards2 = rawAwayRed;
+            shootoutScore1 = shoot1Val;
+            shootoutScore2 = shoot2Val;
           }
         } else {
           // Scheduled / not started
@@ -5531,11 +5633,15 @@ async function fetchRealTimeScores(isManual = false) {
         } else {
           if (existing.score1 !== score1 ||
               existing.score2 !== score2 ||
+              existing.shootout_score1 !== shootoutScore1 ||
+              existing.shootout_score2 !== shootoutScore2 ||
               existing.status !== status ||
               existing.time_elapsed !== (apiMatch.time_elapsed || null) ||
               existing.display_clock !== (apiMatch.display_clock || null) ||
               existing.period !== (apiMatch.period || null) ||
               existing.period_desc !== (apiMatch.period_desc || null) ||
+              existing.espn_status_name !== (apiMatch.espn_status_name || null) ||
+              existing.espn_status_detail !== (apiMatch.espn_status_detail || null) ||
               existing.home_scorers !== scorers1 ||
               existing.away_scorers !== scorers2 ||
               existing.home_red_cards !== redCards1 ||
@@ -5552,6 +5658,8 @@ async function fetchRealTimeScores(isManual = false) {
           realScores[localKey] = {
             score1: score1,
             score2: score2,
+            shootout_score1: shootoutScore1,
+            shootout_score2: shootoutScore2,
             status: status,
             stadium_id: apiMatch.stadium_id,
             matchday: apiMatch.matchday,
@@ -5566,6 +5674,8 @@ async function fetchRealTimeScores(isManual = false) {
             display_clock: apiMatch.display_clock || null,
             period: apiMatch.period || null,
             period_desc: apiMatch.period_desc || null,
+            espn_status_name: apiMatch.espn_status_name || null,
+            espn_status_detail: apiMatch.espn_status_detail || null,
             score1_updated_at: score1_updated_at,
             score2_updated_at: score2_updated_at,
             clock_updated_at: clock_updated_at,
@@ -5683,8 +5793,33 @@ function createModalHeaderHtml(match, scoreData, summaryData) {
       `;
     }
   } else {
+    let finishedLabel = minuteLabel;
+    if (scoreData.status === 'FINISHED') {
+      const hasShootout = scoreData.shootout_score1 !== null && 
+                          scoreData.shootout_score1 !== undefined && 
+                          scoreData.shootout_score2 !== null && 
+                          scoreData.shootout_score2 !== undefined;
+      if (hasShootout) {
+        finishedLabel = `FT (Pen. ${scoreData.shootout_score1} - ${scoreData.shootout_score2})`;
+      } else {
+        const statusName = scoreData.espn_status_name || '';
+        const statusDetail = scoreData.espn_status_detail || '';
+        const periodDesc = scoreData.period_desc || '';
+        const clock = scoreData.display_clock || '';
+        
+        const isAet = statusName === 'STATUS_FINAL_OVERTIME' || 
+                      statusDetail === 'AET' || 
+                      statusDetail.toLowerCase().includes('aet') ||
+                      periodDesc.toLowerCase().includes('extra') || 
+                      periodDesc.toLowerCase().includes('overtime') ||
+                      clock === "120'";
+        if (isAet) {
+          finishedLabel = `FT (AET)`;
+        }
+      }
+    }
     modalLiveStatusHtml = `
-      <span class="score-status ${scoreData.status === 'FINISHED' ? 'status-ft' : ''}" style="font-size: 0.68rem; font-weight: 800; text-transform: uppercase; color: var(--text-secondary);">${minuteLabel}</span>
+      <span class="score-status ${scoreData.status === 'FINISHED' ? 'status-ft' : ''}" style="font-size: 0.68rem; font-weight: 800; text-transform: uppercase; color: var(--text-secondary);">${finishedLabel}</span>
     `;
   }
   
