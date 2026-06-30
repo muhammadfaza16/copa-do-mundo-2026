@@ -1671,9 +1671,9 @@ function getMatchFinishedExtraInfo(scoreData, match = null) {
     const winnerName = (sh1 > sh2) ? match.team1 : match.team2;
     const shWinnerScore = Math.max(sh1, sh2);
     const shLoserScore = Math.min(sh1, sh2);
-    return `<div class="match-period-label penalty-finished-label">${winnerName} won ${shWinnerScore}-${shLoserScore} on penalties</div>`;
+    return `${winnerName} won ${shWinnerScore}-${shLoserScore} on penalties`;
   } else if (hasShootout) {
-    return `<div class="match-period-label penalty-finished-label">Adu Penalti (${scoreData.shootout_score1}-${scoreData.shootout_score2})</div>`;
+    return `Adu Penalti (${scoreData.shootout_score1}-${scoreData.shootout_score2})`;
   }
   
   // 2. Check if finished in extra time (AET)
@@ -1693,9 +1693,9 @@ function getMatchFinishedExtraInfo(scoreData, match = null) {
     const s1 = parseInt(scoreData.score1);
     const s2 = parseInt(scoreData.score2);
     const winnerName = (s1 > s2) ? match.team1 : match.team2;
-    return `<div class="match-period-label aet-finished-label">${winnerName} won after extra time</div>`;
+    return `${winnerName} won after extra time`;
   } else if (isAet) {
-    return `<div class="match-period-label aet-finished-label">Extra Time</div>`;
+    return `Extra Time`;
   }
   
   return '';
@@ -1776,13 +1776,22 @@ function createMatchCardHtml(match, index, isKnockout = false, showBigMatchBadge
     // Flash handled imperatively by triggerScoreFlash — no inline class evaluation needed
 
     const extraInfo = !isLive ? getMatchFinishedExtraInfo(scoreData, match) : '';
-    const hasPeriodLabel = (isLive && liveParts && liveParts.clock && liveParts.clock !== 'LIVE' && liveParts.periodName !== liveParts.clock) || (!isLive && extraInfo);
+    const hasPeriodLabel = isLive && liveParts && liveParts.clock && liveParts.clock !== 'LIVE' && liveParts.periodName !== liveParts.clock;
     
     const periodRowHtml = hasPeriodLabel ? `
       <div class="match-period-row">
-        ${isLive ? `<span class="match-period-label">${liveParts.periodName}</span>` : extraInfo}
+        <span class="match-period-label">${liveParts.periodName}</span>
       </div>
     ` : '';
+
+    let cardWinReasonHtml = '';
+    if (!isLive && extraInfo) {
+      cardWinReasonHtml = `
+        <div class="match-card-win-reason-row" style="font-size: 0.58rem; color: var(--text-secondary); opacity: 0.85; text-align: center; font-weight: 500; padding: 6px 12px 0; margin-top: -2px; text-transform: none; letter-spacing: 0.2px; border-top: 0.5px solid var(--glass-border);">
+          ${extraInfo}
+        </div>
+      `;
+    }
 
     return `
       <div class="match-card" data-key="${matchKey}" title="${labelVenue}" onclick="window.openMatchDetailModal('${matchKey}')" style="cursor: pointer;">
@@ -1809,8 +1818,9 @@ function createMatchCardHtml(match, index, isKnockout = false, showBigMatchBadge
           </div>
           <div class="match-venue-subtle">${labelVenue}</div>
         </div>
+        ${cardWinReasonHtml}
         ${(cleanScorers1 || cleanScorers2) ? `
-          <div class="match-scorers-row">
+          <div class="match-scorers-row" style="${cardWinReasonHtml ? 'border-top: none; margin-top: 2px;' : ''}">
             <div class="scorers-left">
               ${cleanScorers1 || ''}
             </div>
@@ -1821,7 +1831,7 @@ function createMatchCardHtml(match, index, isKnockout = false, showBigMatchBadge
           </div>
         ` : ''}
         ${(cleanRedCards1 || cleanRedCards2) ? `
-          <div class="match-redcards-row${!(cleanScorers1 || cleanScorers2) ? ' no-scorers' : ''}">
+          <div class="match-redcards-row${!(cleanScorers1 || cleanScorers2) ? ' no-scorers' : ''}" style="${cardWinReasonHtml && !(cleanScorers1 || cleanScorers2) ? 'border-top: none; margin-top: 2px;' : ''}">
             <div class="redcards-left">
               ${cleanRedCards1 || ''}
             </div>
