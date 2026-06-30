@@ -3822,10 +3822,10 @@ function getMatchTooltipHtml(m) {
       const winnerName = (sh1 > sh2) ? team1Name : team2Name;
       const shWinnerScore = Math.max(sh1, sh2);
       const shLoserScore = Math.min(sh1, sh2);
-      winReason = `${winnerName} menang adu penalti ${shWinnerScore}-${shLoserScore}`;
+      winReason = `${winnerName} won ${shWinnerScore}-${shLoserScore} on penalties`;
     } else if (isAet) {
       const winnerName = (s1 > s2) ? team1Name : team2Name;
-      winReason = `${winnerName} menang setelah perpanjangan waktu`;
+      winReason = `${winnerName} won after extra time`;
     }
   }
 
