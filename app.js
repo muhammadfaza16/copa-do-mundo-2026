@@ -1787,7 +1787,7 @@ function createMatchCardHtml(match, index, isKnockout = false, showBigMatchBadge
     let cardWinReasonHtml = '';
     if (!isLive && extraInfo) {
       cardWinReasonHtml = `
-        <div style="grid-column: 1 / -1; font-size: 0.58rem; color: var(--text-secondary); opacity: 0.85; text-align: center; font-weight: 500; margin-top: 1px; text-transform: none; letter-spacing: 0.2px; line-height: 1.2; white-space: nowrap;">
+        <div style="grid-column: 1 / -1; font-size: 0.62rem; color: var(--accent-star); opacity: 0.95; text-align: center; font-weight: 700; margin-top: 1px; text-transform: none; letter-spacing: 0.2px; line-height: 1.2; white-space: nowrap;">
           ${extraInfo}
         </div>
       `;
