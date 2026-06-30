@@ -2248,23 +2248,58 @@ function renderBracketProxyCard() {
     const isPenalty = score.penScore1 !== null && score.penScore2 !== null;
     const isET = score.extraTime1 !== null || (s1 === s2 && isPenalty);
 
-    if (isPenalty && winner) {
-      headline = `${winner} lolos lewat adu penalti`;
-      subtext = `Drama menegangkan di ${roundLabel}. Bermain imbang ${s1}–${s2} kontra ${loser}, ketenangan kiper meloloskan ${winner} (pen. ${score.penScore1}–${score.penScore2}).${nextPathMsg}`;
-    } else if (isET && winner) {
-      headline = `Gol krusial babak tambahan meloloskan ${winner}`;
-      subtext = `Pertarungan fisik yang melelahkan. Perlawanan spartan ${loser} akhirnya runtuh di babak tambahan dengan skor ${s1}–${s2}.${nextPathMsg}`;
-    } else if (winner) {
-      const diff = Math.abs(s1 - s2);
-      if (diff >= 3) {
-        headline = `Masterclass taktis ${winner} singkirkan ${loser}`;
-        subtext = `Dominasi mutlak tanpa ampun. Performa klinis lini serang ${winner} menghasilkan kemenangan telak ${s1}–${s2} di ${roundLabel}.${nextPathMsg}`;
-      } else if (diff === 1) {
-        headline = `${winner} redam perlawanan sengit ${loser}`;
-        subtext = `Duel ketat hingga peluit akhir di ${roundLabel}. Keunggulan tipis ${s1}–${s2} cukup bagi ${winner} untuk mengamankan tiket babak gugur.${nextPathMsg}`;
+    // Giant/favorite detection lists
+    const GIANTS = [
+      'ARG', 'ARGENTINA', 'BRA', 'BRAZIL', 'GER', 'GERMANY', 'JERMAN', 'FRA', 'FRANCE', 'PRANCIS',
+      'ESP', 'SPAIN', 'SPANYOL', 'ITA', 'ITALY', 'ITALIA', 'ENG', 'ENGLAND', 'INGGRIS',
+      'NED', 'NETHERLANDS', 'BELANDA', 'POR', 'PORTUGAL', 'BEL', 'BELGIUM', 'BELGIA', 'URU', 'URUGUAY'
+    ];
+    const isGiant = (team) => {
+      if (!team) return false;
+      const name = team.toUpperCase().trim();
+      return GIANTS.some(g => name === g || name.includes(g));
+    };
+
+    const isWinnerGiant = isGiant(winner);
+    const isLoserGiant = isGiant(loser);
+
+    // Determine context & write editorial story
+    if (winner && loser) {
+      if (!isWinnerGiant && isLoserGiant) {
+        // UPSET! Underdog memulangkan raksasa
+        if (isPenalty) {
+          headline = `Sensasi adu penalti: ${winner} pulangkan raksasa ${loser}`;
+          subtext = `Kejutan terbesar tersaji di ${roundLabel}. Tampil spartan tanpa rasa takut, perjuangan heroik ${winner} sukses memulangkan tim unggulan ${loser} lewat babak adu penalti (${score.penScore1}–${score.penScore2}).${nextPathMsg}`;
+        } else if (isET) {
+          headline = `Kejutan 120 menit: ${winner} singkirkan ${loser}`;
+          subtext = `Runtuhnya tembok pertahanan ${loser}. Gol di babak tambahan waktu mengunci kemenangan bersejarah ${winner} ${s1}–${s2} atas raksasa ${loser} di ${roundLabel}.${nextPathMsg}`;
+        } else {
+          headline = `Kejutan terbesar: ${winner} tumbangkan ${loser}`;
+          subtext = `Sejarah baru tertulis di ${roundLabel}. Raksasa dunia ${loser} terpaksa angkat koper lebih awal setelah tak berkutik di hadapan kolektivitas ${winner} dengan skor akhir ${s1}–${s2}.${nextPathMsg}`;
+        }
+      } else if (isWinnerGiant && isLoserGiant) {
+        // GIANT CLASH!
+        if (isPenalty) {
+          headline = `Drama adu penalti klasik meloloskan ${winner}`;
+          subtext = `Pertarungan kolosal dua kekuatan utama sepak bola dunia di ${roundLabel} berakhir dramatis. Bermain imbang ${s1}–${s2}, ${winner} akhirnya memulangkan ${loser} lewat babak adu penalti (${score.penScore1}–${score.penScore2}).${nextPathMsg}`;
+        } else {
+          headline = `Kedigdayaan ${loser} runtuh di tangan ${winner}`;
+          subtext = `Laga klasik bertensi tinggi di babak ${roundLabel}. Melalui duel taktis penuh gengsi, ${winner} membuktikan superioritas mereka dan menundukkan ${loser} dengan skor akhir ${s1}–${s2}.${nextPathMsg}`;
+        }
+      } else if (isWinnerGiant && !isLoserGiant) {
+        // FAVORITE DOMINATES / WINS
+        const diff = Math.abs(s1 - s2);
+        if (diff >= 3) {
+          headline = `Masterclass ${winner}: ${loser} luluh lantak`;
+          subtext = `Perbedaan kelas yang mencolok di ${roundLabel}. Tanpa memberi celah, ${winner} menyajikan performa klinis nan mematikan untuk melaju ke babak berikutnya lewat skor telak ${s1}–${s2}.${nextPathMsg}`;
+        } else {
+          headline = `Langkah mantap ${winner} amankan tiket`;
+          subtext = `Tidak ada ruang bagi kejutan di ${roundLabel}. Kelas berbicara saat ${winner} berhasil meredam perlawanan spartan dari ${loser} dengan skor akhir ${s1}–${s2}.${nextPathMsg}`;
+        }
       } else {
-        headline = `${winner} mantapkan langkah di ${roundLabel}`;
-        subtext = `Kolektivitas taktis ${winner} terbukti terlalu tangguh bagi ${loser} lewat skor akhir ${s1}–${s2}.${nextPathMsg}`;
+        // UNDERDOG VS UNDERDOG CLASH
+        headline = `Dongeng indah ${winner} terus berlanjut`;
+        subtext = `Dua tim kejutan yang menolak tunduk saling baku hantam di ${roundLabel}. Lewat duel ketat yang berakhir ${s1}–${s2}, ${winner} berhak melanjutkan petualangan bersejarah mereka.${nextPathMsg}`;
       }
     } else {
       headline = `Hasil akhir babak ${roundLabel}`;
