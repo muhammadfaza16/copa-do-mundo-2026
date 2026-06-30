@@ -1758,7 +1758,7 @@ function createMatchCardHtml(match, index, isKnockout = false, showBigMatchBadge
         <div class="score-status status-live ${pulseClass}">${displayClock}</div>
       `;
     } else {
-      scoreStatusHtml = `<div class="score-status status-ft">FT</div>`;
+      scoreStatusHtml = '';
     }
 
     // Flash handled imperatively by triggerScoreFlash — no inline class evaluation needed
