@@ -2340,12 +2340,20 @@ body.light-theme .flag-crest {
   color: var(--accent-red);
 }
 
+.hero-phase-row {
+  min-height: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 5px;
+}
+
 .hero-status-live {
   font-size: 0.78rem;
   font-weight: 800;
   letter-spacing: 0.5px;
   position: absolute;
-  top: calc(100% + 2px);
+  top: calc(100% + 5px);
   white-space: nowrap;
 }
 

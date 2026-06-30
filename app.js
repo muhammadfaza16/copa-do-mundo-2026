@@ -1278,7 +1278,7 @@ function updateHeroPanel() {
             ` : ''}
             
             <!-- Dedicated layout-invariant row for match phase (Extra Time, Shootout, 1st Half, etc.) -->
-            <div class="hero-phase-row" style="min-height: 16px; display: flex; align-items: center; justify-content: center; margin-bottom: 8px;">
+            <div class="hero-phase-row">
               ${(liveParts.periodName && liveParts.periodName !== 'LIVE') ? `
                 <span class="hero-match-phase" style="font-size: 0.62rem; font-weight: 700; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.5px;">${liveParts.periodName}</span>
               ` : ''}
