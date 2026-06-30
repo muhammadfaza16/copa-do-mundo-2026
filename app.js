@@ -5621,11 +5621,15 @@ async function fetchScoresDirectFromEspn() {
     
     const homeScorersList = [];
     const awayScorersList = [];
+    const homeShootoutList = [];
+    const awayShootoutList = [];
     const homeRedCardsList = [];
     const awayRedCardsList = [];
     
     if (comp.details) {
       comp.details.forEach(detail => {
+        const isShootout = detail.shootout === true || 
+                           (detail.type && (detail.type.text.toLowerCase().includes("shootout") || detail.type.text.toLowerCase().includes("penalty shootout")));
         const isGoal = detail.scoringPlay || (detail.type && detail.type.text.includes("Goal")) || detail.ownGoal;
         const isRed = detail.redCard || (detail.type && detail.type.text.includes("Red Card"));
         const athlete = detail.athletesInvolved && detail.athletesInvolved[0];
@@ -5637,14 +5641,23 @@ async function fetchScoresDirectFromEspn() {
           const isHomeTeam = teamId === home.id || teamId === home.team.id;
           
           if (isGoal) {
-            const suffix = detail.ownGoal ? " (OG)" : "";
-            const assister = detail.athletesInvolved && detail.athletesInvolved[1];
-            const assistText = assister ? ` (A: ${assister.displayName})` : "";
-            const scorerText = `${playerName} ${minute}${suffix}${assistText}`;
-            if (isHomeTeam) {
-              homeScorersList.push(scorerText);
+            if (isShootout) {
+              const scorerText = `${playerName}`;
+              if (isHomeTeam) {
+                homeShootoutList.push(scorerText);
+              } else {
+                awayShootoutList.push(scorerText);
+              }
             } else {
-              awayScorersList.push(scorerText);
+              const suffix = detail.ownGoal ? " (OG)" : "";
+              const assister = detail.athletesInvolved && detail.athletesInvolved[1];
+              const assistText = assister ? ` (A: ${assister.displayName})` : "";
+              const scorerText = `${playerName} ${minute}${suffix}${assistText}`;
+              if (isHomeTeam) {
+                homeScorersList.push(scorerText);
+              } else {
+                awayScorersList.push(scorerText);
+              }
             }
           }
           
@@ -5667,6 +5680,8 @@ async function fetchScoresDirectFromEspn() {
     
     const home_scorers = formatList(homeScorersList);
     const away_scorers = formatList(awayScorersList);
+    const home_shootout_scorers = formatList(homeShootoutList);
+    const away_shootout_scorers = formatList(awayShootoutList);
     const home_red_cards = formatList(homeRedCardsList);
     const away_red_cards = formatList(awayRedCardsList);
     
@@ -5744,6 +5759,8 @@ async function fetchScoresDirectFromEspn() {
       away_score: awayScore,
       home_scorers,
       away_scorers,
+      home_shootout_scorers,
+      away_shootout_scorers,
       home_red_cards,
       away_red_cards,
       group: groupLetter,
@@ -5756,7 +5773,11 @@ async function fetchScoresDirectFromEspn() {
       away_team_name_en: awayName,
       display_clock: ev.status.displayClock || "",
       period: ev.status.period || 0,
-      period_desc: (ev.status.type && ev.status.type.description) || ""
+      period_desc: (ev.status.type && ev.status.type.description) || "",
+      home_shootout_score: home.shootoutScore !== undefined ? String(home.shootoutScore) : null,
+      away_shootout_score: away.shootoutScore !== undefined ? String(away.shootoutScore) : null,
+      espn_status_name: (ev.status && ev.status.type && ev.status.type.name) || "",
+      espn_status_detail: (ev.status && ev.status.type && ev.status.type.detail) || ""
     };
   }).filter(Boolean);
 
