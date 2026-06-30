@@ -823,8 +823,16 @@ function getMatchLiveStatusParts(scoreData) {
   
   if (clock && clock !== 'notstarted' && clock !== 'finished') {
     if (scoreData.period_desc) {
-      const desc = scoreData.period_desc.toLowerCase();
-      if (desc.includes('first half') || desc === '1st half') {
+      const desc = scoreData.period_desc.toLowerCase().trim();
+      if (desc === 'in progress' || desc === 'inplay' || desc === 'live' || desc === 'timed') {
+        if (scoreData.status === 'EXTRA_TIME' || scoreData.period === 3 || scoreData.period === 4) {
+          periodName = 'Extra Time';
+        } else if (scoreData.period === 1) {
+          periodName = '1st Half';
+        } else if (scoreData.period === 2) {
+          periodName = '2nd Half';
+        }
+      } else if (desc.includes('first half') || desc === '1st half') {
         periodName = '1st Half';
       } else if (desc.includes('second half') || desc === '2nd half') {
         periodName = '2nd Half';
