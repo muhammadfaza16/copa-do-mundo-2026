@@ -2242,11 +2242,18 @@ function renderBracketProxyCard() {
     subtext = `Semua pertandingan grup telah berakhir. Bagan fase gugur telah terbentuk — siapa yang berhadapan dengan siapa?`;
     badge = 'FASE GUGUR DIMULAI';
 
-  } else {
-    const pct = Math.round((finishedGS.length / WORLD_CUP_DATA.group_stage.length) * 100);
-    headline = 'Jalur menuju partai puncak';
-    subtext = `${finishedGS.length} laga fase grup telah selesai dari ${WORLD_CUP_DATA.group_stage.length} total (${pct}%). Bagan fase gugur siap dipantau.`;
-    badge = 'BAGAN TURNAMEN';
+  // Define badge design details based on phase
+  let badgeBg = 'rgba(245, 158, 11, 0.15)';
+  let badgeColor = 'var(--accent-star)';
+  if (liveKO.length > 0) {
+    badgeBg = '#16a34a';
+    badgeColor = '#ffffff';
+  } else if (finishedKO.length > 0) {
+    badgeBg = '#2563eb';
+    badgeColor = '#ffffff';
+  } else if (phase === 'ko_imminent') {
+    badgeBg = '#7c3aed';
+    badgeColor = '#ffffff';
   }
 
   // Upcoming chips
@@ -2256,7 +2263,7 @@ function renderBracketProxyCard() {
     const ct1 = next.team1 && next.team1 !== '?' ? next.team1 : null;
     const ct2 = next.team2 && next.team2 !== '?' ? next.team2 : null;
     if (ct1 && ct2) chips += `<span class="bpc-chip">${ct1} vs ${ct2}</span>`;
-    if (upcomingKO.length > 1) chips += `<span class="bpc-chip">+${upcomingKO.length - 1} laga lainnya</span>`;
+    if (upcomingKO.length > 1) chips += `<span class="bpc-chip">+${upcomingKO.length - 1} Laga</span>`;
   }
 
   wrapper.innerHTML = `
@@ -2264,100 +2271,134 @@ function renderBracketProxyCard() {
       .bracket-proxy-card-main {
         position: relative;
         overflow: hidden;
-        padding: 18px 20px;
-        border-radius: var(--border-radius-lg);
-        border: 1px solid rgba(255,255,255,0.07);
-        background: linear-gradient(135deg, rgba(15, 23, 42, 0.85) 0%, rgba(30, 41, 59, 0.7) 100%);
+        border-radius: 12px;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        background: #0f172a; /* Solid slate-900 */
         cursor: pointer;
-        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
         display: flex;
-        align-items: center;
-        gap: 16px;
-        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+        align-items: stretch;
+        min-height: 120px;
+        box-shadow: 0 4px 18px rgba(0, 0, 0, 0.45);
       }
       .bracket-proxy-card-main:hover {
         transform: translateY(-2px);
-        border-color: rgba(255, 255, 255, 0.12);
-        box-shadow: 0 10px 28px rgba(0, 0, 0, 0.4);
+        border-color: rgba(255, 255, 255, 0.18);
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.6);
+        background: #1e293b; /* Slate-800 on hover */
       }
-      .bracket-proxy-card-main:active { transform: translateY(0); }
-      .bracket-proxy-card-main:hover .bpc-arrow { transform: translateX(4px); }
-      .bpc-glow {
-        position: absolute; top: -50%; right: -5%;
-        width: 220px; height: 220px;
-        background: radial-gradient(circle, rgba(245, 158, 11, 0.12) 0%, transparent 70%);
-        filter: blur(28px); pointer-events: none;
+      .bracket-proxy-card-main:hover .bpc-visual {
+        transform: scale(1.03);
+      }
+      .bracket-proxy-card-main:active {
+        transform: translateY(0);
+      }
+      .bpc-info {
+        flex: 1;
+        padding: 16px 20px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        min-width: 0;
+        z-index: 2;
+      }
+      .bpc-visual-container {
+        width: 130px;
+        position: relative;
+        overflow: hidden;
+        border-left: 1px solid rgba(255, 255, 255, 0.08);
+        flex-shrink: 0;
+      }
+      .bpc-visual {
+        width: 100%;
+        height: 100%;
+        background-image: url('world_cup_bracket_illustration.png');
+        background-size: cover;
+        background-position: center;
+        transition: transform 0.3s ease;
+      }
+      .bpc-visual-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, #0f172a 0%, transparent 40%);
+        pointer-events: none;
+      }
+      .bracket-proxy-card-main:hover .bpc-visual-overlay {
+        background: linear-gradient(90deg, #1e293b 0%, transparent 40%);
       }
       .bpc-badge {
+        display: inline-block;
         font-size: 0.55rem;
         text-transform: uppercase;
-        letter-spacing: 1.5px;
-        font-weight: 700;
-        color: ${accentColor};
-        margin-bottom: 6px;
+        letter-spacing: 1px;
+        font-weight: 800;
+        padding: 3px 8px;
+        border-radius: 4px;
+        margin-bottom: 8px;
+        width: fit-content;
+        background: ${badgeBg};
+        color: ${badgeColor};
       }
       .bpc-headline {
-        font-size: 0.97rem;
+        font-size: 0.95rem;
         font-weight: 700;
-        color: #f1f5f9;
+        color: #ffffff; /* Solid White */
         margin: 0 0 6px 0;
-        line-height: 1.35;
+        line-height: 1.3;
       }
       .bpc-subtext {
         font-size: 0.72rem;
-        color: #94a3b8;
-        line-height: 1.55;
+        color: #cbd5e1; /* Light grey slate-300 (highly legible) */
+        line-height: 1.5;
         margin: 0 0 10px 0;
       }
-      .bpc-chips { display: flex; flex-wrap: wrap; gap: 5px; }
+      .bpc-chips { display: flex; flex-wrap: wrap; gap: 6px; }
       .bpc-chip {
-        font-size: 0.56rem;
-        font-weight: 600;
-        color: #94a3b8;
-        background: rgba(255,255,255,0.05);
-        border: 0.5px solid rgba(255,255,255,0.1);
-        padding: 2px 9px;
-        border-radius: 12px;
+        font-size: 0.58rem;
+        font-weight: 700;
+        color: #ffffff;
+        background: rgba(255, 255, 255, 0.08);
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        padding: 2px 8px;
+        border-radius: 4px;
       }
-      .bpc-icon-wrap {
-        flex-shrink: 0;
-        display: flex; align-items: center; justify-content: center;
-        width: 48px; height: 48px;
-        border-radius: 12px;
-        background: rgba(255, 255, 255, 0.04);
-        border: 1px solid rgba(255, 255, 255, 0.08);
-        transition: all 0.3s ease;
+      .bpc-arrow-container {
+        display: flex;
+        align-items: center;
+        padding-right: 16px;
+        z-index: 2;
       }
-      .bracket-proxy-card-main:hover .bpc-icon-wrap {
-        background: rgba(245, 158, 11, 0.09);
-        border-color: rgba(245, 158, 11, 0.22);
+      .bpc-arrow {
+        transition: transform 0.25s ease;
+        color: rgba(255, 255, 255, 0.4);
       }
-      .bpc-arrow { transition: transform 0.25s ease; flex-shrink: 0; }
+      .bracket-proxy-card-main:hover .bpc-arrow {
+        transform: translateX(4px);
+        color: #ffffff;
+      }
     </style>
 
     <div class="bracket-proxy-card-main" onclick="window.navigateToBracket()" role="button" aria-label="Buka Bagan Turnamen">
-      <div class="bpc-glow"></div>
-
-      <div class="bpc-icon-wrap">
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="${accentColor}" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
-          <rect x="3" y="3" width="7" height="5" rx="1"/><rect x="14" y="3" width="7" height="5" rx="1"/>
-          <rect x="7" y="16" width="10" height="5" rx="1"/>
-          <line x1="6.5" y1="8" x2="6.5" y2="13"/><line x1="17.5" y1="8" x2="17.5" y2="13"/>
-          <line x1="6.5" y1="13" x2="17.5" y2="13"/>
-          <line x1="12" y1="13" x2="12" y2="16"/>
-        </svg>
-      </div>
-
-      <div style="flex: 1; z-index: 2; min-width: 0;">
+      <div class="bpc-info">
         <div class="bpc-badge">${badge}</div>
         <div class="bpc-headline">${headline}</div>
         <p class="bpc-subtext">${subtext}</p>
         ${chips ? `<div class="bpc-chips">${chips}</div>` : ''}
       </div>
 
-      <svg class="bpc-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.3)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;">
-        <polyline points="9 18 15 12 9 6"></polyline>
-      </svg>
+      <div class="bpc-visual-container">
+        <div class="bpc-visual"></div>
+        <div class="bpc-visual-overlay"></div>
+      </div>
+
+      <div class="bpc-arrow-container">
+        <svg class="bpc-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="9 18 15 12 9 6"></polyline>
+        </svg>
+      </div>
     </div>
   `;
 }
