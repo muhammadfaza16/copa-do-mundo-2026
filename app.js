@@ -2183,14 +2183,14 @@ function renderBracketProxyCard() {
     const roundLabel = live.group || 'Fase Gugur';
 
     if (score.status === 'PENALTY_SHOOTOUT') {
-      headline = `Adu Penalti Sedang Berlangsung`;
-      subtext = `${t1} vs ${t2} berlanjut ke adu penalti di ${roundLabel}. Buka bagan untuk memantau perkembangannya.`;
+      headline = `Tensi memuncak di ${roundLabel}`;
+      subtext = `Laga hidup-mati antara ${t1} dan ${t2} harus ditentukan lewat drama adu penalti. Pantau siapa yang melangkah ke babak berikutnya.`;
     } else if (score.status === 'EXTRA_TIME') {
       headline = `Babak Tambahan — ${t1} ${s1}–${s2} ${t2}`;
-      subtext = `Waktu normal habis tanpa pemenang di ${roundLabel}. Dua puluh menit menentukan siapa yang bertahan.`;
+      subtext = `Batas fisik diuji setelah 90 menit tanpa pemenang di ${roundLabel}. Siapa yang akan mencetak gol penentu?`;
     } else {
-      headline = `Sedang Berlangsung — ${t1} ${s1}–${s2} ${t2}`;
-      subtext = `Pertandingan ${roundLabel} sedang berjalan. Buka bagan untuk melihat jalur selanjutnya.`;
+      headline = `Laga Hidup-Mati — ${t1} ${s1}–${s2} ${t2}`;
+      subtext = `Pertandingan sengit babak ${roundLabel} sedang berlangsung. Buka bagan untuk melihat peta persaingan selengkapnya.`;
     }
     accentColor = '#4ade80';
     badge = 'LIVE SEKARANG';
@@ -2213,38 +2213,38 @@ function renderBracketProxyCard() {
     const isET = score.extraTime1 !== null || (s1 === s2 && isPenalty);
 
     if (isPenalty && winner) {
-      headline = `${winner} lolos lewat adu penalti`;
-      subtext = `${roundLabel}: ${t1} ${s1}–${s2} ${t2}, lanjut penalti ${score.penScore1}–${score.penScore2}. ${winner} melaju ke babak berikutnya.`;
+      headline = `${winner} lolos lewat drama adu penalti`;
+      subtext = `Setelah bermain imbang ${s1}–${s2} kontra ${loser} di ${roundLabel}, ${winner} unggul tipis (${score.penScore1}–${score.penScore2}) di babak tos-tosan.`;
     } else if (isET && winner) {
-      headline = `${winner} lolos di babak tambahan`;
-      subtext = `${t1} ${s1}–${s2} ${t2} di ${roundLabel}. Laga berakhir setelah 120 menit yang menegangkan.`;
+      headline = `${winner} tembus babak berikutnya setelah babak tambahan`;
+      subtext = `Pertarungan melelahkan 120 menit berakhir dengan skor ${s1}–${s2}. Gol penentu memastikan kepulangan ${loser}.`;
     } else if (winner) {
       const diff = Math.abs(s1 - s2);
       if (diff >= 3) {
-        headline = `${winner} menang telak ${s1}–${s2} atas ${loser}`;
-        subtext = `Kemenangan dominan di ${roundLabel}. ${winner} melaju mulus ke babak berikutnya.`;
+        headline = `Pernyataan kekuatan dari ${winner}`;
+        subtext = `Dominasi total tanpa ampun berbuah kemenangan telak ${s1}–${s2} atas ${loser} di babak ${roundLabel}.`;
       } else if (diff === 1) {
-        headline = `${winner} menang tipis atas ${loser}`;
-        subtext = `Duel sengit di ${roundLabel} berakhir ${s1}–${s2}. Margin satu gol yang menentukan segalanya.`;
+        headline = `${winner} amankan tiket dramatis`;
+        subtext = `Pertarungan sengit di ${roundLabel} berakhir ${s1}–${s2}. Margin tipis satu gol memastikan ${winner} melaju.`;
       } else {
-        headline = `${winner} melaju, ${loser} tersingkir`;
-        subtext = `${roundLabel}: ${t1} ${s1}–${s2} ${t2}. Buka bagan untuk melihat peta persaingan selanjutnya.`;
+        headline = `${winner} melangkah lebih dekat ke impian juara`;
+        subtext = `Menghentikan perlawanan ${loser} dengan skor akhir ${s1}–${s2} di ${roundLabel}. Buka bagan untuk melihat peta laga berikutnya.`;
       }
     } else {
-      headline = `${t1} ${s1}–${s2} ${t2}`;
-      subtext = `${roundLabel} telah selesai. Pantau bagan untuk melihat siapa yang tersisa di turnamen.`;
+      headline = `Hasil akhir babak ${roundLabel}`;
+      subtext = `${t1} ${s1}–${s2} ${t2}. Pertandingan telah usai, buka bagan untuk melihat peta persaingan selengkapnya.`;
     }
 
     badge = `${finishedKO.length} DARI ${knockoutMatches.length} LAGA SELESAI`;
 
   } else if (phase === 'ko_imminent') {
-    headline = 'Fase grup usai — fase gugur menanti';
-    subtext = `Semua pertandingan grup telah berakhir. Bagan fase gugur telah terbentuk — siapa yang berhadapan dengan siapa?`;
+    headline = 'Fase grup usai, genderang babak gugur ditabuh';
+    subtext = `32 tim terbaik dunia telah terpilih. Eksplorasi skema pertemuan resmi dan lihat jalur krusial setiap tim menuju final Piala Dunia.`;
     badge = 'FASE GUGUR DIMULAI';
   } else {
     const pct = Math.round((finishedGS.length / WORLD_CUP_DATA.group_stage.length) * 100);
-    headline = 'Jalur menuju partai puncak';
-    subtext = `${finishedGS.length} laga fase grup telah selesai dari ${WORLD_CUP_DATA.group_stage.length} total (${pct}%). Bagan fase gugur siap dipantau.`;
+    headline = 'Jalan panjang menuju puncak dunia';
+    subtext = `Penyisihan grup menyajikan persaingan ketat dengan ${finishedGS.length} laga selesai dimainkan (${pct}%). Pantau peta kekuatan di bagan resmi.`;
     badge = 'BAGAN TURNAMEN';
   }
 
