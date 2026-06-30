@@ -1787,7 +1787,7 @@ function createMatchCardHtml(match, index, isKnockout = false, showBigMatchBadge
     let cardWinReasonHtml = '';
     if (!isLive && extraInfo) {
       cardWinReasonHtml = `
-        <div style="grid-column: 1 / -1; font-size: 0.58rem; color: var(--text-secondary); opacity: 0.85; text-align: center; font-weight: 500; margin-top: 4px; text-transform: none; letter-spacing: 0.2px; line-height: 1.2; white-space: nowrap;">
+        <div style="grid-column: 1 / -1; font-size: 0.58rem; color: var(--text-secondary); opacity: 0.85; text-align: center; font-weight: 500; margin-top: 1px; text-transform: none; letter-spacing: 0.2px; line-height: 1.2; white-space: nowrap;">
           ${extraInfo}
         </div>
       `;
@@ -1817,7 +1817,7 @@ function createMatchCardHtml(match, index, isKnockout = false, showBigMatchBadge
             <span class="team-name">${match.team2}</span>
           </div>
           ${cardWinReasonHtml}
-          <div class="match-venue-subtle">${labelVenue}</div>
+          <div class="match-venue-subtle" style="font-size: 0.52rem; opacity: 0.45; margin-top: 1px;">${labelVenue}</div>
         </div>
         ${(cleanScorers1 || cleanScorers2) ? `
           <div class="match-scorers-row">
