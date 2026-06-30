@@ -815,11 +815,14 @@ function getMatchLiveStatusParts(scoreData) {
   if (!scoreData) return { periodName: 'LIVE', clock: '' };
   
   if (scoreData.status === 'FINISHED') return { periodName: 'FT', clock: '' };
-  if (scoreData.status === 'PENALTY_SHOOTOUT') return { periodName: 'Shootout', clock: '' };
-  if (scoreData.status === 'PAUSED' || scoreData.time_elapsed === 'HT' || scoreData.display_clock === 'HT') return { periodName: 'HT', clock: '' };
   
   const clock = scoreData.display_clock || scoreData.time_elapsed || '';
-  let periodName = scoreData.status === 'EXTRA_TIME' ? 'Extra Time' : 'LIVE';
+  let periodName = 'LIVE';
+  if (scoreData.status === 'EXTRA_TIME') {
+    periodName = 'Extra Time';
+  } else if (scoreData.status === 'PENALTY_SHOOTOUT') {
+    periodName = 'Pen Shootout';
+  }
   
   if (clock && clock !== 'notstarted' && clock !== 'finished') {
     if (scoreData.period_desc) {
@@ -828,30 +831,28 @@ function getMatchLiveStatusParts(scoreData) {
         if (scoreData.status === 'EXTRA_TIME' || scoreData.period === 3 || scoreData.period === 4) {
           periodName = 'Extra Time';
         } else if (scoreData.period === 1) {
-          periodName = '1st Half';
+          periodName = 'Babak 1';
         } else if (scoreData.period === 2) {
-          periodName = '2nd Half';
+          periodName = 'Babak 2';
         }
-      } else if (desc.includes('first half') || desc === '1st half') {
-        periodName = '1st Half';
+      } else if (desc.includes('first half') || desc === '1st half' || desc === 'halftime') {
+        periodName = 'Babak 1';
       } else if (desc.includes('second half') || desc === '2nd half') {
-        periodName = '2nd Half';
+        periodName = 'Babak 2';
       } else if (desc.includes('first extra') || desc.includes('1st extra') || desc.includes('1st et') || desc.includes('et1')) {
         periodName = 'Extra Time';
       } else if (desc.includes('second extra') || desc.includes('2nd extra') || desc.includes('2nd et') || desc.includes('et2')) {
         periodName = 'Extra Time';
-      } else if (desc.includes('halftime')) {
-        periodName = scoreData.status === 'EXTRA_TIME' ? 'Extra Time' : 'HT';
       } else if (desc.includes('extra time') || desc.includes('overtime')) {
         periodName = 'Extra Time';
       } else if (desc.includes('shootout') || desc.includes('penalty')) {
-        periodName = 'Shootout';
+        periodName = 'Pen Shootout';
       } else {
         periodName = scoreData.period_desc;
       }
     } else if (scoreData.period) {
-      if (scoreData.period === 1) periodName = '1st Half';
-      else if (scoreData.period === 2) periodName = '2nd Half';
+      if (scoreData.period === 1) periodName = 'Babak 1';
+      else if (scoreData.period === 2) periodName = 'Babak 2';
       else if (scoreData.period === 3) periodName = 'Extra Time';
       else if (scoreData.period === 4) periodName = 'Extra Time';
     }
@@ -976,12 +977,14 @@ function updateLiveMatchClocks() {
       }
 
       // Update match phase above the score
+      const heroPhaseRow = document.querySelector('.hero-phase-row');
       const heroPhaseEl = document.querySelector('.hero-phase-row .hero-match-phase');
-      if (heroPhaseEl) {
+      if (heroPhaseRow && heroPhaseEl) {
         const phaseText = (parts.periodName && parts.periodName !== 'LIVE') ? parts.periodName : '';
         if (heroPhaseEl.textContent !== phaseText) {
           heroPhaseEl.textContent = phaseText;
         }
+        heroPhaseRow.style.display = phaseText ? 'flex' : 'none';
       }
       
       if (clockInfo.isPulsing) {
@@ -1278,10 +1281,8 @@ function updateHeroPanel() {
             ` : ''}
             
             <!-- Dedicated layout-invariant row for match phase (Extra Time, Shootout, 1st Half, etc.) -->
-            <div class="hero-phase-row">
-              ${(liveParts.periodName && liveParts.periodName !== 'LIVE') ? `
-                <span class="hero-match-phase" style="font-size: 0.62rem; font-weight: 700; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.5px;">${liveParts.periodName}</span>
-              ` : ''}
+            <div class="hero-phase-row" style="display: ${(liveParts.periodName && liveParts.periodName !== 'LIVE') ? 'flex' : 'none'};">
+              <span class="hero-match-phase" style="font-size: 0.62rem; font-weight: 700; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.5px;">${(liveParts.periodName && liveParts.periodName !== 'LIVE') ? liveParts.periodName : ''}</span>
             </div>
 
             <div class="live-main-row" style="margin-bottom: 10px;">
@@ -1733,6 +1734,15 @@ function createMatchCardHtml(match, index, isKnockout = false, showBigMatchBadge
 
     // Flash handled imperatively by triggerScoreFlash — no inline class evaluation needed
 
+    const extraInfo = !isLive ? getMatchFinishedExtraInfo(scoreData) : '';
+    const hasPeriodLabel = (isLive && liveParts && liveParts.clock && liveParts.clock !== 'LIVE' && liveParts.periodName !== liveParts.clock) || (!isLive && extraInfo);
+    
+    const periodRowHtml = hasPeriodLabel ? `
+      <div class="match-period-row">
+        ${isLive ? `<span class="match-period-label">${liveParts.periodName}</span>` : extraInfo}
+      </div>
+    ` : '';
+
     return `
       <div class="match-card" data-key="${matchKey}" title="${labelVenue}" onclick="window.openMatchDetailModal('${matchKey}')" style="cursor: pointer;">
         ${headerMarkupHtml}
@@ -1742,10 +1752,7 @@ function createMatchCardHtml(match, index, isKnockout = false, showBigMatchBadge
             ${getFlagHtml(match.team1)}
           </div>
           <div class="match-time-box score-box">
-            <div class="match-period-row">
-              ${isLive && liveParts && liveParts.clock && liveParts.clock !== 'LIVE' && liveParts.periodName !== liveParts.clock ? `<span class="match-period-label">${liveParts.periodName}</span>` : ''}
-              ${!isLive ? getMatchFinishedExtraInfo(scoreData) : ''}
-            </div>
+            ${periodRowHtml}
             <div class="score-display" style="white-space: nowrap;">
               <span>${scoreData.score1}</span>
               <span> - </span>
@@ -5505,6 +5512,8 @@ async function fetchRealTimeScores(isManual = false) {
         let score2 = null;
         let scorers1 = null;
         let scorers2 = null;
+        let shootoutScorers1 = 'null';
+        let shootoutScorers2 = 'null';
         let redCards1 = null;
         let redCards2 = null;
         let shootoutScore1 = null;
@@ -5532,6 +5541,8 @@ async function fetchRealTimeScores(isManual = false) {
               score2 = rawScore2;
               scorers1 = apiMatch.home_scorers;
               scorers2 = apiMatch.away_scorers;
+              shootoutScorers1 = apiMatch.home_shootout_scorers || 'null';
+              shootoutScorers2 = apiMatch.away_shootout_scorers || 'null';
               redCards1 = rawHomeRed;
               redCards2 = rawAwayRed;
               shootoutScore1 = shoot1Val;
@@ -5541,6 +5552,8 @@ async function fetchRealTimeScores(isManual = false) {
               score2 = rawScore1;
               scorers1 = apiMatch.away_scorers;
               scorers2 = apiMatch.home_scorers;
+              shootoutScorers1 = apiMatch.away_shootout_scorers || 'null';
+              shootoutScorers2 = apiMatch.home_shootout_scorers || 'null';
               redCards1 = rawAwayRed;
               redCards2 = rawHomeRed;
               shootoutScore1 = shoot2Val;
@@ -5551,6 +5564,8 @@ async function fetchRealTimeScores(isManual = false) {
             score2 = rawScore2;
             scorers1 = apiMatch.home_scorers;
             scorers2 = apiMatch.away_scorers;
+            shootoutScorers1 = apiMatch.home_shootout_scorers || 'null';
+            shootoutScorers2 = apiMatch.away_shootout_scorers || 'null';
             redCards1 = rawHomeRed;
             redCards2 = rawAwayRed;
             shootoutScore1 = shoot1Val;
@@ -5562,17 +5577,23 @@ async function fetchRealTimeScores(isManual = false) {
             if (match.team1 === team1Indo) {
               scorers1 = apiMatch.home_scorers;
               scorers2 = apiMatch.away_scorers;
+              shootoutScorers1 = apiMatch.home_shootout_scorers || 'null';
+              shootoutScorers2 = apiMatch.away_shootout_scorers || 'null';
               redCards1 = rawHomeRed;
               redCards2 = rawAwayRed;
             } else {
               scorers1 = apiMatch.away_scorers;
               scorers2 = apiMatch.home_scorers;
+              shootoutScorers1 = apiMatch.away_shootout_scorers || 'null';
+              shootoutScorers2 = apiMatch.home_shootout_scorers || 'null';
               redCards1 = rawAwayRed;
               redCards2 = rawHomeRed;
             }
           } else {
             scorers1 = apiMatch.home_scorers;
             scorers2 = apiMatch.away_scorers;
+            shootoutScorers1 = apiMatch.home_shootout_scorers || 'null';
+            shootoutScorers2 = apiMatch.away_shootout_scorers || 'null';
             redCards1 = rawHomeRed;
             redCards2 = rawAwayRed;
           }
@@ -5653,6 +5674,8 @@ async function fetchRealTimeScores(isManual = false) {
               existing.espn_status_detail !== (apiMatch.espn_status_detail || null) ||
               existing.home_scorers !== scorers1 ||
               existing.away_scorers !== scorers2 ||
+              existing.home_shootout_scorers !== shootoutScorers1 ||
+              existing.away_shootout_scorers !== shootoutScorers2 ||
               existing.home_red_cards !== redCards1 ||
               existing.away_red_cards !== redCards2 ||
               existing.home_team_name_en !== team1Indo ||
@@ -5674,6 +5697,8 @@ async function fetchRealTimeScores(isManual = false) {
             matchday: apiMatch.matchday,
             home_scorers: scorers1,
             away_scorers: scorers2,
+            home_shootout_scorers: shootoutScorers1,
+            away_shootout_scorers: shootoutScorers2,
             home_red_cards: redCards1,
             away_red_cards: redCards2,
             home_team_name_en: team1Indo,

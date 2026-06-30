@@ -1162,7 +1162,8 @@ body.light-theme .match-redcards-row.no-scorers {
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  padding: 14px 14px 14px 14px;
+  padding: 10px 14px;
+  gap: 3px;
 }
 
 .match-time-box.time-box {
@@ -2278,19 +2279,15 @@ body.light-theme .flag-crest {
 }
 
 .match-period-row {
-  min-height: 12px;
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-bottom: 5px;
 }
 
 .match-status-row {
-  min-height: 12px;
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-top: 5px;
 }
 
 .score-box .match-period-label {
@@ -2341,11 +2338,9 @@ body.light-theme .flag-crest {
 }
 
 .hero-phase-row {
-  min-height: 16px;
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-bottom: 5px;
 }
 
 .hero-status-live {
@@ -2353,7 +2348,7 @@ body.light-theme .flag-crest {
   font-weight: 800;
   letter-spacing: 0.5px;
   position: absolute;
-  top: calc(100% + 5px);
+  top: calc(100% + 4px);
   white-space: nowrap;
 }
 

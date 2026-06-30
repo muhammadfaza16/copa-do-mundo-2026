@@ -194,11 +194,15 @@ export default async function handler(req, res) {
       // Parse details for scorers, assisters, and red cards
       const homeScorersList = [];
       const awayScorersList = [];
+      const homeShootoutList = [];
+      const awayShootoutList = [];
       const homeRedCardsList = [];
       const awayRedCardsList = [];
       
       if (comp.details) {
         comp.details.forEach(detail => {
+          const isShootout = detail.shootout === true || 
+                             (detail.type && (detail.type.text.toLowerCase().includes("shootout") || detail.type.text.toLowerCase().includes("penalty shootout")));
           const isGoal = detail.scoringPlay || (detail.type && detail.type.text.includes("Goal")) || detail.ownGoal;
           const isRed = detail.redCard || (detail.type && detail.type.text.includes("Red Card"));
           const athlete = detail.athletesInvolved && detail.athletesInvolved[0];
@@ -210,14 +214,23 @@ export default async function handler(req, res) {
             const isHomeTeam = teamId === home.id || teamId === home.team.id;
             
             if (isGoal) {
-              const suffix = detail.ownGoal ? " (OG)" : "";
-              const assister = detail.athletesInvolved && detail.athletesInvolved[1];
-              const assistText = assister ? ` (A: ${assister.displayName})` : "";
-              const scorerText = `${playerName} ${minute}${suffix}${assistText}`;
-              if (isHomeTeam) {
-                homeScorersList.push(scorerText);
+              if (isShootout) {
+                const scorerText = `${playerName}`;
+                if (isHomeTeam) {
+                  homeShootoutList.push(scorerText);
+                } else {
+                  awayShootoutList.push(scorerText);
+                }
               } else {
-                awayScorersList.push(scorerText);
+                const suffix = detail.ownGoal ? " (OG)" : "";
+                const assister = detail.athletesInvolved && detail.athletesInvolved[1];
+                const assistText = assister ? ` (A: ${assister.displayName})` : "";
+                const scorerText = `${playerName} ${minute}${suffix}${assistText}`;
+                if (isHomeTeam) {
+                  homeScorersList.push(scorerText);
+                } else {
+                  awayScorersList.push(scorerText);
+                }
               }
             }
             
@@ -241,6 +254,8 @@ export default async function handler(req, res) {
       
       const home_scorers = formatList(homeScorersList);
       const away_scorers = formatList(awayScorersList);
+      const home_shootout_scorers = formatList(homeShootoutList);
+      const away_shootout_scorers = formatList(awayShootoutList);
       const home_red_cards = formatList(homeRedCardsList);
       const away_red_cards = formatList(awayRedCardsList);
       
@@ -321,6 +336,8 @@ export default async function handler(req, res) {
         away_score: awayScore,
         home_scorers,
         away_scorers,
+        home_shootout_scorers: home_shootout_scorers,
+        away_shootout_scorers: away_shootout_scorers,
         home_red_cards,
         away_red_cards,
         group: groupLetter,
@@ -356,6 +373,8 @@ export default async function handler(req, res) {
         away_score: "1",
         home_scorers: `{"Santiago Gimenez 12'","Hirving Lozano 34'"}`,
         away_scorers: `{"Percy Tau 25'"}`,
+        home_shootout_scorers: "null",
+        away_shootout_scorers: "null",
         home_red_cards: `{"Edson Alvarez 40'"}`,
         away_red_cards: "null",
         group: "A",
