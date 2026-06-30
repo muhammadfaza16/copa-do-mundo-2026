@@ -2182,15 +2182,32 @@ function renderBracketProxyCard() {
     const s2 = score ? score.score2 : '-';
     const roundLabel = live.group || 'Fase Gugur';
 
+    let nextPathMsg = '';
+    const nextMatch = knockoutMatches.find(nm => nm.team1_seed === `W${live.match_id}` || nm.team2_seed === `W${live.match_id}`);
+    if (nextMatch) {
+      const isTeam1 = nextMatch.team1_seed === `W${live.match_id}`;
+      const oppSeed = isTeam1 ? nextMatch.team2_seed : nextMatch.team1_seed;
+      const oppName = isTeam1 ? nextMatch.team2 : nextMatch.team1;
+      if (oppName && isRealTeamName(oppName)) {
+        nextPathMsg = ` Pemenang laga ini sudah ditunggu ${oppName} di babak berikutnya.`;
+      } else if (oppSeed) {
+        const oppMatchId = parseInt(oppSeed.replace('W', ''));
+        const oppMatch = knockoutMatches.find(om => om.match_id === oppMatchId);
+        if (oppMatch && oppMatch.team1 && oppMatch.team2 && isRealTeamName(oppMatch.team1) && isRealTeamName(oppMatch.team2)) {
+          nextPathMsg = ` Pemenang laga ini ditantang pemenang duel ${oppMatch.team1} vs ${oppMatch.team2}.`;
+        }
+      }
+    }
+
     if (score.status === 'PENALTY_SHOOTOUT') {
-      headline = `Tensi memuncak di ${roundLabel}`;
-      subtext = `Laga hidup-mati antara ${t1} dan ${t2} harus ditentukan lewat drama adu penalti. Pantau siapa yang melangkah ke babak berikutnya.`;
+      headline = `Drama adu penalti di babak ${roundLabel}`;
+      subtext = `Setelah bertarung habis-habisan selama 120 menit, mental ${t1} dan ${t2} kini diuji di titik putih.${nextPathMsg}`;
     } else if (score.status === 'EXTRA_TIME') {
-      headline = `Babak Tambahan — ${t1} ${s1}–${s2} ${t2}`;
-      subtext = `Batas fisik diuji setelah 90 menit tanpa pemenang di ${roundLabel}. Siapa yang akan mencetak gol penentu?`;
+      headline = `Babak tambahan memanas: ${t1} ${s1}–${s2} ${t2}`;
+      subtext = `Waktu normal 90 menit tidak cukup memisahkan kedua tim. Batas fisik dan konsentrasi ${t1} vs ${t2} kini dipertaruhkan.${nextPathMsg}`;
     } else {
-      headline = `Laga Hidup-Mati — ${t1} ${s1}–${s2} ${t2}`;
-      subtext = `Pertandingan sengit babak ${roundLabel} sedang berlangsung. Buka bagan untuk melihat peta persaingan selengkapnya.`;
+      headline = `Laga hidup-mati ${roundLabel}: ${t1} vs ${t2}`;
+      subtext = `Skor sementara ${s1}–${s2}. Pertempuran taktis sengit memperebutkan tiket babak berikutnya sedang berlangsung.${nextPathMsg}`;
     }
     accentColor = '#4ade80';
     badge = 'LIVE SEKARANG';
@@ -2209,30 +2226,49 @@ function renderBracketProxyCard() {
     if (score.winner === 'HOME') { winner = t1; loser = t2; }
     else if (score.winner === 'AWAY') { winner = t2; loser = t1; }
 
+    let nextPathMsg = '';
+    if (winner) {
+      const nextMatch = knockoutMatches.find(nm => nm.team1_seed === `W${latest.match_id}` || nm.team2_seed === `W${latest.match_id}`);
+      if (nextMatch) {
+        const isTeam1 = nextMatch.team1_seed === `W${latest.match_id}`;
+        const oppSeed = isTeam1 ? nextMatch.team2_seed : nextMatch.team1_seed;
+        const oppName = isTeam1 ? nextMatch.team2 : nextMatch.team1;
+        if (oppName && isRealTeamName(oppName)) {
+          nextPathMsg = ` Langkah ${winner} berikutnya adalah menantang kekuatan ${oppName}.`;
+        } else if (oppSeed) {
+          const oppMatchId = parseInt(oppSeed.replace('W', ''));
+          const oppMatch = knockoutMatches.find(om => om.match_id === oppMatchId);
+          if (oppMatch && oppMatch.team1 && oppMatch.team2 && isRealTeamName(oppMatch.team1) && isRealTeamName(oppMatch.team2)) {
+            nextPathMsg = ` Di babak berikutnya, ${winner} menanti pemenang dari laga ${oppMatch.team1} vs ${oppMatch.team2}.`;
+          }
+        }
+      }
+    }
+
     const isPenalty = score.penScore1 !== null && score.penScore2 !== null;
     const isET = score.extraTime1 !== null || (s1 === s2 && isPenalty);
 
     if (isPenalty && winner) {
-      headline = `${winner} lolos lewat drama adu penalti`;
-      subtext = `Setelah bermain imbang ${s1}–${s2} kontra ${loser} di ${roundLabel}, ${winner} unggul tipis (${score.penScore1}–${score.penScore2}) di babak tos-tosan.`;
+      headline = `${winner} lolos lewat adu penalti`;
+      subtext = `Drama menegangkan di ${roundLabel}. Bermain imbang ${s1}–${s2} kontra ${loser}, ketenangan kiper meloloskan ${winner} (pen. ${score.penScore1}–${score.penScore2}).${nextPathMsg}`;
     } else if (isET && winner) {
-      headline = `${winner} tembus babak berikutnya setelah babak tambahan`;
-      subtext = `Pertarungan melelahkan 120 menit berakhir dengan skor ${s1}–${s2}. Gol penentu memastikan kepulangan ${loser}.`;
+      headline = `Gol krusial babak tambahan meloloskan ${winner}`;
+      subtext = `Pertarungan fisik yang melelahkan. Perlawanan spartan ${loser} akhirnya runtuh di babak tambahan dengan skor ${s1}–${s2}.${nextPathMsg}`;
     } else if (winner) {
       const diff = Math.abs(s1 - s2);
       if (diff >= 3) {
-        headline = `Pernyataan kekuatan dari ${winner}`;
-        subtext = `Dominasi total tanpa ampun berbuah kemenangan telak ${s1}–${s2} atas ${loser} di babak ${roundLabel}.`;
+        headline = `Masterclass taktis ${winner} singkirkan ${loser}`;
+        subtext = `Dominasi mutlak tanpa ampun. Performa klinis lini serang ${winner} menghasilkan kemenangan telak ${s1}–${s2} di ${roundLabel}.${nextPathMsg}`;
       } else if (diff === 1) {
-        headline = `${winner} amankan tiket dramatis`;
-        subtext = `Pertarungan sengit di ${roundLabel} berakhir ${s1}–${s2}. Margin tipis satu gol memastikan ${winner} melaju.`;
+        headline = `${winner} redam perlawanan sengit ${loser}`;
+        subtext = `Duel ketat hingga peluit akhir di ${roundLabel}. Keunggulan tipis ${s1}–${s2} cukup bagi ${winner} untuk mengamankan tiket babak gugur.${nextPathMsg}`;
       } else {
-        headline = `${winner} melangkah lebih dekat ke impian juara`;
-        subtext = `Menghentikan perlawanan ${loser} dengan skor akhir ${s1}–${s2} di ${roundLabel}. Buka bagan untuk melihat peta laga berikutnya.`;
+        headline = `${winner} mantapkan langkah di ${roundLabel}`;
+        subtext = `Kolektivitas taktis ${winner} terbukti terlalu tangguh bagi ${loser} lewat skor akhir ${s1}–${s2}.${nextPathMsg}`;
       }
     } else {
       headline = `Hasil akhir babak ${roundLabel}`;
-      subtext = `${t1} ${s1}–${s2} ${t2}. Pertandingan telah usai, buka bagan untuk melihat peta persaingan selengkapnya.`;
+      subtext = `Pertemuan sengit ${t1} vs ${t2} berakhir dengan skor ${s1}–${s2}. Eksplorasi bagan turnamen untuk melihat implikasi klasemen.`;
     }
 
     badge = `${finishedKO.length} DARI ${knockoutMatches.length} LAGA SELESAI`;
