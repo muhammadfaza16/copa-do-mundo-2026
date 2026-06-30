@@ -3778,7 +3778,7 @@ function getMatchTooltipHtml(m) {
       liveMinute = apiMatchData.time_elapsed ? `${apiMatchData.time_elapsed}'` : 'LIVE';
       statusText = `<span style="display: inline-flex; align-items: center; gap: 4px; color: #ff3366; font-weight: 700; font-size: 0.6rem; letter-spacing: 0.3px;"><span style="display: inline-block; width: 5px; height: 5px; border-radius: 50%; background: #ff3366; animation: live-blink-pulse 1.2s infinite;"></span>${liveMinute}</span>`;
     } else if (apiMatchData.status === 'FINISHED') {
-      statusText = `<span style="background: var(--glass-bg); color: var(--text-secondary); padding: 1px 4px; border-radius: 3px; font-size: 0.52rem; font-weight: 700; border: 1px solid var(--glass-border); letter-spacing: 0.3px;">SELESAI</span>`;
+      statusText = '';
     }
     
     // Parse scorers
