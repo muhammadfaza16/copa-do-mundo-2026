@@ -1817,7 +1817,7 @@ function createMatchCardHtml(match, index, isKnockout = false, showBigMatchBadge
             <span class="team-name">${match.team2}</span>
           </div>
           ${cardWinReasonHtml}
-          <div class="match-venue-subtle" style="margin-top: -8px;">${labelVenue}</div>
+          <div class="match-venue-subtle" style="margin-top: -2px;">${labelVenue}</div>
         </div>
         ${(cleanScorers1 || cleanScorers2) ? `
           <div class="match-scorers-row">
