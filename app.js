@@ -3885,9 +3885,8 @@ function getMatchTooltipHtml(m) {
       ` : ''}
 
       <!-- Footer: Venue + Status -->
-      <div style="display: flex; align-items: center; justify-content: space-between; font-size: 0.58rem; color: var(--text-secondary); font-weight: 500; gap: 8px; padding-top: 1px;">
-        <span style="display: flex; align-items: center; gap: 4px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 120px;" title="${getMatchVenue(m)}">
-          <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="display: inline-block; vertical-align: middle; opacity: 0.7;"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
+      <div style="display: flex; flex-direction: column; align-items: center; gap: 4px; font-size: 0.58rem; color: var(--text-secondary); font-weight: 500; padding-top: 1px; width: 100%;">
+        <span style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 100%; text-align: center;" title="${getMatchVenue(m)}">
           ${getVenueStadium(getMatchVenue(m))}
         </span>
         ${statusText}
