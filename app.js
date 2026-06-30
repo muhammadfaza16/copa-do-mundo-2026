@@ -1787,7 +1787,7 @@ function createMatchCardHtml(match, index, isKnockout = false, showBigMatchBadge
     let cardWinReasonHtml = '';
     if (!isLive && extraInfo) {
       cardWinReasonHtml = `
-        <div class="match-card-win-reason-row" style="font-size: 0.58rem; color: var(--text-secondary); opacity: 0.85; text-align: center; font-weight: 500; padding: 6px 12px 0; margin-top: -2px; text-transform: none; letter-spacing: 0.2px; border-top: 0.5px solid var(--glass-border);">
+        <div style="grid-column: 1 / -1; font-size: 0.58rem; color: var(--text-secondary); opacity: 0.85; text-align: center; font-weight: 500; margin-top: 4px; text-transform: none; letter-spacing: 0.2px; line-height: 1.2; white-space: nowrap;">
           ${extraInfo}
         </div>
       `;
@@ -1816,11 +1816,11 @@ function createMatchCardHtml(match, index, isKnockout = false, showBigMatchBadge
             ${getFlagHtml(match.team2)}
             <span class="team-name">${match.team2}</span>
           </div>
+          ${cardWinReasonHtml}
           <div class="match-venue-subtle">${labelVenue}</div>
         </div>
-        ${cardWinReasonHtml}
         ${(cleanScorers1 || cleanScorers2) ? `
-          <div class="match-scorers-row" style="${cardWinReasonHtml ? 'border-top: none; margin-top: 2px;' : ''}">
+          <div class="match-scorers-row">
             <div class="scorers-left">
               ${cleanScorers1 || ''}
             </div>
@@ -1831,7 +1831,7 @@ function createMatchCardHtml(match, index, isKnockout = false, showBigMatchBadge
           </div>
         ` : ''}
         ${(cleanRedCards1 || cleanRedCards2) ? `
-          <div class="match-redcards-row${!(cleanScorers1 || cleanScorers2) ? ' no-scorers' : ''}" style="${cardWinReasonHtml && !(cleanScorers1 || cleanScorers2) ? 'border-top: none; margin-top: 2px;' : ''}">
+          <div class="match-redcards-row${!(cleanScorers1 || cleanScorers2) ? ' no-scorers' : ''}">
             <div class="redcards-left">
               ${cleanRedCards1 || ''}
             </div>
