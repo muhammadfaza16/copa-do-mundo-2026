@@ -3888,7 +3888,7 @@ function getMatchTooltipHtml(m) {
 
       <!-- Win Reason (subtle text under score) -->
       ${winReason ? `
-        <div style="font-size: 0.55rem; color: var(--text-secondary); opacity: 0.8; text-align: center; font-weight: 500; margin-top: -5px; padding-bottom: 2px; letter-spacing: 0.2px;">
+        <div style="font-size: 0.58rem; color: var(--accent-star); opacity: 0.95; text-align: center; font-weight: 700; margin-top: -5px; padding-bottom: 2px; letter-spacing: 0.2px;">
           ${winReason}
         </div>
       ` : ''}
