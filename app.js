@@ -815,37 +815,37 @@ function getMatchLiveStatusParts(scoreData) {
   if (!scoreData) return { periodName: 'LIVE', clock: '' };
   
   if (scoreData.status === 'FINISHED') return { periodName: 'FT', clock: '' };
-  if (scoreData.status === 'PENALTY_SHOOTOUT') return { periodName: 'PEN', clock: '' };
+  if (scoreData.status === 'PENALTY_SHOOTOUT') return { periodName: 'Shootout', clock: '' };
   if (scoreData.status === 'PAUSED' || scoreData.time_elapsed === 'HT' || scoreData.display_clock === 'HT') return { periodName: 'HT', clock: '' };
   
   const clock = scoreData.display_clock || scoreData.time_elapsed || '';
-  let periodName = scoreData.status === 'EXTRA_TIME' ? 'ET' : 'LIVE';
+  let periodName = scoreData.status === 'EXTRA_TIME' ? 'Extra Time' : 'LIVE';
   
   if (clock && clock !== 'notstarted' && clock !== 'finished') {
     if (scoreData.period_desc) {
       const desc = scoreData.period_desc.toLowerCase();
       if (desc.includes('first half') || desc === '1st half') {
-        periodName = 'Babak 1';
+        periodName = '1st Half';
       } else if (desc.includes('second half') || desc === '2nd half') {
-        periodName = 'Babak 2';
+        periodName = '2nd Half';
       } else if (desc.includes('first extra') || desc.includes('1st extra') || desc.includes('1st et') || desc.includes('et1')) {
-        periodName = 'ET Babak 1';
+        periodName = 'Extra Time';
       } else if (desc.includes('second extra') || desc.includes('2nd extra') || desc.includes('2nd et') || desc.includes('et2')) {
-        periodName = 'ET Babak 2';
+        periodName = 'Extra Time';
       } else if (desc.includes('halftime')) {
-        periodName = scoreData.status === 'EXTRA_TIME' ? 'ET HT' : 'HT';
-      } else if (desc.includes('extra time')) {
-        periodName = 'ET';
+        periodName = scoreData.status === 'EXTRA_TIME' ? 'Extra Time' : 'HT';
+      } else if (desc.includes('extra time') || desc.includes('overtime')) {
+        periodName = 'Extra Time';
       } else if (desc.includes('shootout') || desc.includes('penalty')) {
-        periodName = 'PEN';
+        periodName = 'Shootout';
       } else {
         periodName = scoreData.period_desc;
       }
     } else if (scoreData.period) {
-      if (scoreData.period === 1) periodName = 'Babak 1';
-      else if (scoreData.period === 2) periodName = 'Babak 2';
-      else if (scoreData.period === 3) periodName = 'ET Babak 1';
-      else if (scoreData.period === 4) periodName = 'ET Babak 2';
+      if (scoreData.period === 1) periodName = '1st Half';
+      else if (scoreData.period === 2) periodName = '2nd Half';
+      else if (scoreData.period === 3) periodName = 'Extra Time';
+      else if (scoreData.period === 4) periodName = 'Extra Time';
     }
     return { periodName, clock };
   }
@@ -1047,7 +1047,7 @@ function updateLiveMatchClocks() {
                                 scoreData.shootout_score2 !== null && 
                                 scoreData.shootout_score2 !== undefined;
             if (hasShootout) {
-              finishedLabel = `FT (Pen. ${scoreData.shootout_score1} - ${scoreData.shootout_score2})`;
+              finishedLabel = `FT (Shootout: ${scoreData.shootout_score1} - ${scoreData.shootout_score2})`;
             } else {
               const statusName = scoreData.espn_status_name || '';
               const statusDetail = scoreData.espn_status_detail || '';
@@ -1061,7 +1061,7 @@ function updateLiveMatchClocks() {
                             periodDesc.toLowerCase().includes('overtime') ||
                             clock === "120'";
               if (isAet) {
-                finishedLabel = `FT (AET)`;
+                finishedLabel = `FT (Extra Time)`;
               }
             }
           }
@@ -1631,7 +1631,7 @@ function getMatchFinishedExtraInfo(scoreData) {
                       scoreData.shootout_score2 !== undefined;
                       
   if (hasShootout) {
-    return `<div class="match-period-label penalty-finished-label">Pen. ${scoreData.shootout_score1}-${scoreData.shootout_score2}</div>`;
+    return `<div class="match-period-label penalty-finished-label">Shootout (${scoreData.shootout_score1}-${scoreData.shootout_score2})</div>`;
   }
   
   // 2. Check if finished in extra time (AET)
@@ -1648,7 +1648,7 @@ function getMatchFinishedExtraInfo(scoreData) {
                 clock === "120'";
                 
   if (isAet) {
-    return `<div class="match-period-label aet-finished-label">AET</div>`;
+    return `<div class="match-period-label aet-finished-label">Extra Time</div>`;
   }
   
   return '';
@@ -1723,7 +1723,7 @@ function createMatchCardHtml(match, index, isKnockout = false, showBigMatchBadge
         <div class="score-status status-live ${pulseClass}">${displayClock}</div>
       `;
     } else {
-      scoreStatusHtml = '';
+      scoreStatusHtml = `<div class="score-status status-ft">FT</div>`;
     }
 
     // Flash handled imperatively by triggerScoreFlash — no inline class evaluation needed
@@ -1737,14 +1737,18 @@ function createMatchCardHtml(match, index, isKnockout = false, showBigMatchBadge
             ${getFlagHtml(match.team1)}
           </div>
           <div class="match-time-box score-box">
-            ${isLive && liveParts && liveParts.clock && liveParts.clock !== 'LIVE' ? `<div class="match-period-label">${liveParts.periodName}</div>` : ''}
-            ${!isLive ? getMatchFinishedExtraInfo(scoreData) : ''}
+            <div class="match-period-row">
+              ${isLive && liveParts && liveParts.clock && liveParts.clock !== 'LIVE' && liveParts.periodName !== liveParts.clock ? `<span class="match-period-label">${liveParts.periodName}</span>` : ''}
+              ${!isLive ? getMatchFinishedExtraInfo(scoreData) : ''}
+            </div>
             <div class="score-display" style="white-space: nowrap;">
               <span>${scoreData.score1}</span>
               <span> - </span>
               <span>${scoreData.score2}</span>
             </div>
-            ${scoreStatusHtml}
+            <div class="match-status-row">
+              ${scoreStatusHtml}
+            </div>
           </div>
           <div class="team-display right">
             ${getFlagHtml(match.team2)}
@@ -5800,7 +5804,7 @@ function createModalHeaderHtml(match, scoreData, summaryData) {
                           scoreData.shootout_score2 !== null && 
                           scoreData.shootout_score2 !== undefined;
       if (hasShootout) {
-        finishedLabel = `FT (Pen. ${scoreData.shootout_score1} - ${scoreData.shootout_score2})`;
+        finishedLabel = `FT (Shootout: ${scoreData.shootout_score1} - ${scoreData.shootout_score2})`;
       } else {
         const statusName = scoreData.espn_status_name || '';
         const statusDetail = scoreData.espn_status_detail || '';
@@ -5814,7 +5818,7 @@ function createModalHeaderHtml(match, scoreData, summaryData) {
                       periodDesc.toLowerCase().includes('overtime') ||
                       clock === "120'";
         if (isAet) {
-          finishedLabel = `FT (AET)`;
+          finishedLabel = `FT (Extra Time)`;
         }
       }
     }

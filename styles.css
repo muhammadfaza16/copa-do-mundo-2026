@@ -2277,30 +2277,53 @@ body.light-theme .flag-crest {
   line-height: 1.2;
 }
 
+.match-period-row {
+  min-height: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 5px;
+}
+
+.match-status-row {
+  min-height: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 5px;
+}
+
 .score-box .match-period-label {
-  font-size: 0.65rem;
-  font-weight: 600;
-  color: var(--text-secondary);
-  line-height: 1;
-  margin-bottom: 8px;
-}
-
-.score-box .match-period-label.penalty-finished-label {
-  color: var(--accent-star);
+  font-size: 0.55rem;
   font-weight: 700;
+  color: var(--text-secondary);
+  opacity: 0.75;
+  line-height: 1;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
 }
 
+.score-box .match-period-label.penalty-finished-label,
 .score-box .match-period-label.aet-finished-label {
   color: var(--accent-star);
-  font-weight: 700;
+  opacity: 1;
+  font-weight: 800;
 }
 
 .score-box .score-status {
-  font-size: 0.65rem;
+  font-size: 0.62rem;
   font-weight: 800;
-  color: var(--accent-red);
+  color: var(--text-muted);
   line-height: 1;
-  margin-top: 8px;
+}
+
+.score-box .score-status.status-live {
+  color: var(--accent-red);
+}
+
+.score-box .score-status.status-ft {
+  color: var(--text-muted);
+  font-weight: 700;
 }
 
 .score-status {
