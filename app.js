@@ -2245,8 +2245,22 @@ function renderBracketProxyCard() {
       }
     }
 
-    const isPenalty = score.penScore1 !== null && score.penScore2 !== null;
-    const isET = score.extraTime1 !== null || (s1 === s2 && isPenalty);
+    const isPenalty = score.shootout_score1 !== null && 
+                      score.shootout_score1 !== undefined && 
+                      score.shootout_score2 !== null && 
+                      score.shootout_score2 !== undefined;
+
+    const statusName = score.espn_status_name || '';
+    const statusDetail = score.espn_status_detail || '';
+    const periodDesc = score.period_desc || '';
+    const clock = score.display_clock || '';
+
+    const isET = statusName === 'STATUS_FINAL_OVERTIME' || 
+                 statusDetail === 'AET' || 
+                 statusDetail.toLowerCase().includes('aet') ||
+                 periodDesc.toLowerCase().includes('extra') || 
+                 periodDesc.toLowerCase().includes('overtime') ||
+                 clock === "120'";
 
     // Giant/favorite detection lists
     const GIANTS = [
@@ -2269,7 +2283,7 @@ function renderBracketProxyCard() {
         // UPSET! Underdog memulangkan raksasa
         if (isPenalty) {
           headline = `Sensasi adu penalti: ${winner} pulangkan raksasa ${loser}`;
-          subtext = `Kejutan terbesar tersaji di ${roundLabel}. Tampil spartan tanpa rasa takut, perjuangan heroik ${winner} sukses memulangkan tim unggulan ${loser} lewat babak adu penalti (${score.penScore1}–${score.penScore2}).${nextPathMsg}`;
+          subtext = `Kejutan terbesar tersaji di ${roundLabel}. Tampil spartan tanpa rasa takut, perjuangan heroik ${winner} sukses memulangkan tim unggulan ${loser} lewat babak adu penalti (${score.shootout_score1}–${score.shootout_score2}).${nextPathMsg}`;
         } else if (isET) {
           headline = `Kejutan 120 menit: ${winner} singkirkan ${loser}`;
           subtext = `Runtuhnya tembok pertahanan ${loser}. Gol di babak tambahan waktu mengunci kemenangan bersejarah ${winner} ${s1}–${s2} atas raksasa ${loser} di ${roundLabel}.${nextPathMsg}`;
@@ -2281,7 +2295,7 @@ function renderBracketProxyCard() {
         // GIANT CLASH!
         if (isPenalty) {
           headline = `Drama adu penalti klasik meloloskan ${winner}`;
-          subtext = `Pertarungan kolosal dua kekuatan utama sepak bola dunia di ${roundLabel} berakhir dramatis. Bermain imbang ${s1}–${s2}, ${winner} akhirnya memulangkan ${loser} lewat babak adu penalti (${score.penScore1}–${score.penScore2}).${nextPathMsg}`;
+          subtext = `Pertarungan kolosal dua kekuatan utama sepak bola dunia di ${roundLabel} berakhir dramatis. Bermain imbang ${s1}–${s2}, ${winner} akhirnya memulangkan ${loser} lewat babak adu penalti (${score.shootout_score1}–${score.shootout_score2}).${nextPathMsg}`;
         } else {
           headline = `Kedigdayaan ${loser} runtuh di tangan ${winner}`;
           subtext = `Laga klasik bertensi tinggi di babak ${roundLabel}. Melalui duel taktis penuh gengsi, ${winner} membuktikan superioritas mereka dan menundukkan ${loser} dengan skor akhir ${s1}–${s2}.${nextPathMsg}`;
