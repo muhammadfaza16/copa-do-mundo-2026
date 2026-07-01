@@ -600,13 +600,103 @@ function getWibDateString(dateObj) {
   return `${year}-${month}-${day}`;
 }
 
+function getUtcDateString(dateObj) {
+  const year = dateObj.getUTCFullYear();
+  const month = String(dateObj.getUTCMonth() + 1).padStart(2, '0');
+  const day = String(dateObj.getUTCDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+}
+
+const VENUE_TIMEZONES = {
+  "Estadio Azteca": "America/Mexico_City",
+  "Mexico City": "America/Mexico_City",
+  "Estadio Akron": "America/Mexico_City",
+  "Zapopan": "America/Mexico_City",
+  "Estadio BBVA": "America/Monterrey",
+  "Monterrey": "America/Monterrey",
+  "AT&T Stadium": "America/Chicago",
+  "Arlington": "America/Chicago",
+  "NRG Stadium": "America/Chicago",
+  "Houston": "America/Chicago",
+  "Arrowhead Stadium": "America/Chicago",
+  "Kansas City": "America/Chicago",
+  "Mercedes-Benz Stadium": "America/New_York",
+  "Atlanta": "America/New_York",
+  "Hard Rock Stadium": "America/New_York",
+  "Miami": "America/New_York",
+  "Gillette Stadium": "America/New_York",
+  "Foxborough": "America/New_York",
+  "Lincoln Financial Field": "America/New_York",
+  "Philadelphia": "America/New_York",
+  "MetLife Stadium": "America/New_York",
+  "East Rutherford": "America/New_York",
+  "BMO Field": "America/Toronto",
+  "Toronto": "America/Toronto",
+  "BC Place": "America/Vancouver",
+  "Vancouver": "America/Vancouver",
+  "Lumen Field": "America/Los_Angeles",
+  "Seattle": "America/Los_Angeles",
+  "Levi's Stadium": "America/Los_Angeles",
+  "Santa Clara": "America/Los_Angeles",
+  "SoFi Stadium": "America/Los_Angeles",
+  "Inglewood": "America/Los_Angeles"
+};
+
+function getMatchTimezone(match) {
+  const matchKey = match.isKO ? `ko_${match.match_id}` : `gs_${match.date}_${match.team1}_${match.team2}`;
+  const scoreData = (typeof realScores !== 'undefined') ? realScores[matchKey] : null;
+  if (scoreData && scoreData.stadium_id) {
+    const stadium = STADIUM_MAP[scoreData.stadium_id];
+    if (stadium && stadium.timezone) {
+      return stadium.timezone;
+    }
+  }
+
+  const venue = getMatchVenue(match);
+  for (const [key, tz] of Object.entries(VENUE_TIMEZONES)) {
+    if (venue.includes(key)) {
+      return tz;
+    }
+  }
+  return "America/New_York";
+}
+
+function getStadiumDateString(dateObj, timezone) {
+  try {
+    const formatter = new Intl.DateTimeFormat('en-CA', {
+      timeZone: timezone,
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit'
+    });
+    return formatter.format(dateObj); // Returns YYYY-MM-DD
+  } catch (e) {
+    console.error("Error getting stadium date string, falling back to UTC", e);
+    const year = dateObj.getUTCFullYear();
+    const month = String(dateObj.getUTCMonth() + 1).padStart(2, '0');
+    const day = String(dateObj.getUTCDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  }
+}
+
 function getMatchDateString(match) {
+  const kickoffTime = getMatchKickoffTime(match);
+  if (kickoffTime === -1) {
+    if (useLocalTimezone) {
+      const matchDateObj = getMatchDate(match.date, match.time);
+      return getLocalDateString(matchDateObj);
+    } else {
+      const [d, mMonth] = match.date.split('/').map(Number);
+      return `2026-${String(mMonth).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+    }
+  }
+
+  const matchDateObj = new Date(kickoffTime);
   if (useLocalTimezone) {
-    const matchDateObj = getMatchDate(match.date, match.time);
     return getLocalDateString(matchDateObj);
   } else {
-    const [d, mMonth] = match.date.split('/').map(Number);
-    return `2026-${String(mMonth).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+    const tz = getMatchTimezone(match);
+    return getStadiumDateString(matchDateObj, tz);
   }
 }
 
@@ -748,8 +838,9 @@ function triggerScoreFlash(matchKey, side, newScore) {
 }
 
 // Convert WIB Date+Time to local/WIB formatted details
-function getFormattedTime(dateStr, timeStr) {
-  const matchDate = getMatchDate(dateStr, timeStr);
+function getFormattedTime(dateStr, timeStr, match) {
+  const kickoffTime = match ? getMatchKickoffTime(match) : getMatchDate(dateStr, timeStr).getTime();
+  const matchDate = new Date(kickoffTime);
 
   if (useLocalTimezone) {
     // Format according to browser locale, but enforce Indonesian weekday name
@@ -760,14 +851,16 @@ function getFormattedTime(dateStr, timeStr) {
     const formattedTime = matchDate.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit', hour12: false });
     return { date: formattedDate, time: formattedTime, tzLabel: getLocalTimezoneAbbr() };
   } else {
-    // Standard WIB formatting
-    const [day, month] = dateStr.split('/').map(Number);
+    // Standard WIB formatting (UTC+7)
+    const wibDate = new Date(kickoffTime + 7 * 60 * 60 * 1000);
+    const day = wibDate.getUTCDate();
+    const month = wibDate.getUTCMonth() + 1;
     const months = ["Jan", "Feb", "Mar", "Apr", "Mei", "Jun", "Jul", "Agt", "Sep", "Okt", "Nov", "Des"];
     const days = ["Minggu", "Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu"];
-    const wibDate = new Date(2026, month - 1, day);
-    const dayName = days[wibDate.getDay()];
+    const dayName = days[wibDate.getUTCDay()];
     const formattedDate = `${dayName}, ${day} ${months[month - 1]}`;
-    return { date: formattedDate, time: timeStr, tzLabel: "WIB" };
+    const formattedTime = `${String(wibDate.getUTCHours()).padStart(2, '0')}:${String(wibDate.getUTCMinutes()).padStart(2, '0')}`;
+    return { date: formattedDate, time: formattedTime, tzLabel: "WIB" };
   }
 }
 
@@ -822,10 +915,22 @@ function getEligibleGroupsFor3rd(label) {
 function getMatchLiveStatusParts(scoreData, matchKey = null) {
   if (!scoreData) return { periodName: 'LIVE', clock: '' };
   
-  if (scoreData.status === 'FINISHED') return { periodName: 'FT', clock: '' };
-  
   const clock = scoreData.display_clock || scoreData.time_elapsed || '';
+
+  // Proactive Finished check based on clock text/status
+  if (scoreData.status === 'FINISHED' || ['FT', 'Final', 'Full Time', 'Fulltime', 'finished'].includes(clock)) {
+    return { periodName: 'Selesai', clock: 'FT' };
+  }
   
+  // Proactive Halftime check based on clock text/period description
+  if (clock === 'HT' || scoreData.status === 'PAUSED' || 
+      (scoreData.period_desc && scoreData.period_desc.toLowerCase().includes('halftime'))) {
+    if (scoreData.period === 3 || scoreData.period === 4 || scoreData.status === 'EXTRA_TIME') {
+      return { periodName: 'Jeda Extra Time', clock: 'ET HT' };
+    }
+    return { periodName: 'Jeda Babak 1', clock: 'HT' };
+  }
+
   // Set default periodName based on status
   let periodName = 'LIVE';
   if (scoreData.status === 'EXTRA_TIME') {
@@ -896,14 +1001,20 @@ function getLiveClockInfo(matchKey) {
     return { clock: baseClock || 'SUSP', isPulsing: false };
   }
   
-  // Halftime / Pause / Extra Time / Penalty states
-  if (scoreData.status === 'PAUSED' || baseClock === 'HT' || scoreData.time_elapsed === 'HT') {
+  // Halftime / Pause / Extra Time / Penalty states (with proactive Halftime description check)
+  if (scoreData.status === 'PAUSED' || baseClock === 'HT' || scoreData.time_elapsed === 'HT' || 
+      (scoreData.period_desc && scoreData.period_desc.toLowerCase().includes('halftime'))) {
+    const period = parseInt(scoreData.period) || 0;
+    if (period === 3 || period === 4 || scoreData.status === 'EXTRA_TIME') {
+      return { clock: 'ET HT', isPulsing: false };
+    }
     return { clock: 'HT', isPulsing: false };
   }
   if (scoreData.status === 'PENALTY_SHOOTOUT' || baseClock === 'PEN' || scoreData.time_elapsed === 'PEN') {
     return { clock: 'PEN', isPulsing: true };
   }
-  if (scoreData.status === 'FINISHED' || baseClock === 'finished') {
+  // Proactive Finished check based on clock text
+  if (scoreData.status === 'FINISHED' || ['FT', 'Final', 'Full Time', 'Fulltime', 'finished'].includes(baseClock)) {
     return { clock: 'FT', isPulsing: false };
   }
   if (scoreData.status === 'EXTRA_TIME' && (!baseClock || baseClock === 'ET')) {
@@ -925,7 +1036,8 @@ function getLiveClockInfo(matchKey) {
   const isKnockout = matchKey && matchKey.startsWith('ko_');
   const isTied = scoreData.score1 !== null && scoreData.score2 !== null && parseInt(scoreData.score1) === parseInt(scoreData.score2);
   
-  const hasShootout = scoreData.shootout_score1 !== null || scoreData.shootout_score2 !== null;
+  const hasShootout = (scoreData.shootout_score1 !== null && scoreData.shootout_score1 !== undefined) || 
+                      (scoreData.shootout_score2 !== null && scoreData.shootout_score2 !== undefined);
   if (isKnockout && isTied && (scoreData.status === 'PENALTY_SHOOTOUT' || hasShootout)) {
     return { clock: 'PEN', isPulsing: true };
   }
@@ -934,24 +1046,35 @@ function getLiveClockInfo(matchKey) {
   const elapsedMs = Date.now() - clockUpdatedAt;
   const elapsedSec = Math.floor(elapsedMs / 1000);
   
-  const currentSec = elapsedSec % 60;
   const additionalMins = Math.floor(elapsedSec / 60);
   let displayMin = baseMin;
   let displayExtra = extraMin;
   
+  const period = parseInt(scoreData.period) || 0;
+  
   if (extraMin > 0) {
-    displayExtra += additionalMins;
+    // Keep exact API added time value to avoid overshooting or hardcoding guess values
+    displayExtra = extraMin;
   } else {
     displayMin += additionalMins;
     
-    // Proactive cap & transition for regular time -> extra time break
-    if (isKnockout && isTied && scoreData.status === 'IN_PLAY' && displayMin >= 90) {
-      return { clock: 'ET', isPulsing: true };
-    }
-    
-    // Proactive cap & transition for extra time -> shootout break
-    if (isKnockout && isTied && scoreData.status === 'EXTRA_TIME' && displayMin >= 120) {
-      return { clock: 'PEN', isPulsing: true };
+    // Cap main minutes at the official period boundaries
+    if (period === 1 && displayMin > 45) {
+      displayMin = 45;
+    } else if (period === 2 && displayMin > 90) {
+      if (isKnockout && isTied) {
+        return { clock: 'ET', isPulsing: true }; // Transition to ET break
+      } else {
+        displayMin = 90;
+      }
+    } else if (period === 3 && displayMin > 105) {
+      displayMin = 105;
+    } else if (period === 4 && displayMin > 120) {
+      if (isKnockout && isTied) {
+        return { clock: 'PEN', isPulsing: true }; // Transition to Shootout break
+      } else {
+        displayMin = 120;
+      }
     }
   }
   
@@ -1214,11 +1337,15 @@ function isMatchLive(match, scoreData) {
     if (['POSTPONED', 'CANCELED', 'ABANDONED', 'DELAYED'].includes(scoreData.status)) {
       return false;
     }
+    
+    // Proactive: If clock text indicates finished, treat as not live instantly
+    const baseClock = scoreData.display_clock || scoreData.time_elapsed || '';
+    if (['FT', 'Final', 'Full Time', 'Fulltime', 'finished', 'FINISHED'].includes(baseClock) || scoreData.status === 'FINISHED') {
+      return false;
+    }
+
     if (['IN_PLAY', 'PAUSED', 'EXTRA_TIME', 'PENALTY_SHOOTOUT', 'SUSPENDED'].includes(scoreData.status)) {
       return true;
-    }
-    if (scoreData.status === 'FINISHED') {
-      return false;
     }
   }
 
@@ -1526,7 +1653,7 @@ function updateHeroPanel() {
       if (oldBadgeRow) oldBadgeRow.remove();
       cdTeamRow.style.marginTop = '';
 
-      const timeInfo = getFormattedTime(targetMatch.date, targetMatch.time);
+      const timeInfo = getFormattedTime(targetMatch.date, targetMatch.time, targetMatch);
       const dateStr = `${timeInfo.date} · ${timeInfo.time} ${timeInfo.tzLabel}`;
       const stageName = (targetMatch.isKO ? translateRoundName(targetMatch.group) : `Grup ${targetMatch.group.replace('Grup ', '')}`).toUpperCase();
 
@@ -1604,7 +1731,7 @@ function updateHeroPanel() {
     if (oldBadgeRow) oldBadgeRow.remove();
     cdTeamRow.style.marginTop = '';
 
-    const timeInfo = getFormattedTime(targetMatch.date, targetMatch.time);
+    const timeInfo = getFormattedTime(targetMatch.date, targetMatch.time, targetMatch);
     const dateStr = `${timeInfo.date} · ${timeInfo.time} ${timeInfo.tzLabel}`;
     const stageName = (targetMatch.isKO ? translateRoundName(targetMatch.group) : `Grup ${targetMatch.group.replace('Grup ', '')}`).toUpperCase();
     
@@ -1713,7 +1840,7 @@ function getMatchFinishedExtraInfo(scoreData, match = null) {
 // Render Match Card
 function createMatchCardHtml(match, index, isKnockout = false, showBigMatchBadge = true, isBracketSchedule = false) {
   const matchKey = isKnockout ? `ko_${match.match_id}` : `gs_${match.date}_${match.team1}_${match.team2}`;
-  const timeInfo = getFormattedTime(match.date, match.time);
+  const timeInfo = getFormattedTime(match.date, match.time, match);
   const starredClass = isStarred(matchKey) ? 'active' : '';
   
   const scoreData = getMatchScore(matchKey);
@@ -2692,12 +2819,19 @@ function renderNearestMatches() {
 
     // Get the date of the first upcoming match
     const earliestMatch = sortedUpcomingMatches[0];
-    const day1Date = getMatchDate(earliestMatch.date, earliestMatch.time);
+    const day1Date = new Date(getMatchKickoffTime(earliestMatch));
     const day2Date = new Date(day1Date);
     day2Date.setDate(day2Date.getDate() + 1);
 
-    const day1Str = useLocalTimezone ? getLocalDateString(day1Date) : getWibDateString(day1Date);
-    const day2Str = useLocalTimezone ? getLocalDateString(day2Date) : getWibDateString(day2Date);
+    let day1Str, day2Str;
+    if (useLocalTimezone) {
+      day1Str = getLocalDateString(day1Date);
+      day2Str = getLocalDateString(day2Date);
+    } else {
+      const tz = getMatchTimezone(earliestMatch);
+      day1Str = getStadiumDateString(day1Date, tz);
+      day2Str = getStadiumDateString(day2Date, tz);
+    }
 
     // Get matches on these two days from the already-filtered set.
     // Note: Since sortedUpcomingMatches is already sorted, filtering it preserves the chronological order.
@@ -3804,7 +3938,7 @@ function getMatchTooltipHtml(m) {
   const t2WinnerMarker = '';
   
   const dateStr = formatCompactMatchDate(m.date);
-  const timeInfo = getFormattedTime(m.date, m.time);
+  const timeInfo = getFormattedTime(m.date, m.time, m);
   
   const roundTranslations = {
     "Round of 32": "32 Besar",
@@ -6041,7 +6175,7 @@ function createModalHeaderHtml(match, scoreData, summaryData) {
     `;
   }
 
-  const timeInfo = getFormattedTime(match.date, match.time);
+  const timeInfo = getFormattedTime(match.date, match.time, match);
   const kickoffText = `${timeInfo.date} · ${timeInfo.time} ${timeInfo.tzLabel}`;
 
   const stadiumText = getMatchVenue(match);
