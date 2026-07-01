@@ -3805,7 +3805,6 @@ function getMatchTooltipHtml(m) {
         rawClock += "'";
       }
       liveMinute = rawClock;
-      statusText = `<span style="display: inline-flex; align-items: center; gap: 4px; color: #ff3366; font-weight: 700; font-size: 0.6rem; letter-spacing: 0.3px;"><span style="display: inline-block; width: 5px; height: 5px; border-radius: 50%; background: #ff3366; animation: live-blink-pulse 1.2s infinite;"></span>${liveMinute}</span>`;
     } else if (apiMatchData.status === 'FINISHED') {
       statusText = '';
     }
@@ -3880,10 +3879,17 @@ function getMatchTooltipHtml(m) {
         </div>
 
         <!-- Score display -->
-        <div style="font-size: 0.8rem; font-weight: 700; color: var(--text-primary); white-space: nowrap; display: flex; align-items: center; gap: 4px; padding: 0 4px;">
-          <span style="${hasWinner && !isWinner1 ? 'opacity: 0.45;' : ''}">${score1}</span>
-          <span style="opacity: 0.5; font-size: 0.7rem;">-</span>
-          <span style="${hasWinner && !isWinner2 ? 'opacity: 0.45;' : ''}">${score2}</span>
+        <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 0 4px; min-width: 32px;">
+          <div style="font-size: 0.8rem; font-weight: 700; color: var(--text-primary); white-space: nowrap; display: flex; align-items: center; gap: 4px;">
+            <span style="${hasWinner && !isWinner1 ? 'opacity: 0.45;' : ''}">${score1}</span>
+            <span style="opacity: 0.5; font-size: 0.7rem;">-</span>
+            <span style="${hasWinner && !isWinner2 ? 'opacity: 0.45;' : ''}">${score2}</span>
+          </div>
+          ${liveMinute ? `
+            <span style="font-size: 0.6rem; font-weight: 700; color: #ff3366; margin-top: 1px; letter-spacing: 0.3px; line-height: 1;">
+              ${liveMinute}
+            </span>
+          ` : ''}
         </div>
 
         <!-- Right Team (Team 2) -->
