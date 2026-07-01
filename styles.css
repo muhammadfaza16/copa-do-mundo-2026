@@ -4531,7 +4531,7 @@ body.light-theme .live-team:hover .flag-crest {
   color: var(--text-secondary);
   border-top: 1px solid rgba(255, 255, 255, 0.06);
   padding-top: 8px;
-  margin-top: 2px;
+  margin-top: -6px;
   gap: 12px;
 }
 
