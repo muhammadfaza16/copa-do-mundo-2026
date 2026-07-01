@@ -2321,8 +2321,9 @@ function renderLatestResults() {
   // Extract the last 2 distinct match dates (newest first)
   const uniqueDates = [];
   for (const m of sortedMatchesWithScores) {
-    if (!uniqueDates.includes(m.date)) {
-      uniqueDates.push(m.date);
+    const matchDateStr = getMatchDateString(m);
+    if (!uniqueDates.includes(matchDateStr)) {
+      uniqueDates.push(matchDateStr);
     }
     if (uniqueDates.length === 2) {
       break;
@@ -2330,7 +2331,10 @@ function renderLatestResults() {
   }
 
   // Filter matches belonging to these 2 most recent match days
-  const latestMatches = sortedMatchesWithScores.filter(m => uniqueDates.includes(m.date));
+  const latestMatches = sortedMatchesWithScores.filter(m => {
+    const matchDateStr = getMatchDateString(m);
+    return uniqueDates.includes(matchDateStr);
+  });
 
   // Generate hash of current scores to prevent unnecessary DOM recreation on background polling
   const matchesContentHash = latestMatches.map(m => {
