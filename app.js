@@ -1686,15 +1686,8 @@ function getMatchFinishedExtraInfo(scoreData, match = null) {
                       scoreData.shootout_score2 !== null && 
                       scoreData.shootout_score2 !== undefined;
                       
-  if (hasShootout && match) {
-    const sh1 = parseInt(scoreData.shootout_score1);
-    const sh2 = parseInt(scoreData.shootout_score2);
-    const winnerName = (sh1 > sh2) ? match.team1 : match.team2;
-    const shWinnerScore = Math.max(sh1, sh2);
-    const shLoserScore = Math.min(sh1, sh2);
-    return `${winnerName} menang adu penalti ${shWinnerScore}-${shLoserScore}`;
-  } else if (hasShootout) {
-    return `Adu Penalti (${scoreData.shootout_score1}-${scoreData.shootout_score2})`;
+  if (hasShootout) {
+    return `Adu Penalti: ${scoreData.shootout_score1}-${scoreData.shootout_score2}`;
   }
   
   // 2. Check if finished in extra time (AET)
@@ -1710,13 +1703,8 @@ function getMatchFinishedExtraInfo(scoreData, match = null) {
                 periodDesc.toLowerCase().includes('overtime') ||
                 clock === "120'";
                 
-  if (isAet && match) {
-    const s1 = parseInt(scoreData.score1);
-    const s2 = parseInt(scoreData.score2);
-    const winnerName = (s1 > s2) ? match.team1 : match.team2;
-    return `${winnerName} menang setelah perpanjangan waktu`;
-  } else if (isAet) {
-    return `Perpanjangan Waktu`;
+  if (isAet) {
+    return `A.E.T: ${scoreData.score1}-${scoreData.score2}`;
   }
   
   return '';
@@ -3880,15 +3868,9 @@ function getMatchTooltipHtml(m) {
                   clock === "120'";
                   
     if (hasShootout) {
-      const sh1 = parseInt(apiMatchData.shootout_score1);
-      const sh2 = parseInt(apiMatchData.shootout_score2);
-      const winnerName = (sh1 > sh2) ? team1Name : team2Name;
-      const shWinnerScore = Math.max(sh1, sh2);
-      const shLoserScore = Math.min(sh1, sh2);
-      winReason = `${winnerName} menang adu penalti ${shWinnerScore}-${shLoserScore}`;
+      winReason = `Adu Penalti: ${apiMatchData.shootout_score1}-${apiMatchData.shootout_score2}`;
     } else if (isAet) {
-      const winnerName = (s1 > s2) ? team1Name : team2Name;
-      winReason = `${winnerName} menang setelah perpanjangan waktu`;
+      winReason = `A.E.T: ${s1}-${s2}`;
     }
   }
 
