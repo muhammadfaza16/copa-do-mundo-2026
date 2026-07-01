@@ -538,6 +538,14 @@ function getMatchDate(dateStr, timeStr) {
 // Helper to get and cache kickoff timestamp directly on the match object
 function getMatchKickoffTime(match) {
   if (!match) return -1;
+  
+  // Check API override first (to ensure dynamic updates work)
+  const matchKey = match.isKO ? `ko_${match.match_id}` : `gs_${match.date}_${match.team1}_${match.team2}`;
+  const scoreData = (typeof realScores !== 'undefined') ? realScores[matchKey] : null;
+  if (scoreData && scoreData.utc_kickoff) {
+    return new Date(scoreData.utc_kickoff).getTime();
+  }
+
   if (match._kickoffTime !== undefined) {
     return match._kickoffTime;
   }
@@ -821,9 +829,11 @@ function getMatchLiveStatusParts(scoreData, matchKey = null) {
   // Set default periodName based on status
   let periodName = 'LIVE';
   if (scoreData.status === 'EXTRA_TIME') {
-    periodName = 'Extra Time';
+    periodName = 'Perpanjangan Waktu';
   } else if (scoreData.status === 'PENALTY_SHOOTOUT') {
     periodName = 'Adu Penalti';
+  } else if (scoreData.status === 'SUSPENDED') {
+    periodName = 'Ditangguhkan';
   }
   
   // Proactive overrides for API lag using getLiveClockInfo
@@ -881,6 +891,10 @@ function getLiveClockInfo(matchKey) {
   if (!scoreData) return { clock: 'LIVE', isPulsing: true };
   
   const baseClock = scoreData.display_clock || scoreData.time_elapsed || '';
+  
+  if (scoreData.status === 'SUSPENDED') {
+    return { clock: baseClock || 'SUSP', isPulsing: false };
+  }
   
   // Halftime / Pause / Extra Time / Penalty states
   if (scoreData.status === 'PAUSED' || baseClock === 'HT' || scoreData.time_elapsed === 'HT') {
@@ -1196,12 +1210,19 @@ function isMatchLive(match, scoreData) {
   }
 
   // 1. API status takes priority
-  if (scoreData && (scoreData.status === 'IN_PLAY' || scoreData.status === 'PAUSED' || scoreData.status === 'EXTRA_TIME' || scoreData.status === 'PENALTY_SHOOTOUT')) {
-    return true;
+  if (scoreData) {
+    if (['POSTPONED', 'CANCELED', 'ABANDONED', 'DELAYED'].includes(scoreData.status)) {
+      return false;
+    }
+    if (['IN_PLAY', 'PAUSED', 'EXTRA_TIME', 'PENALTY_SHOOTOUT', 'SUSPENDED'].includes(scoreData.status)) {
+      return true;
+    }
+    if (scoreData.status === 'FINISHED') {
+      return false;
+    }
   }
-  // 2. Already finished
-  if (scoreData && scoreData.status === 'FINISHED') return false;
-  // 3. Time-based fallback: if kickoff has passed but within 130 min window, treat as live
+
+  // 2. Time-based fallback: if kickoff has passed but within 130 min window, treat as live
   if (kickoff >= 0) {
     const elapsed = Date.now() - kickoff;
     if (elapsed >= 0 && elapsed < 130 * 60 * 1000) {
@@ -1671,7 +1692,7 @@ function getMatchFinishedExtraInfo(scoreData, match = null) {
     const winnerName = (sh1 > sh2) ? match.team1 : match.team2;
     const shWinnerScore = Math.max(sh1, sh2);
     const shLoserScore = Math.min(sh1, sh2);
-    return `${winnerName} won ${shWinnerScore}-${shLoserScore} on penalties`;
+    return `${winnerName} menang adu penalti ${shWinnerScore}-${shLoserScore}`;
   } else if (hasShootout) {
     return `Adu Penalti (${scoreData.shootout_score1}-${scoreData.shootout_score2})`;
   }
@@ -1693,9 +1714,9 @@ function getMatchFinishedExtraInfo(scoreData, match = null) {
     const s1 = parseInt(scoreData.score1);
     const s2 = parseInt(scoreData.score2);
     const winnerName = (s1 > s2) ? match.team1 : match.team2;
-    return `${winnerName} won after extra time`;
+    return `${winnerName} menang setelah perpanjangan waktu`;
   } else if (isAet) {
-    return `Extra Time`;
+    return `Perpanjangan Waktu`;
   }
   
   return '';
@@ -1770,7 +1791,21 @@ function createMatchCardHtml(match, index, isKnockout = false, showBigMatchBadge
         <div class="score-status status-live ${pulseClass}">${displayClock}</div>
       `;
     } else {
-      scoreStatusHtml = '';
+      if (scoreData.status === 'POSTPONED') {
+        scoreStatusHtml = `
+          <div class="score-status status-postponed" style="background: rgba(239, 68, 68, 0.15); color: var(--accent-red); padding: 2px 6px; border-radius: var(--border-radius-xs); font-size: 0.55rem; font-weight: 700; border: 1px solid rgba(239, 68, 68, 0.25);">DITUNDA</div>
+        `;
+      } else if (scoreData.status === 'DELAYED') {
+        scoreStatusHtml = `
+          <div class="score-status status-delayed" style="background: rgba(245, 158, 11, 0.15); color: var(--primary-gold); padding: 2px 6px; border-radius: var(--border-radius-xs); font-size: 0.55rem; font-weight: 700; border: 1px solid rgba(245, 158, 11, 0.25);">TERTUNDA</div>
+        `;
+      } else if (scoreData.status === 'ABANDONED' || scoreData.status === 'CANCELED') {
+        scoreStatusHtml = `
+          <div class="score-status status-canceled" style="background: rgba(107, 114, 128, 0.15); color: var(--text-secondary); padding: 2px 6px; border-radius: var(--border-radius-xs); font-size: 0.55rem; font-weight: 700; border: 1px solid rgba(107, 114, 128, 0.25);">DIBATALKAN</div>
+        `;
+      } else {
+        scoreStatusHtml = '';
+      }
     }
 
     // Flash handled imperatively by triggerScoreFlash — no inline class evaluation needed
@@ -3850,10 +3885,10 @@ function getMatchTooltipHtml(m) {
       const winnerName = (sh1 > sh2) ? team1Name : team2Name;
       const shWinnerScore = Math.max(sh1, sh2);
       const shLoserScore = Math.min(sh1, sh2);
-      winReason = `${winnerName} won ${shWinnerScore}-${shLoserScore} on penalties`;
+      winReason = `${winnerName} menang adu penalti ${shWinnerScore}-${shLoserScore}`;
     } else if (isAet) {
       const winnerName = (s1 > s2) ? team1Name : team2Name;
-      winReason = `${winnerName} won after extra time`;
+      winReason = `${winnerName} menang setelah perpanjangan waktu`;
     }
   }
 
@@ -5325,15 +5360,25 @@ async function fetchScoresDirectFromEspn() {
     const state = ev.status && ev.status.type && ev.status.type.state;
     let finished = state === 'post' ? 'TRUE' : 'FALSE';
     
+    const espnName = ev.status && ev.status.type && ev.status.type.name;
+    const espnDesc = ev.status && ev.status.type && ev.status.type.description;
+    
     let time_elapsed = 'notstarted';
-    if (state === 'post') {
+    if (espnName === 'STATUS_POSTPONED') {
+      time_elapsed = 'postponed';
+    } else if (espnName === 'STATUS_DELAYED') {
+      time_elapsed = 'delayed';
+    } else if (espnName === 'STATUS_SUSPENDED') {
+      time_elapsed = 'suspended';
+    } else if (espnName === 'STATUS_ABANDONED') {
+      time_elapsed = 'abandoned';
+    } else if (espnName === 'STATUS_CANCELED' || espnName === 'STATUS_CANCELLED') {
+      time_elapsed = 'canceled';
+    } else if (state === 'post') {
       time_elapsed = 'finished';
     } else if (state === 'in') {
       finished = 'FALSE';
       time_elapsed = ev.status.displayClock || 'live';
-      
-      const espnName = ev.status && ev.status.type && ev.status.type.name;
-      const espnDesc = ev.status && ev.status.type && ev.status.type.description;
 
       if (espnName === 'STATUS_HALFTIME' || (espnDesc && espnDesc.toLowerCase() === 'halftime')) {
         time_elapsed = 'HT';
@@ -5345,17 +5390,24 @@ async function fetchScoresDirectFromEspn() {
     }
     
     let status = 'TIMED';
-    if (state === 'post') {
+    if (espnName === 'STATUS_POSTPONED') {
+      status = 'POSTPONED';
+    } else if (espnName === 'STATUS_DELAYED') {
+      status = 'DELAYED';
+    } else if (espnName === 'STATUS_SUSPENDED') {
+      status = 'SUSPENDED';
+    } else if (espnName === 'STATUS_ABANDONED') {
+      status = 'ABANDONED';
+    } else if (espnName === 'STATUS_CANCELED' || espnName === 'STATUS_CANCELLED') {
+      status = 'CANCELED';
+    } else if (state === 'post') {
       status = 'FINISHED';
     } else if (state === 'in') {
-      const espnName = ev.status && ev.status.type && ev.status.type.name;
-      const espnDesc = ev.status && ev.status.type && ev.status.type.description;
-
       if (espnName === 'STATUS_HALFTIME' || (espnDesc && espnDesc.toLowerCase() === 'halftime')) {
         status = 'PAUSED';
       } else if (espnName === 'STATUS_EXTRA_TIME' || (espnDesc && espnDesc.toLowerCase().includes('extra'))) {
         status = 'EXTRA_TIME';
-      } else if (espnName === 'STATUS_SHOOTOUT' || (espnDesc && espnDesc.toLowerCase().includes('shootout') || espnDesc && espnDesc.toLowerCase().includes('penalty'))) {
+      } else if (espnName === 'STATUS_SHOOTOUT' || (espnDesc && (espnDesc.toLowerCase().includes('shootout') || espnDesc.toLowerCase().includes('penalty')))) {
         status = 'PENALTY_SHOOTOUT';
       } else {
         status = 'IN_PLAY';
@@ -5414,7 +5466,8 @@ async function fetchScoresDirectFromEspn() {
       home_shootout_score: home.shootoutScore !== undefined ? String(home.shootoutScore) : null,
       away_shootout_score: away.shootoutScore !== undefined ? String(away.shootoutScore) : null,
       espn_status_name: (ev.status && ev.status.type && ev.status.type.name) || "",
-      espn_status_detail: (ev.status && ev.status.type && ev.status.type.detail) || ""
+      espn_status_detail: (ev.status && ev.status.type && ev.status.type.detail) || "",
+      utc_kickoff: ev.date || null
     };
   }).filter(Boolean);
 
@@ -5804,7 +5857,8 @@ async function fetchRealTimeScores(isManual = false) {
               existing.home_team_name_en !== team1Indo ||
               existing.away_team_name_en !== team2Indo ||
               String(existing.stadium_id) !== String(apiMatch.stadium_id) ||
-              String(existing.matchday) !== String(apiMatch.matchday)) {
+              String(existing.matchday) !== String(apiMatch.matchday) ||
+              existing.utc_kickoff !== (apiMatch.utc_kickoff || null)) {
             hasMatchChanged = true;
           }
         }
@@ -5833,6 +5887,7 @@ async function fetchRealTimeScores(isManual = false) {
             period_desc: apiMatch.period_desc || null,
             espn_status_name: apiMatch.espn_status_name || null,
             espn_status_detail: apiMatch.espn_status_detail || null,
+            utc_kickoff: apiMatch.utc_kickoff || null,
             score1_updated_at: score1_updated_at,
             score2_updated_at: score2_updated_at,
             clock_updated_at: clock_updated_at,

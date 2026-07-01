@@ -265,17 +265,27 @@ export default async function handler(req, res) {
       
       // Map status
       const state = ev.status && ev.status.type && ev.status.type.state;
+      const espnName = ev.status && ev.status.type && ev.status.type.name;
+      const espnDesc = ev.status && ev.status.type && ev.status.type.description;
+      
       let finished = state === 'post' ? 'TRUE' : 'FALSE';
       
       let time_elapsed = 'notstarted';
-      if (state === 'post') {
+      if (espnName === 'STATUS_POSTPONED') {
+        time_elapsed = 'postponed';
+      } else if (espnName === 'STATUS_DELAYED') {
+        time_elapsed = 'delayed';
+      } else if (espnName === 'STATUS_SUSPENDED') {
+        time_elapsed = 'suspended';
+      } else if (espnName === 'STATUS_ABANDONED') {
+        time_elapsed = 'abandoned';
+      } else if (espnName === 'STATUS_CANCELED' || espnName === 'STATUS_CANCELLED') {
+        time_elapsed = 'canceled';
+      } else if (state === 'post') {
         time_elapsed = 'finished';
       } else if (state === 'in') {
         finished = 'FALSE';
         time_elapsed = ev.status.displayClock || 'live';
-        
-        const espnName = ev.status && ev.status.type && ev.status.type.name;
-        const espnDesc = ev.status && ev.status.type && ev.status.type.description;
 
         if (espnName === 'STATUS_HALFTIME' || (espnDesc && espnDesc.toLowerCase() === 'halftime')) {
           time_elapsed = 'HT';
@@ -288,12 +298,19 @@ export default async function handler(req, res) {
       
       // Map status for frontend checks
       let status = 'TIMED';
-      if (state === 'post') {
+      if (espnName === 'STATUS_POSTPONED') {
+        status = 'POSTPONED';
+      } else if (espnName === 'STATUS_DELAYED') {
+        status = 'DELAYED';
+      } else if (espnName === 'STATUS_SUSPENDED') {
+        status = 'SUSPENDED';
+      } else if (espnName === 'STATUS_ABANDONED') {
+        status = 'ABANDONED';
+      } else if (espnName === 'STATUS_CANCELED' || espnName === 'STATUS_CANCELLED') {
+        status = 'CANCELED';
+      } else if (state === 'post') {
         status = 'FINISHED';
       } else if (state === 'in') {
-        const espnName = ev.status && ev.status.type && ev.status.type.name;
-        const espnDesc = ev.status && ev.status.type && ev.status.type.description;
-
         if (espnName === 'STATUS_HALFTIME' || (espnDesc && espnDesc.toLowerCase() === 'halftime')) {
           status = 'PAUSED'; // HT
         } else if (espnName === 'STATUS_EXTRA_TIME' || espnName === 'STATUS_OVERTIME' || (espnDesc && (espnDesc.toLowerCase().includes('extra') || espnDesc.toLowerCase().includes('overtime')))) {
@@ -358,7 +375,8 @@ export default async function handler(req, res) {
         home_shootout_score: home.shootoutScore !== undefined ? String(home.shootoutScore) : null,
         away_shootout_score: away.shootoutScore !== undefined ? String(away.shootoutScore) : null,
         espn_status_name: (ev.status && ev.status.type && ev.status.type.name) || "",
-        espn_status_detail: (ev.status && ev.status.type && ev.status.type.detail) || ""
+        espn_status_detail: (ev.status && ev.status.type && ev.status.type.detail) || "",
+        utc_kickoff: ev.date || null
       };
     }).filter(Boolean);
 
