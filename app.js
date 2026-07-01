@@ -1347,7 +1347,7 @@ function updateHeroPanel() {
             </div>
             
             <!-- Row 2: Grup + Venue -->
-            <div class="live-venue-row-styled" style="text-align: center; margin-top: 4px; margin-bottom: 2px;">
+            <div class="live-venue-row-styled" style="text-align: center; margin-top: 16px; margin-bottom: 2px;">
               <div style="font-size: 0.62rem; color: var(--primary-gold); font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase; margin-bottom: 2px;">
                 ${stageName}
               </div>
@@ -1817,7 +1817,7 @@ function createMatchCardHtml(match, index, isKnockout = false, showBigMatchBadge
             <span class="team-name">${match.team2}</span>
           </div>
           ${cardWinReasonHtml}
-          <div class="match-venue-subtle" style="margin-top: -2px;">${labelVenue}</div>
+          <div class="match-venue-subtle" style="margin-top: ${extraInfo ? '8px' : '14px'};">${labelVenue}</div>
         </div>
         ${(cleanScorers1 || cleanScorers2) ? `
           <div class="match-scorers-row">
