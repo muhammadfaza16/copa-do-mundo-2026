@@ -1,5 +1,9 @@
 import fs from 'fs';
 import path from 'path';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 export default async function handler(req, res) {
   // Allow CORS
@@ -14,7 +18,7 @@ export default async function handler(req, res) {
 
   try {
     // 1. Read data.js and evaluate WORLD_CUP_DATA
-    const dataJsPath = path.join(process.cwd(), 'data.js');
+    const dataJsPath = path.join(__dirname, '..', 'data.js');
     const dataJs = fs.readFileSync(dataJsPath, 'utf8');
     const window = {};
     const runInContext = new Function('window', dataJs);
@@ -22,7 +26,7 @@ export default async function handler(req, res) {
     const WORLD_CUP_DATA = window.WORLD_CUP_DATA;
 
     // 2. Read app.js and extract TEAM_TRANSLATIONS
-    const appJsPath = path.join(process.cwd(), 'app.js');
+    const appJsPath = path.join(__dirname, '..', 'app.js');
     const appJs = fs.readFileSync(appJsPath, 'utf8');
     const teamTranslationsMatch = appJs.match(/const TEAM_TRANSLATIONS = ({[\s\S]*?});/);
     let TEAM_TRANSLATIONS = {};
