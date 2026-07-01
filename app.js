@@ -1279,7 +1279,7 @@ function updateHeroPanel() {
     const cleanRedCards2 = parseScorers(scoreData.away_red_cards);
 
     // Cache key for current live match state
-    const liveKey = `live_${matchKey}_${scoreData.score1}_${scoreData.score2}_${scoreData.status}_${cleanScorers1}_${cleanScorers2}_${cleanRedCards1}_${cleanRedCards2}`;
+    const liveKey = `live_${matchKey}_${team1Name}_${team2Name}_${scoreData.score1}_${scoreData.score2}_${scoreData.status}_${cleanScorers1}_${cleanScorers2}_${cleanRedCards1}_${cleanRedCards2}`;
 
     if (lastHeroMatchKey !== liveKey) {
       lastHeroMatchKey = liveKey;
