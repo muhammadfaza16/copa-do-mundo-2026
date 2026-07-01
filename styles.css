@@ -795,7 +795,7 @@ body.light-theme .cd-team .flag-crest {
   font-weight: 500;
   letter-spacing: var(--tracking-wide);
   opacity: 0.6;
-  margin-top: 2px;
+  margin-top: 6px;
 }
 
 body.light-theme .countdown-teams-row {
