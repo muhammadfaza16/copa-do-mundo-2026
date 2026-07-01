@@ -1831,7 +1831,7 @@ function getMatchFinishedExtraInfo(scoreData, match = null) {
                 clock === "120'";
                 
   if (isAet) {
-    return `A.E.T: ${scoreData.score1}-${scoreData.score2}`;
+    return 'A.E.T';
   }
   
   return '';
@@ -4008,7 +4008,7 @@ function getMatchTooltipHtml(m) {
     if (hasShootout) {
       winReason = `Adu Penalti: ${apiMatchData.shootout_score1}-${apiMatchData.shootout_score2}`;
     } else if (isAet) {
-      winReason = `A.E.T: ${s1}-${s2}`;
+      winReason = 'A.E.T';
     }
   }
 
