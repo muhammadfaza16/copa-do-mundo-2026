@@ -6283,7 +6283,7 @@ body.light-theme .sharp-switch input:checked + .sharp-slider:before {
 
 /* Bracket schedule section — full bleed, tabs aligned to match card edges */
 .bracket-schedule-section {
-  margin-top: 24px;
+  margin-top: 48px;
   margin-left: -16px !important;
   margin-right: -16px !important;
   padding: 0;
@@ -6360,4 +6360,13 @@ body.light-theme .bracket-hero-title-main {
   margin: 14px auto 0 auto;
   border-radius: 1px;
   opacity: 0.75;
+}
+
+.bracket-hero-br {
+  display: none;
+}
+@media (max-width: 480px) {
+  .bracket-hero-br {
+    display: block;
+  }
 }
