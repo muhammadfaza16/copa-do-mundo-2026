@@ -1646,19 +1646,30 @@ function updateHeroPanel() {
         ? `<span class="match-badge badge-big-match" style="position: static; transform: none; margin: 0 0 2px 0;">BIG MATCH</span>`
         : '';
 
+      const rank1 = FIFA_RANKINGS[targetMatch.team1];
+      const rank2 = FIFA_RANKINGS[targetMatch.team2];
+      const rank1Html = rank1 !== undefined 
+        ? `<span style="position: absolute; bottom: -12px; right: 50px; font-size: 0.58rem; color: var(--text-secondary); opacity: 0.6; font-weight: 500; letter-spacing: 0.3px; white-space: nowrap; text-transform: lowercase;">fifa #${rank1}</span>` 
+        : '';
+      const rank2Html = rank2 !== undefined 
+        ? `<span style="position: absolute; bottom: -12px; left: 50px; font-size: 0.58rem; color: var(--text-secondary); opacity: 0.6; font-weight: 500; letter-spacing: 0.3px; white-space: nowrap; text-transform: lowercase;">fifa #${rank2}</span>` 
+        : '';
+
       cdTeamRow.style.flexDirection = 'column';
       cdTeamRow.style.alignItems = 'center';
       cdTeamRow.innerHTML = `
         ${badgeHtml}
         <div style="display: flex; align-items: center; justify-content: center; gap: 10px; width: 100%;">
-          <div class="cd-team cd-team-left">
+          <div class="cd-team cd-team-left" style="position: relative;">
             <span class="cd-team-name">${targetMatch.team1}</span>
             ${flag1Cd}
+            ${rank1Html}
           </div>
           <span class="cd-vs">VS</span>
-          <div class="cd-team cd-team-right">
+          <div class="cd-team cd-team-right" style="position: relative;">
             ${flag2Cd}
             <span class="cd-team-name">${targetMatch.team2}</span>
+            ${rank2Html}
           </div>
         </div>
       `;
@@ -1724,19 +1735,30 @@ function updateHeroPanel() {
       ? `<span class="match-badge badge-big-match" style="position: static; transform: none; margin: 0 0 2px 0;">BIG MATCH</span>`
       : '';
 
+    const rank1 = FIFA_RANKINGS[targetMatch.team1];
+    const rank2 = FIFA_RANKINGS[targetMatch.team2];
+    const rank1Html = rank1 !== undefined 
+      ? `<span style="position: absolute; bottom: -12px; right: 50px; font-size: 0.58rem; color: var(--text-secondary); opacity: 0.6; font-weight: 500; letter-spacing: 0.3px; white-space: nowrap; text-transform: lowercase;">fifa #${rank1}</span>` 
+      : '';
+    const rank2Html = rank2 !== undefined 
+      ? `<span style="position: absolute; bottom: -12px; left: 50px; font-size: 0.58rem; color: var(--text-secondary); opacity: 0.6; font-weight: 500; letter-spacing: 0.3px; white-space: nowrap; text-transform: lowercase;">fifa #${rank2}</span>` 
+      : '';
+
     cdTeamRow.style.flexDirection = 'column';
     cdTeamRow.style.alignItems = 'center';
     cdTeamRow.innerHTML = `
       ${badgeHtml}
       <div style="display: flex; align-items: center; justify-content: center; gap: 10px; width: 100%;">
-        <div class="cd-team cd-team-left">
+        <div class="cd-team cd-team-left" style="position: relative;">
           <span class="cd-team-name">${targetMatch.team1}</span>
           ${flag1Cd}
+          ${rank1Html}
         </div>
         <span class="cd-vs">VS</span>
-        <div class="cd-team cd-team-right">
+        <div class="cd-team cd-team-right" style="position: relative;">
           ${flag2Cd}
           <span class="cd-team-name">${targetMatch.team2}</span>
+          ${rank2Html}
         </div>
       </div>
     `;
