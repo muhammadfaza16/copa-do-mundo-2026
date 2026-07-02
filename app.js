@@ -3947,6 +3947,13 @@ function getMatchTooltipHtml(m) {
     score2 = apiMatchData.score2;
   }
   
+  const hasScore = apiMatchData && 
+                   apiMatchData.status !== 'PRE_MATCH' && 
+                   apiMatchData.status !== 'SCHEDULED' && 
+                   apiMatchData.status !== 'TIMED' && 
+                   score1 !== '' && 
+                   score2 !== '';
+
   const winner = simulatedWinners[m.match_id];
   const t1WinnerMarker = '';
   const t2WinnerMarker = '';
@@ -4044,12 +4051,16 @@ function getMatchTooltipHtml(m) {
         </div>
 
         <!-- Score display -->
-        <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 0 4px; min-width: 32px;">
-          <div style="font-size: 0.8rem; font-weight: 700; color: var(--text-primary); white-space: nowrap; display: flex; align-items: center; gap: 4px;">
-            <span style="${hasWinner && !isWinner1 ? 'opacity: 0.45;' : ''}">${score1}</span>
-            <span style="opacity: 0.5; font-size: 0.7rem;">-</span>
-            <span style="${hasWinner && !isWinner2 ? 'opacity: 0.45;' : ''}">${score2}</span>
-          </div>
+        <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 0; min-width: ${hasScore ? '32px' : 'auto'};">
+          ${hasScore ? `
+            <div style="font-size: 0.8rem; font-weight: 700; color: var(--text-primary); white-space: nowrap; display: flex; align-items: center; gap: 4px;">
+              <span style="${hasWinner && !isWinner1 ? 'opacity: 0.45;' : ''}">${score1}</span>
+              <span style="opacity: 0.5; font-size: 0.7rem;">-</span>
+              <span style="${hasWinner && !isWinner2 ? 'opacity: 0.45;' : ''}">${score2}</span>
+            </div>
+          ` : `
+            <span style="font-size: 0.62rem; font-weight: 700; opacity: 0.4; letter-spacing: 0.3px; color: var(--text-secondary); margin: 0 4px;">VS</span>
+          `}
           ${liveMinute ? `
             <span style="font-size: 0.6rem; font-weight: 700; color: #ff3366; margin-top: 1px; letter-spacing: 0.3px; line-height: 1;">
               ${liveMinute}
