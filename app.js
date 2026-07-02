@@ -183,6 +183,31 @@ function getMatchBadgeHtml(team1, team2) {
     return '';
   }
 
+  // SUPER BIG MATCH overrides (two-line badge)
+  const isSuper = 
+    (name1.includes("argentina") && name2.includes("portugal")) ||
+    (name1.includes("portugal") && name2.includes("argentina")) ||
+    (name1.includes("brasil") && name2.includes("jerman")) ||
+    (name1.includes("jerman") && name2.includes("brasil")) ||
+    (name1.includes("prancis") && name2.includes("argentina")) ||
+    (name1.includes("argentina") && name2.includes("prancis")) ||
+    (name1.includes("brasil") && name2.includes("argentina")) ||
+    (name1.includes("argentina") && name2.includes("brasil")) ||
+    (name1.includes("inggris") && name2.includes("prancis")) ||
+    (name1.includes("prancis") && name2.includes("inggris")) ||
+    (name1.includes("jerman") && name2.includes("belanda")) ||
+    (name1.includes("belanda") && name2.includes("jerman")) ||
+    (name1.includes("spanyol") && name2.includes("jerman")) ||
+    (name1.includes("jerman") && name2.includes("spanyol")) ||
+    (name1.includes("portugal") && name2.includes("spanyol")) ||
+    (name1.includes("spanyol") && name2.includes("portugal")) ||
+    (name1.includes("inggris") && name2.includes("kroasia")) ||
+    (name1.includes("kroasia") && name2.includes("inggris"));
+
+  if (isSuper) {
+    return '<span class="match-badge badge-super-big-match">SUPER<br>BIG MATCH</span>';
+  }
+
   // France vs Sweden BIG MATCH override
   if ((name1.includes("prancis") && name2.includes("swedia")) || 
       (name1.includes("swedia") && name2.includes("prancis"))) {
