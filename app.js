@@ -1953,7 +1953,7 @@ function createMatchCardHtml(match, index, isKnockout = false, showBigMatchBadge
               ${scoreStatusHtml}
             </div>
             ${(!isLive && extraInfo) ? `
-              <div style="position: absolute; bottom: 0px; left: 50%; transform: translateX(-50%); font-size: 0.58rem; color: var(--accent-star); opacity: 0.95; font-weight: 700; text-transform: none; letter-spacing: 0.2px; line-height: 1; white-space: nowrap;">
+              <div style="position: absolute; bottom: 4px; left: 50%; transform: translateX(-50%); font-size: 0.58rem; color: var(--accent-star); opacity: 0.95; font-weight: 700; text-transform: none; letter-spacing: 0.2px; line-height: 1; white-space: nowrap;">
                 ${extraInfo}
               </div>
             ` : ''}
