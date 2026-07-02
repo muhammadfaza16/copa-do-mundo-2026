@@ -192,8 +192,8 @@ function getMatchBadgeHtml(team1, team2) {
     return '<span class="match-badge badge-super-big-match">SUPER<br>BIG MATCH</span>';
   }
 
-  // SUPER BIG MATCH contenders (any matchup between: portugal, spanyol, prancis, maroko, argentina, inggris, brasil)
-  const superContenders = ["portugal", "spanyol", "prancis", "maroko", "argentina", "inggris", "brasil", "brazil"];
+  // SUPER BIG MATCH contenders (any matchup between: portugal, spanyol, prancis, maroko, argentina, inggris, brasil, belgia)
+  const superContenders = ["portugal", "spanyol", "prancis", "maroko", "argentina", "inggris", "brasil", "brazil", "belgia"];
   const isSuperContender = (name) => superContenders.some(c => name.includes(c));
 
   if (isSuperContender(name1) && isSuperContender(name2)) {
