@@ -230,7 +230,7 @@ export default async function handler(req, res) {
                 if (detail.ownGoal || (detail.type && detail.type.text === "Own Goal")) {
                   suffix = " (OG)";
                 } else if (detail.type && detail.type.text && detail.type.text.toLowerCase().includes("penalty")) {
-                  suffix = " (PEN)";
+                  suffix = " (Pen)";
                 }
                 const assister = detail.athletesInvolved && detail.athletesInvolved[1];
                 const assistText = assister ? ` (A: ${assister.displayName})` : "";
