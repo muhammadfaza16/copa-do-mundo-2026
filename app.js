@@ -183,28 +183,20 @@ function getMatchBadgeHtml(team1, team2) {
     return '';
   }
 
-  // SUPER BIG MATCH overrides (two-line badge)
-  const isSuper = 
-    (name1.includes("argentina") && name2.includes("portugal")) ||
-    (name1.includes("portugal") && name2.includes("argentina")) ||
-    (name1.includes("brasil") && name2.includes("jerman")) ||
-    (name1.includes("jerman") && name2.includes("brasil")) ||
-    (name1.includes("prancis") && name2.includes("argentina")) ||
-    (name1.includes("argentina") && name2.includes("prancis")) ||
-    (name1.includes("brasil") && name2.includes("argentina")) ||
-    (name1.includes("argentina") && name2.includes("brasil")) ||
-    (name1.includes("inggris") && name2.includes("prancis")) ||
-    (name1.includes("prancis") && name2.includes("inggris")) ||
-    (name1.includes("jerman") && name2.includes("belanda")) ||
-    (name1.includes("belanda") && name2.includes("jerman")) ||
-    (name1.includes("spanyol") && name2.includes("jerman")) ||
-    (name1.includes("jerman") && name2.includes("spanyol")) ||
-    (name1.includes("portugal") && name2.includes("spanyol")) ||
-    (name1.includes("spanyol") && name2.includes("portugal")) ||
-    (name1.includes("inggris") && name2.includes("kroasia")) ||
-    (name1.includes("kroasia") && name2.includes("inggris"));
+  // Local test override: Swiss vs Aljazair
+  const isSwissAljazair = 
+    (name1.includes("swiss") && name2.includes("aljazair")) ||
+    (name1.includes("aljazair") && name2.includes("swiss"));
 
-  if (isSuper) {
+  if (isSwissAljazair) {
+    return '<span class="match-badge badge-super-big-match">SUPER<br>BIG MATCH</span>';
+  }
+
+  // SUPER BIG MATCH contenders (any matchup between: portugal, spanyol, prancis, maroko, argentina, inggris, brasil)
+  const superContenders = ["portugal", "spanyol", "prancis", "maroko", "argentina", "inggris", "brasil", "brazil"];
+  const isSuperContender = (name) => superContenders.some(c => name.includes(c));
+
+  if (isSuperContender(name1) && isSuperContender(name2)) {
     return '<span class="match-badge badge-super-big-match">SUPER<br>BIG MATCH</span>';
   }
 
