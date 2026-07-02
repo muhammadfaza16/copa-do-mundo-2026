@@ -1934,15 +1934,6 @@ function createMatchCardHtml(match, index, isKnockout = false, showBigMatchBadge
       </div>
     ` : '';
 
-    let cardWinReasonHtml = '';
-    if (!isLive && extraInfo) {
-      cardWinReasonHtml = `
-        <div style="grid-column: 1 / -1; font-size: 0.62rem; color: var(--accent-star); opacity: 0.95; text-align: center; font-weight: 700; margin-top: -8px; text-transform: none; letter-spacing: 0.2px; line-height: 1.2; white-space: nowrap;">
-          ${extraInfo}
-        </div>
-      `;
-    }
-
     return `
       <div class="match-card" data-key="${matchKey}" title="${labelVenue}" onclick="window.openMatchDetailModal('${matchKey}')" style="cursor: pointer;">
         ${headerMarkupHtml}
@@ -1961,13 +1952,17 @@ function createMatchCardHtml(match, index, isKnockout = false, showBigMatchBadge
             <div class="match-status-row">
               ${scoreStatusHtml}
             </div>
+            ${(!isLive && extraInfo) ? `
+              <div style="font-size: 0.58rem; color: var(--accent-star); opacity: 0.95; font-weight: 700; text-transform: none; letter-spacing: 0.2px; line-height: 1; white-space: nowrap; margin-top: 1px;">
+                ${extraInfo}
+              </div>
+            ` : ''}
           </div>
           <div class="team-display right">
             ${getFlagHtml(match.team2)}
             <span class="team-name">${match.team2}</span>
           </div>
-          ${cardWinReasonHtml}
-          <div class="match-venue-subtle" style="margin-top: ${extraInfo ? '8px' : '-2px'};">${labelVenue}</div>
+          <div class="match-venue-subtle" style="margin-top: -2px;">${labelVenue}</div>
         </div>
         ${(cleanScorers1 || cleanScorers2) ? `
           <div class="match-scorers-row">
