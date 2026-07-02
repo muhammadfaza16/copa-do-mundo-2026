@@ -226,7 +226,12 @@ export default async function handler(req, res) {
                   awayShootoutList.push(scorerText);
                 }
               } else {
-                const suffix = detail.ownGoal ? " (OG)" : "";
+                let suffix = "";
+                if (detail.ownGoal || (detail.type && detail.type.text === "Own Goal")) {
+                  suffix = " (OG)";
+                } else if (detail.type && detail.type.text && detail.type.text.toLowerCase().includes("penalty")) {
+                  suffix = " (PEN)";
+                }
                 const assister = detail.athletesInvolved && detail.athletesInvolved[1];
                 const assistText = assister ? ` (A: ${assister.displayName})` : "";
                 const scorerText = `${playerName} ${minute}${suffix}${assistText}`;
