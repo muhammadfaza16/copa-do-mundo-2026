@@ -3658,28 +3658,28 @@ body.light-theme .bracket-line-inactive {
 }
 
 /* Round-Specific Card Styles (Left Border + Glow Shadow) */
-.compact-match-card.round-32 {
+body.light-theme .compact-match-card.round-32 {
   border-left: 4px solid #ff0055 !important;
 }
 .compact-match-card.round-32.match-predicted {
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.25) !important;
 }
 
-.compact-match-card.round-16 {
+body.light-theme .compact-match-card.round-16 {
   border-left: 4px solid #00ff66 !important;
 }
 .compact-match-card.round-16.match-predicted {
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.25) !important;
 }
 
-.compact-match-card.round-qf {
+body.light-theme .compact-match-card.round-qf {
   border-left: 4px solid #00e5ff !important;
 }
 .compact-match-card.round-qf.match-predicted {
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.25) !important;
 }
 
-.compact-match-card.round-sf {
+body.light-theme .compact-match-card.round-sf {
   border-left: 4px solid #ff9100 !important;
 }
 .compact-match-card.round-sf.match-predicted {
@@ -6344,8 +6344,8 @@ body.light-theme .sharp-switch input:checked + .sharp-slider:before {
   margin: 0;
   text-transform: uppercase;
   letter-spacing: 4px;
-  color: #111111;
-  -webkit-text-fill-color: #111111;
+  color: #ffffff;
+  -webkit-text-fill-color: #ffffff;
   filter: drop-shadow(0 4px 20px rgba(0,0,0,0.25));
   font-family: 'Bebas Neue', var(--font-sans);
 }
