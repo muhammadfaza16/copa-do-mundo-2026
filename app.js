@@ -1238,7 +1238,7 @@ function updateLiveMatchClocks() {
                                 scoreData.shootout_score2 !== null && 
                                 scoreData.shootout_score2 !== undefined;
             if (hasShootout) {
-              finishedLabel = `FT (Adu Penalti: ${scoreData.shootout_score1} - ${scoreData.shootout_score2})`;
+              finishedLabel = `FT (Penalti: ${scoreData.shootout_score1} - ${scoreData.shootout_score2})`;
             } else {
               const statusName = scoreData.espn_status_name || '';
               const statusDetail = scoreData.espn_status_detail || '';
@@ -1859,7 +1859,7 @@ function getMatchFinishedExtraInfo(scoreData, match = null) {
                       scoreData.shootout_score2 !== undefined;
                       
   if (hasShootout) {
-    return `Adu Penalti: ${scoreData.shootout_score1}-${scoreData.shootout_score2}`;
+    return `Penalti: ${scoreData.shootout_score1}-${scoreData.shootout_score2}`;
   }
   
   // 2. Check if finished in extra time (AET)
@@ -4087,7 +4087,7 @@ function getMatchTooltipHtml(m) {
                   clock === "120'";
                   
     if (hasShootout) {
-      winReason = `Adu Penalti: ${apiMatchData.shootout_score1}-${apiMatchData.shootout_score2}`;
+      winReason = `Penalti: ${apiMatchData.shootout_score1}-${apiMatchData.shootout_score2}`;
     } else if (isAet) {
       winReason = 'A.E.T';
     }
@@ -6234,7 +6234,7 @@ function createModalHeaderHtml(match, scoreData, summaryData) {
                           scoreData.shootout_score2 !== null && 
                           scoreData.shootout_score2 !== undefined;
       if (hasShootout) {
-        finishedLabel = `FT (Adu Penalti: ${scoreData.shootout_score1} - ${scoreData.shootout_score2})`;
+        finishedLabel = `FT (Penalti: ${scoreData.shootout_score1} - ${scoreData.shootout_score2})`;
       } else {
         const statusName = scoreData.espn_status_name || '';
         const statusDetail = scoreData.espn_status_detail || '';
