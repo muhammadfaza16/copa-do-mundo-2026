@@ -444,8 +444,8 @@ try {
 // THEME STATE
 let currentTheme = localStorage.getItem('wc2026_theme');
 if (!currentTheme) {
-  currentTheme = 'light'; // Light mode is default
-  localStorage.setItem('wc2026_theme', 'light');
+  currentTheme = 'dark'; // Dark mode is default
+  localStorage.setItem('wc2026_theme', 'dark');
 }
 if (currentTheme === 'light') {
   document.body.classList.add('light-theme');
