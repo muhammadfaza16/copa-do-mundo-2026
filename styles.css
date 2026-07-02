@@ -3657,32 +3657,8 @@ body.light-theme .bracket-line-inactive {
   stroke: rgba(0, 0, 0, 0.08);
 }
 
-/* Round-Specific Card Styles (Left Border + Glow Shadow) */
-body.light-theme .compact-match-card.round-32 {
-  border-left: 4px solid #ff0055 !important;
-}
-.compact-match-card.round-32.match-predicted {
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.25) !important;
-}
-
-body.light-theme .compact-match-card.round-16 {
-  border-left: 4px solid #00ff66 !important;
-}
-.compact-match-card.round-16.match-predicted {
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.25) !important;
-}
-
-body.light-theme .compact-match-card.round-qf {
-  border-left: 4px solid #00e5ff !important;
-}
-.compact-match-card.round-qf.match-predicted {
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.25) !important;
-}
-
-body.light-theme .compact-match-card.round-sf {
-  border-left: 4px solid #ff9100 !important;
-}
-.compact-match-card.round-sf.match-predicted {
+/* Round-Specific Card Styles (Glow Shadow) */
+.compact-match-card.match-predicted {
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.25) !important;
 }
 
