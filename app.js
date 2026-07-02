@@ -189,6 +189,12 @@ function getMatchBadgeHtml(team1, team2) {
     return '<span class="match-badge badge-big-match">BIG MATCH</span>';
   }
 
+  // Inggris vs Meksiko BIG MATCH override
+  if ((name1.includes("inggris") && name2.includes("meksiko")) || 
+      (name1.includes("meksiko") && name2.includes("inggris"))) {
+    return '<span class="match-badge badge-big-match">BIG MATCH</span>';
+  }
+
   if (isPopularTeam(team1) && isPopularTeam(team2)) {
     return '<span class="match-badge badge-big-match">BIG MATCH</span>';
   }
