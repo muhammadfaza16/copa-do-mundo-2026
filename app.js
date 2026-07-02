@@ -235,7 +235,7 @@ function parseScorers(scorersStr) {
       return item;
     })
     .filter(Boolean)
-    .join(', ');
+    .join('<br>');
 }
 
 function migrateLocalStorageToIndonesian() {
