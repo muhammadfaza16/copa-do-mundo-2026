@@ -20,8 +20,8 @@
   --action-btn-text: #000000;
   
   --text-primary: #ffffff;
-  --text-secondary: #8e8e93;
-  --text-muted: #48484a;
+  --text-secondary: #aeaeb2; /* bumped from #8e8e93 — contrast ~6.5:1 on dark bg */
+  --text-muted: #6e6e73;   /* bumped from #48484a — contrast ~4.5:1 on dark bg */
   
   --accent-emerald: #30d158; /* Apple System Dark Green */
   --accent-red: #ff453a;     /* Apple System Dark Red */
@@ -492,13 +492,13 @@ main.wide-layout {
 .hero-tagline-date {
   font-size: 0.7rem;
   font-weight: 600;
-  color: rgba(255,255,255,0.5);
+  color: rgba(255,255,255,0.75);
   letter-spacing: 0.04em;
 }
 
 .hero-tagline-dash {
   font-size: 0.7rem;
-  color: rgba(212, 175, 55, 0.4);
+  color: rgba(212, 175, 55, 0.7);
 }
 
 /* --- Host nations section --- */
