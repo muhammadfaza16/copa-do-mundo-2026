@@ -1250,8 +1250,8 @@ body.light-theme .badge-big-match {
     #990011 65%,
     #ff0033 100%
   );
-  background-size: 200% auto;
-  animation: superShimmer 3s infinite linear;
+  background-size: 300% auto;
+  animation: superShimmer 8s infinite ease-in-out;
   color: #ffffff;
   font-weight: 900;
   text-align: center;
@@ -1271,7 +1271,7 @@ body.light-theme .badge-super-big-match {
     #80000a 65%,
     #d1002c 100%
   );
-  background-size: 200% auto;
+  background-size: 300% auto;
   box-shadow: 0 0 8px rgba(209, 0, 44, 0.4), inset 0 1px 1px rgba(255, 255, 255, 0.3);
   color: #ffffff;
   border-color: rgba(255, 255, 255, 0.4);
