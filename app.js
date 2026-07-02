@@ -441,7 +441,7 @@ try {
   console.error("Failed to parse favorites", e);
 }
 
-// THEME STATE — dark mode forced
+// THEME STATE — always start dark, ignore any old saved preference
 localStorage.setItem('wc2026_theme', 'dark');
 document.body.classList.remove('light-theme');
 
@@ -5204,11 +5204,19 @@ function initSettingsAndFilters() {
     });
   }
 
-  // Theme switcher — disabled, dark mode forced
+  // Theme switcher
   const themeToggle = document.getElementById('theme-toggle');
   if (themeToggle) {
     themeToggle.checked = false;
-    themeToggle.disabled = true;
+    themeToggle.addEventListener('change', (e) => {
+      if (e.target.checked) {
+        document.body.classList.add('light-theme');
+        localStorage.setItem('wc2026_theme', 'light');
+      } else {
+        document.body.classList.remove('light-theme');
+        localStorage.setItem('wc2026_theme', 'dark');
+      }
+    });
   }
 
 
