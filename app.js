@@ -189,7 +189,7 @@ function getMatchBadgeHtml(team1, team2) {
     (name1.includes("aljazair") && name2.includes("swiss"));
 
   if (isSwissAljazair) {
-    return '<span class="match-badge badge-super-big-match">MEGA<br>CLASH</span>';
+    return '<span class="match-badge badge-super-big-match">MEGA CLASH</span>';
   }
 
   // SUPER BIG MATCH contenders (any matchup between: portugal, spanyol, prancis, maroko, argentina, inggris, brasil, belgia)
@@ -197,7 +197,7 @@ function getMatchBadgeHtml(team1, team2) {
   const isSuperContender = (name) => superContenders.some(c => name.includes(c));
 
   if (isSuperContender(name1) && isSuperContender(name2)) {
-    return '<span class="match-badge badge-super-big-match">MEGA<br>CLASH</span>';
+    return '<span class="match-badge badge-super-big-match">MEGA CLASH</span>';
   }
 
   // France vs Sweden BIG MATCH override
