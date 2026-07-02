@@ -4100,7 +4100,7 @@ function getMatchTooltipHtml(m) {
   }
 
   return `
-    <div class="tooltip-container" style="display: flex; flex-direction: column; gap: 9px; min-width: ${hasScorers ? '280px' : '190px'}; padding: 2px; font-family: var(--font-sans, sans-serif); text-align: left;">
+    <div class="tooltip-container" style="display: flex; flex-direction: column; gap: 8px; min-width: ${hasScorers ? '280px' : '190px'}; padding: 2px; font-family: var(--font-sans, sans-serif); text-align: left;">
       <!-- Header: Round + Match ID + Time -->
       <div style="display: flex; flex-direction: column; gap: 2px; border-bottom: 1px solid var(--glass-border); padding-bottom: 7px;">
         <div style="font-size: 0.62rem; text-transform: uppercase; letter-spacing: 0.8px; font-weight: 700; color: var(--primary-gold); line-height: 1.2; text-align: center;">
@@ -4113,11 +4113,11 @@ function getMatchTooltipHtml(m) {
       </div>
 
       <!-- Teams Display (Result Card Style) -->
-      <div style="display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); align-items: center; gap: 8px; padding: 2px 0;">
+      <div style="display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); align-items: center; gap: 8px; padding: 2px 0 0 0;">
         <!-- Left Team (Team 1) -->
         <div style="display: flex; align-items: center; justify-content: flex-end; gap: 6px; font-size: 0.72rem; font-weight: ${isWinner1 ? '700' : '500'}; color: var(--text-primary); ${hasWinner && !isWinner1 ? 'opacity: 0.45;' : ''} min-width: 0; text-align: right;">
           <span style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100px;">${team1Name}</span>
-          ${m.team1 && !isPlaceholder1 ? getFlagHtml(m.team1).replace('class="flag-crest"', 'style="width:14px; height:10px; border-radius:1px; object-fit:cover;"') : ''}
+          ${m.team1 && !isPlaceholder1 ? getFlagHtml(m.team1).replace('class="flag-crest"', 'style="width:14px; height:14px; border-radius:50%; object-fit:cover; box-shadow: 0 1px 3px rgba(0,0,0,0.15);"') : ''}
         </div>
 
         <!-- Score display -->
@@ -4140,17 +4140,22 @@ function getMatchTooltipHtml(m) {
 
         <!-- Right Team (Team 2) -->
         <div style="display: flex; align-items: center; justify-content: flex-start; gap: 6px; font-size: 0.72rem; font-weight: ${isWinner2 ? '700' : '500'}; color: var(--text-primary); ${hasWinner && !isWinner2 ? 'opacity: 0.45;' : ''} min-width: 0; text-align: left;">
-          ${m.team2 && !isPlaceholder2 ? getFlagHtml(m.team2).replace('class="flag-crest"', 'style="width:14px; height:10px; border-radius:1px; object-fit:cover;"') : ''}
+          ${m.team2 && !isPlaceholder2 ? getFlagHtml(m.team2).replace('class="flag-crest"', 'style="width:14px; height:14px; border-radius:50%; object-fit:cover; box-shadow: 0 1px 3px rgba(0,0,0,0.15);"') : ''}
           <span style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100px;">${team2Name}</span>
         </div>
       </div>
 
       <!-- Win Reason (subtle text under score) -->
       ${winReason ? `
-        <div style="font-size: 0.58rem; color: var(--accent-star); opacity: 0.95; text-align: center; font-weight: 700; margin-top: -5px; padding-bottom: 2px; letter-spacing: 0.2px;">
+        <div style="font-size: 0.58rem; color: var(--accent-star); opacity: 0.95; text-align: center; font-weight: 700; margin-top: -3px; padding-bottom: 2px; letter-spacing: 0.2px;">
           ${winReason}
         </div>
       ` : ''}
+
+      <!-- Venue (stadium name, centered, no icon) -->
+      <div style="font-size: 0.58rem; color: var(--text-secondary); opacity: 0.7; text-align: center; font-weight: 500; margin-top: ${winReason ? '-1px' : '-4px'}; padding-bottom: 4px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="${getMatchVenue(m)}">
+        ${getVenueStadium(getMatchVenue(m))}
+      </div>
 
       <!-- Scorers Row (3 Columns: Left Scorers, Center Icon, Right Scorers) -->
       ${hasScorers ? `
@@ -4164,17 +4169,9 @@ function getMatchTooltipHtml(m) {
           </div>
         </div>
       ` : ''}
-
-      <!-- Footer: Venue + Status -->
-      <div style="display: flex; align-items: center; justify-content: space-between; font-size: 0.58rem; color: var(--text-secondary); font-weight: 500; gap: 8px; padding-top: 1px;">
-        <span style="display: flex; align-items: center; gap: 4px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 120px;" title="${getMatchVenue(m)}">
-          <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="display: inline-block; vertical-align: middle; opacity: 0.7;"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
-          ${getVenueStadium(getMatchVenue(m))}
-        </span>
-        ${statusText}
-      </div>
     </div>
   `;
+}
 }
 
 let activeTooltipMatchId = null;
