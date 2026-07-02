@@ -1649,10 +1649,10 @@ function updateHeroPanel() {
       const rank1 = FIFA_RANKINGS[targetMatch.team1];
       const rank2 = FIFA_RANKINGS[targetMatch.team2];
       const rank1Html = rank1 !== undefined 
-        ? `<span style="font-size: 0.58rem; color: var(--text-secondary); opacity: 0.6; font-weight: 500; letter-spacing: 0.3px; white-space: nowrap; text-transform: lowercase; margin-top: 2px;">fifa #${rank1}</span>` 
+        ? `<span style="position: absolute; top: 100%; right: 0; font-size: 0.58rem; color: var(--text-secondary); opacity: 0.6; font-weight: 500; letter-spacing: 0.3px; white-space: nowrap; text-transform: lowercase; margin-top: 1px; line-height: 1;">fifa #${rank1}</span>` 
         : '';
       const rank2Html = rank2 !== undefined 
-        ? `<span style="font-size: 0.58rem; color: var(--text-secondary); opacity: 0.6; font-weight: 500; letter-spacing: 0.3px; white-space: nowrap; text-transform: lowercase; margin-top: 2px;">fifa #${rank2}</span>` 
+        ? `<span style="position: absolute; top: 100%; left: 0; font-size: 0.58rem; color: var(--text-secondary); opacity: 0.6; font-weight: 500; letter-spacing: 0.3px; white-space: nowrap; text-transform: lowercase; margin-top: 1px; line-height: 1;">fifa #${rank2}</span>` 
         : '';
 
       cdTeamRow.style.flexDirection = 'column';
@@ -1661,8 +1661,8 @@ function updateHeroPanel() {
         ${badgeHtml}
         <div style="display: flex; align-items: center; justify-content: center; gap: 10px; width: 100%;">
           <div class="cd-team cd-team-left">
-            <div style="display: flex; flex-direction: column; align-items: flex-end; line-height: 1.1;">
-              <span class="cd-team-name" style="line-height: 1.2;">${targetMatch.team1}</span>
+            <div style="position: relative; display: inline-flex; align-items: center;">
+              <span class="cd-team-name">${targetMatch.team1}</span>
               ${rank1Html}
             </div>
             ${flag1Cd}
@@ -1670,8 +1670,8 @@ function updateHeroPanel() {
           <span class="cd-vs">VS</span>
           <div class="cd-team cd-team-right">
             ${flag2Cd}
-            <div style="display: flex; flex-direction: column; align-items: flex-start; line-height: 1.1;">
-              <span class="cd-team-name" style="line-height: 1.2;">${targetMatch.team2}</span>
+            <div style="position: relative; display: inline-flex; align-items: center;">
+              <span class="cd-team-name">${targetMatch.team2}</span>
               ${rank2Html}
             </div>
           </div>
@@ -1742,10 +1742,10 @@ function updateHeroPanel() {
     const rank1 = FIFA_RANKINGS[targetMatch.team1];
     const rank2 = FIFA_RANKINGS[targetMatch.team2];
     const rank1Html = rank1 !== undefined 
-      ? `<span style="font-size: 0.58rem; color: var(--text-secondary); opacity: 0.6; font-weight: 500; letter-spacing: 0.3px; white-space: nowrap; text-transform: lowercase; margin-top: 2px;">fifa #${rank1}</span>` 
+      ? `<span style="position: absolute; top: 100%; right: 0; font-size: 0.58rem; color: var(--text-secondary); opacity: 0.6; font-weight: 500; letter-spacing: 0.3px; white-space: nowrap; text-transform: lowercase; margin-top: 1px; line-height: 1;">fifa #${rank1}</span>` 
       : '';
     const rank2Html = rank2 !== undefined 
-      ? `<span style="font-size: 0.58rem; color: var(--text-secondary); opacity: 0.6; font-weight: 500; letter-spacing: 0.3px; white-space: nowrap; text-transform: lowercase; margin-top: 2px;">fifa #${rank2}</span>` 
+      ? `<span style="position: absolute; top: 100%; left: 0; font-size: 0.58rem; color: var(--text-secondary); opacity: 0.6; font-weight: 500; letter-spacing: 0.3px; white-space: nowrap; text-transform: lowercase; margin-top: 1px; line-height: 1;">fifa #${rank2}</span>` 
       : '';
 
     cdTeamRow.style.flexDirection = 'column';
@@ -1754,8 +1754,8 @@ function updateHeroPanel() {
       ${badgeHtml}
       <div style="display: flex; align-items: center; justify-content: center; gap: 10px; width: 100%;">
         <div class="cd-team cd-team-left">
-          <div style="display: flex; flex-direction: column; align-items: flex-end; line-height: 1.1;">
-            <span class="cd-team-name" style="line-height: 1.2;">${targetMatch.team1}</span>
+          <div style="position: relative; display: inline-flex; align-items: center;">
+            <span class="cd-team-name">${targetMatch.team1}</span>
             ${rank1Html}
           </div>
           ${flag1Cd}
@@ -1763,8 +1763,8 @@ function updateHeroPanel() {
         <span class="cd-vs">VS</span>
         <div class="cd-team cd-team-right">
           ${flag2Cd}
-          <div style="display: flex; flex-direction: column; align-items: flex-start; line-height: 1.1;">
-            <span class="cd-team-name" style="line-height: 1.2;">${targetMatch.team2}</span>
+          <div style="position: relative; display: inline-flex; align-items: center;">
+            <span class="cd-team-name">${targetMatch.team2}</span>
             ${rank2Html}
           </div>
         </div>
