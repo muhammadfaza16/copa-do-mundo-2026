@@ -1085,7 +1085,7 @@ body.light-theme .match-redcards-row.no-scorers {
 }
 
 .match-scorers-row + .match-redcards-row {
-  margin-top: -8px;
+  margin-top: -12px;
   padding-top: 0;
 }
 
