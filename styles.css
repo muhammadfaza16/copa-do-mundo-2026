@@ -718,7 +718,7 @@ body.light-theme .hero-banner {
   justify-content: center;
   gap: 10px;
   margin: 14px 0 6px;
-  padding: 16px 0 6px;
+  padding: 14px 0 6px;
   border-top: 1px solid rgba(255, 255, 255, 0.06);
 }
 
@@ -795,7 +795,7 @@ body.light-theme .cd-team .flag-crest {
   font-weight: 500;
   letter-spacing: var(--tracking-wide);
   opacity: 0.6;
-  margin-top: 10px;
+  margin-top: 8px;
 }
 
 body.light-theme .countdown-teams-row {
