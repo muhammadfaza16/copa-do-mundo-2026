@@ -4159,7 +4159,7 @@ function getMatchTooltipHtml(m) {
 
       <!-- Scorers Row (3 Columns: Left Scorers, Center Icon, Right Scorers) -->
       ${hasScorers ? `
-        <div style="display: grid; grid-template-columns: minmax(0, 1fr) 20px minmax(0, 1fr); gap: 8px; font-size: 0.55rem; color: var(--text-secondary); opacity: 0.85; border-top: 1px dashed var(--glass-border); padding-top: 6px; margin-top: -2px;">
+        <div style="display: grid; grid-template-columns: minmax(0, 1fr) 20px minmax(0, 1fr); gap: 8px; font-size: 0.55rem; color: var(--text-secondary); opacity: 0.85; padding-top: 2px; margin-top: -4px;">
           <div style="text-align: right; line-height: 1.3; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
             ${homeScorersText || ''}
           </div>
