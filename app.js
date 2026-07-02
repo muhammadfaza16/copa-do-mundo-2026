@@ -2535,9 +2535,26 @@ function renderStatistics() {
       // Calculate red cards
       const countRedCards = (cardsStr) => {
         if (!cardsStr || cardsStr === 'null' || cardsStr === '""' || cardsStr === '[]') return 0;
-        const cleaned = cardsStr.replace(/[{}""\[\]]/g, '').trim();
-        if (!cleaned) return 0;
-        return cleaned.split(',').length;
+        
+        let items = [];
+        const str = cardsStr.trim();
+        if (str.startsWith('{') && str.endsWith('}')) {
+          const matches = str.slice(1, -1).match(/"[^"\\]*(?:\\.[^"\\]*)*"/g);
+          if (matches) {
+            items = matches.map(m => m.slice(1, -1).replace(/\\"/g, '"'));
+          } else {
+            items = str.slice(1, -1).split(',').map(s => s.trim());
+          }
+        } else if (str.startsWith('[') && str.endsWith(']')) {
+          try {
+            items = JSON.parse(str);
+          } catch (e) {
+            items = [str];
+          }
+        } else {
+          items = [str];
+        }
+        return items.filter(Boolean).length;
       };
 
       totalRedCards += (countRedCards(score.home_red_cards) + countRedCards(score.away_red_cards));
@@ -2559,11 +2576,28 @@ function renderStatistics() {
 
       const addScorers = (scorersStr, teamName) => {
         if (!scorersStr || scorersStr === 'null' || scorersStr === '""' || scorersStr === '[]') return;
-        const cleaned = scorersStr.replace(/[{}""\[\]]/g, '').replace(/[“”]/g, '').trim();
-        if (!cleaned) return;
+        
+        let items = [];
+        const str = scorersStr.trim();
+        if (str.startsWith('{') && str.endsWith('}')) {
+          const matches = str.slice(1, -1).match(/"[^"\\]*(?:\\.[^"\\]*)*"/g);
+          if (matches) {
+            items = matches.map(m => m.slice(1, -1).replace(/\\"/g, '"'));
+          } else {
+            items = str.slice(1, -1).split(',').map(s => s.trim());
+          }
+        } else if (str.startsWith('[') && str.endsWith(']')) {
+          try {
+            items = JSON.parse(str);
+          } catch (e) {
+            items = [str];
+          }
+        } else {
+          items = [str];
+        }
 
-        cleaned.split(',').forEach(s => {
-          const item = s.trim().replace(/^['"]|['"]$/g, '');
+        items.forEach(itemStr => {
+          let item = itemStr.trim().replace(/^['"]|['"]$/g, '');
           if (!item) return;
 
           // Count own goals
