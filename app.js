@@ -183,22 +183,7 @@ function getMatchBadgeHtml(team1, team2) {
     return '';
   }
 
-  // Local test override: Swiss vs Aljazair
-  const isSwissAljazair = 
-    (name1.includes("swiss") && name2.includes("aljazair")) ||
-    (name1.includes("aljazair") && name2.includes("swiss"));
 
-  if (isSwissAljazair) {
-    return '<span class="match-badge badge-super-big-match">SUPER MATCH</span>';
-  }
-
-  // SUPER BIG MATCH contenders (any matchup between: portugal, spanyol, prancis, maroko, argentina, inggris, brasil, belgia)
-  const superContenders = ["portugal", "spanyol", "prancis", "maroko", "argentina", "inggris", "brasil", "brazil", "belgia"];
-  const isSuperContender = (name) => superContenders.some(c => name.includes(c));
-
-  if (isSuperContender(name1) && isSuperContender(name2)) {
-    return '<span class="match-badge badge-super-big-match">SUPER MATCH</span>';
-  }
 
   // France vs Sweden BIG MATCH override
   if ((name1.includes("prancis") && name2.includes("swedia")) || 
