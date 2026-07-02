@@ -1251,13 +1251,14 @@ body.light-theme .badge-big-match {
     #ff0033 100%
   );
   background-size: 300% auto;
-  animation: superShimmer 8s infinite ease-in-out, firePulse 3s infinite ease-in-out;
+  animation: superShimmer 8s infinite ease-in-out;
   color: #ffffff;
   font-weight: 900;
   text-align: center;
   text-transform: uppercase;
   letter-spacing: 0.8px;
   pointer-events: none;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.4);
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.6);
   border: 1.2px solid rgba(255, 255, 255, 0.25);
   overflow: hidden;
@@ -1290,33 +1291,10 @@ body.light-theme .badge-super-big-match {
     #d1002c 100%
   );
   background-size: 300% auto;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
   color: #ffffff;
   border-color: rgba(255, 255, 255, 0.4);
-  animation: superShimmer 8s infinite ease-in-out, firePulseLight 3s infinite ease-in-out;
-}
-
-@keyframes firePulse {
-  0% {
-    box-shadow: 0 0 6px rgba(255, 0, 51, 0.5), inset 0 1px 1px rgba(255, 255, 255, 0.35);
-  }
-  50% {
-    box-shadow: 0 0 14px rgba(255, 69, 0, 0.8), inset 0 1px 2.5px rgba(255, 255, 255, 0.5);
-  }
-  100% {
-    box-shadow: 0 0 6px rgba(255, 0, 51, 0.5), inset 0 1px 1px rgba(255, 255, 255, 0.35);
-  }
-}
-
-@keyframes firePulseLight {
-  0% {
-    box-shadow: 0 0 5px rgba(209, 0, 44, 0.35), inset 0 1px 1px rgba(255, 255, 255, 0.3);
-  }
-  50% {
-    box-shadow: 0 0 10px rgba(255, 69, 0, 0.6), inset 0 1px 2px rgba(255, 255, 255, 0.4);
-  }
-  100% {
-    box-shadow: 0 0 5px rgba(209, 0, 44, 0.35), inset 0 1px 1px rgba(255, 255, 255, 0.3);
-  }
+  animation: superShimmer 8s infinite ease-in-out;
 }
 
 @keyframes superShimmer {
