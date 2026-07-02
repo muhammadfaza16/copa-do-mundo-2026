@@ -4172,7 +4172,6 @@ function getMatchTooltipHtml(m) {
     </div>
   `;
 }
-}
 
 let activeTooltipMatchId = null;
 
