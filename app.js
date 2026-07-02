@@ -6544,26 +6544,14 @@ function renderStatsTab(stats) {
     `;
   };
 
-  // Helper calculations for computed percentages
-  const passAccH = h.totalPasses ? Math.round((parseInt(h.accuratePasses || 0) / parseInt(h.totalPasses || 1)) * 100) : 0;
-  const passAccA = a.totalPasses ? Math.round((parseInt(a.accuratePasses || 0) / parseInt(a.totalPasses || 1)) * 100) : 0;
-
-  const tackleAccH = h.totalTackles ? Math.round((parseInt(h.effectiveTackles || 0) / parseInt(h.totalTackles || 1)) * 100) : 0;
-  const tackleAccA = a.totalTackles ? Math.round((parseInt(a.effectiveTackles || 0) / parseInt(a.totalTackles || 1)) * 100) : 0;
-  
   return `
     <div class="stats-tab-content">
       ${createStatRow('Penguasaan Bola', h.possessionPct || '0', a.possessionPct || '0', true)}
-      ${createStatRow('Tembakan Tepat Sasaran', h.shotsOnTarget || '0', a.shotsOnTarget || '0')}
       ${createStatRow('Total Tembakan', h.totalShots || '0', a.totalShots || '0')}
-      ${createStatRow('Akurasi Umpan', passAccH, passAccA, true)}
-      ${createStatRow('Total Umpan', h.totalPasses || '0', a.totalPasses || '0')}
-      ${createStatRow('Tackle Sukses', tackleAccH, tackleAccA, true)}
-      ${createStatRow('Intersepsi', h.interceptions || '0', a.interceptions || '0')}
-      ${createStatRow('Sapu Bersih', h.totalClearance || '0', a.totalClearance || '0')}
-      ${createStatRow('Penyelamatan Kiper', h.saves || '0', a.saves || '0')}
+      ${createStatRow('Tembakan Tepat Sasaran', h.shotsOnTarget || '0', a.shotsOnTarget || '0')}
       ${createStatRow('Tendangan Sudut', h.wonCorners || '0', a.wonCorners || '0')}
       ${createStatRow('Offside', h.offsides || '0', a.offsides || '0')}
+      ${createStatRow('Penyelamatan Kiper', h.saves || '0', a.saves || '0')}
       ${createStatRow('Pelanggaran', h.foulsCommitted || '0', a.foulsCommitted || '0')}
       ${createStatRow('Kartu Kuning', h.yellowCards || '0', a.yellowCards || '0')}
       ${createStatRow('Kartu Merah', h.redCards || '0', a.redCards || '0')}
