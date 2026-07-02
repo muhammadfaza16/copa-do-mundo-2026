@@ -441,17 +441,9 @@ try {
   console.error("Failed to parse favorites", e);
 }
 
-// THEME STATE
-let currentTheme = localStorage.getItem('wc2026_theme');
-if (!currentTheme) {
-  currentTheme = 'dark'; // Dark mode is default
-  localStorage.setItem('wc2026_theme', 'dark');
-}
-if (currentTheme === 'light') {
-  document.body.classList.add('light-theme');
-} else {
-  document.body.classList.remove('light-theme');
-}
+// THEME STATE — dark mode forced
+localStorage.setItem('wc2026_theme', 'dark');
+document.body.classList.remove('light-theme');
 
 // SIMULATOR STATE
 let groupRankings = {}; // { "Grup A": ["Meksiko", ...], ... }
@@ -4364,8 +4356,7 @@ function renderBracket() {
   const sfLeft       = COMPACT_COORDINATES[101]; // SF Left
   const sfRight      = COMPACT_COORDINATES[102]; // SF Right
   if (finalCoords && qfUpperLeft && qfLowerLeft && sfLeft && sfRight) {
-    const isLight = document.body.classList.contains('light-theme');
-    const logoSrc = isLight ? 'wc2026_logo_light.svg' : 'wc2026_logo.svg';
+    const logoSrc = 'wc2026_logo.svg'; // dark mode forced
     const CARD_W = 68, CARD_H = 76;
     // Boundaries of the clear center diamond
     const spaceLeft   = sfLeft.x  + CARD_W;          // right edge of SF left card
@@ -5213,19 +5204,11 @@ function initSettingsAndFilters() {
     });
   }
 
-  // Theme switcher
+  // Theme switcher — disabled, dark mode forced
   const themeToggle = document.getElementById('theme-toggle');
   if (themeToggle) {
-    themeToggle.checked = document.body.classList.contains('light-theme');
-    themeToggle.addEventListener('change', (e) => {
-      if (e.target.checked) {
-        document.body.classList.add('light-theme');
-        localStorage.setItem('wc2026_theme', 'light');
-      } else {
-        document.body.classList.remove('light-theme');
-        localStorage.setItem('wc2026_theme', 'dark');
-      }
-    });
+    themeToggle.checked = false;
+    themeToggle.disabled = true;
   }
 
 
