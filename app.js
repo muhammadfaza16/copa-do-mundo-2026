@@ -5406,8 +5406,8 @@ async function fetchScoresDirectFromEspn() {
     const homeScore = home.score || "0";
     const awayScore = away.score || "0";
     
-    const homeScorersList = [];
-    const awayScorersList = [];
+    const homeScorersMap = {};
+    const awayScorersMap = {};
     const homeShootoutList = [];
     const awayShootoutList = [];
     const homeRedCardsList = [];
@@ -5444,12 +5444,13 @@ async function fetchScoresDirectFromEspn() {
               }
               const assister = detail.athletesInvolved && detail.athletesInvolved[1];
               const assistText = assister ? ` (A: ${assister.displayName})` : "";
-              const scorerText = `${playerName} ${minute}${suffix}${assistText}`;
-              if (isHomeTeam) {
-                homeScorersList.push(scorerText);
-              } else {
-                awayScorersList.push(scorerText);
+              const goalInfo = `${minute}${suffix}${assistText}`;
+              
+              const targetMap = isHomeTeam ? homeScorersMap : awayScorersMap;
+              if (!targetMap[playerName]) {
+                targetMap[playerName] = [];
               }
+              targetMap[playerName].push(goalInfo);
             }
           }
           
@@ -5464,6 +5465,17 @@ async function fetchScoresDirectFromEspn() {
         }
       });
     }
+
+    const compileScorersList = (scorersMap) => {
+      const list = [];
+      for (const [playerName, goals] of Object.entries(scorersMap)) {
+        list.push(`${playerName} ${goals.join(', ')}`);
+      }
+      return list;
+    };
+
+    const homeScorersList = compileScorersList(homeScorersMap);
+    const awayScorersList = compileScorersList(awayScorersMap);
     
     const formatList = (list) => {
       if (list.length === 0) return "null";
