@@ -217,12 +217,27 @@ const STADIUM_MAP = {
 
 function parseScorers(scorersStr) {
   if (!scorersStr || scorersStr === 'null' || scorersStr === '""' || scorersStr === '[]') return '';
-  let cleaned = scorersStr
-    .replace(/[{}""\[\]]/g, '')
-    .replace(/[“”]/g, '')
-    .trim();
-  if (!cleaned) return '';
-  return cleaned.split(',')
+  
+  let items = [];
+  const str = scorersStr.trim();
+  if (str.startsWith('{') && str.endsWith('}')) {
+    const matches = str.slice(1, -1).match(/"[^"\\]*(?:\\.[^"\\]*)*"/g);
+    if (matches) {
+      items = matches.map(m => m.slice(1, -1).replace(/\\"/g, '"'));
+    } else {
+      items = str.slice(1, -1).split(',').map(s => s.trim());
+    }
+  } else if (str.startsWith('[') && str.endsWith(']')) {
+    try {
+      items = JSON.parse(str);
+    } catch (e) {
+      items = [str];
+    }
+  } else {
+    items = [str];
+  }
+
+  return items
     .map(s => {
       let item = s.trim().replace(/^['"]|['"]$/g, '');
       if (!item) return '';
@@ -6836,17 +6851,35 @@ function getContrastTextColor(hex) {
 // Extract player names from raw scorer/red-card string (strips minute info)
 function parseScorerNames(scorersStr) {
   if (!scorersStr || scorersStr === 'null' || scorersStr === '""' || scorersStr === '[]') return [];
-  const cleaned = scorersStr.replace(/[{}"\[\]]/g, '').trim();
-  if (!cleaned) return [];
-  return cleaned
-    .split(',')
+  
+  let items = [];
+  const str = scorersStr.trim();
+  if (str.startsWith('{') && str.endsWith('}')) {
+    const matches = str.slice(1, -1).match(/"[^"\\]*(?:\\.[^"\\]*)*"/g);
+    if (matches) {
+      items = matches.map(m => m.slice(1, -1).replace(/\\"/g, '"'));
+    } else {
+      items = str.slice(1, -1).split(',').map(s => s.trim());
+    }
+  } else if (str.startsWith('[') && str.endsWith(']')) {
+    try {
+      items = JSON.parse(str);
+    } catch (e) {
+      items = [str];
+    }
+  } else {
+    items = [str];
+  }
+
+  return items
     .map(s => {
       let item = s.trim().replace(/^['"]|['"]$/g, '');
       // Strip assist annotation like " (A: Di Maria)"
       item = item.replace(/\s*\(A:.*?\)\s*$/i, '').trim();
-      // Strip own goal annotation like " (OG)"
+      // Strip own goal/penalty annotation like " (OG)" or " (Pen)"
       item = item.replace(/\s*\(OG\)\s*$/i, '').trim();
-      // Strip trailing minute like "45'", "90+3'", "45'+3'", or bare number
+      item = item.replace(/\s*\(Pen\)\s*$/i, '').trim();
+      // Strip trailing minutes/times like "12', 34'", "45'", etc.
       item = item.replace(/\s+\d+.*?$/, '').trim();
       return item;
     })
