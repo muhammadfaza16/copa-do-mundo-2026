@@ -5568,6 +5568,10 @@ body.light-theme .lineup-team-btn.active {
   margin-top: 1px;
 }
 
+.home-team .pitch-player-name {
+  padding: 5px 5px 2px 5px;
+}
+
 .lineup-legend {
   display: flex;
   justify-content: center;
