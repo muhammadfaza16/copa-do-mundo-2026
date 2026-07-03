@@ -6919,6 +6919,7 @@ function getContrastTextColor(hex) {
 }
 
 // Extract player names from raw scorer/red-card string (strips minute info)
+// Returns the name multiple times if the player scored multiple goals (e.g. "Name 12', 34'")
 function parseScorerNames(scorersStr) {
   if (!scorersStr || scorersStr === 'null' || scorersStr === '""' || scorersStr === '[]') return [];
   
@@ -6941,19 +6942,24 @@ function parseScorerNames(scorersStr) {
     items = [str];
   }
 
-  return items
-    .map(s => {
-      let item = s.trim().replace(/^['"]|['"]$/g, '');
-      // Strip assist annotation like " (A: Di Maria)"
-      item = item.replace(/\s*\(A:.*?\)\s*$/i, '').trim();
-      // Strip own goal/penalty annotation like " (OG)" or " (Pen)"
-      item = item.replace(/\s*\(OG\)\s*$/i, '').trim();
-      item = item.replace(/\s*\(Pen\)\s*$/i, '').trim();
-      // Strip trailing minutes/times like "12', 34'", "45'", etc.
-      item = item.replace(/\s+\d+.*?$/, '').trim();
-      return item;
-    })
-    .filter(Boolean);
+  const names = [];
+  items.forEach(s => {
+    let item = s.trim().replace(/^['"]|['"]$/g, '');
+    if (!item) return;
+    
+    // Find the player's name (everything before the first digit)
+    const name = item.split(/\b\d+/)[0].trim();
+    if (!name) return;
+    
+    // Find all goal minutes (numbers, including stoppage time format like 45+2)
+    const minutes = item.match(/\b\d+(?:\+\d+)?/g) || [];
+    const goalCount = minutes.length || 1;
+    
+    for (let i = 0; i < goalCount; i++) {
+      names.push(name);
+    }
+  });
+  return names;
 }
 
 // Check if two player names match, accounting for abbreviations, accents, and suffixes
