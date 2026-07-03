@@ -4185,9 +4185,8 @@ body.light-theme .status-badge.gugur {
   background: var(--panel-bg-solid);
   border-top: none;
   border-bottom: none;
-  border-color: rgba(239, 68, 68, 0.3);
-  box-shadow: 0 12px 40px rgba(239, 68, 68, 0.12);
-  animation: liveCardGlow 4s infinite ease-in-out;
+  border-color: var(--glass-border);
+  box-shadow: var(--shadow-lg);
   overflow: hidden; /* Contain diagonal sweep */
 }
 
