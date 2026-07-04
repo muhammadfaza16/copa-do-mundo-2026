@@ -4264,6 +4264,19 @@ document.addEventListener('click', (e) => {
 
 function renderBracket() {
   recalculateKnockoutTree();
+
+  if (!isScheduleRoundInitialized) {
+    const activeRound = determineActiveScheduleRound();
+    const btn = Array.from(document.querySelectorAll('.schedule-tab-btn')).find(b => 
+      b.getAttribute('onclick') && b.getAttribute('onclick').includes(`'${activeRound}'`)
+    );
+    activeScheduleRound = activeRound;
+    const buttons = document.querySelectorAll('.schedule-tab-btn');
+    buttons.forEach(btn => btn.classList.remove('active'));
+    if (btn) btn.classList.add('active');
+    isScheduleRoundInitialized = true;
+  }
+
   const container = document.getElementById('bracket-cards-root');
   if (!container) return;
 
@@ -4621,6 +4634,34 @@ window.setGroupPage = function(pageIndex) {};
 window.renderStandingsSummary = renderStandingsSummary;
 
 let activeScheduleRound = 'Round of 32';
+let isScheduleRoundInitialized = false;
+
+function determineActiveScheduleRound() {
+  const stages = ['Round of 32', 'Round of 16', 'Quarter-final', 'Semi-final', 'Finals'];
+  
+  const isMatchFinished = (m) => {
+    const scoreData = realScores[`ko_${m.match_id}`];
+    return scoreData && scoreData.status === 'FINISHED';
+  };
+
+  for (let i = 0; i < stages.length; i++) {
+    const stage = stages[i];
+    let stageMatches = [];
+    if (stage === 'Finals') {
+      stageMatches = knockoutMatches.filter(m => m.group === 'Third-place match' || m.group === 'Final');
+    } else {
+      stageMatches = knockoutMatches.filter(m => m.group === stage);
+    }
+
+    if (stageMatches.length > 0) {
+      const hasUnfinished = stageMatches.some(m => !isMatchFinished(m));
+      if (hasUnfinished) {
+        return stage;
+      }
+    }
+  }
+  return 'Finals';
+}
 
 window.setScheduleRound = function(roundKey, btnEl) {
   activeScheduleRound = roundKey;
