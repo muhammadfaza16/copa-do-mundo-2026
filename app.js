@@ -7015,7 +7015,8 @@ function parseScorerNames(scorersStr) {
     if (!name) return;
     
     // Find all goal minutes (numbers, including stoppage time format like 45+2)
-    const minutes = item.match(/\b\d+(?:\+\d+)?/g) || [];
+    const cleanedItem = item.replace(/'/g, '');
+    const minutes = cleanedItem.match(/\b\d+(?:\+\d+)?/g) || [];
     const goalCount = minutes.length || 1;
     
     for (let i = 0; i < goalCount; i++) {
