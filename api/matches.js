@@ -192,8 +192,41 @@ export default async function handler(req, res) {
       
       const homeName = home.team.displayName;
       const awayName = away.team.displayName;
-      const homeScore = home.score || "0";
-      const awayScore = away.score || "0";
+
+      // Count goals from event details to derive a real-time score.
+      // ESPN often updates the scorer event feed before the official scoreline,
+      // so taking max(official, counted) keeps the score in sync with scorers.
+      let countedHomeGoals = 0;
+      let countedAwayGoals = 0;
+      if (comp.details) {
+        comp.details.forEach(detail => {
+          const isShootout = detail.shootout === true ||
+            (detail.type && (detail.type.text.toLowerCase().includes("shootout") || detail.type.text.toLowerCase().includes("penalty shootout")));
+          const isGoal = detail.scoringPlay || (detail.type && detail.type.text.includes("Goal")) || detail.ownGoal;
+          if (isGoal && !isShootout) {
+            const teamId = detail.team && detail.team.id;
+            const isHomeTeamGoal = teamId === home.id || teamId === home.team.id;
+            const isOwnGoal = detail.ownGoal || (detail.type && detail.type.text === "Own Goal");
+            // Own goal credits the OTHER team
+            if (isOwnGoal) {
+              if (isHomeTeamGoal) countedAwayGoals++; else countedHomeGoals++;
+            } else {
+              if (isHomeTeamGoal) countedHomeGoals++; else countedAwayGoals++;
+            }
+          }
+        });
+      }
+
+      const officialHomeScore = parseInt(home.score || "0") || 0;
+      const officialAwayScore = parseInt(away.score || "0") || 0;
+      // Only apply the counted supplement for in-progress (live) matches
+      const matchState = ev.status && ev.status.type && ev.status.type.state;
+      const homeScore = matchState === 'in'
+        ? String(Math.max(officialHomeScore, countedHomeGoals))
+        : String(officialHomeScore);
+      const awayScore = matchState === 'in'
+        ? String(Math.max(officialAwayScore, countedAwayGoals))
+        : String(officialAwayScore);
       
       // Parse details for scorers, assisters, and red cards
       const homeScorersMap = {};
