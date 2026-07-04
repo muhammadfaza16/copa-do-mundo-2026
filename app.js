@@ -2870,13 +2870,18 @@ function renderNearestMatches() {
   // Combine all matches
   const allMatches = getAllMatches();
 
+  const heroMatch = getHeroMatch();
+
   // Filter for upcoming/live matches (not finished yet, start time >= now, or currently live)
+  // Exclude the hero match shown in countdown/live panel first so it doesn't affect the 2-day calculation
   const upcomingMatches = allMatches.filter(m => {
     if (m.isKO) {
       const isPlaceholder1 = !isRealTeamName(m.team1);
       const isPlaceholder2 = !isRealTeamName(m.team2);
       if (isPlaceholder1 || isPlaceholder2) return false;
     }
+    if (heroMatch && isSameMatch(m, heroMatch)) return false;
+
     const matchKey = m.isKO ? `ko_${m.match_id}` : `gs_${m.date}_${m.team1}_${m.team2}`;
     const score = getMatchScore(matchKey);
     if (score && score.status === 'FINISHED') return false;
@@ -2895,7 +2900,7 @@ function renderNearestMatches() {
     upcomingWithTime.sort((a, b) => a.time - b.time);
     const sortedUpcomingMatches = upcomingWithTime.map(x => x.match);
 
-    // Get the date of the first upcoming match
+    // Get the date of the first upcoming match (guaranteed to be non-hero match)
     const earliestMatch = sortedUpcomingMatches[0];
     const day1Date = new Date(getMatchKickoffTime(earliestMatch));
     const day2Date = new Date(day1Date);
@@ -2920,25 +2925,9 @@ function renderNearestMatches() {
   } else {
     // Fallback: If no upcoming matches (e.g. tournament ended), show the last 3 matches (Semifinals, Final)
     upcoming = allMatches.slice(-3);
-  }
-
-  if (upcoming.length === 0) {
-    container.innerHTML = `
-      <div class="empty-placeholder">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-          <circle cx="12" cy="12" r="10"></circle>
-          <line x1="8" y1="12" x2="16" y2="12"></line>
-        </svg>
-        <p>Tidak ada pertandingan lainnya yang dijadwalkan.</p>
-      </div>
-    `;
-    return;
-  }
-
-  // Filter out the hero match shown in countdown/live panel
-  const heroMatch = getHeroMatch();
-  if (heroMatch) {
-    upcoming = upcoming.filter(m => !isSameMatch(m, heroMatch));
+    if (heroMatch) {
+      upcoming = upcoming.filter(m => !isSameMatch(m, heroMatch));
+    }
   }
 
   if (upcoming.length === 0) {
