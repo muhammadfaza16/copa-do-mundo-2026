@@ -2246,7 +2246,7 @@ function startResultsAutoplay(count) {
   resultsSliderInterval = setInterval(() => {
     if (resultsSliderTransitioning) return;
     goToResultsSlide(currentResultsSlide + 1);
-  }, 6000);
+  }, 5000);
 }
 
 function goToResultsSlide(targetRealIndex, animate = true) {
