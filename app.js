@@ -3950,10 +3950,10 @@ const BASE_COMPACT_COORDINATES = {
   99: { x: 586, y: 260 }, // Stack QF Upper Right (balanced)
 
   // Bottom Wing (Column 7 lower R32, Bottom-right horizontal R32)
-  88: { x: 846, y: 420 }, // Column 7 lower top (aligned for fork center)
-  86: { x: 846, y: 500 }, // Column 7 lower bottom (aligned for fork center)
-  87: { x: 496, y: 640 }, // Bottom-right horizontal left (Juara Grup K vs 3rd)
-  85: { x: 676, y: 640 }, // Bottom-right horizontal right (Swiss vs 3rd)
+  86: { x: 846, y: 420 }, // Column 7 lower top (aligned for fork center)
+  88: { x: 846, y: 500 }, // Column 7 lower bottom (aligned for fork center)
+  85: { x: 496, y: 640 }, // Bottom-right horizontal left (Swiss vs 3rd)
+  87: { x: 676, y: 640 }, // Bottom-right horizontal right (Juara Grup K vs 3rd)
   
   95: { x: 716, y: 460 }, // Column 6 Lower R16 (centered & balanced)
   96: { x: 586, y: 550 }, // Stack Bottom R16 Right
