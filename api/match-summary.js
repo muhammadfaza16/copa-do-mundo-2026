@@ -167,6 +167,7 @@ export default async function handler(req, res) {
           'centre left defender':          'LCB',
           'right center defender':         'RCB',
           'left center defender':          'LCB',
+          'sweeper':                       'SW',
           // Defensive Midfielders
           'defensive midfielder':          'CDM',
           'right defensive midfielder':    'RDM',

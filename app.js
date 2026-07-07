@@ -6793,7 +6793,7 @@ function groupPlayersIntoLines(players, formationString) {
     const midPositions = ['LM', 'RM', 'CM', 'LCM', 'RCM', 'DM', 'CDM', 'LDM', 'RDM', 'AM', 'CAM', 'LAM', 'RAM', 'MF', 'M', 'AM-L', 'AM-R', 'AML', 'AMR'];
     
     if (midPositions.includes(p) || p.includes('MID') || p.includes('M')) return 'MID';
-    if (p.includes('DEF') || p.includes('D') || p.includes('B')) return 'DEF';
+    if (p.includes('DEF') || p.includes('D') || p.includes('B') || p === 'SW' || p === 'SWEEPER') return 'DEF';
     return 'ATT';
   };
 
@@ -6803,7 +6803,7 @@ function groupPlayersIntoLines(players, formationString) {
     const p = pos.toUpperCase().trim();
     const ranks = {
       // Defenders
-      'LB': 1, 'LWB': 1, 'CB': 1, 'LCB': 1, 'RCB': 1, 'RB': 1, 'RWB': 1, 'DF': 1, 'D': 1,
+      'LB': 1, 'LWB': 1, 'CB': 1, 'LCB': 1, 'RCB': 1, 'RB': 1, 'RWB': 1, 'DF': 1, 'D': 1, 'SW': 1, 'SWEEPER': 1,
       // Midfielders (Deepest to Advanced)
       'DM': 2, 'CDM': 2, 'LDM': 2, 'RDM': 2,
       'CM': 3, 'LCM': 3, 'RCM': 3, 'MF': 3, 'M': 3,
@@ -6817,7 +6817,7 @@ function groupPlayersIntoLines(players, formationString) {
     if (p.includes('DM') || p.includes('CDM')) return 2;
     if (p.includes('AM') || p.includes('CAM')) return 5;
     if (p.includes('M')) return 3;
-    if (p.includes('D') || p.includes('B')) return 1;
+    if (p.includes('D') || p.includes('B') || p === 'SW' || p === 'SWEEPER') return 1;
     return 6;
   };
 
