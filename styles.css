@@ -6214,16 +6214,12 @@ body.light-theme .compact-match-card.round-third.active-popout {
   background: linear-gradient(160deg, #9a5a18 0%, #c87d38 30%, #e09c50 50%, #c87d38 70%, #9a5a18 100%) !important;
 }
 
-/* Bracket & Home (Pertandingan Lainnya & Jadwal Tersimpan) match cards row stacking */
-#bracket-schedule-list,
-#nearest-matches-list,
-#favorites-list {
+/* Bracket match cards row stacking */
+#bracket-schedule-list {
   gap: 0 !important;
 }
 
-#bracket-schedule-list .match-card,
-#nearest-matches-list .match-card,
-#favorites-list .match-card {
+#bracket-schedule-list .match-card {
   border-radius: 0 !important;
   border-left: none !important;
   border-right: none !important;
@@ -6233,9 +6229,7 @@ body.light-theme .compact-match-card.round-third.active-popout {
   border-bottom: 1px solid var(--glass-border) !important;
 }
 
-#bracket-schedule-list .match-card:last-child,
-#nearest-matches-list .match-card:last-child,
-#favorites-list .match-card:last-child {
+#bracket-schedule-list .match-card:last-child {
   border-bottom: none !important;
 }
 
