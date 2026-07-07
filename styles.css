@@ -6214,23 +6214,38 @@ body.light-theme .compact-match-card.round-third.active-popout {
   background: linear-gradient(160deg, #9a5a18 0%, #c87d38 30%, #e09c50 50%, #c87d38 70%, #9a5a18 100%) !important;
 }
 
-/* Bracket match cards row stacking */
-#bracket-schedule-list {
+/* Bracket & Home match cards row stacking (merged but rounded edges) */
+#bracket-schedule-list,
+#nearest-matches-list,
+#favorites-list {
   gap: 0 !important;
 }
 
-#bracket-schedule-list .match-card {
+#bracket-schedule-list .match-card,
+#nearest-matches-list .match-card,
+#favorites-list .match-card {
   border-radius: 0 !important;
-  border-left: none !important;
-  border-right: none !important;
+  border-left: 1px solid var(--glass-border) !important;
+  border-right: 1px solid var(--glass-border) !important;
   border-top: none !important;
+  border-bottom: 1px solid var(--glass-border) !important;
   margin-bottom: 0 !important;
   box-shadow: none !important;
-  border-bottom: 1px solid var(--glass-border) !important;
 }
 
-#bracket-schedule-list .match-card:last-child {
-  border-bottom: none !important;
+#bracket-schedule-list .match-card:first-child,
+#nearest-matches-list .match-card:first-child,
+#favorites-list .match-card:first-child {
+  border-top: 1px solid var(--glass-border) !important;
+  border-top-left-radius: var(--border-radius-md) !important;
+  border-top-right-radius: var(--border-radius-md) !important;
+}
+
+#bracket-schedule-list .match-card:last-child,
+#nearest-matches-list .match-card:last-child,
+#favorites-list .match-card:last-child {
+  border-bottom-left-radius: var(--border-radius-md) !important;
+  border-bottom-right-radius: var(--border-radius-md) !important;
 }
 
 #bracket-schedule-list .date-divider {
