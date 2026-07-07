@@ -1649,10 +1649,10 @@ function updateHeroPanel() {
       const rank1 = FIFA_RANKINGS[targetMatch.team1];
       const rank2 = FIFA_RANKINGS[targetMatch.team2];
       const rank1Html = rank1 !== undefined 
-        ? `<span style="position: absolute; top: 100%; right: 0; font-size: 0.58rem; color: var(--text-secondary); opacity: 0.6; font-weight: 500; letter-spacing: 0.3px; white-space: nowrap; text-transform: lowercase; margin-top: 1px; line-height: 1;">fifa #${rank1}</span>` 
+        ? `<span style="position: absolute; top: 100%; right: 0; font-size: 0.58rem; color: var(--text-secondary); opacity: 0.6; font-weight: 500; letter-spacing: 0.3px; white-space: nowrap; text-transform: uppercase; margin-top: 1px; line-height: 1;">FIFA #${rank1}</span>` 
         : '';
       const rank2Html = rank2 !== undefined 
-        ? `<span style="position: absolute; top: 100%; left: 0; font-size: 0.58rem; color: var(--text-secondary); opacity: 0.6; font-weight: 500; letter-spacing: 0.3px; white-space: nowrap; text-transform: lowercase; margin-top: 1px; line-height: 1;">fifa #${rank2}</span>` 
+        ? `<span style="position: absolute; top: 100%; left: 0; font-size: 0.58rem; color: var(--text-secondary); opacity: 0.6; font-weight: 500; letter-spacing: 0.3px; white-space: nowrap; text-transform: uppercase; margin-top: 1px; line-height: 1;">FIFA #${rank2}</span>` 
         : '';
 
       cdTeamRow.style.flexDirection = 'column';
@@ -1742,10 +1742,10 @@ function updateHeroPanel() {
     const rank1 = FIFA_RANKINGS[targetMatch.team1];
     const rank2 = FIFA_RANKINGS[targetMatch.team2];
     const rank1Html = rank1 !== undefined 
-      ? `<span style="position: absolute; top: 100%; right: 0; font-size: 0.58rem; color: var(--text-secondary); opacity: 0.6; font-weight: 500; letter-spacing: 0.3px; white-space: nowrap; text-transform: lowercase; margin-top: 1px; line-height: 1;">fifa #${rank1}</span>` 
+      ? `<span style="position: absolute; top: 100%; right: 0; font-size: 0.58rem; color: var(--text-secondary); opacity: 0.6; font-weight: 500; letter-spacing: 0.3px; white-space: nowrap; text-transform: uppercase; margin-top: 1px; line-height: 1;">FIFA #${rank1}</span>` 
       : '';
     const rank2Html = rank2 !== undefined 
-      ? `<span style="position: absolute; top: 100%; left: 0; font-size: 0.58rem; color: var(--text-secondary); opacity: 0.6; font-weight: 500; letter-spacing: 0.3px; white-space: nowrap; text-transform: lowercase; margin-top: 1px; line-height: 1;">fifa #${rank2}</span>` 
+      ? `<span style="position: absolute; top: 100%; left: 0; font-size: 0.58rem; color: var(--text-secondary); opacity: 0.6; font-weight: 500; letter-spacing: 0.3px; white-space: nowrap; text-transform: uppercase; margin-top: 1px; line-height: 1;">FIFA #${rank2}</span>` 
       : '';
 
     cdTeamRow.style.flexDirection = 'column';
@@ -2350,31 +2350,71 @@ function renderLatestResults() {
     return;
   }
 
-  // Sort by match date/time descending (most recent matches first)
-  const matchesWithTime = matchesWithScores.map(m => ({
-    match: m,
-    time: getMatchKickoffTime(m)
-  }));
-  matchesWithTime.sort((a, b) => b.time - a.time);
-  const sortedMatchesWithScores = matchesWithTime.map(x => x.match);
+  let latestMatches = [];
 
-  // Extract the last 2 distinct match dates (newest first)
-  const uniqueDates = [];
-  for (const m of sortedMatchesWithScores) {
-    const matchDateStr = getMatchDateString(m);
-    if (!uniqueDates.includes(matchDateStr)) {
-      uniqueDates.push(matchDateStr);
+  const getMatchStageName = (m) => {
+    if (!m.isKO) return 'Group Stage';
+    if (m.group === 'Third-place match' || m.group === 'Final') {
+      return 'Finals';
     }
-    if (uniqueDates.length === 2) {
+    return m.group;
+  };
+
+  const STAGES_ORDER = [
+    'Round of 32',
+    'Round of 16',
+    'Quarter-final',
+    'Semi-final',
+    'Finals'
+  ];
+
+  // Find the highest knockout phase that has at least one finished match
+  let latestFinishedPhase = null;
+  for (let i = STAGES_ORDER.length - 1; i >= 0; i--) {
+    const stage = STAGES_ORDER[i];
+    const hasFinished = matchesWithScores.some(m => getMatchStageName(m) === stage);
+    if (hasFinished) {
+      latestFinishedPhase = stage;
       break;
     }
   }
 
-  // Filter matches belonging to these 2 most recent match days
-  const latestMatches = sortedMatchesWithScores.filter(m => {
-    const matchDateStr = getMatchDateString(m);
-    return uniqueDates.includes(matchDateStr);
-  });
+  // If we are in Quarter-final, Semi-final, or Finals phase
+  if (latestFinishedPhase && ['Quarter-final', 'Semi-final', 'Finals'].includes(latestFinishedPhase)) {
+    const phaseMatches = matchesWithScores.filter(m => getMatchStageName(m) === latestFinishedPhase);
+    const matchesWithTime = phaseMatches.map(m => ({
+      match: m,
+      time: getMatchKickoffTime(m)
+    }));
+    matchesWithTime.sort((a, b) => a.time - b.time); // Chronological order
+    latestMatches = matchesWithTime.map(x => x.match);
+  } else {
+    // Sort by match date/time descending (most recent matches first)
+    const matchesWithTime = matchesWithScores.map(m => ({
+      match: m,
+      time: getMatchKickoffTime(m)
+    }));
+    matchesWithTime.sort((a, b) => b.time - a.time);
+    const sortedMatchesWithScores = matchesWithTime.map(x => x.match);
+
+    // Extract the last 2 distinct match dates (newest first)
+    const uniqueDates = [];
+    for (const m of sortedMatchesWithScores) {
+      const matchDateStr = getMatchDateString(m);
+      if (!uniqueDates.includes(matchDateStr)) {
+        uniqueDates.push(matchDateStr);
+      }
+      if (uniqueDates.length === 2) {
+        break;
+      }
+    }
+
+    // Filter matches belonging to these 2 most recent match days
+    latestMatches = sortedMatchesWithScores.filter(m => {
+      const matchDateStr = getMatchDateString(m);
+      return uniqueDates.includes(matchDateStr);
+    });
+  }
 
   // Generate hash of current scores to prevent unnecessary DOM recreation on background polling
   const matchesContentHash = latestMatches.map(m => {
