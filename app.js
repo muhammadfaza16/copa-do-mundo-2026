@@ -2891,38 +2891,57 @@ function renderNearestMatches() {
 
   let upcoming = [];
 
-  if (upcomingMatches.length > 0) {
-    // Sort upcoming matches chronologically using cached kickoff time
-    const upcomingWithTime = upcomingMatches.map(m => ({
-      match: m,
-      time: getMatchKickoffTime(m)
-    }));
-    upcomingWithTime.sort((a, b) => a.time - b.time);
-    const sortedUpcomingMatches = upcomingWithTime.map(x => x.match);
-
-    // Get the first two unique dates on which upcoming matches are played
-    const uniqueDates = [];
-    for (const m of sortedUpcomingMatches) {
-      const matchDateStr = getMatchDateString(m);
-      if (!uniqueDates.includes(matchDateStr)) {
-        uniqueDates.push(matchDateStr);
-      }
-      if (uniqueDates.length === 2) {
-        break;
+  if (isGroupStageComplete()) {
+    // If the group stage is complete, display all upcoming matches that have decided team slots
+    if (upcomingMatches.length > 0) {
+      const upcomingWithTime = upcomingMatches.map(m => ({
+        match: m,
+        time: getMatchKickoffTime(m)
+      }));
+      upcomingWithTime.sort((a, b) => a.time - b.time);
+      upcoming = upcomingWithTime.map(x => x.match);
+    } else {
+      // Fallback: If no upcoming matches (e.g. tournament ended), show the last 3 matches (Semifinals, Final)
+      upcoming = allMatches.slice(-3);
+      if (heroMatch) {
+        upcoming = upcoming.filter(m => !isSameMatch(m, heroMatch));
       }
     }
-
-    // Get matches on these two unique match days from the already-filtered set.
-    // Note: Since sortedUpcomingMatches is already sorted, filtering it preserves the chronological order.
-    upcoming = sortedUpcomingMatches.filter(m => {
-      const matchDateStr = getMatchDateString(m);
-      return uniqueDates.includes(matchDateStr);
-    });
   } else {
-    // Fallback: If no upcoming matches (e.g. tournament ended), show the last 3 matches (Semifinals, Final)
-    upcoming = allMatches.slice(-3);
-    if (heroMatch) {
-      upcoming = upcoming.filter(m => !isSameMatch(m, heroMatch));
+    // Original date-based logic for Group Stage
+    if (upcomingMatches.length > 0) {
+      // Sort upcoming matches chronologically using cached kickoff time
+      const upcomingWithTime = upcomingMatches.map(m => ({
+        match: m,
+        time: getMatchKickoffTime(m)
+      }));
+      upcomingWithTime.sort((a, b) => a.time - b.time);
+      const sortedUpcomingMatches = upcomingWithTime.map(x => x.match);
+
+      // Get the first two unique dates on which upcoming matches are played
+      const uniqueDates = [];
+      for (const m of sortedUpcomingMatches) {
+        const matchDateStr = getMatchDateString(m);
+        if (!uniqueDates.includes(matchDateStr)) {
+          uniqueDates.push(matchDateStr);
+        }
+        if (uniqueDates.length === 2) {
+          break;
+        }
+      }
+
+      // Get matches on these two unique match days from the already-filtered set.
+      // Note: Since sortedUpcomingMatches is already sorted, filtering it preserves the chronological order.
+      upcoming = sortedUpcomingMatches.filter(m => {
+        const matchDateStr = getMatchDateString(m);
+        return uniqueDates.includes(matchDateStr);
+      });
+    } else {
+      // Fallback: If no upcoming matches (e.g. tournament ended), show the last 3 matches (Semifinals, Final)
+      upcoming = allMatches.slice(-3);
+      if (heroMatch) {
+        upcoming = upcoming.filter(m => !isSameMatch(m, heroMatch));
+      }
     }
   }
 
