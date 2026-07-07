@@ -2900,27 +2900,23 @@ function renderNearestMatches() {
     upcomingWithTime.sort((a, b) => a.time - b.time);
     const sortedUpcomingMatches = upcomingWithTime.map(x => x.match);
 
-    // Get the date of the first upcoming match (guaranteed to be non-hero match)
-    const earliestMatch = sortedUpcomingMatches[0];
-    const day1Date = new Date(getMatchKickoffTime(earliestMatch));
-    const day2Date = new Date(day1Date);
-    day2Date.setDate(day2Date.getDate() + 1);
-
-    let day1Str, day2Str;
-    if (useLocalTimezone) {
-      day1Str = getLocalDateString(day1Date);
-      day2Str = getLocalDateString(day2Date);
-    } else {
-      const tz = getMatchTimezone(earliestMatch);
-      day1Str = getStadiumDateString(day1Date, tz);
-      day2Str = getStadiumDateString(day2Date, tz);
+    // Get the first two unique dates on which upcoming matches are played
+    const uniqueDates = [];
+    for (const m of sortedUpcomingMatches) {
+      const matchDateStr = getMatchDateString(m);
+      if (!uniqueDates.includes(matchDateStr)) {
+        uniqueDates.push(matchDateStr);
+      }
+      if (uniqueDates.length === 2) {
+        break;
+      }
     }
 
-    // Get matches on these two days from the already-filtered set.
+    // Get matches on these two unique match days from the already-filtered set.
     // Note: Since sortedUpcomingMatches is already sorted, filtering it preserves the chronological order.
     upcoming = sortedUpcomingMatches.filter(m => {
       const matchDateStr = getMatchDateString(m);
-      return matchDateStr === day1Str || matchDateStr === day2Str;
+      return uniqueDates.includes(matchDateStr);
     });
   } else {
     // Fallback: If no upcoming matches (e.g. tournament ended), show the last 3 matches (Semifinals, Final)
