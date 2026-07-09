@@ -4199,34 +4199,48 @@ body.light-theme .countdown-container.live-active {
   animation: liveCardGlowLight 4s infinite ease-in-out;
 }
 
-/* Dynamic Left Accent Bar (Team 1) */
-.countdown-container::before {
-  content: "";
+/* Accent Stripes with Gradient Glow */
+.countdown-stripe {
   position: absolute;
-  left: 0;
   top: 0;
   bottom: 0;
   width: 5px;
-  background: var(--team1-color, transparent);
-  border-radius: 4px 0 0 4px;
-  box-shadow: 0 0 12px var(--team1-glow, transparent);
   z-index: 3;
-  transition: background 0.5s ease, box-shadow 0.5s ease;
+  pointer-events: none;
+  transition: background 0.5s ease;
 }
 
-/* Dynamic Right Accent Bar (Team 2) */
-.countdown-container::after {
-  content: "";
-  position: absolute;
+.countdown-stripe.stripe-left {
+  left: 0;
+  background: var(--team1-color, transparent);
+  border-radius: 4px 0 0 4px;
+}
+
+.countdown-stripe.stripe-right {
   right: 0;
-  top: 0;
-  bottom: 0;
-  width: 5px;
   background: var(--team2-color, transparent);
   border-radius: 0 4px 4px 0;
-  box-shadow: 0 0 12px var(--team2-glow, transparent);
-  z-index: 3;
-  transition: background 0.5s ease, box-shadow 0.5s ease;
+}
+
+.stripe-glow {
+  position: absolute;
+  top: -4px;
+  left: -4px;
+  right: -4px;
+  bottom: -4px;
+  filter: blur(10px);
+  opacity: 0.75;
+  z-index: -1;
+  border-radius: inherit;
+  transition: background 0.5s ease;
+}
+
+.stripe-left .stripe-glow {
+  background: var(--team1-color, transparent);
+}
+
+.stripe-right .stripe-glow {
+  background: var(--team2-color, transparent);
 }
 
 
