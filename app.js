@@ -5453,6 +5453,175 @@ function stopScorePolling() {
   }
 }
 
+// Fallback client-side fetch for specific match summary/rosters from ESPN API
+async function fetchMatchSummaryDirectFromEspn(espnEventId) {
+  const espnUrl = `https://site.api.espn.com/apis/site/v2/sports/soccer/fifa.world/summary?event=${espnEventId}`;
+  const response = await fetch(espnUrl);
+  if (!response.ok) {
+    throw new Error(`ESPN API returned status ${response.status}`);
+  }
+  const data = await response.json();
+
+  // 1. Process stats
+  const stats = { home: {}, away: {} };
+  if (data.boxscore && data.boxscore.teams) {
+    const teams = data.boxscore.teams;
+    const homeTeam = teams.find(t => t.homeAway === 'home');
+    const awayTeam = teams.find(t => t.homeAway === 'away');
+    
+    const extractStats = (team) => {
+      if (!team || !team.statistics) return {};
+      const s = {};
+      team.statistics.forEach(item => {
+        s[item.name] = item.displayValue;
+      });
+      return s;
+    };
+    
+    stats.home = extractStats(homeTeam);
+    stats.away = extractStats(awayTeam);
+  }
+
+  // 2. Process lineups
+  const lineups = {
+    home: { formation: '', starters: [], bench: [], coach: null, teamColor: null, alternateColor: null, uniformColor: null, uniformType: null },
+    away: { formation: '', starters: [], bench: [], coach: null, teamColor: null, alternateColor: null, uniformColor: null, uniformType: null }
+  };
+  
+  if (data.rosters && Array.isArray(data.rosters)) {
+    const homeRoster = data.rosters.find(r => r.homeAway === 'home');
+    const awayRoster = data.rosters.find(r => r.homeAway === 'away');
+    
+    const mapRoster = (teamRoster) => {
+      if (!teamRoster) return { formation: '', starters: [], bench: [], coach: null, teamColor: null, alternateColor: null, uniformColor: null, uniformType: null };
+      const formation = teamRoster.formation || '';
+      const rosterList = teamRoster.roster || [];
+      const coach = teamRoster.coach?.displayName || 
+                    teamRoster.coach?.name || 
+                    (teamRoster.coaches && teamRoster.coaches[0]?.displayName) || 
+                    (teamRoster.coaches && teamRoster.coaches[0]?.name) || 
+                    null;
+      
+      const teamColor = teamRoster.team?.color ? `#${teamRoster.team.color}` : null;
+      const alternateColor = teamRoster.team?.alternateColor ? `#${teamRoster.team.alternateColor}` : null;
+      const uniformColor = teamRoster.uniform?.color ? `#${teamRoster.uniform.color}` : null;
+      const uniformType = teamRoster.uniform?.type || null;
+      
+      const ESPN_NAME_TO_ABBR = {
+        'goalkeeper':                    'GK',
+        'right back':                    'RB',
+        'left back':                     'LB',
+        'right wing back':               'RWB',
+        'left wing back':                'LWB',
+        'center defender':               'CB',
+        'centre defender':               'CB',
+        'center right defender':         'RCB',
+        'centre right defender':         'RCB',
+        'center left defender':          'LCB',
+        'centre left defender':          'LCB',
+        'right center defender':         'RCB',
+        'left center defender':          'LCB',
+        'sweeper':                       'SW',
+        'defensive midfielder':          'CDM',
+        'right defensive midfielder':    'RDM',
+        'left defensive midfielder':     'LDM',
+        'center defensive midfielder':   'CDM',
+        'defensive midfielder right':    'RDM',
+        'defensive midfielder left':     'LDM',
+        'center midfielder':             'CM',
+        'centre midfielder':             'CM',
+        'right center midfielder':       'RCM',
+        'left center midfielder':        'LCM',
+        'center right midfielder':       'RCM',
+        'center left midfielder':        'LCM',
+        'right midfielder':              'RM',
+        'left midfielder':               'LM',
+        'attacking midfielder':          'CAM',
+        'right attacking midfielder':    'RAM',
+        'left attacking midfielder':     'LAM',
+        'center attacking midfielder':   'CAM',
+        'attacking midfielder right':    'RAM',
+        'attacking midfielder left':     'LAM',
+        'attacking midfielder center':   'CAM',
+        'right forward':                 'RF',
+        'left forward':                  'LF',
+        'center forward':                'CF',
+        'centre forward':                'CF',
+        'center right forward':          'RF',
+        'center left forward':           'LF',
+        'right winger':                  'RW',
+        'left winger':                   'LW',
+        'striker':                       'ST',
+        'forward':                       'F',
+        'defender':                      null,
+        'midfielder':                    null,
+      };
+
+      const resolvePosition = (p) => {
+        const posObj = p.position;
+        if (!posObj) return '';
+        const verboseName = (posObj.name || '').toLowerCase().trim();
+        const abbr = posObj.abbreviation || '';
+
+        if (ESPN_NAME_TO_ABBR.hasOwnProperty(verboseName)) {
+          const mapped = ESPN_NAME_TO_ABBR[verboseName];
+          if (mapped !== null) return mapped;
+
+          const fPlace = String(p.formationPlace || '0');
+          if (verboseName === 'defender') {
+            const DEF_SLOTS = { '2': 'RB', '3': 'LB', '4': 'CB', '5': 'RCB', '6': 'LCB' };
+            return DEF_SLOTS[fPlace] || abbr;
+          }
+        }
+        return abbr || verboseName.toUpperCase();
+      };
+
+      const mapPlayer = (p) => ({
+        name: p.athlete?.displayName || '',
+        jersey: p.jersey || '',
+        position: resolvePosition(p),
+        formationPlace: p.starter ? (Number(p.formationPlace) || 0) : 0,
+        subbedIn: p.subbedIn === true,
+        subbedOut: p.subbedOut === true,
+        subbedMinute: p.subOn?.displayValue || p.subOff?.displayValue || ''
+      });
+
+      const starters = rosterList.filter(p => p.starter).map(mapPlayer);
+      const bench = rosterList.filter(p => !p.starter).map(mapPlayer);
+      
+      return { formation, starters, bench, coach, teamColor, alternateColor, uniformColor, uniformType };
+    };
+    
+    lineups.home = mapRoster(homeRoster);
+    lineups.away = mapRoster(awayRoster);
+  }
+
+  // 3. Process commentary
+  const commentary = [];
+  if (data.commentary && Array.isArray(data.commentary)) {
+    data.commentary.forEach(item => {
+      commentary.push({
+        text: item.text,
+        time: item.time ? item.time.displayValue : ''
+      });
+    });
+  }
+
+  // 4. Process game metadata info
+  const attendance = data.gameInfo?.attendance || null;
+  const referee = data.gameInfo?.officials?.find(o => o.position?.name === 'Referee' || o.position?.name?.toLowerCase().includes('referee'))?.displayName || null;
+  const venueName = data.gameInfo?.venue?.fullName || null;
+  const venueCity = data.gameInfo?.venue?.address?.city || null;
+  const info = { attendance, referee, venueName, venueCity };
+
+  return {
+    stats,
+    lineups,
+    commentary,
+    info
+  };
+}
+
 // Fallback client-side fetch from ESPN scoreboards and standings API (enables fully functional local mode)
 async function fetchScoresDirectFromEspn() {
   const espnUrl = 'https://site.api.espn.com/apis/site/v2/sports/soccer/fifa.world/scoreboard?dates=20260611-20260719&limit=150';
@@ -6569,10 +6738,21 @@ window.openMatchDetailModal = async function(matchKey) {
   }
   
   try {
-    const res = await fetch(`/api/match-summary?event=${espnEventId}`);
-    if (!res.ok) throw new Error('Gagal mengambil data dari API');
+    let summaryData = null;
+    try {
+      const res = await fetch(`/api/match-summary?event=${espnEventId}`);
+      if (!res.ok) throw new Error(`Vercel Proxy returned status ${res.status}`);
+      summaryData = await res.json();
+    } catch (proxyErr) {
+      console.log("Vercel Proxy match summary fetch failed, trying direct client-side fetch...", proxyErr);
+      try {
+        summaryData = await fetchMatchSummaryDirectFromEspn(espnEventId);
+        console.log("Direct client-side match summary fetch succeeded!");
+      } catch (fallbackErr) {
+        throw new Error(`Proxy error: ${proxyErr.message}. Direct fetch error: ${fallbackErr.message}`);
+      }
+    }
     
-    const summaryData = await res.json();
     matchSummaryCache[espnEventId] = summaryData;
     
     // Check if the modal is still open for the same match
@@ -6790,10 +6970,17 @@ function groupPlayersIntoLines(players, formationString) {
   const getLineCategory = (pos) => {
     if (isGoalkeeper(pos)) return 'GK';
     const p = pos.toUpperCase().trim();
-    const midPositions = ['LM', 'RM', 'CM', 'LCM', 'RCM', 'DM', 'CDM', 'LDM', 'RDM', 'AM', 'CAM', 'LAM', 'RAM', 'MF', 'M', 'AM-L', 'AM-R', 'AML', 'AMR'];
-    
-    if (midPositions.includes(p) || p.includes('MID') || p.includes('M')) return 'MID';
-    if (p.includes('DEF') || p.includes('D') || p.includes('B') || p === 'SW' || p === 'SWEEPER') return 'DEF';
+    // Exact-match sets — no substring checks to avoid false positives (e.g. FWD containing 'D')
+    const MID_SET = new Set(['LM','RM','CM','LCM','RCM','DM','CDM','LDM','RDM','AM','CAM','LAM','RAM','MF','M','AM-L','AM-R','AML','AMR','MID','MIDFIELD']);
+    const DEF_SET = new Set(['LB','RB','CB','LCB','RCB','LWB','RWB','DF','D','SW','SWEEPER','DEF']);
+    const FWD_SET = new Set(['ST','CF','LW','RW','LF','RF','LWF','RWF','FW','F','FWD','SS','LS','RS']);
+    if (MID_SET.has(p) || p.includes('MID')) return 'MID';
+    if (DEF_SET.has(p) || p.includes('DEF')) return 'DEF';
+    if (FWD_SET.has(p)) return 'ATT';
+    // Fallback heuristics on prefix only
+    if (p.startsWith('GK')) return 'GK';
+    if (p.endsWith('DM') || p.endsWith('AM') || p.endsWith('CM') || p.endsWith('MF')) return 'MID';
+    if (p.endsWith('B') || p.endsWith('CB') || p.endsWith('WB')) return 'DEF';
     return 'ATT';
   };
 
@@ -6803,7 +6990,9 @@ function groupPlayersIntoLines(players, formationString) {
     const p = pos.toUpperCase().trim();
     const ranks = {
       // Defenders
-      'LB': 1, 'LWB': 1, 'CB': 1, 'LCB': 1, 'RCB': 1, 'RB': 1, 'RWB': 1, 'DF': 1, 'D': 1, 'SW': 1, 'SWEEPER': 1,
+      'LB': 1, 'LWB': 1, 'CB': 1, 'LCB': 1, 'RCB': 1, 'RB': 1, 'RWB': 1, 'DF': 1, 'D': 1,
+      // Sweeper / Deep Defensive Midfielder Screen
+      'SW': 2, 'SWEEPER': 2,
       // Midfielders (Deepest to Advanced)
       'DM': 2, 'CDM': 2, 'LDM': 2, 'RDM': 2,
       'CM': 3, 'LCM': 3, 'RCM': 3, 'MF': 3, 'M': 3,
@@ -6814,11 +7003,16 @@ function groupPlayersIntoLines(players, formationString) {
       'ST': 7, 'FW': 7, 'F': 7
     };
     if (ranks[p] !== undefined) return ranks[p];
-    if (p.includes('DM') || p.includes('CDM')) return 2;
-    if (p.includes('AM') || p.includes('CAM')) return 5;
-    if (p.includes('M')) return 3;
-    if (p.includes('D') || p.includes('B') || p === 'SW' || p === 'SWEEPER') return 1;
-    return 6;
+    // Targeted suffix/infix fallbacks — avoid broad includes() that misclassify FWD/FW as DEF
+    if (p.endsWith('DM') || p === 'CDM') return 2;
+    if (p.endsWith('AM') || p === 'CAM') return 5;
+    if (p.endsWith('CM') || p.endsWith('MF') || p === 'MID') return 3;
+    if (p.endsWith('LM') || p.endsWith('RM')) return 4;
+    if (p.endsWith('B') && !p.endsWith('WB')) return 1; // CB, LCB, RCB
+    if (p.endsWith('WB')) return 1;                      // LWB, RWB
+    if (p.endsWith('ST') || p.endsWith('CF') || p.endsWith('FW') || p === 'FWD') return 7;
+    if (p.endsWith('W')  || p.endsWith('F')) return 6;  // LW, RW, LF, RF
+    return 6; // default: forward range
   };
 
   // Define side ranks for left-to-right sorting (-2 to 2)
@@ -6834,11 +7028,11 @@ function groupPlayersIntoLines(players, formationString) {
     };
     if (ranks[p] !== undefined) return ranks[p];
     
-    // Check suffixes / hyphens (e.g. AM-L, AM-R, Mid-L, Mid-R)
-    if (p.endsWith('-L') || p.endsWith('L')) return -1.5;
-    if (p.endsWith('-R') || p.endsWith('R')) return 1.5;
+    // Hyphen variants (e.g. AM-L, AM-R, Mid-L, Mid-R)
+    if (p.endsWith('-L')) return -1.5;
+    if (p.endsWith('-R')) return 1.5;
     
-    // Check prefixes (e.g. LCB, LCM)
+    // Prefix heuristic (e.g. LCB, LCM, RDM, RAM...)
     if (p.startsWith('L')) return -1;
     if (p.startsWith('R')) return 1;
     return 0;
