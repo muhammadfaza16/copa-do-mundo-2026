@@ -4213,6 +4213,10 @@ let activeTooltipMatchId = null;
 window.showBracketTooltip = function(event, matchId, isClick = false) {
   const tooltip = document.getElementById('bracket-tooltip');
   if (!tooltip) return;
+  
+  // Hide immediately to prevent any visual jumps/flashes (blips)
+  tooltip.style.visibility = 'hidden';
+
   const match = knockoutMatches.find(m => m.match_id === matchId);
   if (!match) return;
 
@@ -4226,7 +4230,6 @@ window.showBracketTooltip = function(event, matchId, isClick = false) {
   }
 
   tooltip.innerHTML = getMatchTooltipHtml(match);
-  tooltip.style.visibility = 'hidden'; // Hide element while calculating size and position
   tooltip.style.display = 'block';
   tooltip.style.position = 'fixed';
 
