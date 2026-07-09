@@ -3962,50 +3962,50 @@ function getTeamGradientCss(teamColorsOrColor) {
 
 const BASE_COMPACT_COORDINATES = {
   // Left Wing (Outer Left R32, Column 2 Upper R16, Stack Top R16 & QF)
-  73: { x: 16, y: 225 },  // Column 1 upper top (aligned for fork center)
-  75: { x: 16, y: 305 },  // Column 1 upper bottom (aligned for fork center)
-  83: { x: 16, y: 415 },  // Column 1 lower top (aligned for fork center)
-  84: { x: 16, y: 495 },  // Column 1 lower bottom (aligned for fork center)
+  73: { x: 17, y: 225 },  // Column 1 upper top (aligned for fork center)
+  75: { x: 17, y: 305 },  // Column 1 upper bottom (aligned for fork center)
+  83: { x: 17, y: 415 },  // Column 1 lower top (aligned for fork center)
+  84: { x: 17, y: 495 },  // Column 1 lower bottom (aligned for fork center)
   
-  89: { x: 306, y: 182 }, // Stack Top R16
-  90: { x: 173, y: 265 }, // Column 2 Upper R16 (centered & balanced)
-  97: { x: 306, y: 265 }, // Stack QF Upper (balanced)
+  89: { x: 277, y: 182 }, // Stack Top R16
+  90: { x: 159, y: 265 }, // Column 2 Upper R16 (centered & balanced)
+  97: { x: 277, y: 265 }, // Stack QF Upper (balanced)
   
   // Top Wing (Top and Bottom Horizontal R32 Matches, and Stack Bottom R16 & QF)
-  74: { x: 216, y: 80 },  // Top horizontal left (GER)
-  77: { x: 396, y: 80 },  // Top horizontal right (FRA)
-  81: { x: 216, y: 640 }, // Bottom horizontal left (USA)
-  82: { x: 396, y: 640 }, // Bottom horizontal right (BEL)
+  74: { x: 187, y: 80 },  // Top horizontal left (GER)
+  77: { x: 367, y: 80 },  // Top horizontal right (FRA)
+  81: { x: 187, y: 640 }, // Bottom horizontal left (USA)
+  82: { x: 367, y: 640 }, // Bottom horizontal right (BEL)
   
-  93: { x: 173, y: 455 }, // Column 2 Lower R16 (centered & balanced)
-  94: { x: 306, y: 538 }, // Stack Bottom R16
-  98: { x: 306, y: 455 }, // Stack QF Lower (balanced)
+  93: { x: 159, y: 455 }, // Column 2 Lower R16 (centered & balanced)
+  94: { x: 277, y: 538 }, // Stack Bottom R16
+  98: { x: 277, y: 455 }, // Stack QF Lower (balanced)
 
   // Right Wing (Outer Right R32, Column 6 Upper R16, Stack Top Right R16 & QF)
-  76: { x: 542, y: 80 },  // Top-right horizontal left (BRA)
-  78: { x: 722, y: 80 },  // Top-right horizontal right (ECU)
-  79: { x: 922, y: 225 }, // Column 7 upper top (aligned for fork center)
-  80: { x: 922, y: 305 }, // Column 7 upper bottom (aligned for fork center)
+  76: { x: 483, y: 80 },  // Top-right horizontal left (BRA)
+  78: { x: 663, y: 80 },  // Top-right horizontal right (ECU)
+  79: { x: 833, y: 225 }, // Column 7 upper top (aligned for fork center)
+  80: { x: 833, y: 305 }, // Column 7 upper bottom (aligned for fork center)
   
-  91: { x: 632, y: 182 }, // Stack Top Right R16
-  92: { x: 765, y: 265 }, // Column 6 Upper R16 (centered & balanced)
-  99: { x: 632, y: 265 }, // Stack QF Upper Right (balanced)
+  91: { x: 573, y: 182 }, // Stack Top Right R16
+  92: { x: 691, y: 265 }, // Column 6 Upper R16 (centered & balanced)
+  99: { x: 573, y: 265 }, // Stack QF Upper Right (balanced)
 
   // Bottom Wing (Column 7 lower R32, Bottom-right horizontal R32)
-  86: { x: 922, y: 415 }, // Column 7 lower top (aligned for fork center)
-  88: { x: 922, y: 495 }, // Column 7 lower bottom (aligned for fork center)
-  85: { x: 542, y: 640 }, // Bottom-right horizontal left (Swiss vs 3rd)
-  87: { x: 722, y: 640 }, // Bottom-right horizontal right (Juara Grup K vs 3rd)
+  86: { x: 833, y: 415 }, // Column 7 lower top (aligned for fork center)
+  88: { x: 833, y: 495 }, // Column 7 lower bottom (aligned for fork center)
+  85: { x: 483, y: 640 }, // Bottom-right horizontal left (Swiss vs 3rd)
+  87: { x: 663, y: 640 }, // Bottom-right horizontal right (Juara Grup K vs 3rd)
   
-  95: { x: 765, y: 455 }, // Column 6 Lower R16 (centered & balanced)
-  96: { x: 632, y: 538 }, // Stack Bottom R16 Right
-  100: { x: 632, y: 455 }, // Stack QF Lower Right (balanced)
+  95: { x: 691, y: 455 }, // Column 6 Lower R16 (centered & balanced)
+  96: { x: 573, y: 538 }, // Stack Bottom R16 Right
+  100: { x: 573, y: 455 }, // Stack QF Lower Right (balanced)
 
   // Center (Semifinals, Final, Juara 3)
-  101: { x: 306, y: 360 }, // Semifinal 1 (Left)
-  102: { x: 632, y: 360 }, // Semifinal 2 (Right)
-  104: { x: 469, y: 360 }, // Final (Center)
-  103: { x: 469, y: 440 }  // Juara 3 (Bottom Center)
+  101: { x: 277, y: 360 }, // Semifinal 1 (Left)
+  102: { x: 573, y: 360 }, // Semifinal 2 (Right)
+  104: { x: 425, y: 360 }, // Final (Center)
+  103: { x: 425, y: 440 }  // Juara 3 (Bottom Center)
 };
 
 const COMPACT_COORDINATES = {};
@@ -4423,7 +4423,7 @@ function renderBracket() {
       ? (r16Upper.y + finalCoords.y) / 2          // center between R16 inner top and Final row
       : (qfUpperLeft.y + finalCoords.y) / 2;
     // Maximize logo size to fit the full horizontal space between the side stacks, with a comfortable margin
-    const logoSize = Math.round(spaceRight - spaceLeft - 36);
+    const logoSize = Math.round(spaceRight - spaceLeft - 16);
     const logoX = Math.round(centerX - logoSize / 2);
     const logoY = Math.round(centerY - logoSize / 2);
     cardsHtml += `
@@ -4812,7 +4812,7 @@ function applyScale(skipScrollReset = false) {
   const totalScaffoldingHeight = scaledHeight + 16 * currentScale;
 
   if (scaffolding) {
-    scaffolding.style.width = `${744 * currentScale}px`;
+    scaffolding.style.width = `${680 * currentScale}px`;
     scaffolding.style.height = `${totalScaffoldingHeight}px`;
   }
 
@@ -4820,11 +4820,7 @@ function applyScale(skipScrollReset = false) {
   const targetWrapperHeight = Math.min(maxWrapperHeight, totalScaffoldingHeight);
   wrapper.style.height = `${targetWrapperHeight}px`;
 
-  if (currentScale > baseScale + 0.01) {
-    wrapper.style.overflow = 'auto';
-  } else {
-    wrapper.style.overflow = 'hidden';
-  }
+  wrapper.style.overflow = 'hidden';
   wrapper.style.cursor = 'default';
   
   if (!skipScrollReset) {
@@ -4842,8 +4838,8 @@ function scaleCompactBracket() {
   if (wrapperWidth === 0) return;
 
   const targetWidth = Math.max(280, wrapperWidth - 16);
-  baseScale = targetWidth / 744;
-  currentScale = Math.max(0.55, Math.min(1, baseScale));
+  baseScale = targetWidth / 680;
+  currentScale = Math.min(1, baseScale);
 
   applyScale();
 }
