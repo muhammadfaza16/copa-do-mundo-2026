@@ -34,7 +34,7 @@
   --border-radius-md: 12px;
   --border-radius-sm: 8px;
   
-  --transition-smooth: transform 0.28s cubic-bezier(0.25, 0.8, 0.25, 1), opacity 0.28s cubic-bezier(0.25, 0.8, 0.25, 1), box-shadow 0.28s cubic-bezier(0.25, 0.8, 0.25, 1), border-color 0.28s cubic-bezier(0.25, 0.8, 0.25, 1), background-color 0.28s cubic-bezier(0.25, 0.8, 0.25, 1);
+  --transition-smooth: all 0.28s cubic-bezier(0.25, 0.8, 0.25, 1);
   --shadow-premium: 0 10px 30px rgba(0, 0, 0, 0.5);
 
   --header-bg: rgba(0, 0, 0, 0.75);
@@ -223,7 +223,6 @@ main.wide-layout {
 .tab-content {
   display: none;
   animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-  contain: content;
 }
 
 .tab-content.active {
@@ -255,7 +254,6 @@ main.wide-layout {
   inset: 0;
   pointer-events: none;
   overflow: hidden;
-  contain: strict;
 }
 
 /* Subtle noise texture overlay */
@@ -323,12 +321,11 @@ main.wide-layout {
 }
 
 
-/* Atmospheric glow blobs — GPU-composited via will-change */
+/* Atmospheric glow blobs */
 .hero-glow {
   position: absolute;
   border-radius: 50%;
   filter: blur(55px);
-  will-change: transform;
 }
 
 .hero-glow-1 {
@@ -404,7 +401,6 @@ main.wide-layout {
   text-transform: uppercase;
   animation: tickerScroll 28s linear infinite;
   padding-right: 32px;
-  will-change: transform;
 }
 
 .htick-sep {
@@ -1213,7 +1209,6 @@ body.light-theme .match-redcards-row.no-scorers {
   letter-spacing: 0.8px;
   pointer-events: none;
   box-shadow: 0 0 8px rgba(212, 175, 55, 0.3);
-  will-change: background-position;
 }
 
 body.light-theme .badge-big-match {
@@ -1264,7 +1259,6 @@ body.light-theme .badge-big-match {
   letter-spacing: 0.8px;
   pointer-events: none;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.4);
-  will-change: background-position;
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.6);
   overflow: hidden;
 }
@@ -6428,19 +6422,4 @@ body.light-theme .bracket-hero-title-main {
   .bracket-hero-br {
     display: block;
   }
-}
-
-/* Performance Containment & Compositing Rules */
-#schedule-list,
-#latest-results-list,
-#nearest-matches-list,
-#favorites-list,
-#groups-grid,
-#bracket-cards-root {
-  contain: content;
-}
-
-.bg-glow-circle {
-  will-change: transform;
-  contain: strict;
 }

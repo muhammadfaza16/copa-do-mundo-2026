@@ -124,17 +124,17 @@ function getTeamRankLabel(teamName) {
   return '';
 }
 
-const POPULAR_TEAMS_LOWER = new Set([
-  "brasil", "maroko", "jerman", "belanda", "jepang", 
-  "belgia", "spanyol", "uruguay", "norwegia", "senegal", 
-  "prancis", "argentina", "portugal", "inggris", "kroasia", "kolombia"
+const POPULAR_TEAMS = new Set([
+  "Brasil", "Maroko", "Jerman", "Belanda", "Jepang", 
+  "Belgia", "Spanyol", "Uruguay", "Norwegia", "Senegal", 
+  "Prancis", "Argentina", "Portugal", "Inggris", "Kroasia", "Kolombia"
 ]);
 
 function isPopularTeam(team) {
   if (!team) return false;
   const clean = team.trim().toLowerCase();
-  for (const t of POPULAR_TEAMS_LOWER) {
-    if (clean.includes(t)) {
+  for (const t of POPULAR_TEAMS) {
+    if (clean.includes(t.toLowerCase())) {
       return true;
     }
   }
@@ -434,26 +434,6 @@ try {
   console.error("Failed to parse real scores", e);
 }
 
-// Debounced localStorage writer to prevent blocking synchronous disk I/O on critical render paths
-let debounceSaveTimeout = null;
-const pendingSaves = {};
-function queueSaveToLocalStorage(key, value) {
-  pendingSaves[key] = value;
-  if (debounceSaveTimeout) return;
-  debounceSaveTimeout = setTimeout(() => {
-    for (const [k, v] of Object.entries(pendingSaves)) {
-      try {
-        localStorage.setItem(k, typeof v === 'string' ? v : JSON.stringify(v));
-      } catch (err) {
-        console.error(`Failed to save key ${k} to localStorage`, err);
-      }
-      delete pendingSaves[k];
-    }
-    debounceSaveTimeout = null;
-  }, 100);
-}
-
-
 let favorites = [];
 try {
   favorites = JSON.parse(localStorage.getItem('wc2026_favorites')) || [];
@@ -547,7 +527,7 @@ function getAllMatches() {
 function getFlagHtml(teamName) {
   const code = TEAM_FLAGS[teamName];
   if (code) {
-    return `<img class="flag-crest" src="https://flagcdn.com/w80/${code}.png" alt="${teamName}" loading="lazy" decoding="async" width="40" height="30">`;
+    return `<img class="flag-crest" src="https://flagcdn.com/w160/${code}.png" alt="${teamName}" loading="lazy">`;
   }
   // Muted gray shield logo for placeholder teams
   return `
@@ -1132,33 +1112,10 @@ function getLiveClockInfo(matchKey) {
   return { clock: clockStr, isPulsing: true };
 }
 
-// Cached DOM references for updateLiveMatchClocks (invalidated on each full re-render)
-let _liveCardEls = null;         // NodeList of .score-status.status-live inside match cards
-let _heroStatusLiveEl = null;    // .live-center-block .status-live
-let _heroPhaseRow = null;        // .hero-phase-row
-let _heroPhaseEl = null;         // .hero-phase-row .hero-match-phase
-
-/** Call this whenever match card DOM is rebuilt so clock elements are re-resolved */
-function invalidateLiveClockCache() {
-  _liveCardEls = null;
-  _heroStatusLiveEl = null;
-  _heroPhaseRow = null;
-  _heroPhaseEl = null;
-}
-
 function updateLiveMatchClocks() {
-  if (!hasLiveMatches()) {
-    if (_liveCardEls !== null || _heroStatusLiveEl !== null) {
-      invalidateLiveClockCache();
-    }
-    return;
-  }
   // 1. Update live cards on the dashboard / schedule
-  // Resolve once per render; cards are stable between re-renders
-  if (_liveCardEls === null) {
-    _liveCardEls = document.querySelectorAll('.match-card[data-key] .score-status.status-live');
-  }
-  _liveCardEls.forEach(scoreStatusEl => {
+  const liveClocks = document.querySelectorAll('.match-card[data-key] .score-status.status-live');
+  liveClocks.forEach(scoreStatusEl => {
     const card = scoreStatusEl.closest('.match-card');
     if (!card) return;
     const key = card.getAttribute('data-key');
@@ -1180,10 +1137,8 @@ function updateLiveMatchClocks() {
   });
 
   // 2. Update Hero scoreboard live clock
-  if (_heroStatusLiveEl === null) {
-    _heroStatusLiveEl = document.querySelector('.live-center-block .status-live') || undefined;
-  }
-  if (_heroStatusLiveEl) {
+  const heroStatusLiveEl = document.querySelector('.live-center-block .status-live');
+  if (heroStatusLiveEl) {
     const allMatches = getAllMatches();
     const liveMatches = allMatches.filter(m => {
       const matchKey = m.isKO ? `ko_${m.match_id}` : `gs_${m.date}_${m.team1}_${m.team2}`;
@@ -1198,27 +1153,25 @@ function updateLiveMatchClocks() {
       const parts = getMatchLiveStatusParts(realScores[matchKey], matchKey);
       const displayClock = clockInfo.clock || parts.clock || 'LIVE';
       
-      if (_heroStatusLiveEl.textContent !== displayClock) {
-        _heroStatusLiveEl.textContent = displayClock;
+      if (heroStatusLiveEl.textContent !== displayClock) {
+        heroStatusLiveEl.textContent = displayClock;
       }
 
-      // Update match phase above the score (cache these too)
-      if (_heroPhaseRow === null) {
-        _heroPhaseRow = document.querySelector('.hero-phase-row') || undefined;
-        _heroPhaseEl = document.querySelector('.hero-phase-row .hero-match-phase') || undefined;
-      }
-      if (_heroPhaseRow && _heroPhaseEl) {
+      // Update match phase above the score
+      const heroPhaseRow = document.querySelector('.hero-phase-row');
+      const heroPhaseEl = document.querySelector('.hero-phase-row .hero-match-phase');
+      if (heroPhaseRow && heroPhaseEl) {
         const phaseText = (parts.periodName && parts.periodName !== 'LIVE') ? parts.periodName : '';
-        if (_heroPhaseEl.textContent !== phaseText) {
-          _heroPhaseEl.textContent = phaseText;
+        if (heroPhaseEl.textContent !== phaseText) {
+          heroPhaseEl.textContent = phaseText;
         }
-        _heroPhaseRow.style.display = phaseText ? 'flex' : 'none';
+        heroPhaseRow.style.display = phaseText ? 'flex' : 'none';
       }
       
       if (clockInfo.isPulsing) {
-        _heroStatusLiveEl.classList.add('pulse-minute');
+        heroStatusLiveEl.classList.add('pulse-minute');
       } else {
-        _heroStatusLiveEl.classList.remove('pulse-minute');
+        heroStatusLiveEl.classList.remove('pulse-minute');
       }
     }
   }
@@ -1430,7 +1383,6 @@ let _cachedCdContainer = null;
 let _cachedCdTitle = null;
 let _cachedCdDisplay = null;
 let _cachedCdSub = null;
-let _cachedHeroDetailBtn = null;
 
 function updateHeroPanel() {
   if (!_cachedCdContainer) _cachedCdContainer = document.querySelector('.countdown-container');
@@ -1443,8 +1395,6 @@ function updateHeroPanel() {
   const cdDisplay = _cachedCdDisplay;
   const subEl = _cachedCdSub;
   if (!container || !titleEl || !cdDisplay || !subEl) return;
-
-  if (!_cachedHeroDetailBtn) _cachedHeroDetailBtn = document.querySelector('.hero-detail-btn');
 
   // Ensure hero star button is removed
   const cdStarBtn = document.getElementById('cd-star-btn');
@@ -1468,8 +1418,9 @@ function updateHeroPanel() {
     const matchKey = m.isKO ? `ko_${m.match_id}` : `gs_${m.date}_${m.team1}_${m.team2}`;
     
     container.onclick = null;
-    if (_cachedHeroDetailBtn) {
-      _cachedHeroDetailBtn.onclick = () => {
+    const heroDetailBtn = document.querySelector('.hero-detail-btn');
+    if (heroDetailBtn) {
+      heroDetailBtn.onclick = () => {
         window.openMatchDetailModal(matchKey);
       };
     }
@@ -1648,8 +1599,9 @@ function updateHeroPanel() {
 
   const targetMatchKey = targetMatch.isKO ? `ko_${targetMatch.match_id}` : `gs_${targetMatch.date}_${targetMatch.team1}_${targetMatch.team2}`;
   container.onclick = null;
-  if (_cachedHeroDetailBtn) {
-    _cachedHeroDetailBtn.onclick = () => {
+  const heroDetailBtn = document.querySelector('.hero-detail-btn');
+  if (heroDetailBtn) {
+    heroDetailBtn.onclick = () => {
       window.openMatchDetailModal(targetMatchKey);
     };
   }
@@ -1867,25 +1819,13 @@ function updateHeroPanel() {
   if (cdSecs) cdSecs.textContent = String(secs).padStart(2, '0');
 }
 
-let countdownInterval = null;
-function startCountdownInterval() {
-  if (countdownInterval) clearInterval(countdownInterval);
-  countdownInterval = setInterval(() => {
-    updateHeroPanel();
-    updateLiveMatchClocks();
-  }, 1000);
-}
-function stopCountdownInterval() {
-  if (countdownInterval) {
-    clearInterval(countdownInterval);
-    countdownInterval = null;
-  }
-}
-
 function initCountdown() {
   updateHeroPanel();
   updateLiveMatchClocks();
-  startCountdownInterval();
+  setInterval(() => {
+    updateHeroPanel();
+    updateLiveMatchClocks();
+  }, 1000);
 }
 
 // ----------------------------------------------------
@@ -2213,21 +2153,6 @@ function renderSchedule() {
     return isResults ? -timeCompare : timeCompare;
   });
 
-  // Fingerprint hash-guard to prevent redundant DOM updates
-  const fingerprint = `${useLocalTimezone}_${scheduleSubTab}_` + allFiltered.map(m => {
-    const matchKey = m.isKO ? `ko_${m.match_id}` : `gs_${m.date}_${m.team1}_${m.team2}`;
-    const score = getMatchScore(matchKey);
-    const score1 = score ? score.score1 : '';
-    const score2 = score ? score.score2 : '';
-    const status = score ? score.status : '';
-    const isStarred = favorites.includes(matchKey) ? '1' : '0';
-    return `${matchKey}_${score1}_${score2}_${status}_${isStarred}`;
-  }).join('|');
-
-  if (container.getAttribute('data-schedule-hash') === fingerprint) {
-    return;
-  }
-
   if (allFiltered.length === 0) {
     const emptyMsg = scheduleSubTab === 'results'
       ? 'Belum ada hasil pertandingan yang tersedia untuk kriteria pencarian/filter ini.'
@@ -2241,18 +2166,16 @@ function renderSchedule() {
         <p>${emptyMsg}</p>
       </div>
     `;
-    container.removeAttribute('data-schedule-hash');
     return;
   }
 
   let listHtml = '';
+
   allFiltered.forEach(match => {
     listHtml += createMatchCardHtml(match, match.match_id || 0, match.isKO);
   });
 
   container.innerHTML = listHtml;
-  container.setAttribute('data-schedule-hash', fingerprint);
-  invalidateLiveClockCache(); // Live clock DOM references changed
 }
 
 // Render Dashboard/Home tab favorites
@@ -2270,19 +2193,6 @@ function renderFavorites() {
         <p>Belum ada jadwal tersimpan. Ketuk ikon bintang di tab Jadwal untuk menyimpannya.</p>
       </div>
     `;
-    container.removeAttribute('data-favorites-hash');
-    return;
-  }
-
-  const fingerprint = `${useLocalTimezone}_` + favorites.map(key => {
-    const score = getMatchScore(key);
-    const score1 = score ? score.score1 : '';
-    const score2 = score ? score.score2 : '';
-    const status = score ? score.status : '';
-    return `${key}_${score1}_${score2}_${status}`;
-  }).join('|');
-
-  if (container.getAttribute('data-favorites-hash') === fingerprint) {
     return;
   }
 
@@ -2325,8 +2235,6 @@ function renderFavorites() {
   });
 
   container.innerHTML = listHtml;
-  container.setAttribute('data-favorites-hash', fingerprint);
-  invalidateLiveClockCache(); // Live clock DOM references changed
 }
 
 let resultsSliderInterval = null;
@@ -3087,21 +2995,6 @@ function renderNearestMatches() {
         <p>Tidak ada pertandingan lainnya yang dijadwalkan.</p>
       </div>
     `;
-    container.removeAttribute('data-nearest-hash');
-    return;
-  }
-
-  const fingerprint = `${useLocalTimezone}_` + upcoming.map(m => {
-    const matchKey = m.isKO ? `ko_${m.match_id}` : `gs_${m.date}_${m.team1}_${m.team2}`;
-    const score = getMatchScore(matchKey);
-    const score1 = score ? score.score1 : '';
-    const score2 = score ? score.score2 : '';
-    const status = score ? score.status : '';
-    const isStarred = favorites.includes(matchKey) ? '1' : '0';
-    return `${matchKey}_${score1}_${score2}_${status}_${isStarred}`;
-  }).join('|');
-
-  if (container.getAttribute('data-nearest-hash') === fingerprint) {
     return;
   }
 
@@ -3111,8 +3004,6 @@ function renderNearestMatches() {
   });
 
   container.innerHTML = listHtml;
-  container.setAttribute('data-nearest-hash', fingerprint);
-  invalidateLiveClockCache(); // Live clock DOM references changed
 }
 
 let _cachedNextMatch = null;
@@ -3167,18 +3058,6 @@ function renderGroups() {
   recalculateKnockoutTree();
   const container = document.getElementById('groups-grid');
   if (!container) return;
-
-  const fingerprint = Object.keys(groupRankings).map(gName => {
-    const teams = groupRankings[gName] || [];
-    return teams.map(t => {
-      const stats = teamStats[t] || { played: 0, gd: 0, pts: 0 };
-      return `${t}_${stats.played}_${stats.gd}_${stats.pts}`;
-    }).join(',');
-  }).join('|');
-
-  if (container.getAttribute('data-groups-hash') === fingerprint) {
-    return;
-  }
 
   let gridHtml = '';
   
@@ -3245,7 +3124,6 @@ function renderGroups() {
   }
 
   container.innerHTML = gridHtml;
-  container.setAttribute('data-groups-hash', fingerprint);
 
   // Render best 3rd placed standings
   renderBestThirds();
@@ -3643,9 +3521,9 @@ function calculateGroupStandings() {
   // Solve assignment automatically
   selected3rdPlaces = solveThirdsAssignment(matchesNeed3rd, qualifyingThirdGroups);
 
-  // Save updated rankings to localStorage (debounced)
-  queueSaveToLocalStorage('wc2026_group_rankings', groupRankings);
-  queueSaveToLocalStorage('wc2026_selected_3rd_places', selected3rdPlaces);
+  // Save updated rankings to localStorage
+  localStorage.setItem('wc2026_group_rankings', JSON.stringify(groupRankings));
+  localStorage.setItem('wc2026_selected_3rd_places', JSON.stringify(selected3rdPlaces));
 }
 
 // Function to render the Best 3rd Placed Standings table
@@ -3919,9 +3797,9 @@ function recalculateKnockoutTree() {
     }
   });
 
-  // Keep simulated winners & 3rd places synced with localStorage (debounced)
-  queueSaveToLocalStorage('wc2026_simulated_winners', simulatedWinners);
-  queueSaveToLocalStorage('wc2026_selected_3rd_places', selected3rdPlaces);
+  // Keep simulated winners & 3rd places synced with localStorage
+  localStorage.setItem('wc2026_simulated_winners', JSON.stringify(simulatedWinners));
+  localStorage.setItem('wc2026_selected_3rd_places', JSON.stringify(selected3rdPlaces));
   isDataDirty = false;
 }
 
@@ -4457,20 +4335,6 @@ function renderBracket() {
   const container = document.getElementById('bracket-cards-root');
   if (!container) return;
 
-  const fingerprint = knockoutMatches.map(m => {
-    const winner = simulatedWinners[m.match_id] || '';
-    const scoreKey = `ko_${m.match_id}`;
-    const score = getMatchScore(scoreKey);
-    const score1 = score ? score.score1 : '';
-    const score2 = score ? score.score2 : '';
-    const status = score ? score.status : '';
-    return `${m.match_id}_${m.team1}_${m.team2}_${winner}_${score1}_${score2}_${status}`;
-  }).join('|');
-
-  if (container.getAttribute('data-bracket-hash') === fingerprint) {
-    return;
-  }
-
   let cardsHtml = '';
 
   knockoutMatches.forEach(m => {
@@ -4549,7 +4413,7 @@ function renderBracket() {
   const sfLeft       = COMPACT_COORDINATES[101]; // SF Left
   const sfRight      = COMPACT_COORDINATES[102]; // SF Right
   if (finalCoords && qfUpperLeft && qfLowerLeft && sfLeft && sfRight) {
-    const logoSrc = 'wc2026_logo.png'; // dark mode forced
+    const logoSrc = 'wc2026_logo.svg'; // dark mode forced
     const CARD_W = 68, CARD_H = 76;
     // Boundaries of the clear center diamond
     const spaceLeft   = sfLeft.x  + CARD_W;          // right edge of SF left card
@@ -4572,7 +4436,6 @@ function renderBracket() {
   }
 
   container.innerHTML = cardsHtml;
-  container.setAttribute('data-bracket-hash', fingerprint);
   renderBracketLines();
   renderBracketSchedule();
   renderStandingsSummary();
@@ -7827,14 +7690,12 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }, 15000); // Check every 15 seconds
 
-  // Handle tab visibility changes to pause/resume polling and countdown ticks
+  // Handle tab visibility changes to pause/resume polling
   document.addEventListener('visibilitychange', () => {
     if (document.visibilityState === 'visible') {
       if (apiKey) startScorePolling();
-      startCountdownInterval();
     } else {
       stopScorePolling();
-      stopCountdownInterval();
     }
   });
 });
