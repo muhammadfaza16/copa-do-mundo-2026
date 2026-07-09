@@ -3708,6 +3708,39 @@ body.light-theme .flag-crest-placeholder {
   color: rgba(0, 0, 0, 0.35);
 }
 
+/* High-contrast placeholders for Final and 3rd place slots */
+.compact-match-card.round-final .flag-crest-placeholder {
+  color: #ffffff !important;
+  border-color: rgba(255, 255, 255, 0.45) !important;
+  background: rgba(44, 30, 2, 0.45) !important;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.8) !important;
+  font-weight: 700 !important;
+}
+
+.compact-match-card.round-third .flag-crest-placeholder {
+  color: #ffffff !important;
+  border-color: rgba(255, 255, 255, 0.45) !important;
+  background: rgba(61, 28, 2, 0.45) !important;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.8) !important;
+  font-weight: 700 !important;
+}
+
+body.light-theme .compact-match-card.round-final .flag-crest-placeholder {
+  color: #2c1e02 !important;
+  border-color: rgba(44, 30, 2, 0.5) !important;
+  background: rgba(255, 255, 255, 0.85) !important;
+  font-weight: 700 !important;
+  text-shadow: none !important;
+}
+
+body.light-theme .compact-match-card.round-third .flag-crest-placeholder {
+  color: #3d1c02 !important;
+  border-color: rgba(61, 28, 2, 0.5) !important;
+  background: rgba(255, 255, 255, 0.85) !important;
+  font-weight: 700 !important;
+  text-shadow: none !important;
+}
+
 body.light-theme .bracket-line-inactive {
   stroke: rgba(0, 0, 0, 0.08);
 }
