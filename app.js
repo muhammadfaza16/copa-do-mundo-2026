@@ -3962,14 +3962,14 @@ function getTeamGradientCss(teamColorsOrColor) {
 
 const BASE_COMPACT_COORDINATES = {
   // Left Wing (Outer Left R32, Column 2 Upper R16, Stack Top R16 & QF)
-  73: { x: 30, y: 220 },  // Column 1 upper top (aligned for fork center)
-  75: { x: 30, y: 300 },  // Column 1 upper bottom (aligned for fork center)
-  83: { x: 30, y: 420 },  // Column 1 lower top (aligned for fork center)
-  84: { x: 30, y: 500 },  // Column 1 lower bottom (aligned for fork center)
+  73: { x: 30, y: 225 },  // Column 1 upper top (aligned for fork center)
+  75: { x: 30, y: 305 },  // Column 1 upper bottom (aligned for fork center)
+  83: { x: 30, y: 415 },  // Column 1 lower top (aligned for fork center)
+  84: { x: 30, y: 495 },  // Column 1 lower bottom (aligned for fork center)
   
-  89: { x: 290, y: 170 }, // Stack Top R16
-  90: { x: 172, y: 260 }, // Column 2 Upper R16 (centered & balanced)
-  97: { x: 290, y: 260 }, // Stack QF Upper (balanced)
+  89: { x: 290, y: 182 }, // Stack Top R16
+  90: { x: 172, y: 265 }, // Column 2 Upper R16 (centered & balanced)
+  97: { x: 290, y: 265 }, // Stack QF Upper (balanced)
   
   // Top Wing (Top and Bottom Horizontal R32 Matches, and Stack Bottom R16 & QF)
   74: { x: 200, y: 80 },  // Top horizontal left (GER)
@@ -3977,29 +3977,29 @@ const BASE_COMPACT_COORDINATES = {
   81: { x: 200, y: 640 }, // Bottom horizontal left (USA)
   82: { x: 380, y: 640 }, // Bottom horizontal right (BEL)
   
-  93: { x: 172, y: 460 }, // Column 2 Lower R16 (centered & balanced)
-  94: { x: 290, y: 550 }, // Stack Bottom R16
-  98: { x: 290, y: 460 }, // Stack QF Lower (balanced)
+  93: { x: 172, y: 455 }, // Column 2 Lower R16 (centered & balanced)
+  94: { x: 290, y: 538 }, // Stack Bottom R16
+  98: { x: 290, y: 455 }, // Stack QF Lower (balanced)
 
   // Right Wing (Outer Right R32, Column 6 Upper R16, Stack Top Right R16 & QF)
   76: { x: 496, y: 80 },  // Top-right horizontal left (BRA)
   78: { x: 676, y: 80 },  // Top-right horizontal right (ECU)
-  79: { x: 846, y: 220 }, // Column 7 upper top (aligned for fork center)
-  80: { x: 846, y: 300 }, // Column 7 upper bottom (aligned for fork center)
+  79: { x: 846, y: 225 }, // Column 7 upper top (aligned for fork center)
+  80: { x: 846, y: 305 }, // Column 7 upper bottom (aligned for fork center)
   
-  91: { x: 586, y: 170 }, // Stack Top Right R16
-  92: { x: 704, y: 260 }, // Column 6 Upper R16 (centered & balanced)
-  99: { x: 586, y: 260 }, // Stack QF Upper Right (balanced)
+  91: { x: 586, y: 182 }, // Stack Top Right R16
+  92: { x: 704, y: 265 }, // Column 6 Upper R16 (centered & balanced)
+  99: { x: 586, y: 265 }, // Stack QF Upper Right (balanced)
 
   // Bottom Wing (Column 7 lower R32, Bottom-right horizontal R32)
-  86: { x: 846, y: 420 }, // Column 7 lower top (aligned for fork center)
-  88: { x: 846, y: 500 }, // Column 7 lower bottom (aligned for fork center)
+  86: { x: 846, y: 415 }, // Column 7 lower top (aligned for fork center)
+  88: { x: 846, y: 495 }, // Column 7 lower bottom (aligned for fork center)
   85: { x: 496, y: 640 }, // Bottom-right horizontal left (Swiss vs 3rd)
   87: { x: 676, y: 640 }, // Bottom-right horizontal right (Juara Grup K vs 3rd)
   
-  95: { x: 704, y: 460 }, // Column 6 Lower R16 (centered & balanced)
-  96: { x: 586, y: 550 }, // Stack Bottom R16 Right
-  100: { x: 586, y: 460 }, // Stack QF Lower Right (balanced)
+  95: { x: 704, y: 455 }, // Column 6 Lower R16 (centered & balanced)
+  96: { x: 586, y: 538 }, // Stack Bottom R16 Right
+  100: { x: 586, y: 455 }, // Stack QF Lower Right (balanced)
 
   // Center (Semifinals, Final, Juara 3)
   101: { x: 290, y: 360 }, // Semifinal 1 (Left)
