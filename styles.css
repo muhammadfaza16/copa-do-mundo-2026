@@ -3652,11 +3652,13 @@ body.light-theme .compact-match-card:hover {
 /* ── Final slot: realistic gold (dark + light) ── */
 body .compact-match-card.round-final {
   background: linear-gradient(135deg, #6b4f08 0%, #c9922a 100%) !important;
+  border: 1.5px solid rgba(201, 146, 42, 0.35) !important; /* Color-matched border to eliminate harsh contrast */
   position: absolute;
   overflow: hidden !important;
 }
 body.light-theme .compact-match-card.round-final {
   background: linear-gradient(135deg, #b8890a 0%, #e8b830 100%) !important;
+  border: 1.5px solid rgba(184, 137, 10, 0.4) !important; /* Color-matched border for light theme */
 }
 
 /* Gold shimmer overlay for final slot (GPU-accelerated) */
@@ -3677,6 +3679,7 @@ body.light-theme .compact-match-card.round-final {
   pointer-events: none;
   z-index: 1;
   will-change: transform;
+  border-radius: inherit; /* Prevent shimmer from leaking past rounded corners */
 }
 .compact-match-card.round-final > * {
   position: relative;
@@ -3698,9 +3701,11 @@ body.light-theme .compact-match-card.round-final {
 /* ── 3rd place slot: realistic bronze (dark + light) ── */
 body .compact-match-card.round-third {
   background: linear-gradient(135deg, #4a2008 0%, #8b4513 100%) !important;
+  border: 1.5px solid rgba(139, 69, 19, 0.4) !important; /* Color-matched border to eliminate harsh contrast */
 }
 body.light-theme .compact-match-card.round-third {
   background: linear-gradient(135deg, #9a5a18 0%, #c87d38 100%) !important;
+  border: 1.5px solid rgba(154, 90, 24, 0.4) !important; /* Color-matched border for light theme */
 }
 
 body.light-theme .flag-crest-compact {
