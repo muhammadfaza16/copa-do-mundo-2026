@@ -523,11 +523,10 @@ function getAllMatches() {
 // UTILITY FUNCTIONS
 // ----------------------------------------------------
 
-// Generate flag image markup
 function getFlagHtml(teamName) {
   const code = TEAM_FLAGS[teamName];
   if (code) {
-    return `<img class="flag-crest" src="https://flagcdn.com/w160/${code}.png" alt="${teamName}" loading="lazy">`;
+    return `<img class="flag-crest" src="https://flagcdn.com/${code}.svg" alt="${teamName}" loading="lazy">`;
   }
   // Muted gray shield logo for placeholder teams
   return `
