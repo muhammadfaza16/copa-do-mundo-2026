@@ -4820,7 +4820,11 @@ function applyScale(skipScrollReset = false) {
   const targetWrapperHeight = Math.min(maxWrapperHeight, totalScaffoldingHeight);
   wrapper.style.height = `${targetWrapperHeight}px`;
 
-  wrapper.style.overflow = 'hidden';
+  if (currentScale > baseScale + 0.01) {
+    wrapper.style.overflow = 'auto';
+  } else {
+    wrapper.style.overflow = 'hidden';
+  }
   wrapper.style.cursor = 'default';
   
   if (!skipScrollReset) {
@@ -4839,7 +4843,7 @@ function scaleCompactBracket() {
 
   const targetWidth = Math.max(280, wrapperWidth - 16);
   baseScale = targetWidth / 744;
-  currentScale = Math.min(1, baseScale);
+  currentScale = Math.max(0.55, Math.min(1, baseScale));
 
   applyScale();
 }
