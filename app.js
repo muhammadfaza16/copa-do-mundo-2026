@@ -3968,7 +3968,7 @@ const BASE_COMPACT_COORDINATES = {
   84: { x: 17, y: 495 },  // Column 1 lower bottom (aligned for fork center)
   
   89: { x: 277, y: 182 }, // Stack Top R16
-  90: { x: 149, y: 265 }, // Column 2 Upper R16 (centered & balanced)
+  90: { x: 159, y: 265 }, // Column 2 Upper R16 (centered & balanced)
   97: { x: 277, y: 265 }, // Stack QF Upper (balanced)
   
   // Top Wing (Top and Bottom Horizontal R32 Matches, and Stack Bottom R16 & QF)
@@ -3977,7 +3977,7 @@ const BASE_COMPACT_COORDINATES = {
   81: { x: 187, y: 640 }, // Bottom horizontal left (USA)
   82: { x: 367, y: 640 }, // Bottom horizontal right (BEL)
   
-  93: { x: 149, y: 455 }, // Column 2 Lower R16 (centered & balanced)
+  93: { x: 159, y: 455 }, // Column 2 Lower R16 (centered & balanced)
   94: { x: 277, y: 538 }, // Stack Bottom R16
   98: { x: 277, y: 455 }, // Stack QF Lower (balanced)
 
@@ -3988,7 +3988,7 @@ const BASE_COMPACT_COORDINATES = {
   80: { x: 833, y: 305 }, // Column 7 upper bottom (aligned for fork center)
   
   91: { x: 573, y: 182 }, // Stack Top Right R16
-  92: { x: 701, y: 265 }, // Column 6 Upper R16 (centered & balanced)
+  92: { x: 691, y: 265 }, // Column 6 Upper R16 (centered & balanced)
   99: { x: 573, y: 265 }, // Stack QF Upper Right (balanced)
 
   // Bottom Wing (Column 7 lower R32, Bottom-right horizontal R32)
@@ -3997,7 +3997,7 @@ const BASE_COMPACT_COORDINATES = {
   85: { x: 483, y: 640 }, // Bottom-right horizontal left (Swiss vs 3rd)
   87: { x: 663, y: 640 }, // Bottom-right horizontal right (Juara Grup K vs 3rd)
   
-  95: { x: 701, y: 455 }, // Column 6 Lower R16 (centered & balanced)
+  95: { x: 691, y: 455 }, // Column 6 Lower R16 (centered & balanced)
   96: { x: 573, y: 538 }, // Stack Bottom R16 Right
   100: { x: 573, y: 455 }, // Stack QF Lower Right (balanced)
 
