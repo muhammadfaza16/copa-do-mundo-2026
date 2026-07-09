@@ -4428,8 +4428,7 @@ function renderBracket() {
     const logoY = Math.round(centerY - logoSize / 2);
     cardsHtml += `
       <div class="bracket-wc-logo" style="position:absolute;left:${logoX}px;top:${logoY}px;width:${logoSize}px;height:${logoSize}px;pointer-events:none;z-index:1;opacity:0.88;">
-        <img src="wc2026_logo_dark.svg" class="logo-dark" width="${logoSize}" height="${logoSize}" alt="World Cup 2026" style="width:100%;height:100%;object-fit:contain;">
-        <img src="wc2026_logo_light.svg" class="logo-light" width="${logoSize}" height="${logoSize}" alt="World Cup 2026" style="width:100%;height:100%;object-fit:contain;">
+        <img src="wc2026_logo.svg" width="${logoSize}" height="${logoSize}" alt="World Cup 2026" style="width:100%;height:100%;object-fit:contain;display:block;">
       </div>`;
   }
 
