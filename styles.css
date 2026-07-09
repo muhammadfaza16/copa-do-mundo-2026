@@ -3560,8 +3560,7 @@ body.light-theme .mobile-team-name {
   background: rgba(30, 41, 59, 0.8) !important;
 }
 
-.compact-match-card.match-predicted,
-.compact-match-card.match-ready {
+.compact-match-card.match-predicted {
   border-color: var(--primary-gold) !important;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.25) !important;
 }
