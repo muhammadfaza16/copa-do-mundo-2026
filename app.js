@@ -4790,7 +4790,7 @@ let _cachedBracketWrapper = null;
 let _cachedBracketContainer = null;
 let _cachedBracketScaffolding = null;
 
-function applyScale() {
+function applyScale(skipScrollReset = false) {
   if (!_cachedBracketWrapper) _cachedBracketWrapper = document.querySelector('.compact-bracket-wrapper');
   if (!_cachedBracketContainer) _cachedBracketContainer = document.getElementById('compact-bracket-container');
   if (!_cachedBracketScaffolding) _cachedBracketScaffolding = document.getElementById('bracket-scroll-scaffolding');
@@ -4823,8 +4823,11 @@ function applyScale() {
 
   wrapper.style.overflow = 'hidden';
   wrapper.style.cursor = 'default';
-  wrapper.scrollLeft = 0;
-  wrapper.scrollTop = 0;
+  
+  if (!skipScrollReset) {
+    wrapper.scrollLeft = 0;
+    wrapper.scrollTop = 0;
+  }
 }
 
 function scaleCompactBracket() {
@@ -4859,6 +4862,7 @@ function initBracketTouchGestures() {
 
   let initialDistance = null;
   let startScale = 1;
+  let rafPending = false;
 
   wrapper.addEventListener('touchstart', (e) => {
     if (e.touches.length === 2) {
@@ -4875,7 +4879,14 @@ function initBracketTouchGestures() {
       if (currentDistance > 5) {
         const factor = currentDistance / initialDistance;
         currentScale = startScale * factor;
-        applyScale();
+        
+        if (!rafPending) {
+          rafPending = true;
+          requestAnimationFrame(() => {
+            applyScale(true); // Skip scroll reset during active gestures
+            rafPending = false;
+          });
+        }
       }
     }
   }, { passive: false });
@@ -4905,13 +4916,17 @@ function initBracketDragScroll() {
 
   let isDown = false;
   let startX, startY, scrollLeft, scrollTop;
+  let wrapperOffsetLeft = 0;
+  let wrapperOffsetTop = 0;
 
   wrapper.addEventListener('mousedown', (e) => {
     if (currentScale <= baseScale * 1.05) return; // Only drag when zoomed in
     isDown = true;
     wrapper.style.cursor = 'grabbing';
-    startX = e.clientX - wrapper.offsetLeft;
-    startY = e.clientY - wrapper.offsetTop;
+    wrapperOffsetLeft = wrapper.offsetLeft;
+    wrapperOffsetTop = wrapper.offsetTop;
+    startX = e.clientX - wrapperOffsetLeft;
+    startY = e.clientY - wrapperOffsetTop;
     scrollLeft = wrapper.scrollLeft;
     scrollTop = wrapper.scrollTop;
   });
@@ -4933,8 +4948,8 @@ function initBracketDragScroll() {
   wrapper.addEventListener('mousemove', (e) => {
     if (!isDown) return;
     e.preventDefault();
-    const x = e.clientX - wrapper.offsetLeft;
-    const y = e.clientY - wrapper.offsetTop;
+    const x = e.clientX - wrapperOffsetLeft;
+    const y = e.clientY - wrapperOffsetTop;
     const walkX = (x - startX) * 1.5;
     const walkY = (y - startY) * 1.5;
     wrapper.scrollLeft = scrollLeft - walkX;

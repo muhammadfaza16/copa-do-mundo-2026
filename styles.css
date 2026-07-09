@@ -3544,6 +3544,8 @@ body.light-theme .mobile-team-name {
   cursor: pointer;
   z-index: 10;
   padding: 0;
+  will-change: transform;
+  transform: translate3d(0, 0, 0);
 }
 
 /* Hide date as requested */
@@ -3658,21 +3660,24 @@ body.light-theme .compact-match-card.round-final {
   background: linear-gradient(135deg, #b8890a 0%, #e8b830 100%) !important;
 }
 
-/* Gold shimmer overlay for final slot */
+/* Gold shimmer overlay for final slot (GPU-accelerated) */
 .compact-match-card.round-final::after {
   content: '';
   position: absolute;
-  inset: 0;
+  top: 0;
+  left: -150%;
+  width: 150%;
+  height: 100%;
   background: linear-gradient(
     120deg,
     rgba(255, 255, 255, 0) 30%,
     rgba(255, 255, 255, 0.35) 50%,
     rgba(255, 255, 255, 0) 70%
   );
-  background-size: 200% auto;
-  animation: finalCardShimmer 14s infinite linear;
+  animation: finalCardShimmer 8s infinite ease-in-out;
   pointer-events: none;
   z-index: 1;
+  will-change: transform;
 }
 .compact-match-card.round-final > * {
   position: relative;
@@ -3680,13 +3685,13 @@ body.light-theme .compact-match-card.round-final {
 }
 @keyframes finalCardShimmer {
   0% {
-    background-position: -200% 0;
+    transform: translate3d(0, 0, 0) skewX(-20deg);
   }
-  50% {
-    background-position: 200% 0;
+  30% {
+    transform: translate3d(200%, 0, 0) skewX(-20deg);
   }
   100% {
-    background-position: 200% 0;
+    transform: translate3d(200%, 0, 0) skewX(-20deg);
   }
 }
 
