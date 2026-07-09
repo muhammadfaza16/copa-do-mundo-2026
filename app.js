@@ -2213,6 +2213,21 @@ function renderSchedule() {
     return isResults ? -timeCompare : timeCompare;
   });
 
+  // Fingerprint hash-guard to prevent redundant DOM updates
+  const fingerprint = `${useLocalTimezone}_${scheduleSubTab}_` + allFiltered.map(m => {
+    const matchKey = m.isKO ? `ko_${m.match_id}` : `gs_${m.date}_${m.team1}_${m.team2}`;
+    const score = getMatchScore(matchKey);
+    const score1 = score ? score.score1 : '';
+    const score2 = score ? score.score2 : '';
+    const status = score ? score.status : '';
+    const isStarred = favorites.includes(matchKey) ? '1' : '0';
+    return `${matchKey}_${score1}_${score2}_${status}_${isStarred}`;
+  }).join('|');
+
+  if (container.getAttribute('data-schedule-hash') === fingerprint) {
+    return;
+  }
+
   if (allFiltered.length === 0) {
     const emptyMsg = scheduleSubTab === 'results'
       ? 'Belum ada hasil pertandingan yang tersedia untuk kriteria pencarian/filter ini.'
@@ -2226,16 +2241,18 @@ function renderSchedule() {
         <p>${emptyMsg}</p>
       </div>
     `;
+    container.removeAttribute('data-schedule-hash');
     return;
   }
 
   let listHtml = '';
-
   allFiltered.forEach(match => {
     listHtml += createMatchCardHtml(match, match.match_id || 0, match.isKO);
   });
 
   container.innerHTML = listHtml;
+  container.setAttribute('data-schedule-hash', fingerprint);
+  invalidateLiveClockCache(); // Live clock DOM references changed
 }
 
 // Render Dashboard/Home tab favorites
@@ -2253,6 +2270,19 @@ function renderFavorites() {
         <p>Belum ada jadwal tersimpan. Ketuk ikon bintang di tab Jadwal untuk menyimpannya.</p>
       </div>
     `;
+    container.removeAttribute('data-favorites-hash');
+    return;
+  }
+
+  const fingerprint = `${useLocalTimezone}_` + favorites.map(key => {
+    const score = getMatchScore(key);
+    const score1 = score ? score.score1 : '';
+    const score2 = score ? score.score2 : '';
+    const status = score ? score.status : '';
+    return `${key}_${score1}_${score2}_${status}`;
+  }).join('|');
+
+  if (container.getAttribute('data-favorites-hash') === fingerprint) {
     return;
   }
 
@@ -2295,6 +2325,8 @@ function renderFavorites() {
   });
 
   container.innerHTML = listHtml;
+  container.setAttribute('data-favorites-hash', fingerprint);
+  invalidateLiveClockCache(); // Live clock DOM references changed
 }
 
 let resultsSliderInterval = null;
@@ -3055,6 +3087,21 @@ function renderNearestMatches() {
         <p>Tidak ada pertandingan lainnya yang dijadwalkan.</p>
       </div>
     `;
+    container.removeAttribute('data-nearest-hash');
+    return;
+  }
+
+  const fingerprint = `${useLocalTimezone}_` + upcoming.map(m => {
+    const matchKey = m.isKO ? `ko_${m.match_id}` : `gs_${m.date}_${m.team1}_${m.team2}`;
+    const score = getMatchScore(matchKey);
+    const score1 = score ? score.score1 : '';
+    const score2 = score ? score.score2 : '';
+    const status = score ? score.status : '';
+    const isStarred = favorites.includes(matchKey) ? '1' : '0';
+    return `${matchKey}_${score1}_${score2}_${status}_${isStarred}`;
+  }).join('|');
+
+  if (container.getAttribute('data-nearest-hash') === fingerprint) {
     return;
   }
 
@@ -3064,6 +3111,8 @@ function renderNearestMatches() {
   });
 
   container.innerHTML = listHtml;
+  container.setAttribute('data-nearest-hash', fingerprint);
+  invalidateLiveClockCache(); // Live clock DOM references changed
 }
 
 let _cachedNextMatch = null;
@@ -3118,6 +3167,18 @@ function renderGroups() {
   recalculateKnockoutTree();
   const container = document.getElementById('groups-grid');
   if (!container) return;
+
+  const fingerprint = Object.keys(groupRankings).map(gName => {
+    const teams = groupRankings[gName] || [];
+    return teams.map(t => {
+      const stats = teamStats[t] || { played: 0, gd: 0, pts: 0 };
+      return `${t}_${stats.played}_${stats.gd}_${stats.pts}`;
+    }).join(',');
+  }).join('|');
+
+  if (container.getAttribute('data-groups-hash') === fingerprint) {
+    return;
+  }
 
   let gridHtml = '';
   
@@ -3184,6 +3245,7 @@ function renderGroups() {
   }
 
   container.innerHTML = gridHtml;
+  container.setAttribute('data-groups-hash', fingerprint);
 
   // Render best 3rd placed standings
   renderBestThirds();
@@ -4395,6 +4457,20 @@ function renderBracket() {
   const container = document.getElementById('bracket-cards-root');
   if (!container) return;
 
+  const fingerprint = knockoutMatches.map(m => {
+    const winner = simulatedWinners[m.match_id] || '';
+    const scoreKey = `ko_${m.match_id}`;
+    const score = getMatchScore(scoreKey);
+    const score1 = score ? score.score1 : '';
+    const score2 = score ? score.score2 : '';
+    const status = score ? score.status : '';
+    return `${m.match_id}_${m.team1}_${m.team2}_${winner}_${score1}_${score2}_${status}`;
+  }).join('|');
+
+  if (container.getAttribute('data-bracket-hash') === fingerprint) {
+    return;
+  }
+
   let cardsHtml = '';
 
   knockoutMatches.forEach(m => {
@@ -4496,6 +4572,7 @@ function renderBracket() {
   }
 
   container.innerHTML = cardsHtml;
+  container.setAttribute('data-bracket-hash', fingerprint);
   renderBracketLines();
   renderBracketSchedule();
   renderStandingsSummary();
