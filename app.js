@@ -4226,6 +4226,7 @@ window.showBracketTooltip = function(event, matchId, isClick = false) {
   }
 
   tooltip.innerHTML = getMatchTooltipHtml(match);
+  tooltip.style.visibility = 'hidden'; // Hide element while calculating size and position
   tooltip.style.display = 'block';
   tooltip.style.position = 'fixed';
 
@@ -4265,6 +4266,9 @@ window.showBracketTooltip = function(event, matchId, isClick = false) {
     // Hover mode follows mouse position
     window.moveBracketTooltip(event);
   }
+  
+  // Make it visible now that it is positioned correctly
+  tooltip.style.visibility = 'visible';
 };
 
 window.hideBracketTooltip = function(force = false) {
