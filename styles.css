@@ -2433,6 +2433,7 @@ body.light-theme .flag-crest {
   display: flex;
   align-items: center;
   justify-content: center;
+  margin-bottom: -2px;
 }
 
 .hero-status-live {
