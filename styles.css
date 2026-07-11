@@ -4290,7 +4290,7 @@ body.light-theme .countdown-container.live-active {
   position: absolute;
   top: 0;
   bottom: 0;
-  width: 8px;
+  width: 6.5px;
   z-index: 3;
   pointer-events: none;
   transition: background 0.5s ease;
