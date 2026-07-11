@@ -175,6 +175,13 @@ function compareMatchesPriority(matchA, matchB) {
 function getMatchBadgeHtml(team1, team2, match = null) {
   // If it is a Semi-final or Final match, it is a SUPER BIG MATCH (on 2 lines)
   if (match && (match.group === "Semi-final" || match.group === "Final")) {
+    if (match.group === "Semi-final" && team1 && team2) {
+      const name1 = team1.trim().toLowerCase();
+      const name2 = team2.trim().toLowerCase();
+      if (name1.includes("swiss") || name2.includes("swiss")) {
+        return '<span class="match-badge badge-big-match">BIG MATCH</span>';
+      }
+    }
     return '<span class="match-badge badge-big-match badge-super-big-match">SUPER<br>BIG MATCH</span>';
   }
   // If it is Third-place match, it is a BIG MATCH (standard)
