@@ -172,7 +172,16 @@ function compareMatchesPriority(matchA, matchB) {
   return bestRankA - bestRankB; // Ascending order
 }
 
-function getMatchBadgeHtml(team1, team2) {
+function getMatchBadgeHtml(team1, team2, match = null) {
+  // If it is a Semi-final or Final match, it is a SUPER BIG MATCH (on 2 lines)
+  if (match && (match.group === "Semi-final" || match.group === "Final")) {
+    return '<span class="match-badge badge-big-match badge-super-big-match">SUPER<br>BIG MATCH</span>';
+  }
+  // If it is Third-place match, it is a BIG MATCH (standard)
+  if (match && match.group === "Third-place match") {
+    return '<span class="match-badge badge-big-match">BIG MATCH</span>';
+  }
+
   if (!team1 || !team2) return '';
 
   // Exclude Norwegia vs Senegal matchup
@@ -1446,7 +1455,7 @@ function updateHeroPanel() {
     if (lastHeroMatchKey !== liveKey) {
       lastHeroMatchKey = liveKey;
 
-      const isBigMatch = getMatchBadgeHtml(m.team1, m.team2) !== '';
+      const isBigMatch = getMatchBadgeHtml(m.team1, m.team2, m) !== '';
       const liveParts = getMatchLiveStatusParts(scoreData, matchKey);
       const venue = getMatchVenue(m);
       const stageName = (m.isKO ? translateRoundName(m.group) : `Grup ${m.group.replace('Grup ', '')}`).toUpperCase();
@@ -1623,7 +1632,7 @@ function updateHeroPanel() {
     if (lastHeroMatchKey !== cdKey) {
       lastHeroMatchKey = cdKey;
 
-      const isBigMatch = getMatchBadgeHtml(targetMatch.team1, targetMatch.team2) !== '';
+      const isBigMatch = getMatchBadgeHtml(targetMatch.team1, targetMatch.team2, targetMatch) !== '';
       const textTitle = isOpening ? `Kick-Off Laga Pertama` : `Kick-Off Laga Berikutnya`;
       titleEl.innerHTML = `
         <span>${textTitle}</span>
@@ -1715,7 +1724,7 @@ function updateHeroPanel() {
   if (lastHeroMatchKey !== cdKey) {
     lastHeroMatchKey = cdKey;
 
-    const isBigMatch = getMatchBadgeHtml(targetMatch.team1, targetMatch.team2) !== '';
+    const isBigMatch = getMatchBadgeHtml(targetMatch.team1, targetMatch.team2, targetMatch) !== '';
     const textTitle = isOpening ? `Kick-Off Laga Pertama` : `Kick-Off Laga Berikutnya`;
     titleEl.innerHTML = `
       <span>${textTitle}</span>
@@ -1925,7 +1934,7 @@ function createMatchCardHtml(match, index, isKnockout = false, showBigMatchBadge
   ` : `
     <div class="match-header">
       ${stageHeaderHtml}
-      ${showBigMatchBadge ? getMatchBadgeHtml(match.team1, match.team2) : ''}
+      ${showBigMatchBadge ? getMatchBadgeHtml(match.team1, match.team2, match) : ''}
       <span class="match-date-label">${timeInfo.date}</span>
     </div>
   `;
