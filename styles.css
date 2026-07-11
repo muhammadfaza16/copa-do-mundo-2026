@@ -1063,7 +1063,7 @@ body.light-theme .match-week {
 }
 
 .match-scorers-row {
-  margin: -2px 0 8px;
+  margin: -2px 0 2px;
   border-top: 0.5px solid rgba(255, 255, 255, 0.06);
 }
 
@@ -1072,7 +1072,7 @@ body.light-theme .match-scorers-row {
 }
 
 .match-redcards-row {
-  margin: -4px 0 8px;
+  margin: -4px 0 2px;
 }
 
 .match-redcards-row.no-scorers {
