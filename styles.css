@@ -2956,6 +2956,10 @@ body.light-theme .welcome-mascot-side {
   .countdown-container {
     padding: 16px 14px 14px;
   }
+  
+  .countdown-container.live-active {
+    padding-bottom: 10px;
+  }
 
   .section-title {
     font-size: 0.95rem;
@@ -4269,6 +4273,7 @@ body.light-theme .status-badge.gugur {
   border-color: var(--glass-border);
   box-shadow: var(--shadow-lg);
   overflow: hidden; /* Contain diagonal sweep */
+  padding-bottom: 14px;
 }
 
 body.light-theme .countdown-container.live-active {
