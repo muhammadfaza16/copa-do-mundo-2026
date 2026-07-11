@@ -1202,7 +1202,7 @@ body.light-theme .match-redcards-row.no-scorers {
     #d4af37 70%
   );
   background-size: 200% auto;
-  animation: goldShimmer 6s infinite linear;
+  animation: goldShimmer 12s infinite linear;
   color: #000000;
   font-weight: 800;
   text-transform: uppercase;
@@ -1286,7 +1286,7 @@ body.light-theme .badge-big-match.badge-super-big-match {
     #b3001e 70%
   );
   background-size: 200% auto;
-  animation: superShimmer 6s infinite linear;
+  animation: superShimmer 12s infinite linear;
   color: #ffffff;
   font-weight: 800;
   text-align: center;
