@@ -2385,7 +2385,7 @@ function renderLatestResults() {
       match: m,
       time: getMatchKickoffTime(m)
     }));
-    matchesWithTime.sort((a, b) => a.time - b.time); // Chronological order
+    matchesWithTime.sort((a, b) => b.time - a.time); // Reverse chronological order (most recent first)
     latestMatches = matchesWithTime.map(x => x.match);
   } else {
     // Sort by match date/time descending (most recent matches first)
