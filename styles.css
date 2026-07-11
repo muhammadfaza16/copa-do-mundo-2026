@@ -1231,7 +1231,7 @@ body.light-theme .badge-big-match {
   line-height: 1.15;
   text-align: center;
   padding: 3px 8px;
-  border-radius: 8px;
+  border-radius: 12px;
   transform: translate(-50%, -3px);
   display: inline-block;
   white-space: normal;
