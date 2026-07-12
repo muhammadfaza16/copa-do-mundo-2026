@@ -1462,7 +1462,15 @@ function updateHeroPanel() {
     if (lastHeroMatchKey !== liveKey) {
       lastHeroMatchKey = liveKey;
 
-      const isBigMatch = getMatchBadgeHtml(m.team1, m.team2, m) !== '';
+      let badgeHtml = getMatchBadgeHtml(m.team1, m.team2, m);
+      const isBigMatch = badgeHtml !== '';
+      if (isBigMatch) {
+        const isSuper = badgeHtml.includes('badge-super-big-match');
+        const inlineStyle = isSuper
+          ? 'style="position: static; transform: none; display: inline-block; white-space: normal;"'
+          : 'style="position: static; transform: none; font-size: 0.55rem; padding: 2px 8px; white-space: nowrap;"';
+        badgeHtml = badgeHtml.replace('<span ', `<span ${inlineStyle} `);
+      }
       const liveParts = getMatchLiveStatusParts(scoreData, matchKey);
       const venue = getMatchVenue(m);
       const stageName = (m.isKO ? translateRoundName(m.group) : `Grup ${m.group.replace('Grup ', '')}`).toUpperCase();
@@ -1483,7 +1491,7 @@ function updateHeroPanel() {
           <div class="live-info-wrapper" style="display: flex; flex-direction: column; align-items: center; gap: 4px; width: 100%;">
             ${isBigMatch ? `
             <div style="display: flex; justify-content: center; margin-bottom: 6px;">
-              <span class="badge-big-match" style="position: static; transform: none; font-size: 0.55rem; padding: 2px 8px; white-space: nowrap;">BIG MATCH</span>
+              ${badgeHtml}
             </div>
             ` : ''}
             
@@ -1639,7 +1647,16 @@ function updateHeroPanel() {
     if (lastHeroMatchKey !== cdKey) {
       lastHeroMatchKey = cdKey;
 
-      const isBigMatch = getMatchBadgeHtml(targetMatch.team1, targetMatch.team2, targetMatch) !== '';
+      let badgeHtml = getMatchBadgeHtml(targetMatch.team1, targetMatch.team2, targetMatch);
+      if (badgeHtml) {
+        const isSuper = badgeHtml.includes('badge-super-big-match');
+        const inlineStyle = isSuper
+          ? 'style="position: static; transform: none; margin: 0 0 2px 0; display: inline-block; white-space: normal;"'
+          : 'style="position: static; transform: none; margin: 0 0 2px 0;"';
+        badgeHtml = badgeHtml.replace('<span ', `<span ${inlineStyle} `);
+      } else {
+        badgeHtml = '';
+      }
       const textTitle = isOpening ? `Kick-Off Laga Pertama` : `Kick-Off Laga Berikutnya`;
       titleEl.innerHTML = `
         <span>${textTitle}</span>
@@ -1657,9 +1674,6 @@ function updateHeroPanel() {
         cdTeamRow.className = 'countdown-teams-row';
         cdDisplay.parentNode.insertBefore(cdTeamRow, subEl);
       }
-      const badgeHtml = isBigMatch
-        ? `<span class="match-badge badge-big-match" style="position: static; transform: none; margin: 0 0 2px 0;">BIG MATCH</span>`
-        : '';
 
       const rank1 = FIFA_RANKINGS[targetMatch.team1];
       const rank2 = FIFA_RANKINGS[targetMatch.team2];
@@ -1731,7 +1745,16 @@ function updateHeroPanel() {
   if (lastHeroMatchKey !== cdKey) {
     lastHeroMatchKey = cdKey;
 
-    const isBigMatch = getMatchBadgeHtml(targetMatch.team1, targetMatch.team2, targetMatch) !== '';
+    let badgeHtml = getMatchBadgeHtml(targetMatch.team1, targetMatch.team2, targetMatch);
+    if (badgeHtml) {
+      const isSuper = badgeHtml.includes('badge-super-big-match');
+      const inlineStyle = isSuper
+        ? 'style="position: static; transform: none; margin: 0 0 2px 0; display: inline-block; white-space: normal;"'
+        : 'style="position: static; transform: none; margin: 0 0 2px 0;"';
+      badgeHtml = badgeHtml.replace('<span ', `<span ${inlineStyle} `);
+    } else {
+      badgeHtml = '';
+    }
     const textTitle = isOpening ? `Kick-Off Laga Pertama` : `Kick-Off Laga Berikutnya`;
     titleEl.innerHTML = `
       <span>${textTitle}</span>
@@ -1750,9 +1773,6 @@ function updateHeroPanel() {
       cdTeamRow.className = 'countdown-teams-row';
       cdDisplay.parentNode.insertBefore(cdTeamRow, subEl);
     }
-    const badgeHtml = isBigMatch
-      ? `<span class="match-badge badge-big-match" style="position: static; transform: none; margin: 0 0 2px 0;">BIG MATCH</span>`
-      : '';
 
     const rank1 = FIFA_RANKINGS[targetMatch.team1];
     const rank2 = FIFA_RANKINGS[targetMatch.team2];
