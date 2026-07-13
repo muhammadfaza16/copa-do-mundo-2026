@@ -182,7 +182,7 @@ function getMatchBadgeHtml(team1, team2, match = null) {
         return '<span class="match-badge badge-big-match">BIG MATCH</span>';
       }
     }
-    return '<span class="match-badge badge-big-match badge-super-big-match">SUPER<br>BIG MATCH</span>';
+    return '<span class="match-badge badge-big-match badge-super-big-match"><span>SUPER</span><span>BIG MATCH</span></span>';
   }
   // If it is Third-place match, it is a BIG MATCH (standard)
   if (match && match.group === "Third-place match") {
@@ -1467,7 +1467,7 @@ function updateHeroPanel() {
       if (isBigMatch) {
         const isSuper = badgeHtml.includes('badge-super-big-match');
         const inlineStyle = isSuper
-          ? 'style="position: static; transform: none; display: inline-block; white-space: normal;"'
+          ? 'style="position: static; transform: none; display: inline-flex; white-space: normal;"'
           : 'style="position: static; transform: none; font-size: 0.55rem; padding: 2px 8px; white-space: nowrap;"';
         badgeHtml = badgeHtml.replace('<span ', `<span ${inlineStyle} `);
       }
@@ -1651,7 +1651,7 @@ function updateHeroPanel() {
       if (badgeHtml) {
         const isSuper = badgeHtml.includes('badge-super-big-match');
         const inlineStyle = isSuper
-          ? 'style="position: static; transform: none; margin: 0 0 2px 0; display: inline-block; white-space: normal;"'
+          ? 'style="position: static; transform: none; margin: 0 0 2px 0; display: inline-flex; white-space: normal;"'
           : 'style="position: static; transform: none; margin: 0 0 2px 0;"';
         badgeHtml = badgeHtml.replace('<span ', `<span ${inlineStyle} `);
       } else {
@@ -1749,7 +1749,7 @@ function updateHeroPanel() {
     if (badgeHtml) {
       const isSuper = badgeHtml.includes('badge-super-big-match');
       const inlineStyle = isSuper
-        ? 'style="position: static; transform: none; margin: 0 0 2px 0; display: inline-block; white-space: normal;"'
+        ? 'style="position: static; transform: none; margin: 0 0 2px 0; display: inline-flex; white-space: normal;"'
         : 'style="position: static; transform: none; margin: 0 0 2px 0;"';
       badgeHtml = badgeHtml.replace('<span ', `<span ${inlineStyle} `);
     } else {

@@ -1228,12 +1228,15 @@ body.light-theme .badge-big-match {
 /* ── Super Big Match (2 Lines) ── */
 .badge-big-match.badge-super-big-match {
   font-size: 0.44rem;
-  line-height: 1.3;
+  line-height: 1.1;
   text-align: center;
-  padding: 3px 8px;
+  padding: 4px 8px;
   border-radius: 12px;
   transform: translate(-50%, -3px);
-  display: inline-block;
+  display: inline-flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
   white-space: normal;
   background: linear-gradient(
     60deg,
