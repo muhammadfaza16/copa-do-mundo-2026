@@ -3052,7 +3052,20 @@ function getNextMatch() {
   }
   
   const allMatches = getAllMatches();
+  
+  // Check if both semifinal matches are completed (have winners/decided either via API or simulation)
+  const semiFinalsCompleted = allMatches.filter(m => m.group === 'Semi-final')
+    .every(m => {
+      if (simulatedWinners && simulatedWinners[m.match_id]) return true;
+      const matchKey = m.isKO ? `ko_${m.match_id}` : `gs_${m.date}_${m.team1}_${m.team2}`;
+      const scoreData = getMatchScore(matchKey);
+      return scoreData && scoreData.status === 'FINISHED';
+    });
+
   const upcoming = allMatches.filter(m => {
+    if (semiFinalsCompleted && m.group === 'Third-place match') {
+      return false;
+    }
     const matchKey = m.isKO ? `ko_${m.match_id}` : `gs_${m.date}_${m.team1}_${m.team2}`;
     const scoreData = getMatchScore(matchKey);
     if (scoreData && scoreData.status === 'FINISHED') return false;
